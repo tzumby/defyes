@@ -1,0 +1,6 @@
+web3
+requests
+datetime
+pathlib
+eth_abi
+setuptools
