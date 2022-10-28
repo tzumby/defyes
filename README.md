@@ -13,7 +13,7 @@
 
 ## Lerning
 
-### How  I create the package and useful commands!!
+### How I created the package and useful commands!!
 
 - You will have to create `__init__.py` in each of the folder you want to make it work as a module
 
