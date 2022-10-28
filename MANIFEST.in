@@ -3,7 +3,8 @@ graft wheelhouse
 
 recursive-exclude __pycache__  *.pyc *.pyo *.orig
 
-exclude *.js*
+include general/defi-config.json
+include *.json
 exclude *.git*
 exclude *.coveragerc
 exclude *.sh

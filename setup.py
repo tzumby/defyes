@@ -3,19 +3,16 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
-    name="kpk-defi-protocols", # Replace with your own username
-    version="0.0.6",
+    name="defi-protocols",
+    version="0.0.1",
     author="dharmendrakariya",
-    author_email="dharamendra.kariya@gmail.com",
-    description="A simple kpk defi-protocols package",
+    author_email="dharmendra@karpatkey.com",
+    description="A simple defi-protocols package",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="",
+    url="https://github.com/KarpatkeyDAO/defi-protocols",
     packages=setuptools.find_packages(),
     include_package_data=True,
-    # cmdclass={
-    #     "package": Package
-    # },
     install_requires=[
           'web3',
           'requests',

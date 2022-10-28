@@ -21,11 +21,12 @@ defi_protocols/Symmetric.py
 defi_protocols/UniswapV3.py
 defi_protocols/Unit.py
 defi_protocols/__init__.py
+defi_protocols.egg-info/PKG-INFO
+defi_protocols.egg-info/SOURCES.txt
+defi_protocols.egg-info/dependency_links.txt
+defi_protocols.egg-info/requires.txt
+defi_protocols.egg-info/top_level.txt
 general/__init__.py
 general/blockchain_functions.py
+general/defi-config.json
 general/general_constants.py
-kpk_defi_protocols.egg-info/PKG-INFO
-kpk_defi_protocols.egg-info/SOURCES.txt
-kpk_defi_protocols.egg-info/dependency_links.txt
-kpk_defi_protocols.egg-info/requires.txt
-kpk_defi_protocols.egg-info/top_level.txt

@@ -27,108 +27,60 @@ GOERLI = 'goerli'
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/config.json', 'r') as config_file:
-#         # Reading from json file
-#         config_data = json.load(config_file)
-#         config_file.close()
-
-# NODE_ETH = {
-#     'latest': config_data['nodes'][ETHEREUM]['latest'],
-#     'archival': config_data['nodes'][ETHEREUM]['archival']
-# }
-
-# NODE_POL = {
-#     'latest': config_data['nodes'][POLYGON]['latest'],
-#     'archival': config_data['nodes'][POLYGON]['archival']
-# }
-
-# NODE_XDAI = {
-#     'latest': config_data['nodes'][XDAI]['latest'],
-#     'archival': config_data['nodes'][XDAI]['archival']
-# }
-
-# NODE_BINANCE = {
-#     'latest': config_data['nodes'][BINANCE]['latest'],
-#     'archival': config_data['nodes'][BINANCE]['archival']
-# }
-
-# NODE_AVALANCHE = {
-#     'latest': config_data['nodes'][AVALANCHE]['latest'],
-#     'archival': config_data['nodes'][AVALANCHE]['archival']
-# }
-
-# NODE_FANTOM = {
-#     'latest': config_data['nodes'][FANTOM]['latest'],
-#     'archival': config_data['nodes'][FANTOM]['archival']
-# }
-
-# #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# # TESTNETS
-# #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# NODE_ROPSTEN = {
-#     'latest': config_data['nodes'][ROPSTEN]['latest'],
-#     'archival': config_data['nodes'][ROPSTEN]['archival']
-# }
-
-# NODE_KOVAN = {
-#     'latest': config_data['nodes'][KOVAN]['latest'],
-#     'archival': config_data['nodes'][KOVAN]['archival']
-# }
-
-# NODE_GOERLI = {
-#     'latest': config_data['nodes'][GOERLI]['latest'],
-#     'archival': config_data['nodes'][GOERLI]['archival']
-# }
-
-
+with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/general/defi-config.json', 'r') as config_file:
+        # Reading from json file
+        config_data = json.load(config_file)
+        config_file.close()
 
 NODE_ETH = {
-    'latest': ['https://eth-mainnet.g.alchemy.com/v2/ki4i9jNJQvVOD51oXAa9RWK1tptcFFqV', 'https://eth-mainnet.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': ['https://eth-mainnet.g.alchemy.com/v2/ki4i9jNJQvVOD51oXAa9RWK1tptcFFqV', 'https://rpc.ankr.com/eth', 'https://eth-archival.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c', 'https://eth-mainnet.nodereal.io/v1/9f5c0354b11047cea3e9202de2c1eab0']
+    'latest': config_data['nodes'][ETHEREUM]['latest'],
+    'archival': config_data['nodes'][ETHEREUM]['archival']
 }
 
 NODE_POL = {
-    'latest': ['https://polygon-mainnet.g.alchemy.com/v2/AgULU1yvFJfC-QCT42MDcAtz6LfqTG4m','https://poly-mainnet.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c', 'https://polygon-rpc.com'],
-    'archival': ['https://polygon-mainnet.g.alchemy.com/v2/AgULU1yvFJfC-QCT42MDcAtz6LfqTG4m', 'https://rpc.ankr.com/polygon', 'https://poly-archival.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c']
+    'latest': config_data['nodes'][POLYGON]['latest'],
+    'archival': config_data['nodes'][POLYGON]['archival']
 }
 
 NODE_XDAI = {
-    'latest': ['https://rpc.gnosischain.com/', 'https://gnosischain-rpc.gateway.pokt.network/', 'https://rpc.ankr.com/gnosis', 'https://gno.getblock.io/mainnet/?api_key=ec8f1352-32ad-4b35-a037-d899e5601b62', 'https://poa-xdai.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': ['https://rpc.ankr.com/gnosis', 'https://poa-xdai-archival.gateway.pokt.network/v1/lb/629a5a7050ec8c0039bbbc39', 'https://poa-xdai-archival.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c']
+    'latest': config_data['nodes'][XDAI]['latest'],
+    'archival': config_data['nodes'][XDAI]['archival']
 }
 
 NODE_BINANCE = {
-    'latest': ['https://bsc-dataseed.binance.org/', 'https://bsc-dataseed1.defibit.io/', 'https://bsc-dataseed1.ninicoin.io/', 'https://bsc-mainnet.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': ['https://bsc-mainnet.nodereal.io/v1/214197d3408f4bdda6568d5d414a59ae']
+    'latest': config_data['nodes'][BINANCE]['latest'],
+    'archival': config_data['nodes'][BINANCE]['archival']
 }
 
 NODE_AVALANCHE = {
-    'latest': ['https://avax-mainnet.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': ['https://api.avax.network/ext/bc/C/rpc', 'https://avax-archival.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c']
+    'latest': config_data['nodes'][AVALANCHE]['latest'],
+    'archival': config_data['nodes'][AVALANCHE]['archival']
 }
 
 NODE_FANTOM = {
-    'latest': ['https://rpc.ftm.tools/', 'https://fantom-mainnet.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': ['https://rpc.ankr.com/fantom']
+    'latest': config_data['nodes'][FANTOM]['latest'],
+    'archival': config_data['nodes'][FANTOM]['archival']
 }
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # TESTNETS
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 NODE_ROPSTEN = {
-    'latest': ['https://eth-ropsten.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': []
+    'latest': config_data['nodes'][ROPSTEN]['latest'],
+    'archival': config_data['nodes'][ROPSTEN]['archival']
 }
 
 NODE_KOVAN = {
-    'latest': ['https://poa-kovan.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': []
+    'latest': config_data['nodes'][KOVAN]['latest'],
+    'archival': config_data['nodes'][KOVAN]['archival']
 }
 
 NODE_GOERLI = {
-    'latest': ['https://eth-goerli.gateway.pokt.network/v1/lb/629a5b7d50ec8c0039bbbf0c'],
-    'archival': []
+    'latest': config_data['nodes'][GOERLI]['latest'],
+    'archival': config_data['nodes'][GOERLI]['archival']
 }
+
+
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -210,29 +162,6 @@ X3CRV_POL = '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171'
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# WALLETS
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# DAO Wallets
-WALLET_39D = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-WALLET_E6F = '0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f'
-WALLET_7CC = '0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC'
-WALLET_5F0 = '0x77bcb57ba7037e39063f1567ce734452bbD7a5F0'
-
-# LTD Wallets
-WALLET_462 = '0x4971DD016127F390a3EF6b956Ff944d0E2e1e462'
-WALLET_8A3 = '0xe615bb53aC71e621167751FA5A9366E5D01D88a3'
-WALLET_969 = '0x10E4597fF93cbee194F4879f8f1d54a370DB6969'
-
-# KPK Wallets
-WALLET_6E9 = '0x46f6B1D519a5bDaf10d49e135c9F611c9bd126e9'
-WALLET_E1C = '0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C'
-WALLET_A9A = '0x5FF85ECf773Ea3885Cb4b691068AB6d7BF8BDa9A'
-
-
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROTOCOLS
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -257,24 +186,16 @@ UNIT = 'Unit'
 # API KEYS
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-API_KEY_ETHERSCAN = 'W1TK6XRQHME8X29PATD7YSXEHZ2QZJQPZE'
-API_KEY_POLSCAN   = 'WQDQG6SJSURP8FPIYR6YZ5WWGTIUCZAXKY'
-API_KEY_GNOSISSCAN = '3DS98QBPYWGYHT4KFQV8S4Q727GYBJ74YN'
-API_KEY_BINANCE = 'QWYSFBURCYPH4QYT8BX277S436EVEFIIJI'
-API_KEY_AVALANCHE = 'Z47JD79PBFFEUD6I6K5D4RB58WTGURPAAY'
-API_KEY_FANTOM = 'N7EFVFCG7SBRIZZZWJ4VGC786JFAH8A3ZZ'
-
-API_KEY_ETHPLORER = 'EK-qGMsQ-ghT7G9u-QsJLE'
 
 
-# API_KEY_ETHERSCAN = config_data['apikeys']['etherscan']
-# API_KEY_POLSCAN   = config_data['apikeys']['polscan']
-# API_KEY_GNOSISSCAN = config_data['apikeys']['gnosisscan']
-# API_KEY_BINANCE = config_data['apikeys']['binance']
-# API_KEY_AVALANCHE = config_data['apikeys']['avalanche']
-# API_KEY_FANTOM = config_data['apikeys']['fantom']
+API_KEY_ETHERSCAN = config_data['apikeys']['etherscan']
+API_KEY_POLSCAN   = config_data['apikeys']['polscan']
+API_KEY_GNOSISSCAN = config_data['apikeys']['gnosisscan']
+API_KEY_BINANCE = config_data['apikeys']['binance']
+API_KEY_AVALANCHE = config_data['apikeys']['avalanche']
+API_KEY_FANTOM = config_data['apikeys']['fantom']
 
-# API_KEY_ETHPLORER = config_data['apikeys']['ethplorer']
+API_KEY_ETHPLORER = config_data['apikeys']['ethplorer']
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
