@@ -25,7 +25,7 @@
 
 - NOT MANDATORY: Create requirements.txt, with the help of this you can mention needed packages for this package, which should be installed as a dependencies and should be mentioned in `setup.py`
 
-- Create `setup.py` , in that you can mention all the details needed, checkout the reference for the help! Google it , lol
+- Create `setup.py` , in that you can mention all the details needed, checkout the reference for the help!
 
 - Create beautiful `README.md` with the package use case!
 
