@@ -42,4 +42,4 @@
 - Give `Username` and `Password` of your `pypi` account
 
 
-## Take out: It should be really easy if you are not dumbfuck like me! Make sure you check you python path is set properly, otherwise you gonna rot in hell indefinitely, JK, this guide wont make you go through that!
+## Take out: It should be really easy if you are not dumbfuck like me! Make sure you check your python path is set properly, otherwise you gonna rot in hell indefinitely, JK, this guide wont make you go through that!
