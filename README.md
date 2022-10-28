@@ -2,7 +2,13 @@
 
 ## Install
 
-[pip3 install kpk-defi-protocols](https://pypi.org/project/kpk-defi-protocols/0.0.6/)
+[pip3 install kpk-defi-protocols](https://pypi.org/project/kpk-defi-protocols/0.1.0/)
+
+## Config 
+
+- First you will have to modify the `defi-config.json` under `/path/to/python/site-packages/general/defi-config.json`
+
+- You should provide `RPC` endpoints and `EXPLORER API KEYS`
 
 ## Test
 
@@ -10,13 +16,12 @@
 
 - Create a test.py and paste the below code
 
-- Make sure you have python path set ( i was facing issue with that and I had to define the import path)
+- Make sure you have python path set ( First 2 lines, I was facing issue with that and I had to define the import path)
 
 
 ```
-import sys
-# sys.path.append("/home/dk/Documents/KPK-PUBLIC_REPOS/defi/defi")
-sys.path.append("/home/dk/.local/lib/python3.10/site-packages")
+# import sys
+# sys.path.append("/home/dk/.local/lib/python3.10/site-packages")
 from defi_protocols import Aave
 from general import blockchain_functions as bf
 from general import general_constants as gc
