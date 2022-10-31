@@ -1,55 +1,55 @@
-# from general.blockchain_functions import *
-# from price_feeds import Prices
-# from pathlib import Path
-# import os
+from general.blockchain_functions import *
+from price_feeds import Prices
+from pathlib import Path
+import os
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # SYMMETRIC VAULT
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # xDAI - Symmetric Vault Contract Address
-# VAULT_XDAI = '0x24F87b37F4F249Da61D89c3FF776a55c321B2773'
+VAULT_XDAI = '0x24F87b37F4F249Da61D89c3FF776a55c321B2773'
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # SYMMCHEF
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # xDAI - SymmChef Contract Address
-# SYMMCHEF_XDAI = '0xdf667DeA9F6857634AaAf549cA40E06f04845C03'
+SYMMCHEF_XDAI = '0xdf667DeA9F6857634AaAf549cA40E06f04845C03'
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # ABIs
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # Symmetric Vault ABI - getPoolTokens
-# ABI_VAULT = '[{"type":"function","stateMutability":"view","outputs":[{"type":"address[]","name":"tokens","internalType":"contract IERC20[]"},{"type":"uint256[]","name":"balances","internalType":"uint256[]"},{"type":"uint256","name":"lastChangeBlock","internalType":"uint256"}],"name":"getPoolTokens","inputs":[{"type":"bytes32","name":"poolId","internalType":"bytes32"}]}]'
+ABI_VAULT = '[{"type":"function","stateMutability":"view","outputs":[{"type":"address[]","name":"tokens","internalType":"contract IERC20[]"},{"type":"uint256[]","name":"balances","internalType":"uint256[]"},{"type":"uint256","name":"lastChangeBlock","internalType":"uint256"}],"name":"getPoolTokens","inputs":[{"type":"bytes32","name":"poolId","internalType":"bytes32"}]}]'
 
 # # Chefs V2 ABI - SYMM, rewarder, pendingSymm, lpToken, userInfo, poolLength, poolInfo, symmPerSecond, totalAllocPoint
-# ABI_CHEF_V2 = '[{"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"contract IERC20"}],"name":"SYMM","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"contract IRewarder"}],"name":"rewarder","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"pending","internalType":"uint256"}],"name":"pendingSymm","inputs":[{"type":"uint256","name":"_pid","internalType":"uint256"},{"type":"address","name":"_user","internalType":"address"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"contract IERC20"}],"name":"lpToken","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"amount","internalType":"uint256"},{"type":"int256","name":"rewardDebt","internalType":"int256"}],"name":"userInfo","inputs":[{"type":"uint256","name":"","internalType":"uint256"},{"type":"address","name":"","internalType":"address"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"pools","internalType":"uint256"}],"name":"poolLength","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint128","name":"accSymmPerShare","internalType":"uint128"},{"type":"uint64","name":"lastRewardTime","internalType":"uint64"},{"type":"uint64","name":"allocPoint","internalType":"uint64"}],"name":"poolInfo","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"symmPerSecond","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"totalAllocPoint","inputs":[]}]'
+ABI_CHEF_V2 = '[{"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"contract IERC20"}],"name":"SYMM","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"contract IRewarder"}],"name":"rewarder","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"pending","internalType":"uint256"}],"name":"pendingSymm","inputs":[{"type":"uint256","name":"_pid","internalType":"uint256"},{"type":"address","name":"_user","internalType":"address"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"contract IERC20"}],"name":"lpToken","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"amount","internalType":"uint256"},{"type":"int256","name":"rewardDebt","internalType":"int256"}],"name":"userInfo","inputs":[{"type":"uint256","name":"","internalType":"uint256"},{"type":"address","name":"","internalType":"address"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"pools","internalType":"uint256"}],"name":"poolLength","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint128","name":"accSymmPerShare","internalType":"uint128"},{"type":"uint64","name":"lastRewardTime","internalType":"uint64"},{"type":"uint64","name":"allocPoint","internalType":"uint64"}],"name":"poolInfo","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"symmPerSecond","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"totalAllocPoint","inputs":[]}]'
 
 # # Rewarder ABI - rewardToken, pendingTokens, rewardPerSecond, poolInfo
-# ABI_REWARDER = '[{"inputs":[{"internalType":"uint256","name":"pid","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"pendingTokens","outputs":[{"internalType":"contract IERC20[]","name":"rewardTokens","type":"address[]"},{"internalType":"uint256[]","name":"rewardAmounts","type":"uint256[]"}],"stateMutability":"view","type":"function"}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"rewardPerSecond","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint128","name":"accSymmPerShare","internalType":"uint128"},{"type":"uint64","name":"lastRewardTime","internalType":"uint64"},{"type":"uint64","name":"allocPoint","internalType":"uint64"}],"name":"poolInfo","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}]'
+ABI_REWARDER = '[{"inputs":[{"internalType":"uint256","name":"pid","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"pendingTokens","outputs":[{"internalType":"contract IERC20[]","name":"rewardTokens","type":"address[]"},{"internalType":"uint256[]","name":"rewardAmounts","type":"uint256[]"}],"stateMutability":"view","type":"function"}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"rewardPerSecond","inputs":[]}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint128","name":"accSymmPerShare","internalType":"uint128"},{"type":"uint64","name":"lastRewardTime","internalType":"uint64"},{"type":"uint64","name":"allocPoint","internalType":"uint64"}],"name":"poolInfo","inputs":[{"type":"uint256","name":"","internalType":"uint256"}]}]'
 
 # # LP Token ABI - getPoolId, decimals, totalSupply, getReserves, balanceOf
-# ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getReserves","outputs":[{"internalType":"uint112","name":"_reserve0","type":"uint112"},{"internalType":"uint112","name":"_reserve1","type":"uint112"},{"internalType":"uint32","name":"_blockTimestampLast","type":"uint32"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getReserves","outputs":[{"internalType":"uint112","name":"_reserve0","type":"uint112"},{"internalType":"uint112","name":"_reserve1","type":"uint112"},{"internalType":"uint32","name":"_blockTimestampLast","type":"uint32"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_vault_contract
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_vault_contract(web3, block, blockchain):
+def get_vault_contract(web3, block, blockchain):
     
-#     if blockchain == XDAI:
-#         vault_contract = get_contract(VAULT_XDAI, blockchain, web3 = web3, abi = ABI_VAULT, block = block)
+    if blockchain == XDAI:
+        vault_contract = get_contract(VAULT_XDAI, blockchain, web3 = web3, abi = ABI_VAULT, block = block)
 
-#     return vault_contract
+    return vault_contract
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_chef_contract
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_chef_contract(web3, block, blockchain):
+def get_chef_contract(web3, block, blockchain):
     
-#     if blockchain == XDAI:
-#         chef_contract = get_contract(SYMMCHEF_XDAI, blockchain, web3 = web3, abi = ABI_CHEF_V2, block = block)
+    if blockchain == XDAI:
+        chef_contract = get_contract(SYMMCHEF_XDAI, blockchain, web3 = web3, abi = ABI_CHEF_V2, block = block)
 
-#     return chef_contract
+    return chef_contract
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_pool_info
@@ -61,25 +61,25 @@
 # #                 }
 # #                 result['totalAllocPoint']: totalAllocPoint
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_pool_info(web3, lptoken_address, block, blockchain):
+def get_pool_info(web3, lptoken_address, block, blockchain):
 
-#     result = {}
-#     with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'r') as db_file:
-#         # Reading from json file
-#         db_data = json.load(db_file)
+    result = {}
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'r') as db_file:
+        # Reading from json file
+        db_data = json.load(db_file)
 
-#     try:
-#         result['chef_contract'] = get_chef_contract(web3, block, blockchain)
-#         result['pool_info'] = {
-#             'poolId': db_data[blockchain]['pools'][lptoken_address],
-#             'allocPoint': result['chef_contract'].functions.poolInfo(db_data[blockchain]['pools'][lptoken_address]).call(block_identifier = block)[2]
-#         }
-#         result['totalAllocPoint'] = result['chef_contract'].functions.totalAllocPoint().call(block_identifier = block)
+    try:
+        result['chef_contract'] = get_chef_contract(web3, block, blockchain)
+        result['pool_info'] = {
+            'poolId': db_data[blockchain]['pools'][lptoken_address],
+            'allocPoint': result['chef_contract'].functions.poolInfo(db_data[blockchain]['pools'][lptoken_address]).call(block_identifier = block)[2]
+        }
+        result['totalAllocPoint'] = result['chef_contract'].functions.totalAllocPoint().call(block_identifier = block)
 
-#         return result
+        return result
 
-#     except:
-#         return None
+    except:
+        return None
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_lptoken_data
@@ -88,63 +88,63 @@
 # # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # # 'web3' = web3 (Node) -> Improves performance
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_lptoken_data(lptoken_address, block, blockchain, **kwargs):
+def get_lptoken_data(lptoken_address, block, blockchain, **kwargs):
 
-#     try:
-#         execution = kwargs['execution']
-#     except:
-#         execution = 1
+    try:
+        execution = kwargs['execution']
+    except:
+        execution = 1
 
-#     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
-#     if execution > MAX_EXECUTIONS:
-#         return None
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if execution > MAX_EXECUTIONS:
+        return None
 
-#     try:
-#         index = kwargs['index']
-#     except:
-#         index = 0
+    try:
+        index = kwargs['index']
+    except:
+        index = 0
     
-#     try:
-#         web3 = kwargs['web3']
-#     except:
-#         web3 = None
+    try:
+        web3 = kwargs['web3']
+    except:
+        web3 = None
 
-#     try:
-#         if web3 == None: 
-#             web3 = get_node(blockchain, block = block, index = index)
+    try:
+        if web3 == None:
+            web3 = get_node(blockchain, block = block, index = index)
 
-#         lptoken_data = {}
+        lptoken_data = {}
         
-#         lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3 = web3, abi = ABI_LPTOKEN, block = block)
-#         lptoken_data['poolId'] = lptoken_data['contract'].functions.getPoolId().call()
-#         lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
-#         lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier = block)
+        lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3 = web3, abi = ABI_LPTOKEN, block = block)
+        lptoken_data['poolId'] = lptoken_data['contract'].functions.getPoolId().call()
+        lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+        lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier = block)
 
-#         return lptoken_data
+        return lptoken_data
     
-#     except GetNodeLatestIndexError:
-#         index = 0
+    except GetNodeLatestIndexError:
+        index = 0
 
-#         return get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index, execution = execution + 1)
+        return get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index, execution = execution + 1)
     
-#     except GetNodeArchivalIndexError:
-#         index = 0
+    except GetNodeArchivalIndexError:
+        index = 0
 
-#         return get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index, execution = execution + 1)
+        return get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index, execution = execution + 1)
     
-#     except Exception as Ex:
-#         traceback.print_exc()
-#         return get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index + 1, execution = execution)
+    except Exception as Ex:
+        traceback.print_exc()
+        return get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index + 1, execution = execution)
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_rewarder_contract
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id):
+def get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id):
 
-#     rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call()
-#     rewarder_contract = get_contract(rewarder_contract_address, blockchain, web3 = web3, abi = ABI_REWARDER, block = block)
+    rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call()
+    rewarder_contract = get_contract(rewarder_contract_address, blockchain, web3 = web3, abi = ABI_REWARDER, block = block)
     
-#     return rewarder_contract
+    return rewarder_contract
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_symm_rewards
@@ -153,23 +153,23 @@
 # # Output:
 # # 1 - Tuple: [symm_token_address, balance]
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_symm_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, **kwargs):
+def get_symm_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, **kwargs):
 
-#     try:
-#         decimals = kwargs['decimals']
-#     except:
-#         decimals = True
+    try:
+        decimals = kwargs['decimals']
+    except:
+        decimals = True
     
-#     symm_address = chef_contract.functions.SYMM().call()
+    symm_address = chef_contract.functions.SYMM().call()
 
-#     if decimals == True:
-#         symm_decimals = get_decimals(symm_address, blockchain, web3 = web3)
-#     else:
-#         symm_decimals = 0
+    if decimals == True:
+        symm_decimals = get_decimals(symm_address, blockchain, web3 = web3)
+    else:
+        symm_decimals = 0
     
-#     symm_rewards = chef_contract.functions.pendingSymm(pool_id, wallet).call(block_identifier = block) / (10**symm_decimals)
+    symm_rewards = chef_contract.functions.pendingSymm(pool_id, wallet).call(block_identifier = block) / (10**symm_decimals)
 
-#     return [symm_address, symm_rewards]
+    return [symm_address, symm_rewards]
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_rewards
@@ -178,35 +178,35 @@
 # # Output:
 # # 1 - List of Tuples: [reward_token_address, balance]
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, **kwargs):
+def get_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, **kwargs):
 
-#     rewards = []
+    rewards = []
 
-#     try:
-#         decimals = kwargs['decimals']
-#     except:
-#         decimals = True
+    try:
+        decimals = kwargs['decimals']
+    except:
+        decimals = True
 
-#     rewarder_contract = get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id)
+    rewarder_contract = get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id)
 
-#     if rewarder_contract.address != ZERO_ADDRESS:
+    if rewarder_contract.address != ZERO_ADDRESS:
 
-#         pending_tokens_info = rewarder_contract.functions.pendingTokens(pool_id, wallet, 1).call(block_identifier = block)
-#         pending_tokens_addresses = pending_tokens_info[0]
-#         pending_token_amounts = pending_tokens_info[1]
+        pending_tokens_info = rewarder_contract.functions.pendingTokens(pool_id, wallet, 1).call(block_identifier = block)
+        pending_tokens_addresses = pending_tokens_info[0]
+        pending_token_amounts = pending_tokens_info[1]
 
-#         for i in range(len(pending_tokens_addresses)):
+        for i in range(len(pending_tokens_addresses)):
 
-#             if decimals == True:
-#                 reward_token_decimals = get_decimals(pending_tokens_addresses[i], blockchain, web3 = web3)
-#             else:
-#                 reward_token_decimals = 0
+            if decimals == True:
+                reward_token_decimals = get_decimals(pending_tokens_addresses[i], blockchain, web3 = web3)
+            else:
+                reward_token_decimals = 0
             
-#             reward_token_amount = pending_token_amounts[i] / (10**reward_token_decimals)
+            reward_token_amount = pending_token_amounts[i] / (10**reward_token_decimals)
 
-#             rewards.append([pending_tokens_addresses[i], reward_token_amount])
+            rewards.append([pending_tokens_addresses[i], reward_token_amount])
 
-#     return rewards
+    return rewards
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_all_rewards
@@ -219,78 +219,78 @@
 # # Output:
 # # 1 - List of Tuples: [reward_token_address, balance]
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_all_rewards(wallet, lptoken_address, block, blockchain, **kwargs):
+def get_all_rewards(wallet, lptoken_address, block, blockchain, **kwargs):
 
-#     all_rewards = []
+    all_rewards = []
 
-#     try:
-#         execution = kwargs['execution']
-#     except:
-#         execution = 1
+    try:
+        execution = kwargs['execution']
+    except:
+        execution = 1
 
-#     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
-#     if execution > MAX_EXECUTIONS:
-#         return None
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if execution > MAX_EXECUTIONS:
+        return None
 
-#     try:
-#         index = kwargs['index']
-#     except:
-#         index = 0
+    try:
+        index = kwargs['index']
+    except:
+        index = 0
     
-#     try:
-#         decimals = kwargs['decimals']
-#     except:
-#         decimals = True
+    try:
+        decimals = kwargs['decimals']
+    except:
+        decimals = True
     
-#     try:
-#         web3 = kwargs['web3']
-#     except:
-#         web3 = None
+    try:
+        web3 = kwargs['web3']
+    except:
+        web3 = None
 
-#     try:
-#         if web3 == None: 
-#             web3 = get_node(blockchain, block = block, index = index)
+    try:
+        if web3 == None:
+            web3 = get_node(blockchain, block = block, index = index)
 
-#         wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.toChecksumAddress(wallet)
         
-#         lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.toChecksumAddress(lptoken_address)
         
-#         try:
-#             pool_info = kwargs['pool_info']
-#         except:
-#             pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
+        try:
+            pool_info = kwargs['pool_info']
+        except:
+            pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
         
-#         if pool_info == None:
-#             print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
-#             return None
+        if pool_info == None:
+            print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
+            return None
 
-#         pool_id = pool_info['pool_info']['poolId']
-#         chef_contract = pool_info['chef_contract']
+        pool_id = pool_info['pool_info']['poolId']
+        chef_contract = pool_info['chef_contract']
 
-#         symm_rewards = get_symm_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, decimals = decimals)
-#         all_rewards.append(symm_rewards)
+        symm_rewards = get_symm_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, decimals = decimals)
+        all_rewards.append(symm_rewards)
 
-#         rewards = get_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, decimals = decimals)
+        rewards = get_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, decimals = decimals)
 
-#         if len(rewards) > 0:
-#             for reward in rewards:
-#                 all_rewards.append(reward)
+        if len(rewards) > 0:
+            for reward in rewards:
+                all_rewards.append(reward)
 
-#         return all_rewards
+        return all_rewards
 
-#     except GetNodeLatestIndexError:
-#         index = 0
+    except GetNodeLatestIndexError:
+        index = 0
 
-#         return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
     
-#     except GetNodeArchivalIndexError:
-#         index = 0
+    except GetNodeArchivalIndexError:
+        index = 0
 
-#         return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
     
-#     except Exception as Ex:
-#         traceback.print_exc()
-#         return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals = decimals, index = index + 1, execution = execution)
+    except Exception as Ex:
+        traceback.print_exc()
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals = decimals, index = index + 1, execution = execution)
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # underlying
@@ -303,98 +303,98 @@
 # # 1 - List of Tuples: [liquidity_token_address, balance, staked_balance]
 # # 2 - List of Tuples: [reward_token_address, balance]
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def underlying(wallet, lptoken_address, block, blockchain, **kwargs):
+def underlying(wallet, lptoken_address, block, blockchain, **kwargs):
 
-#     result = []
-#     balances = []
+    result = []
+    balances = []
 
-#     try:
-#         execution = kwargs['execution']
-#     except:
-#         execution = 1
+    try:
+        execution = kwargs['execution']
+    except:
+        execution = 1
 
-#     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-#     if execution > MAX_EXECUTIONS:
-#         return None
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if execution > MAX_EXECUTIONS:
+        return None
 
-#     try:
-#         index = kwargs['index']
-#     except:
-#         index = 0
+    try:
+        index = kwargs['index']
+    except:
+        index = 0
     
-#     try:
-#         reward = kwargs['reward']
-#     except:
-#         reward = False
+    try:
+        reward = kwargs['reward']
+    except:
+        reward = False
     
-#     try:
-#         decimals = kwargs['decimals']
-#     except:
-#         decimals = True
+    try:
+        decimals = kwargs['decimals']
+    except:
+        decimals = True
 
-#     try:
-#         web3 = get_node(blockchain, block = block, index = index)
+    try:
+        web3 = get_node(blockchain, block = block, index = index)
 
-#         wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.toChecksumAddress(wallet)
         
-#         lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.toChecksumAddress(lptoken_address)
 
-#         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
+        pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
-#         if pool_info == None:
-#             print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
-#             return None
+        if pool_info == None:
+            print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
+            return None
 
-#         pool_id = pool_info['pool_info']['poolId']
-#         chef_contract = pool_info['chef_contract']
+        pool_id = pool_info['pool_info']['poolId']
+        chef_contract = pool_info['chef_contract']
 
-#         lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index)
+        lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3 = web3, index = index)
 
-#         vault_contract = get_vault_contract(web3, block, blockchain)
-#         pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier = block)
-#         pool_tokens = pool_tokens_data[0]
-#         pool_balances = pool_tokens_data[1]
+        vault_contract = get_vault_contract(web3, block, blockchain)
+        pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier = block)
+        pool_tokens = pool_tokens_data[0]
+        pool_balances = pool_tokens_data[1]
 
-#         pool_balance_fraction = lptoken_data['contract'].functions.balanceOf(wallet).call(block_identifier = block) / lptoken_data['totalSupply']
-#         pool_staked_fraction =  chef_contract.functions.userInfo(pool_id, wallet).call(block_identifier = block)[0] / lptoken_data['totalSupply']
+        pool_balance_fraction = lptoken_data['contract'].functions.balanceOf(wallet).call(block_identifier = block) / lptoken_data['totalSupply']
+        pool_staked_fraction =  chef_contract.functions.userInfo(pool_id, wallet).call(block_identifier = block)[0] / lptoken_data['totalSupply']
 
-#         for i in range(len(pool_tokens)):
+        for i in range(len(pool_tokens)):
             
-#             token_address = pool_tokens[i]
+            token_address = pool_tokens[i]
 
-#             if decimals == True:
-#                 token_decimals = get_decimals(token_address, blockchain, web3 = web3)
-#             else:
-#                 token_decimals = 0
+            if decimals == True:
+                token_decimals = get_decimals(token_address, blockchain, web3 = web3)
+            else:
+                token_decimals = 0
 
-#             token_balance = pool_balances[i] / (10**token_decimals) * (pool_balance_fraction)
-#             token_staked = pool_balances[i] / (10**token_decimals) * (pool_staked_fraction)
+            token_balance = pool_balances[i] / (10**token_decimals) * (pool_balance_fraction)
+            token_staked = pool_balances[i] / (10**token_decimals) * (pool_staked_fraction)
 
-#             balances.append([token_address, token_balance, token_staked])
+            balances.append([token_address, token_balance, token_staked])
         
-#         if reward == True:
-#             all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3 = web3, decimals = decimals, pool_info = pool_info, index = index)
+        if reward == True:
+            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3 = web3, decimals = decimals, pool_info = pool_info, index = index)
             
-#             result.append(balances)
-#             result.append(all_rewards)
+            result.append(balances)
+            result.append(all_rewards)
        
-#         else:
-#             result = balances
+        else:
+            result = balances
 
-#         return result
+        return result
     
-#     except GetNodeLatestIndexError:
-#         index = 0
+    except GetNodeLatestIndexError:
+        index = 0
 
-#         return underlying(wallet, lptoken_address, block, blockchain, reward = reward, decimals = decimals, index = index, execution = execution + 1)
+        return underlying(wallet, lptoken_address, block, blockchain, reward = reward, decimals = decimals, index = index, execution = execution + 1)
     
-#     except GetNodeArchivalIndexError:
-#         index = 0
+    except GetNodeArchivalIndexError:
+        index = 0
         
-#         return underlying(wallet, lptoken_address, block, blockchain, reward = reward, decimals = decimals, index = index, execution = execution + 1)
+        return underlying(wallet, lptoken_address, block, blockchain, reward = reward, decimals = decimals, index = index, execution = execution + 1)
 
-#     except Exception as E:
-#         return underlying(wallet, lptoken_address, block, blockchain, reward = reward, decimals = decimals, index = index + 1, execution = execution)
+    except Exception as E:
+        return underlying(wallet, lptoken_address, block, blockchain, reward = reward, decimals = decimals, index = index + 1, execution = execution)
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # pool_balances
@@ -405,71 +405,71 @@
 # # Output: a list with 1 element:
 # # 1 - List of Tuples: [liquidity_token_address, balance]
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def pool_balances(lptoken_address, block, blockchain, **kwargs):
+def pool_balances(lptoken_address, block, blockchain, **kwargs):
     
-#     balances = []
+    balances = []
 
-#     try:
-#         execution = kwargs['execution']
-#     except:
-#         execution = 1
+    try:
+        execution = kwargs['execution']
+    except:
+        execution = 1
 
-#     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-#     if execution > MAX_EXECUTIONS:
-#         return None
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if execution > MAX_EXECUTIONS:
+        return None
 
-#     try:
-#         index = kwargs['index']
-#     except:
-#         index = 0
+    try:
+        index = kwargs['index']
+    except:
+        index = 0
     
-#     try:
-#         decimals = kwargs['decimals']
-#     except:
-#         decimals = True
+    try:
+        decimals = kwargs['decimals']
+    except:
+        decimals = True
 
-#     try:
-#         web3 = get_node(blockchain, block = block, index = index)
+    try:
+        web3 = get_node(blockchain, block = block, index = index)
 
-#         lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.toChecksumAddress(lptoken_address)
         
-#         lptoken_contract = get_contract(lptoken_address, blockchain, web3 = web3, abi = ABI_LPTOKEN, block = block)
+        lptoken_contract = get_contract(lptoken_address, blockchain, web3 = web3, abi = ABI_LPTOKEN, block = block)
 
-#         pool_id = lptoken_contract.functions.getPoolId().call()
+        pool_id = lptoken_contract.functions.getPoolId().call()
 
-#         vault_contract = get_vault_contract(web3, block, blockchain)
-#         pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier = block)
-#         pool_tokens = pool_tokens_data[0]
-#         pool_balances = pool_tokens_data[1]
+        vault_contract = get_vault_contract(web3, block, blockchain)
+        pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier = block)
+        pool_tokens = pool_tokens_data[0]
+        pool_balances = pool_tokens_data[1]
 
-#         for i in range(len(pool_tokens)):
+        for i in range(len(pool_tokens)):
             
-#             token_address = pool_tokens[i]
+            token_address = pool_tokens[i]
 
-#             if decimals == True:
-#                 token_decimals = get_decimals(token_address, blockchain, web3 = web3)
-#             else:
-#                 token_decimals = 0
+            if decimals == True:
+                token_decimals = get_decimals(token_address, blockchain, web3 = web3)
+            else:
+                token_decimals = 0
 
-#             token_balance = pool_balances[i] / (10**token_decimals)
+            token_balance = pool_balances[i] / (10**token_decimals)
 
-#             balances.append([token_address, token_balance])
+            balances.append([token_address, token_balance])
 
-#         return balances
+        return balances
 
-#     except GetNodeLatestIndexError:
-#         index = 0
+    except GetNodeLatestIndexError:
+        index = 0
 
-#         return pool_balances(lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
+        return pool_balances(lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
 
-#     except GetNodeArchivalIndexError:
-#         index = 0
+    except GetNodeArchivalIndexError:
+        index = 0
 
-#         return pool_balances(lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
+        return pool_balances(lptoken_address, block, blockchain, decimals = decimals, index = index, execution = execution + 1)
 
-#     except Exception as Ex:
-#         traceback.print_exc()
-#         return pool_balances(lptoken_address, block, blockchain, decimals = decimals, index = index + 1, execution = execution)
+    except Exception as Ex:
+        traceback.print_exc()
+        return pool_balances(lptoken_address, block, blockchain, decimals = decimals, index = index + 1, execution = execution)
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_rewards_per_unit
@@ -478,88 +478,88 @@
 # # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # # 'block' = block identifier
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_rewards_per_unit(lptoken_address, blockchain, **kwargs):
+def get_rewards_per_unit(lptoken_address, blockchain, **kwargs):
 
-#     result = []
+    result = []
 
-#     try:
-#         execution = kwargs['execution']
-#     except:
-#         execution = 1
+    try:
+        execution = kwargs['execution']
+    except:
+        execution = 1
 
-#     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-#     if execution > MAX_EXECUTIONS:
-#         return None
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if execution > MAX_EXECUTIONS:
+        return None
 
-#     try:
-#         index = kwargs['index']
-#     except:
-#         index = 0
+    try:
+        index = kwargs['index']
+    except:
+        index = 0
     
-#     try:
-#         block = kwargs['block']
-#     except:
-#         block = 'latest'
+    try:
+        block = kwargs['block']
+    except:
+        block = 'latest'
 
-#     try:
-#         web3 = get_node(blockchain, block = block, index = index)
+    try:
+        web3 = get_node(blockchain, block = block, index = index)
 
-#         lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.toChecksumAddress(lptoken_address)
         
-#         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
+        pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
-#         if pool_info == None:
-#             print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
-#             return None
+        if pool_info == None:
+            print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
+            return None
 
-#         chef_contract = pool_info['chef_contract']
-#         pool_id = pool_info['pool_info']['poolId']
+        chef_contract = pool_info['chef_contract']
+        pool_id = pool_info['pool_info']['poolId']
 
-#         symm_reward_data = {}
+        symm_reward_data = {}
 
-#         symm_reward_data['symm_address'] = chef_contract.functions.SYMM().call()
+        symm_reward_data['symm_address'] = chef_contract.functions.SYMM().call()
         
-#         symm_reward_data['symmPerSecond'] = chef_contract.functions.symmPerSecond().call(block_identifier = block) * (pool_info['pool_info']['allocPoint'] / pool_info['totalAllocPoint'])
+        symm_reward_data['symmPerSecond'] = chef_contract.functions.symmPerSecond().call(block_identifier = block) * (pool_info['pool_info']['allocPoint'] / pool_info['totalAllocPoint'])
         
-#         result.append(symm_reward_data)
+        result.append(symm_reward_data)
 
-#         try:
-#             reward_data = {}
+        try:
+            reward_data = {}
 
-#             rewarder_contract = get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id)
-#             rewarder_pool_info = rewarder_contract.functions.poolInfo(pool_id).call(block_identifier = block)
-#             rewarder_alloc_point = rewarder_pool_info[2]
+            rewarder_contract = get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id)
+            rewarder_pool_info = rewarder_contract.functions.poolInfo(pool_id).call(block_identifier = block)
+            rewarder_alloc_point = rewarder_pool_info[2]
 
-#             # Rewarder Total Allocation Point Calculation
-#             rewarder_total_alloc_point = 0
-#             for i in range(chef_contract.functions.poolLength().call()):
-#                 rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier = block)[2]
+            # Rewarder Total Allocation Point Calculation
+            rewarder_total_alloc_point = 0
+            for i in range(chef_contract.functions.poolLength().call()):
+                rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier = block)[2]
 
-#             reward_data['reward_address'] = rewarder_contract.functions.pendingTokens(pool_id, ZERO_ADDRESS, 1).call(block_identifier = block)[0][0]
+            reward_data['reward_address'] = rewarder_contract.functions.pendingTokens(pool_id, ZERO_ADDRESS, 1).call(block_identifier = block)[0][0]
             
-#             try:
-#                 reward_data['rewardPerSecond'] = rewarder_contract.functions.rewardPerSecond().call(block_identifier = block) * (rewarder_alloc_point / rewarder_total_alloc_point)
-#             except:
-#                 reward_data['rewardPerSecond'] = 0
+            try:
+                reward_data['rewardPerSecond'] = rewarder_contract.functions.rewardPerSecond().call(block_identifier = block) * (rewarder_alloc_point / rewarder_total_alloc_point)
+            except:
+                reward_data['rewardPerSecond'] = 0
 
-#             result.append(reward_data)
+            result.append(reward_data)
         
-#         except:
-#             pass
+        except:
+            pass
 
-#         return result
+        return result
 
-#     except GetNodeLatestIndexError:
-#         index = 0
+    except GetNodeLatestIndexError:
+        index = 0
 
-#         return get_rewards_per_unit(lptoken_address, blockchain, block = block, index = index, execution = execution + 1)
+        return get_rewards_per_unit(lptoken_address, blockchain, block = block, index = index, execution = execution + 1)
 
-#     except GetNodeArchivalIndexError:
-#         index = 0
+    except GetNodeArchivalIndexError:
+        index = 0
 
-#     except Exception as Ex:
-#         traceback.print_exc()
-#         return get_rewards_per_unit(lptoken_address, blockchain, block = block, index = index + 1, execution = execution)
+    except Exception as Ex:
+        traceback.print_exc()
+        return get_rewards_per_unit(lptoken_address, blockchain, block = block, index = index + 1, execution = execution)
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_apr
@@ -633,28 +633,28 @@
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # update_db
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def update_db():
+def update_db():
 
-#     update = False
+    update = False
 
-#     with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'r') as db_file:
-#         # Reading from json file
-#         db_data = json.load(db_file)
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'r') as db_file:
+        # Reading from json file
+        db_data = json.load(db_file)
     
-#     web3 = get_node(XDAI)
+    web3 = get_node(XDAI)
     
-#     symm_chef = get_chef_contract(web3, 'latest', XDAI)
-#     db_pool_length = len(db_data[XDAI]['pools'])
-#     pools_delta = symm_chef.functions.poolLength().call() - db_pool_length
+    symm_chef = get_chef_contract(web3, 'latest', XDAI)
+    db_pool_length = len(db_data[XDAI]['pools'])
+    pools_delta = symm_chef.functions.poolLength().call() - db_pool_length
     
-#     if pools_delta > 0:
+    if pools_delta > 0:
 
-#         update = True
+        update = True
         
-#         for i in range(pools_delta):
-#             lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call()
-#             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
+        for i in range(pools_delta):
+            lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call()
+            db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
-#     if update == True:
-#         with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'w') as db_file:
-#             json.dump(db_data, db_file)
+    if update == True:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'w') as db_file:
+            json.dump(db_data, db_file)
