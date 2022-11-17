@@ -163,7 +163,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
                     collaterals.append(asset)
 
         # getUserAccountData return a list with the following data:
-        # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor
+        # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor 
         user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
 
         # Collateral Ratio
@@ -209,7 +209,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
 
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
 

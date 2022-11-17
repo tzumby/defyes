@@ -3,32 +3,32 @@ from defi_protocols import Curve
 from pathlib import Path
 import os
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BACKLOG LIST
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Rewards when you stake CVX
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Booster (Main Deposit Contract) Address
 BOOSTER = '0xF403C135812408BFbE8713b5A23a04b3D48AAE31'
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CVX REWARDS TOKEN ADDRESS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CVX rewards token address
 CVX_STAKER = '0xCF50b810E57Ac33B91dCF525C6ddd9881B139332'
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CVX LOCKER TOKEN ADDRESS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CVX locker token address
 CVX_LOCKER = '0x72a19342e8F1838460eBFCCEf09F6585e32db86E'
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Booster ABI - poolInfo, poolLength
 ABI_BOOSTER = '[{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"poolInfo","outputs":[{"internalType":"address","name":"lptoken","type":"address"},{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"gauge","type":"address"},{"internalType":"address","name":"crvRewards","type":"address"},{"internalType":"address","name":"stash","type":"address"},{"internalType":"bool","name":"shutdown","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"poolLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
@@ -39,22 +39,22 @@ ABI_REWARDS = '[{"inputs":[{"internalType":"address","name":"account","type":"ad
 ABI_CVX = '[{"inputs":[],"name":"reductionPerCliff","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalCliffs","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"maxSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_info - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
-# Output: pool_info method return a list with the following data:
+# Output: pool_info method return a list with the following data: 
 # [0] lptoken address, [1] token address, [2] gauge address, [3] crvRewards address, [4] stash adress, [5] shutdown bool
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_info(lptoken_address, block):
+
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
 
     try:
         pool_info = db_data['pools'][lptoken_address]
-
+        
         if pool_info['shutdown'] == False:
-            pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'],
-                         pool_info['stash'], pool_info['shutdown']]
+            pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'], pool_info['stash'], pool_info['shutdown']]
 
             return pool_info
         else:
@@ -80,13 +80,14 @@ def get_pool_info(lptoken_address, block):
     return None
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_rewards
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - Tuples: [token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
+
     reward_token_address = rewarder_contract.functions.rewardToken().call()
 
     if decimals is True:
@@ -94,27 +95,26 @@ def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=Tru
     else:
         reward_token_decimals = 0
 
-    bal_rewards = rewarder_contract.functions.earned(wallet).call(block_identifier=block) / (
-                10 ** reward_token_decimals)
+    bal_rewards = rewarder_contract.functions.earned(wallet).call(block_identifier=block) / (10**reward_token_decimals)
 
     return [reward_token_address, bal_rewards]
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_extra_rewards
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=True):
+
     extra_rewards = []
 
     extra_rewards_length = crv_rewards_contract.functions.extraRewardsLength().call(block_identifier=block)
 
     for i in range(extra_rewards_length):
         extra_reward_contract_address = crv_rewards_contract.functions.extraRewards(i).call(block_identifier=block)
-        extra_reward_contract = get_contract(extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDS,
-                                             block=block)
+        extra_reward_contract = get_contract(extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDS, block=block)
 
         extra_reward_token_address = extra_reward_contract.functions.rewardToken().call()
 
@@ -123,21 +123,21 @@ def get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, dec
         else:
             extra_reward_token_decimals = 0
 
-        extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block) / (
-                    10 ** extra_reward_token_decimals)
+        extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block) / (10**extra_reward_token_decimals)
 
         extra_rewards.append([extra_reward_token_address, extra_reward])
 
     return extra_rewards
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_cvx_mint_amount
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - Tuple: [cvx_token_address, minted_amount]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
+
     cvx_amount = 0
 
     cvx_contract = get_contract(CVX_ETH, blockchain, web3=web3, abi=ABI_CVX, block=block)
@@ -158,7 +158,7 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
 
         if (cvx_amount > amount_till_max):
             cvx_amount = amount_till_max
-
+    
     if decimals == False:
         cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3)
         cvx_amount = cvx_amount * (10 ** cvx_decimals)
@@ -166,7 +166,7 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
     return [CVX_ETH, cvx_amount]
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -175,10 +175,10 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
 # 'crv_rewards_contract' = crv_rewards_contract -> Improves performance
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True,
-                    crv_rewards_contract=None):
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, crv_rewards_contract=None):
+
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -200,8 +200,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
                 return None
 
             crv_rewards_address = pool_info[3]
-            crv_rewards_contract = get_contract(crv_rewards_address, blockchain, web3=web3, abi=ABI_REWARDS,
-                                                block=block)
+            crv_rewards_contract = get_contract(crv_rewards_address, blockchain, web3=web3, abi=ABI_REWARDS, block=block)
 
         crv_rewards = get_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=decimals)
         all_rewards.append(crv_rewards)
@@ -224,22 +223,19 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
     except GetNodeLatestIndexError:
         index = 0
 
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract,
-                               decimals=decimals, index=index, execution=execution + 1)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract, decimals=decimals, index=index, execution=execution + 1)
 
     except GetNodeArchivalIndexError:
         index = 0
 
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract,
-                               decimals=decimals, index=index, execution=execution + 1)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract, decimals=decimals, index=index, execution=execution + 1)
 
     except Exception as Ex:
         traceback.print_exc()
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract,
-                               decimals=decimals, index=index + 1, execution=execution)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract, decimals=decimals, index=index + 1, execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_cvx_locked
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -249,8 +245,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 # Output:
 # 1 - List of Tuples: [cvx_token_address, locked_balance]
 # 2 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True):
+
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -268,8 +265,7 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
         else:
             cvx_decimals = 0
 
-        cvx_locker = cvx_locker_contract.functions.balances(wallet).call(block_identifier=block)[0] / (
-                    10 ** cvx_decimals)
+        cvx_locker = cvx_locker_contract.functions.balances(wallet).call(block_identifier=block)[0] / (10**cvx_decimals)
 
         result = [[CVX_ETH, cvx_locker]]
 
@@ -286,7 +282,7 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
                     else:
                         reward_decimals = 0
 
-                    rewards.append([cvx_locker_reward[0], cvx_locker_reward[1] / (10 ** reward_decimals)])
+                    rewards.append([cvx_locker_reward[0], cvx_locker_reward[1] / (10**reward_decimals)])
 
             result += rewards
 
@@ -295,22 +291,19 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
     except GetNodeLatestIndexError:
         index = 0
 
-        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index,
-                              execution=execution + 1)
+        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
 
     except GetNodeArchivalIndexError:
         index = 0
 
-        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index,
-                              execution=execution + 1)
+        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
 
     except Exception as Ex:
         traceback.print_exc()
-        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                              execution=execution)
+        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_cvx_staked
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -320,8 +313,9 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 # Output:
 # 1 - List of Tuples: [cvx_token_address, staked_balance]
 # 2 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cvx_staked(wallet, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True):
+
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -339,8 +333,7 @@ def get_cvx_staked(wallet, block, blockchain, web3=None, execution=1, index=0, r
         else:
             cvx_decimals = 0
 
-        cvx_staked = cvx_staking_contract.functions.balanceOf(wallet).call(block_identifier=block) / (
-                    10 ** cvx_decimals)
+        cvx_staked = cvx_staking_contract.functions.balanceOf(wallet).call(block_identifier=block) / (10**cvx_decimals)
 
         result = [[CVX_ETH, cvx_staked]]
 
@@ -357,7 +350,7 @@ def get_cvx_staked(wallet, block, blockchain, web3=None, execution=1, index=0, r
                 else:
                     reward_decimals = 0
 
-            rewards.append([CVXCRV_ETH, cvx_staked_rewards / (10 ** reward_decimals)])
+            rewards.append([CVXCRV_ETH, cvx_staked_rewards / (10**reward_decimals)])
 
             result += rewards
 
@@ -366,36 +359,33 @@ def get_cvx_staked(wallet, block, blockchain, web3=None, execution=1, index=0, r
     except GetNodeLatestIndexError:
         index = 0
 
-        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index,
-                              execution=execution + 1)
+        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
 
     except GetNodeArchivalIndexError:
         index = 0
 
-        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index,
-                              execution=execution + 1)
+        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
 
     except Exception as Ex:
         traceback.print_exc()
-        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                              execution=execution)
+        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# 'no_curve_underlying' = True -> retrieves the LP Token balance /
+# 'no_curve_underlying' = True -> retrieves the LP Token balance / 
 # 'no_curve_underlying' = False or not passed onto the function -> retrieves the balance of the underlying Curve tokens
 # Output: a list with 2 elements:
-# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance] | [liquidity_token_address, staked_balance] -> depending on 'no_curve_underlying' value
+# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance] | [liquidity_token_address, staked_balance] -> depending on 'no_curve_underlying' value 
 # 2 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True,
-               no_curve_underlying=False):
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True, no_curve_underlying=False):
+    
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -423,21 +413,19 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         lptoken_staked = crv_rewards_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
         if no_curve_underlying is False:
-            balances = Curve.underlying(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
-                                        convex_staked=lptoken_staked)
+            balances = Curve.underlying(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, convex_staked=lptoken_staked)
         else:
             if decimals is True:
                 lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
             else:
                 lptoken_decimals = 0
 
-            lptoken_staked = lptoken_staked / (10 ** lptoken_decimals)
+            lptoken_staked = lptoken_staked / (10**lptoken_decimals)
 
             balances.append([lptoken_address, lptoken_staked])
 
         if reward is True:
-            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
-                                          crv_rewards_contract=crv_rewards_contract)
+            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, crv_rewards_contract=crv_rewards_contract)
 
             result.append(balances)
             result.append(all_rewards)
@@ -450,22 +438,19 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
     except GetNodeLatestIndexError:
         index = 0
 
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals,
-                          no_curve_underlying=no_curve_underlying, index=index, execution=execution + 1)
+        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_curve_underlying=no_curve_underlying, index=index, execution=execution + 1)
 
     except GetNodeArchivalIndexError:
         index = 0
 
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals,
-                          no_curve_underlying=no_curve_underlying, index=index, execution=execution + 1)
+        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_curve_underlying=no_curve_underlying, index=index, execution=execution + 1)
 
     except Exception as Ex:
         traceback.print_exc()
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals,
-                          no_curve_underlying=no_curve_underlying, index=index + 1, execution=execution)
+        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_curve_underlying=no_curve_underlying, index=index + 1, execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # pool_balances
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -473,8 +458,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output: a list with 2 elements:
 # 1 - List of Tuples: [liquidity_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -492,25 +478,23 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
     except GetNodeLatestIndexError:
         index = 0
 
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index,
-                             execution=execution + 1)
+        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
 
     except GetNodeArchivalIndexError:
         index = 0
 
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index,
-                             execution=execution + 1)
+        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
 
     except Exception as Ex:
         traceback.print_exc()
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1,
-                             execution=execution)
+        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # update_db
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db():
+
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
@@ -531,7 +515,7 @@ def update_db():
                 'gauge': pool_info[2],
                 'crvRewards': pool_info[3],
                 'stash': pool_info[4],
-                'shutdown': pool_info[5]
+                'shutdown':pool_info[5]
             }
 
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'w') as db_file:

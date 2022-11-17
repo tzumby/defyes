@@ -1,27 +1,27 @@
 from general.blockchain_functions import *
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROTOCOL DATA PROVIDER
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider - Ethereum
 PDP_ETHEREUM = '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d'
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # LENDING POOL ADDRESSES PROVIDER REGISTRY
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Lending Pool Addresses Provider Registry - Ethereum
 LPAPR_ETHEREUM = '0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5'
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ETHEREUM
 # ETH/USD Price Feed
 CHAINLINK_ETH_USD = '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider ABI - getAllReservesTokens, getUserReserveData
 ABI_PDP = '[{"inputs":[],"name":"getAllReservesTokens","outputs":[{"components":[{"internalType":"string","name":"symbol","type":"string"},{"internalType":"address","name":"tokenAddress","type":"address"}],"internalType":"struct AaveProtocolDataProvider.TokenData[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"},{"internalType":"address","name":"user","type":"address"}],"name":"getUserReserveData","outputs":[{"internalType":"uint256","name":"currentATokenBalance","type":"uint256"},{"internalType":"uint256","name":"currentStableDebt","type":"uint256"},{"internalType":"uint256","name":"currentVariableDebt","type":"uint256"},{"internalType":"uint256","name":"principalStableDebt","type":"uint256"},{"internalType":"uint256","name":"scaledVariableDebt","type":"uint256"},{"internalType":"uint256","name":"stableBorrowRate","type":"uint256"},{"internalType":"uint256","name":"liquidityRate","type":"uint256"},{"internalType":"uint40","name":"stableRateLastUpdated","type":"uint40"},{"internalType":"bool","name":"usageAsCollateralEnabled","type":"bool"}],"stateMutability":"view","type":"function"}]'
 
@@ -41,26 +41,29 @@ ABI_PRICE_ORACLE = '[{"inputs":[{"internalType":"address","name":"asset","type":
 ABI_STK_AAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"staker","type":"address"}],"name":"getTotalRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_protocol_data_provider
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_protocol_data_provider(blockchain):
+
     if blockchain == ETHEREUM:
         return PDP_ETHEREUM
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_lpapr_address
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_lpapr_address(blockchain):
+
     if blockchain == ETHEREUM:
         return LPAPR_ETHEREUM
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_reserves_tokens
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens(pdp_contract):
+
     reserves_tokens_addresses = []
 
     reserves_tokens = pdp_contract.functions.getAllReservesTokens().call()
@@ -71,11 +74,12 @@ def get_reserves_tokens(pdp_contract):
     return reserves_tokens_addresses
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_reserves_tokens_balances
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True):
+    
     balances = []
 
     pdp_address = get_protocol_data_provider(blockchain)
@@ -86,8 +90,7 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
     for reserves_token in reserves_tokens:
 
         try:
-            user_reserve_data = pdp_contract.functions.getUserReserveData(reserves_token, wallet).call(
-                block_identifier=block)
+            user_reserve_data = pdp_contract.functions.getUserReserveData(reserves_token, wallet).call(block_identifier=block)
         except:
             continue
 
@@ -105,14 +108,15 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
     return balances
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_data
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_data(wallet, block, blockchain, execution = 1, web3=None, index=0, decimals=True):
+
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -131,30 +135,25 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimal
         lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
         lending_pool_address = lpapr_contract.functions.getLendingPool().call()
-        lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
-                                             block=block)
+        lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
 
-        chainlink_eth_usd_contract = get_contract(CHAINLINK_ETH_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD,
-                                                  block=block)
+        chainlink_eth_usd_contract = get_contract(CHAINLINK_ETH_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD, block=block)
         chainlink_eth_usd_decimals = chainlink_eth_usd_contract.functions.decimals().call()
-        eth_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / (
-                    10 ** chainlink_eth_usd_decimals)
+        eth_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / (10**chainlink_eth_usd_decimals)
 
         balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
         if len(balances) > 0:
 
             price_oracle_address = lpapr_contract.functions.getPriceOracle().call()
-            price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE,
-                                                 block=block)
+            price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block)
 
             for balance in balances:
                 asset = {}
 
                 asset['token_address'] = balance[0]
                 asset['token_amount'] = abs(balance[1])
-                asset['token_price_usd'] = price_oracle_contract.functions.getAssetPrice(asset['token_address']).call(
-                    block_identifier=block) / (10 ** 18) * eth_usd_price
+                asset['token_price_usd'] = price_oracle_contract.functions.getAssetPrice(asset['token_address']).call(block_identifier=block) / (10**18) * eth_usd_price
 
                 if balance[1] < 0:
                     debts.append(asset)
@@ -162,7 +161,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimal
                     collaterals.append(asset)
 
         # getUserAccountData return a list with the following data:
-        # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor
+        # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor 
         user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
 
         # Collateral Ratio
@@ -197,7 +196,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimal
         return get_data(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -205,9 +204,10 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimal
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_all_rewards(wallet, block, blockchain, execution = 1, web3=None, index=0, decimals=True):
+
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -229,8 +229,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
             else:
                 reward_token_decimals = 0
 
-            reward_balance = stk_aave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (
-                        10 ** reward_token_decimals)
+            reward_balance = stk_aave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (10**reward_token_decimals)
 
             all_rewards.append([reward_token, reward_balance])
 
@@ -251,7 +250,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
         return get_all_rewards(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
@@ -260,8 +259,9 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 # Output: a list with 2 elements:
 # 1 - List of Tuples: [token_address, balance], where balance = currentATokenBalance - currentStableDebt - currentStableDebt
 # 2 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False):
+
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -291,16 +291,13 @@ def underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decim
     except GetNodeLatestIndexError:
         index = 0
 
-        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index,
-                          execution=execution + 1)
+        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
 
     except GetNodeArchivalIndexError:
         index = 0
 
-        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index,
-                          execution=execution + 1)
+        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
 
     except Exception as Ex:
         traceback.print_exc()
-        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                          execution=execution)
+        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
