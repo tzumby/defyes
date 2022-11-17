@@ -40,3 +40,23 @@
 - `twine upload --verbose --repository pypi dist/* `
 
 - Give `Username` and `Password` of your `pypi` account
+
+| Protocol      | Underlying | Rewards |
+|---------------|------------|---------|
+| AAVE          | ✔          | ✔       |
+| Agave         |            ||
+| Aura          |            |         |
+| Balancer      |            |         |
+| Convex        |            |         |
+| Curve         |            |         |
+| Elk           |            |         |
+| Honeyswap     |            | -       |
+| Maker         |            |         |
+| QiDAO         |            |         |
+| SushiSwap     |            |         |
+| Swapr         |            |         |
+| Symmetric     |            |         |
+| Uniswap       |            |         |
+| Unit Protocol |            |         |
+
+
