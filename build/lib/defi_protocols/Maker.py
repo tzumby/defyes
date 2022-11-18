@@ -42,58 +42,50 @@ ABI_SPOT = '[{"constant":true,"inputs":[{"internalType":"bytes32","name":"","typ
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_vault_data
-# **kwargs:
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'web3' = web3 (Node) -> Improves performance
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_vault_data(vault_id, block, **kwargs):
+def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
+    """
 
+    :param vault_id:
+    :param block:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
     vault_data = {}
-
-    try:
-        execution = kwargs['execution']
-    except:
-        execution = 1
 
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
-
-    try:
-        web3 = kwargs['web3']
-    except:
-        web3 = None
-
-    try:
-        index = kwargs['index']
-    except:
-        index = 0
     
     try:
-        if web3 == None: 
-            web3 = get_node(ETHEREUM, block = block, index = index)
+        if web3 is None:
+            web3 = get_node(ETHEREUM, block=block, index=index)
 
-        cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3 = web3, abi = ABI_CDP_MANAGER, block = block)
-        ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM, web3 = web3, abi = ABI_ILK_REGISTRY, block = block)
-        vat_contract = get_contract(VAT_ADDRESS, ETHEREUM, web3 = web3, abi = ABI_VAT, block = block)
-        spot_contract = get_contract(SPOT_ADDRESS, ETHEREUM, web3 = web3, abi = ABI_SPOT, block = block)
+        cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
+        ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY, block=block)
+        vat_contract = get_contract(VAT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_VAT, block=block)
+        spot_contract = get_contract(SPOT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_SPOT, block=block)
     
-        ilk = cpd_manager_contract.functions.ilks(vault_id).call(block_identifier = block)
+        ilk = cpd_manager_contract.functions.ilks(vault_id).call(block_identifier=block)
 
         ilk_info = ilk_registry_contract.functions.info(ilk).call()
 
-        urn_handler_address = cpd_manager_contract.functions.urns(vault_id).call(block_identifier = block)
+        urn_handler_address = cpd_manager_contract.functions.urns(vault_id).call(block_identifier=block)
 
-        urn_data = vat_contract.functions.urns(ilk, urn_handler_address).call(block_identifier = block)
+        urn_data = vat_contract.functions.urns(ilk, urn_handler_address).call(block_identifier=block)
         
-        vault_data['mat'] = spot_contract.functions.ilks(ilk).call(block_identifier = block)[1] / 10**27
+        vault_data['mat'] = spot_contract.functions.ilks(ilk).call(block_identifier=block)[1] / 10**27
         vault_data['gem'] = ilk_info[4]
         vault_data['dai'] = DAI_ETH
         vault_data['ink'] = urn_data[0] / 10**18
         vault_data['art'] = urn_data[1] / 10**18
         
-        ilk_data = vat_contract.functions.ilks(ilk).call(block_identifier = block)
+        ilk_data = vat_contract.functions.ilks(ilk).call(block_identifier=block)
         
         vault_data['Art'] = ilk_data[0] / 10**18
         vault_data['rate'] = ilk_data[1] / 10**27
@@ -102,51 +94,43 @@ def get_vault_data(vault_id, block, **kwargs):
         vault_data['dust'] = ilk_data[4] / 10**45
 
         return vault_data
-    
-    except GetNodeLatestIndexError:
-        index = 0
 
-        return get_vault_data(vault_id, block, index = index, execution = execution + 1)
+    except GetNodeIndexError:
+        return get_vault_data(vault_id, block, index=0, execution=execution + 1)
     
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_vault_data(vault_id, block, index = index, execution = execution + 1)
-    
-    except Exception as Ex:
-        traceback.print_exc()
-        return get_vault_data(vault_id, block, index = index + 1, execution = execution)
+    except:
+        return get_vault_data(vault_id, block, index=index + 1, execution=execution)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying
 # **kwargs:
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
+# 'web3' = web3 (Node) -> Improves performance
 # Output:
 # 1 - Tuple: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying(vault_id, block, **kwargs):
+def underlying(vault_id, block, web3=None, execution=1, index=0):
+    """
 
+    :param vault_id:
+    :param block:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
     result = []
-
-    try:
-        execution = kwargs['execution']
-    except:
-        execution = 1
 
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
 
     try:
-        index = kwargs['index']
-    except:
-        index = 0
+        if web3 is None:
+            web3 = get_node(ETHEREUM, block=block, index=index)
 
-    try:
-        web3 = get_node(ETHEREUM, block = block, index = index)
-
-        vault_data = get_vault_data(vault_id, block, web3 = web3, index = index)
+        vault_data = get_vault_data(vault_id, block, web3=web3)
 
         # Append the Collateral Address and Balance to result[]
         result.append([vault_data['gem'], vault_data['ink']])
@@ -156,17 +140,9 @@ def underlying(vault_id, block, **kwargs):
         result.append([vault_data['dai'], total_debt])
 
         return result
-    
-    except GetNodeLatestIndexError:
-        index = 0
 
-        return underlying(vault_id, block, index = index, execution = execution + 1)
-    
-    except GetNodeArchivalIndexError:
-        index = 0
-        
-        return underlying(vault_id, block, index = index, execution = execution + 1)
+    except GetNodeIndexError:
+        return underlying(vault_id, block, index=0, execution=execution + 1)
 
-    except Exception as Ex:
-        traceback.print_exc()
-        return underlying(vault_id, block, index = index + 1, execution = execution)
+    except:
+        return underlying(vault_id, block, index=index + 1, execution=execution)
