@@ -105,7 +105,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
     result = {}
 
     if use_db is True:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/Sushi/sushi_db.json', 'r') as db_file:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/SushiSwap/SushiSwap_db.json', 'r') as db_file:
             # Reading from json file
             db_data = json.load(db_file)
 
@@ -434,7 +434,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
             pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
         if pool_info is None:
-            print('Error: Incorrect Sushi LPToken Address: ', lptoken_address)
+            print('Error: Incorrect SushiSwap LPToken Address: ', lptoken_address)
             return None
 
         pool_id = pool_info['pool_info']['poolId']
@@ -505,7 +505,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
         if pool_info is None:
-            print('Error: Incorrect Sushi LPToken Address: ', lptoken_address)
+            print('Error: Incorrect SushiSwap LPToken Address: ', lptoken_address)
             return None
 
         pool_id = pool_info['pool_info']['poolId']
@@ -820,7 +820,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
         if pool_info is None:
-            print('Error: Incorrect Sushi LPToken Address: ', lptoken_address)
+            print('Error: Incorrect SushiSwap LPToken Address: ', lptoken_address)
             return None
 
         chef_contract = pool_info['chef_contract']
@@ -938,7 +938,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
 def update_db():
     update = False
 
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/Sushi/sushi_db.json', 'r') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/SushiSwap/SushiSwap_db.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
 
@@ -997,5 +997,5 @@ def update_db():
             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
     if update is True:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/Sushi/sushi_db.json', 'w') as db_file:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/SushiSwap/SushiSwap_db.json', 'w') as db_file:
             json.dump(db_data, db_file)
