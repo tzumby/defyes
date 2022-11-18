@@ -28,8 +28,8 @@ GOERLI = 'goerli'
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/config.json', 'r') as config_file:
-        config_data = json.load(config_file)
-        config_file.close()
+    config_data = json.load(config_file)
+    config_file.close()
 
 NODE_ETH = {
     'latest': config_data['nodes'][ETHEREUM]['latest'],
