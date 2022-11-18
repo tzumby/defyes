@@ -14,12 +14,12 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
-          'web3',
-          'requests',
-          'datetime',
-          'pathlib',
-          'eth_abi',
-          'setuptools'
+          'web3>=5.31.1',
+          'requests>=2.28.1',
+          'datetime>=4.7',
+          'pathlib>=1.0.1',
+          'eth_abi>=3.0.1',
+          'setuptools>=65.5.1'
       ],
     classifiers=[
         "Programming Language :: Python :: 3",
