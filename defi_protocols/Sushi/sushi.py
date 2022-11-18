@@ -105,7 +105,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
     result = {}
 
     if use_db is True:
-        with open('sushi_db.json', 'r') as db_file:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/Sushi/sushi_db.json', 'r') as db_file:
             # Reading from json file
             db_data = json.load(db_file)
 
@@ -938,7 +938,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
 def update_db():
     update = False
 
-    with open('sushi_db.json', 'r') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/Sushi/sushi_db.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
 
@@ -997,7 +997,5 @@ def update_db():
             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
     if update is True:
-        with open('sushi_db.json', 'w') as db_file:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/Sushi/sushi_db.json', 'w') as db_file:
             json.dump(db_data, db_file)
-
-print(underlying('0x1424210ca7209ed35b7f4416f2e614800b2c7524', '0xA227c72a4055A9DC949cAE24f54535fe890d3663', 'latest', XDAI, reward = False)) # USDC/WXDAI
