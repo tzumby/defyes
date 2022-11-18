@@ -1,6 +1,14 @@
 # Python package for Defi Protocols
 
-## Install
+##Installing from Github repository
+
+Run `pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_protocols`
+
+## Updating the installable package
+
+After pushing changes, run `python3 setup.py sdist bdist_wheel` so that the latest version can be installed from github.
+
+## Install latest version available on pypi
 
 [pip3 install defi-protocols](https://pypi.org/project/defi-protocols/0.0.1/)
 
