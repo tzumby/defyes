@@ -114,8 +114,8 @@ TESTNET_HEADER = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/
 ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 # ALL E ADDRESS
 E_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-# ABI Token Simplified - name, symbol, decimals, balanceOf, totalSupply
-ABI_TOKEN_SIMPLIFIED = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"}, {"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
+# ABI Token Simplified - name, symbol, SYMBOL, decimals, balanceOf, totalSupply
+ABI_TOKEN_SIMPLIFIED = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"}, {"constant":true,"inputs":[],"name":"SYMBOL","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ETHEREUM - Token Addresses
@@ -156,7 +156,7 @@ X3CRV_XDAI = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
 # POLYGON - Token Addresses
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAL_POL = '0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3'
-MAI_POL = '0xa3fa99a148fa48d14ed51d610c367c61876997f1'
+MAI_POL = '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1'
 X3CRV_POL = '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171'
 
 
