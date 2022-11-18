@@ -51,7 +51,7 @@ def get_pool_info(lptoken_address, block):
     :param block:
     :return:
     """
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'r') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/Convex_db.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
 
@@ -546,7 +546,7 @@ def update_db():
 
     :return:
     """
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'r') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/Convex_db.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
 
@@ -569,5 +569,5 @@ def update_db():
                 'shutdown':pool_info[5]
             }
 
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'w') as db_file:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/Convex_db.json', 'w') as db_file:
             json.dump(db_data, db_file)

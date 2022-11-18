@@ -2,21 +2,19 @@ from defi_protocols.constants.constants import *
 from db import blockchain_database
 
 from web3 import Web3
-
 import requests
-
 import json
-
 from datetime import datetime
 import calendar
-
 import math
 
-print(XDAI)
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CUSTOM EXCEPTIONS
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class GetNodeIndexError(Exception):
+    """
+
+    """
     pass
 
 
@@ -26,6 +24,13 @@ class GetNodeIndexError(Exception):
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_node(blockchain, block='latest', index=0):
+    """
+
+    :param blockchain:
+    :param block:
+    :param index:
+    :return:
+    """
     if blockchain == ETHEREUM:
         node = NODE_ETH
 

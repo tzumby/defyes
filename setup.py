@@ -3,11 +3,11 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
-    name="defi-protocols",
+    name="defi_protocols",
     version="0.0.2",
     author="dharmendrakariya",
     author_email="dharmendra@karpatkey.com",
-    description="A simple defi-protocols package",
+    description="A simple defi_protocols package",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/KarpatkeyDAO/defi-protocols",

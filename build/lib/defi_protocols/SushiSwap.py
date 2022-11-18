@@ -421,7 +421,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
             pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
         if pool_info is None:
-            print('Error: Incorrect Sushi LPToken Address: ', lptoken_address)
+            print('Error: Incorrect SushiSwap LPToken Address: ', lptoken_address)
             return None
 
         pool_id = pool_info['pool_info']['poolId']
@@ -489,7 +489,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
         if pool_info is None:
-            print('Error: Incorrect Sushi LPToken Address: ', lptoken_address)
+            print('Error: Incorrect SushiSwap LPToken Address: ', lptoken_address)
             return None
 
         pool_id = pool_info['pool_info']['poolId']
@@ -793,7 +793,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
         if pool_info is None:
-            print('Error: Incorrect Sushi LPToken Address: ', lptoken_address)
+            print('Error: Incorrect SushiSwap LPToken Address: ', lptoken_address)
             return None
 
         chef_contract = pool_info['chef_contract']

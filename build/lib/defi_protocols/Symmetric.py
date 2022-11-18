@@ -85,7 +85,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain):
     :return:
     """
     result = {}
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'r') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/Symmetric_db.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
 
@@ -604,7 +604,7 @@ def update_db():
     """
     update = False
 
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'r') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/Symmetric_db.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
     
@@ -623,5 +623,5 @@ def update_db():
             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
     if update == True:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/symmetric.json', 'w') as db_file:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/db/Symmetric_db.json', 'w') as db_file:
             json.dump(db_data, db_file)
