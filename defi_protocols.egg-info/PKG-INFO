@@ -5,6 +5,8 @@ Summary: A simple defi-protocols package
 Home-page: https://github.com/KarpatkeyDAO/defi-protocols
 Author: dharmendrakariya
 Author-email: dharmendra@karpatkey.com
+License: UNKNOWN
+Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
@@ -14,7 +16,15 @@ License-File: LICENSE
 
 # Python package for Defi Protocols
 
-## Install
+##Installing from Github repository
+
+Run `pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_protocols`
+
+## Updating the installable package
+
+After pushing changes, run `python3 setup.py sdist bdist_wheel` so that the latest version can be installed from github.
+
+## Install latest version available on pypi
 
 [pip3 install defi-protocols](https://pypi.org/project/defi-protocols/0.0.1/)
 
@@ -57,7 +67,7 @@ License-File: LICENSE
 
 | Protocol      | Underlying | Rewards |
 |---------------|------------|---------|
-| AAVE          | ✔          | ✔       |
+| AAVE          | âœ”          | âœ”       |
 | Agave         |            ||
 | Aura          |            |         |
 | Balancer      |            |         |
@@ -72,5 +82,7 @@ License-File: LICENSE
 | Symmetric     |            |         |
 | Uniswap       |            |         |
 | Unit Protocol |            |         |
+
+
 
 
