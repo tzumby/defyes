@@ -25,6 +25,12 @@ defi_protocols.egg-info/SOURCES.txt
 defi_protocols.egg-info/dependency_links.txt
 defi_protocols.egg-info/requires.txt
 defi_protocols.egg-info/top_level.txt
+defi_protocols/Sushi/__init__.py
+defi_protocols/Sushi/sushi.py
+defi_protocols/constants/__init__.py
+defi_protocols/constants/constants.py
+defi_protocols/functions/__init__.py
+defi_protocols/functions/functions.py
 general/__init__.py
 general/blockchain_functions.py
 general/defi-config.json

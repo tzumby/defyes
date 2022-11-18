@@ -40,7 +40,7 @@
         },
         "xdai": {
             "latest": [
-                "first",
+                "https://rpc.gnosischain.com/",
                 "second",
                 "third",
                 "fourth"
