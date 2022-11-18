@@ -27,68 +27,57 @@ ABI_POOL = '[{"inputs":[],"name":"slot0","outputs":[{"internalType":"uint160","n
 # **kwargs:
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
+# 'fee' = fee
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_rate_uniswap_v3(token_src, token_dst, block, blockchain, **kwargs):
-
-    try:
-        execution = kwargs['execution']
-    except:
-        execution = 1
+def get_rate_uniswap_v3(token_src, token_dst, block, blockchain, web3=None, execution=1, index=0, fee=100):
 
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
-
-    try:
-        index = kwargs['index']
-    except:
-        index = 0
     
     try:
-        fee = kwargs['fee']
-    except:
-        fee = 100
-    
-    try:
-        web3 = get_node(blockchain, block = block, index = index)
+        if web3 == None:
+            web3 = get_node(blockchain, block=block, index=index)
 
         token_src = web3.toChecksumAddress(token_src)
         
         token_dst = web3.toChecksumAddress(token_dst)
         
-        factory_contract = get_contract(FACTORY, blockchain, web3 = web3, abi = ABI_FACTORY, block = block)
+        factory_contract = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
 
         pool_address = factory_contract.functions.getPool(token_src, token_dst, fee).call()
 
-        pool_contract = get_contract(pool_address, blockchain, web3 = web3, abi = ABI_POOL, block = block)
+        pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
 
-        sqrt_price_x96 = pool_contract.functions.slot0().call(block_identifier = block)[0]
+        sqrt_price_x96 = pool_contract.functions.slot0().call(block_identifier=block)[0]
         token0 = pool_contract.functions.token0().call()
         token1 = pool_contract.functions.token1().call()
 
-        token_src_decimals = get_decimals(token_src, blockchain, web3 = web3)
-        token_dst_decimals = get_decimals(token_dst, blockchain, web3 = web3)
+        token_src_decimals = get_decimals(token_src, blockchain, web3=web3)
+        token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
 
         if token_src == token0:
-            rate = (sqrt_price_x96 ** 2 / 2 ** 192) / (10 ** (token_dst_decimals - token_src_decimals))
+            rate = ((sqrt_price_x96**2) / (2**192)) / (10**(token_dst_decimals - token_src_decimals))
         elif token_src == token1:
-            rate = (2 ** 192 / sqrt_price_x96 ** 2) / (10 ** (token_dst_decimals - token_src_decimals))
+            rate = ((2**192) / (sqrt_price_x96**2)) / (10**(token_dst_decimals - token_src_decimals))
 
         return rate
     
-    except GetNodeLatestIndexError:
+    except GetNodeIndexError:
         index = 0
 
-        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, index = index, execution = execution + 1)
+        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, fee=fee, index=index, execution=execution + 1)
     
-    except GetNodeArchivalIndexError:
+    except GetNodeIndexError:
         index = 0
         
-        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, index = index, execution = execution + 1)
+        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, fee=fee, index=index, execution=execution + 1)
 
     except Exception as Ex:
         traceback.print_exc()
-        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, index = index + 1, execution = execution)
+        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, fee=fee, index=index + 1, execution=execution)
+
+
 
 # weth_price = getPriceCoinGecko('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', math.floor(datetime.now().timestamp()), ETHEREUM)[1][1]
 # rate = getRateUniswapV3('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', ETHEREUM)
