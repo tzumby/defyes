@@ -1,6 +1,4 @@
 from defi_protocols.constants.constants import *
-from db import blockchain_database
-
 from web3 import Web3
 import requests
 import json
