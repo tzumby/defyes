@@ -3,6 +3,7 @@ MANIFEST.in
 requirements.txt
 setup.py
 defi_protocols/__init__.py
+defi_protocols/config.json
 defi_protocols.egg-info/PKG-INFO
 defi_protocols.egg-info/SOURCES.txt
 defi_protocols.egg-info/dependency_links.txt

@@ -1,0 +1,140 @@
+{   
+    "apikeys": {
+        "etherscan": "xyz",
+        "polscan": "xyz",
+        "gnosisscan": "xyz",
+        "binance": "xyz",
+        "avalanche": "xyz",
+        "fantom": "xyz",
+        "ethplorer": "xyz"
+    },
+
+    "nodes": {
+        "ethereum": {
+            "latest": [
+                "https://eth-mainnet.g.alchemy.com/v2/ki4i9jNJQvVOD51oXAa9RWK1tptcFFqV",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "polygon": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "xdai": {
+            "latest": [
+                "https://rpc.gnosischain.com/",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "binance": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "avalanche": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "fantom": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "ropsten": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "kovan": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "goerli": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        }
+    }
+}

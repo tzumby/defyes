@@ -3,7 +3,7 @@ graft wheelhouse
 
 recursive-exclude __pycache__  *.pyc *.pyo *.orig
 
-include general/defi-config.json
+include defi_protocols/config.json
 include defi_protocols/Aura/Aura_db.json
 include defi_protocols/Convex/Convex_db.json
 include defi_protocols/SushiSwap/SushiSwap_db.json
