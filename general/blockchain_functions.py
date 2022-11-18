@@ -64,7 +64,7 @@ def get_node(blockchain, block='latest', index=0):
                 if index > (len(node['latest']) + len(node['archival']) - 1):
                     raise GetNodeIndexError
                 else:
-                    web3 = Web3(Web3.HTTPProvider(node['archival'][index-len(node['archival'])]))
+                    web3 = Web3(Web3.HTTPProvider(node['archival'][index-len(node['latest'])]))
             else:
                 web3 = Web3(Web3.HTTPProvider(node['latest'][index]))
         else:
