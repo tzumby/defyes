@@ -47,7 +47,15 @@ ABI_SPOT = '[{"constant":true,"inputs":[{"internalType":"bytes32","name":"","typ
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
+    """
 
+    :param vault_id:
+    :param block:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
     vault_data = {}
 
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
@@ -55,7 +63,7 @@ def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
         return None
     
     try:
-        if web3 == None: 
+        if web3 is None:
             web3 = get_node(ETHEREUM, block=block, index=index)
 
         cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
@@ -86,19 +94,11 @@ def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
         vault_data['dust'] = ilk_data[4] / 10**45
 
         return vault_data
-    
-    except GetNodeLatestIndexError:
-        index = 0
 
-        return get_vault_data(vault_id, block, index=index, execution=execution + 1)
+    except GetNodeIndexError:
+        return get_vault_data(vault_id, block, index=0, execution=execution + 1)
     
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_vault_data(vault_id, block, index=index, execution=execution + 1)
-    
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_vault_data(vault_id, block, index=index + 1, execution=execution)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -111,7 +111,15 @@ def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
 # 1 - Tuple: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(vault_id, block, web3=None, execution=1, index=0):
+    """
 
+    :param vault_id:
+    :param block:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
     result = []
 
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
@@ -119,7 +127,7 @@ def underlying(vault_id, block, web3=None, execution=1, index=0):
         return None
 
     try:
-        if web3 == None:
+        if web3 is None:
             web3 = get_node(ETHEREUM, block=block, index=index)
 
         vault_data = get_vault_data(vault_id, block, web3=web3)
@@ -132,17 +140,9 @@ def underlying(vault_id, block, web3=None, execution=1, index=0):
         result.append([vault_data['dai'], total_debt])
 
         return result
-    
-    except GetNodeLatestIndexError:
-        index = 0
 
-        return underlying(vault_id, block, index=index, execution=execution + 1)
-    
-    except GetNodeArchivalIndexError:
-        index = 0
-        
-        return underlying(vault_id, block, index=index, execution=execution + 1)
+    except GetNodeIndexError:
+        return underlying(vault_id, block, index=0, execution=execution + 1)
 
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return underlying(vault_id, block, index=index + 1, execution=execution)

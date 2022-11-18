@@ -63,12 +63,12 @@ def get_rate_uniswap_v3(token_src, token_dst, block, blockchain, web3=None, exec
 
         return rate
     
-    except GetNodeLatestIndexError:
+    except GetNodeIndexError:
         index = 0
 
         return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, fee=fee, index=index, execution=execution + 1)
     
-    except GetNodeArchivalIndexError:
+    except GetNodeIndexError:
         index = 0
         
         return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, fee=fee, index=index, execution=execution + 1)

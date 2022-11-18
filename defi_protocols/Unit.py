@@ -74,7 +74,11 @@ ABI_CDP_VIEWER = '[{"inputs":[{"internalType":"address","name":"asset","type":"a
 # getVaultAddress
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vault_address(blockchain):
+    """
 
+    :param blockchain:
+    :return:
+    """
     if blockchain == ETHEREUM:
         return VAULT_ETHEREUM
     
@@ -89,7 +93,11 @@ def get_vault_address(blockchain):
 # get_cdp_registry_address
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cdp_registry_address(blockchain):
+    """
 
+    :param blockchain:
+    :return:
+    """
     if blockchain == ETHEREUM:
         return CDP_REGISTRY_ETHEREUM
     
@@ -104,7 +112,11 @@ def get_cdp_registry_address(blockchain):
 # get_cdp_manager_address
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cdp_manager_address(blockchain):
+    """
 
+    :param blockchain:
+    :return:
+    """
     if blockchain == ETHEREUM:
         return CDP_MANAGER_ETHEREUM
     
@@ -119,7 +131,11 @@ def get_cdp_manager_address(blockchain):
 # get_cdp_viewer_address
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cdp_viewer_address(blockchain):
+    """
 
+    :param blockchain:
+    :return:
+    """
     if blockchain == ETHEREUM:
         return CDP_VIEWER_ETHEREUM
     
@@ -135,7 +151,18 @@ def get_cdp_viewer_address(blockchain):
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param wallet:
+    :param collateral_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
@@ -143,7 +170,7 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
     cdp_data = {}
     
     try:
-        if web3 == None: 
+        if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
         
         wallet = web3.toChecksumAddress(wallet)
@@ -189,7 +216,7 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
             cdp_data['collateral_address'] = collateral_address
 
             # Collateral Amount
-            if decimals == True:
+            if decimals is True:
                 cdp_data['collateral_amount'] = cdp_viewer_data[10][0] / (10**collateral_decimals)
             else:
                 cdp_data['collateral_amount'] = cdp_viewer_data[10][0]
@@ -198,7 +225,7 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
             # cdp_data['debt_address'] = usdp_address
 
             # Debt Amount
-            if decimals == True:
+            if decimals is True:
                 cdp_data['debt_amount'] = cdp_viewer_data[10][2] / (10**usdp_decimals)
             else:
                 cdp_data['debt_amount'] = cdp_viewer_data[10][2]
@@ -235,18 +262,10 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
         
         return cdp_data
 
-    except GetNodeLatestIndexError:
-        index = 0
-
-        return get_cdp_viewer_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
+    except GetNodeIndexError:
+        return get_cdp_viewer_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
     
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_cdp_viewer_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-    
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_cdp_viewer_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -258,7 +277,18 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param wallet:
+    :param collateral_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
@@ -266,7 +296,7 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execu
     cdp_data = {}
     
     try:
-        if web3 == None: 
+        if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
         
         wallet = web3.toChecksumAddress(wallet)
@@ -320,7 +350,7 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execu
             cdp_data['collateral_address'] = collateral_address
 
             # Collateral Amount
-            if decimals == True:
+            if decimals is True:
                 cdp_data['collateral_amount'] = collateral_amount / (10**collateral_decimals)
             else:
                 cdp_data['collateral_amount'] = collateral_amount 
@@ -329,7 +359,7 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execu
             cdp_data['debt_address'] = usdp_address
 
             # Debt Amount
-            if decimals == True:
+            if decimals is True:
                 cdp_data['debt_amount'] = debt_amount / (10**usdp_decimals)
             else:
                 cdp_data['debt_amount'] = debt_amount
@@ -350,7 +380,7 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execu
 
             # Debt Limit
             debt_limit = vault_parameters_contract.functions.tokenDebtLimit(collateral_address).call(block_identifier=block)
-            if decimals == True:
+            if decimals is True:
                 cdp_data['debt_limit'] = debt_limit / (10**usdp_decimals)
             else:
                 cdp_data['debt_limit'] = debt_limit
@@ -364,30 +394,22 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execu
                     debt_amount_all_cdps += vault_contract.functions.getTotalDebt(cdp[0], cdp[1]).call(block_identifier=block) / (10**usdp_decimals)
             
             if (cdp_data['collateral_usd_value'] * cdp_data['icr']) <= ((debt_limit / (10**usdp_decimals)) - debt_amount_all_cdps):
-                if decimals == True:
+                if decimals is True:
                     cdp_data['borrowable_debt'] = cdp_data['collateral_usd_value'] * cdp_data['icr']
                 else:
                     cdp_data['borrowable_debt'] = cdp_data['collateral_usd_value'] * cdp_data['icr'] * (10**usdp_decimals)
             else:
-                if decimals == True:
+                if decimals is True:
                     cdp_data['borrowable_debt'] = (debt_limit / (10**usdp_decimals)) - debt_amount_all_cdps
                 else:
                     cdp_data['borrowable_debt'] = ((debt_limit / (10**usdp_decimals)) - debt_amount_all_cdps) * (10**usdp_decimals)
         
         return cdp_data
 
-    except GetNodeLatestIndexError:
-        index = 0
-
-        return get_cdp_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
+    except GetNodeIndexError:
+        return get_cdp_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
     
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_cdp_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-    
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_cdp_data(wallet, collateral_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -401,7 +423,17 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execu
 # 1 - List of Tuples: [[collateral_addressN, collateral_amountN], [debt_addressN, -debt_amountN]]
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -409,7 +441,7 @@ def underlying(wallet, block, blockchain, web3=None, execution=1, index=0, decim
     result = []
 
     try:
-        if web3 == None:
+        if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
         wallet = web3.toChecksumAddress(wallet)
@@ -427,7 +459,7 @@ def underlying(wallet, block, blockchain, web3=None, execution=1, index=0, decim
 
             usdp_address = vault_contract.functions.usdp().call()
 
-            if decimals == True:
+            if decimals is True:
                 usdp_decimals = get_decimals(usdp_address, blockchain, web3=web3)
             else:
                 usdp_decimals = 0
@@ -436,7 +468,7 @@ def underlying(wallet, block, blockchain, web3=None, execution=1, index=0, decim
                 
                 if cdp_registry_contract.functions.isAlive(cdp[0], wallet).call(block_identifier=block):
                     
-                    if decimals == True:
+                    if decimals is True:
                         collateral_decimals = get_decimals(cdp[0], blockchain, web3=web3)
                     else:
                         collateral_decimals = 0
@@ -449,16 +481,8 @@ def underlying(wallet, block, blockchain, web3=None, execution=1, index=0, decim
 
             return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return underlying(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-        return underlying(wallet, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-    
-    except GetNodeArchivalIndexError:
-        index = 0
-        
-        return underlying(wallet, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return underlying(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)

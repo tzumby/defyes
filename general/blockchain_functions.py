@@ -2,6 +2,7 @@ from general.general_constants import *
 from db import blockchain_database
 
 from web3 import Web3
+
 import requests
 
 import json
@@ -16,12 +17,9 @@ import math
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CUSTOM EXCEPTIONS
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class GetNodeLatestIndexError(Exception):
+class GetNodeIndexError(Exception):
     pass
 
-
-class GetNodeArchivalIndexError(Exception):
-    pass
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -63,13 +61,18 @@ def get_node(blockchain, block='latest', index=0):
     if isinstance(block, str):
         if block == 'latest':
             if index > (len(node['latest']) - 1):
-                raise GetNodeLatestIndexError
+                if index > (len(node['latest']) + len(node['archival']) - 1):
+                    raise GetNodeIndexError
+                else:
+                    web3 = Web3(Web3.HTTPProvider(node['archival'][index-len(node['archival'])]))
             else:
                 web3 = Web3(Web3.HTTPProvider(node['latest'][index]))
+        else:
+            raise ValueError('Incorrect block.')
 
     else:
         if index > (len(node['archival']) - 1):
-            raise GetNodeArchivalIndexError
+            raise GetNodeIndexError
         else:
             web3 = Web3(Web3.HTTPProvider(node['archival'][index]))
 
@@ -673,7 +676,7 @@ def is_archival(endpoint) -> bool:
     web3 = Web3(Web3.HTTPProvider(endpoint))
 
     try:
-        web3.eth.get_balance(ZERO_ADDRESS, block_identifier=1)
+        web3.eth.get_balance('0x849D52316331967b6fF1198e5E32A0eB168D039d', block_identifier=1)
     except ValueError:
         return False
     return True

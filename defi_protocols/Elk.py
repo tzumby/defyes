@@ -36,7 +36,16 @@ SWAP_EVENT_SIGNATURE = 'Swap(address,uint256,uint256,uint256,uint256,address)'
 # 'web3' = web3 (Node) -> Improves performance
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1, index=0):
+    """
 
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
@@ -61,18 +70,10 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1,
 
         return lptoken_data
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return get_lptoken_data(lptoken_address, block, blockchain, index=0, execution=execution + 1)
 
-        return get_lptoken_data(lptoken_address, block, blockchain, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_lptoken_data(lptoken_address, block, blockchain, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_lptoken_data(lptoken_address, block, blockchain, index=index + 1, execution=execution)
 
 
@@ -80,7 +81,15 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1,
 # get_pool_address
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_address(web3, token0, token1, block, blockchain):
+    """
 
+    :param web3:
+    :param token0:
+    :param token1:
+    :param block:
+    :param blockchain:
+    :return:
+    """
     token0_contract = get_contract(token0, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
     token1_contract = get_contract(token1, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
 
@@ -134,7 +143,16 @@ def get_pool_address(web3, token0, token1, block, blockchain):
 # 1 - Tuple: [elk_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=True):
+    """
 
+    :param web3:
+    :param pool_contract:
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param decimals:
+    :return:
+    """
     elk_token_address = pool_contract.functions.rewardsToken().call()
 
     if decimals is True:
@@ -182,7 +200,19 @@ def get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals
 # 1 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, pool_contract=None):
+    """
 
+    :param wallet:
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :param pool_contract:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
@@ -204,7 +234,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
             #if pool_address != None:
             pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
 
-        if pool_contract != None: 
+        if pool_contract is not None:
             elk_rewards = get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=decimals)
             all_rewards.append(elk_rewards)
 
@@ -214,18 +244,10 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 
         return all_rewards
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, pool_contract=pool_contract, decimals=decimals, index=0, execution=execution + 1)
 
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, pool_contract=pool_contract, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, pool_contract=pool_contract, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_all_rewards(wallet, lptoken_address, block, blockchain, pool_contract=pool_contract, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -241,7 +263,19 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 # 2 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, reward=False):
-    
+    """
+
+    :param wallet:
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :param reward:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -300,18 +334,10 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
         return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
 
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -325,7 +351,17 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 # 1 - List of Tuples: [liquidity_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -350,7 +386,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 
             token_address = func().call()
 
-            if decimals == True:
+            if decimals is True:
                 token_decimals = get_decimals(token_address, blockchain, web3=web3)
                 token_balance = reserves[i] / (10**token_decimals)
             else:
@@ -360,18 +396,10 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 
         return balances
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -383,7 +411,18 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param lptoken_address:
+    :param block_start:
+    :param block_end:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -457,18 +496,10 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
 
         return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-        return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -525,16 +556,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
 
 #         return apr
 
-#     except GetNodeLatestIndexError:
-#         index = 0
+#     except GetNodeIndexError:
+#         return get_apr(lptoken_address, blockchain, block, index=0, execution=execution + 1)
 
-#         return get_apr(lptoken_address, blockchain, block, index=index, execution=execution + 1)
-
-#     except GetNodeArchivalIndexError:
-#         index = 0
-
-#         return get_apr(lptoken_address, blockchain, block, index=index, execution=execution + 1)
-
-#     except Exception as Ex:
-#         traceback.print_exc()
+#     except:
 #         return get_apr(lptoken_address, blockchain, block, index=index + 1, execution=execution)

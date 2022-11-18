@@ -45,7 +45,12 @@ ABI_CVX = '[{"inputs":[],"name":"reductionPerCliff","outputs":[{"internalType":"
 # [0] lptoken address, [1] token address, [2] gauge address, [3] crvRewards address, [4] stash adress, [5] shutdown bool
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_info(lptoken_address, block):
+    """
 
+    :param lptoken_address:
+    :param block:
+    :return:
+    """
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
@@ -53,7 +58,7 @@ def get_pool_info(lptoken_address, block):
     try:
         pool_info = db_data['pools'][lptoken_address]
         
-        if pool_info['shutdown'] == False:
+        if pool_info['shutdown'] is False:
             pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'], pool_info['stash'], pool_info['shutdown']]
 
             return pool_info
@@ -72,7 +77,7 @@ def get_pool_info(lptoken_address, block):
             shutdown_status = pool_info[5]
 
             if address == lptoken_address:
-                if shutdown_status == False:
+                if shutdown_status is False:
                     return pool_info
                 else:
                     return None
@@ -87,7 +92,16 @@ def get_pool_info(lptoken_address, block):
 # 1 - Tuples: [token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
+    """
 
+    :param web3:
+    :param rewarder_contract:
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param decimals:
+    :return:
+    """
     reward_token_address = rewarder_contract.functions.rewardToken().call()
 
     if decimals is True:
@@ -107,7 +121,16 @@ def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=Tru
 # 1 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=True):
+    """
 
+    :param web3:
+    :param crv_rewards_contract:
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param decimals:
+    :return:
+    """
     extra_rewards = []
 
     extra_rewards_length = crv_rewards_contract.functions.extraRewardsLength().call(block_identifier=block)
@@ -137,7 +160,15 @@ def get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, dec
 # 1 - Tuple: [cvx_token_address, minted_amount]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
+    """
 
+    :param web3:
+    :param crv_earned:
+    :param block:
+    :param blockchain:
+    :param decimals:
+    :return:
+    """
     cvx_amount = 0
 
     cvx_contract = get_contract(CVX_ETH, blockchain, web3=web3, abi=ABI_CVX, block=block)
@@ -159,7 +190,7 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
         if (cvx_amount > amount_till_max):
             cvx_amount = amount_till_max
     
-    if decimals == False:
+    if decimals is False:
         cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3)
         cvx_amount = cvx_amount * (10 ** cvx_decimals)
 
@@ -177,7 +208,19 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
 # 1 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, crv_rewards_contract=None):
+    """
 
+    :param wallet:
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :param crv_rewards_contract:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
@@ -195,7 +238,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         if crv_rewards_contract is None:
             pool_info = get_pool_info(lptoken_address, block)
 
-            if pool_info == None:
+            if pool_info is None:
                 print('Error: Incorrect Convex LPToken Address: ', lptoken_address)
                 return None
 
@@ -220,18 +263,10 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 
         return all_rewards
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract, decimals=decimals, index=0, execution=execution + 1)
 
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -247,7 +282,18 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 # 2 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True):
+    """
 
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param reward:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -260,7 +306,7 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 
         cvx_locker_contract = get_contract(CVX_LOCKER, blockchain, web3=web3, block=block)
 
-        if decimals == True:
+        if decimals is True:
             cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3)
         else:
             cvx_decimals = 0
@@ -269,7 +315,7 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 
         result = [[CVX_ETH, cvx_locker]]
 
-        if reward == True:
+        if reward is True:
             rewards = []
             cvx_locker_rewards = cvx_locker_contract.functions.claimableRewards(wallet).call(block_identifier=block)
 
@@ -277,7 +323,7 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 
                 if cvx_locker_reward[1] > 0:
 
-                    if decimals == True:
+                    if decimals is True:
                         reward_decimals = get_decimals(cvx_locker_reward[0], blockchain, web3=web3)
                     else:
                         reward_decimals = 0
@@ -288,18 +334,10 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 
         return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
 
-        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_cvx_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -315,7 +353,18 @@ def get_cvx_locked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 # 2 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cvx_staked(wallet, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True):
+    """
 
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param reward:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -356,18 +405,10 @@ def get_cvx_staked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 
         return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
 
-        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_cvx_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -385,7 +426,20 @@ def get_cvx_staked(wallet, block, blockchain, web3=None, execution=1, index=0, r
 # 2 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True, no_curve_underlying=False):
-    
+    """
+
+    :param wallet:
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param reward:
+    :param decimals:
+    :param no_curve_underlying:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -435,18 +489,10 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
         return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_curve_underlying=no_curve_underlying, index=0, execution=execution + 1)
 
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_curve_underlying=no_curve_underlying, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_curve_underlying=no_curve_underlying, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_curve_underlying=no_curve_underlying, index=index + 1, execution=execution)
 
 
@@ -460,7 +506,17 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 # 1 - List of Tuples: [liquidity_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -475,18 +531,10 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 
         return balances
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -494,7 +542,10 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 # update_db
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db():
+    """
 
+    :return:
+    """
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/convex.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)

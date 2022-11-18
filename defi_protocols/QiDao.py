@@ -1,5 +1,6 @@
 from general.blockchain_functions import *
 
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # QIDAO_VAULTS
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -48,7 +49,12 @@ ABI_CHAINLINK_PRICE_FEED = '[{"inputs":[],"name":"latestAnswer","outputs":[{"int
 # get_vault_address
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vault_address(collateral_address, blockchain):
+    """
 
+    :param collateral_address:
+    :param blockchain:
+    :return:
+    """
     vault_address = None
 
     for qidao_vault in QIDAO_VAULTS:
@@ -75,7 +81,18 @@ def get_vault_address(collateral_address, blockchain):
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param vault_id:
+    :param collateral_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
@@ -83,15 +100,15 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, e
     vault_data = {}
     
     try:
-        if web3 == None: 
+        if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
         collateral_address = web3.toChecksumAddress(collateral_address)
         
         vault_address = get_vault_address(collateral_address, blockchain)
 
-        if vault_address != None:
-            vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
+        if vault_address is not None:
+            vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block='latest')
 
             if vault_contract.functions.exists(vault_id).call(block_identifier=block):
 
@@ -109,7 +126,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, e
                 vault_data['collateral_address'] = collateral_address
 
                 # Collateral Amount
-                if decimals == True:
+                if decimals is True:
                     vault_data['collateral_amount'] = vault_collateral / (10**collateral_decimals)
                 else:
                     vault_data['collateral_amount'] = vault_collateral
@@ -121,7 +138,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, e
                 vault_data['debt_address'] = debt_address
      
                 # Debt Amount
-                if decimals == True:
+                if decimals is True:
                     vault_data['debt_amount'] = vault_debt / (10**debt_decimals)
                 else:
                     vault_data['debt_amount'] = vault_debt
@@ -132,13 +149,19 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, e
                 vault_data['debt_token_usd_value'] = vault_contract.functions.getTokenPriceSource().call(block_identifier=block) / (10**price_source_decimals)
         
                 # Debt USD Value
-                vault_data['debt_usd_value'] = (vault_debt / (10**debt_decimals)) * vault_data['debt_token_usd_value']
+                if vault_debt != 0:
+                    vault_data['debt_usd_value'] = (vault_debt / (10**debt_decimals)) * vault_data['debt_token_usd_value']
+                else:
+                    vault_data['debt_usd_value'] = 0
 
                  # Collateral Ratio
-                vault_data['collateral_ratio'] = (((vault_collateral / (10**collateral_decimals)) * vault_data['collateral_token_usd_value']) / vault_data['debt_usd_value']) * 100
+                if vault_debt != 0:
+                    vault_data['collateral_ratio'] = (((vault_collateral / (10**collateral_decimals)) * vault_data['collateral_token_usd_value']) / vault_data['debt_usd_value']) * 100
+                else:
+                    vault_data['collateral_ratio'] = None
 
                 # Available Debt Amount to Borrow
-                if decimals == True:
+                if decimals is True:
                     vault_data['available_debt_amount'] = vault_contract.functions.getDebtCeiling().call(block_identifier=block) / (10**debt_decimals)
                 else:
                     vault_data['available_debt_amount'] = vault_contract.functions.getDebtCeiling().call(block_identifier=block)
@@ -147,31 +170,27 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, e
                 vault_data['liquidation_ratio'] = vault_contract.functions._minimumCollateralPercentage().call(block_identifier=block)
 
                 # Liquidation Price
-                vault_data['liquidation_price'] = ((vault_data['liquidation_ratio'] / 100) * vault_data['debt_usd_value']) / (vault_collateral / (10**collateral_decimals))
+                if vault_debt != 0:
+                    vault_data['liquidation_price'] = ((vault_data['liquidation_ratio'] / 100) * vault_data['debt_usd_value']) / (vault_collateral / (10**collateral_decimals))
+                else:
+                    vault_data['liquidation_price'] = None
 
-                # Debt Token USD Value
-                price_feed_contract = get_contract(CHAINLINK_MATIC_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block)
+                # Debt Token USD Value from Polygon Chainlink feed
+                block_polygon = timestamp_to_block(block_to_timestamp(block, blockchain), POLYGON)
+                price_feed_contract = get_contract(CHAINLINK_MATIC_USD, POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon)
                 price_feed_decimals = price_feed_contract.functions.decimals().call()
-                matic_usd_price = price_feed_contract.functions.latestAnswer().call(block_identifier=block) / (10 ** price_feed_decimals)
+                matic_usd_price = price_feed_contract.functions.latestAnswer().call(block_identifier=block_polygon) / (10 ** price_feed_decimals)
 
-                oracle_contract = get_contract(ORACLE_1INCH_POLYGON, blockchain, web3=web3, abi=ABI_ORACLE, block=block)
-                rate = oracle_contract.functions.getRateToEth(MAI_POL, False).call(block_identifier=block) / (10 ** abs(18 + 18 - debt_decimals))
+                oracle_contract = get_contract(ORACLE_1INCH_POLYGON, POLYGON, abi=ABI_ORACLE, block=block_polygon)
+                rate = oracle_contract.functions.getRateToEth(MAI_POL, False).call(block_identifier=block_polygon) / (10 ** abs(18 + 18 - debt_decimals))
                 vault_data['debt_token_usd_value'] = matic_usd_price * rate
 
         return vault_data
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return get_vault_data(vault_id, collateral_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-        return get_vault_data(vault_id, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-    
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_vault_data(vault_id, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-    
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_vault_data(vault_id, collateral_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -185,7 +204,18 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, e
 # 1 - Tuple: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(vault_id, collateral_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
 
+    :param vault_id:
+    :param collateral_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -193,19 +223,19 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, execu
     result = []
 
     try:
-        if web3 == None:
+        if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
         
         collateral_address = web3.toChecksumAddress(collateral_address)
         
         vault_address = get_vault_address(collateral_address, blockchain)
 
-        if vault_address != None:
+        if vault_address is not None:
             vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
             if vault_contract.functions.exists(vault_id).call(block_identifier=block):
                 
-                if decimals == True:
+                if decimals is True:
                     collateral_decimals = get_decimals(collateral_address, blockchain, web3=web3)
                 else:
                     collateral_decimals = 0
@@ -216,7 +246,7 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, execu
 
                 debt_address = vault_contract.functions.mai().call()
 
-                if decimals == True:
+                if decimals is True:
                     debt_decimals = get_decimals(debt_address, blockchain, web3=web3)
                 else:
                     debt_decimals = 0
@@ -227,16 +257,8 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, execu
 
         return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return underlying(vault_id, collateral_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-        return underlying(vault_id, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-    
-    except GetNodeArchivalIndexError:
-        index = 0
-        
-        return underlying(vault_id, collateral_address, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return underlying(vault_id, collateral_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)

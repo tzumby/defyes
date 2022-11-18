@@ -65,7 +65,11 @@ def get_lpapr_address(blockchain):
 # get_reserves_tokens
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens(pdp_contract):
+    """
 
+    :param pdp_contract:
+    :return:
+    """
     reserves_tokens_addresses = []
 
     reserves_tokens = pdp_contract.functions.getAllReservesTokens().call()
@@ -81,7 +85,15 @@ def get_reserves_tokens(pdp_contract):
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True):
+    """
 
+    :param web3:
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param decimals:
+    :return:
+    """
     balances = []
 
     pdp_address = get_protocol_data_provider(blockchain)
@@ -118,7 +130,17 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimals=True):
+    """
 
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param execution:
+    :param web3:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -183,18 +205,11 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 
         return agave_data
 
-    except GetNodeLatestIndexError:
-        index = 0
 
-        return get_data(wallet, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
+    except GetNodeIndexError:
+        return get_data(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_data(wallet, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_data(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -208,7 +223,17 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 # 1 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
+    """
 
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param execution:
+    :param web3:
+    :param index:
+    :param decimals:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
     if execution > MAX_EXECUTIONS:
         return None
@@ -237,18 +262,10 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 
         return all_rewards
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return get_all_rewards(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-        return get_all_rewards(wallet, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return get_all_rewards(wallet, block, blockchain, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return get_all_rewards(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
@@ -263,13 +280,23 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 # 2 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False):
+    """
 
+    :param wallet:
+    :param block:
+    :param blockchain:
+    :param execution:
+    :param web3:
+    :param index:
+    :param decimals:
+    :param reward:
+    :return:
+    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
 
     result = []
-    balances = []
 
     try:
         if web3 is None:
@@ -290,16 +317,8 @@ def underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decim
 
         return result
 
-    except GetNodeLatestIndexError:
-        index = 0
+    except GetNodeIndexError:
+        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
 
-        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except GetNodeArchivalIndexError:
-        index = 0
-
-        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index, execution=execution + 1)
-
-    except Exception as Ex:
-        traceback.print_exc()
+    except:
         return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
