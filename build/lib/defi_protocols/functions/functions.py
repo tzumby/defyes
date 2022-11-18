@@ -656,39 +656,6 @@ def get_block_samples(start_date, samples, blockchain, end_date='latest', utc=0,
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-LPTOKENSDATABASE = blockchain_database.LPTOKENSDATABASE
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# liquidity tokens and pools
-# These functions will be deleted in the near future, along with LPTOKENS_DATABASE and blockchain_database.py
-
-def lptoken_underlying(lptoken_address, amount, block, blockchain):
-    web3 = get_node(blockchain, block=block)
-    index = [LPTOKENSDATABASE[i][1].lower() for i in range(len(LPTOKENSDATABASE))].index(lptoken_address.lower())
-    poolAddress = web3.toChecksumAddress(LPTOKENSDATABASE[index][2])
-    tokens = LPTOKENSDATABASE[index][3]
-    fraction = amount / total_supply(web3.toChecksumAddress(lptoken_address), block, blockchain)
-
-    return [[tokens[i], fraction * balance_of(poolAddress, tokens[i], block, blockchain)] for i in range(len(tokens))]
-
-
-def pool_balance(lptoken_address, block, blockchain):
-    web3 = get_node(blockchain, block=block)
-    lptoken_address = web3.toChecksumAddress(lptoken_address)
-
-    return lptoken_underlying(lptoken_address, total_supply(lptoken_address, block, blockchain), block, blockchain)
-
-
-def balance_of_lptoken_underlying(address, lptoken_address, block, blockchain):
-    web3 = get_node(blockchain, block=block)
-
-    return lptoken_underlying(web3.toChecksumAddress(lptoken_address),
-                              balance_of(address, web3.toChecksumAddress(lptoken_address), block, blockchain), block)
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 def is_archival(endpoint) -> bool:
     """
     Checks whether a node is an archival node or a full node.
