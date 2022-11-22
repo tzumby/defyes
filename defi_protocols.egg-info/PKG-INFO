@@ -16,72 +16,40 @@ License-File: LICENSE
 
 # Python package for Defi Protocols
 
-##Installing from Github repository
+## Installing from repository
 
 Run `pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_protocols`
 
-## Updating the installable package
 
-After pushing changes, run `python3 setup.py sdist bdist_wheel` so that the latest version can be installed from github.
-
-## Install latest version available on pypi
+## Installing latest version available on pypi
 
 [pip3 install defi-protocols](https://pypi.org/project/defi-protocols/0.0.1/)
 
+
 ## Config 
 
-- First you will have to modify the `defi-config.json` under `/path/to/python/site-packages/general/defi-config.json`
+- First you will have to modify the `defi-config.json` under `/path/to/python/site-packages/defi-protocols/config.json`
 
 - You should provide `RPC` endpoints and `EXPLORER API KEYS`
 
 
-## Lerning
 
-### How I created the package and useful commands!!
-
-- You will have to create `__init__.py` in each of the folder you want to make it work as a module
-
-  - You can see we have three folders(modules) here `db` , `general` and `defi-protocols`
-
-- Create `LICENCE` ( Which can be created during repo creation and its super easy)
-
-- Create `MANIFEST.in` , in which you would mention the packaging of the files
-
-- NOT MANDATORY: Create requirements.txt, with the help of this you can mention needed packages for this package, which should be installed as a dependencies and should be mentioned in `setup.py`
-
-- Create `setup.py` , in that you can mention all the details needed, checkout the reference for the help!
-
-- Create beautiful `README.md` with the package use case!
-
-### Commands
-
-- Run below commands in order to create the package and push it to `pypi`
-
-  - First create account at pypi
-
-- `python3 setup.py sdist bdist_wheel`
-
-- `twine upload --verbose --repository pypi dist/* `
-
-- Give `Username` and `Password` of your `pypi` account
-
-| Protocol      | Underlying | Rewards |
-|---------------|------------|---------|
-| AAVE          | âœ”          | âœ”       |
-| Agave         |            ||
-| Aura          |            |         |
-| Balancer      |            |         |
-| Convex        |            |         |
-| Curve         |            |         |
-| Elk           |            |         |
-| Honeyswap     |            | -       |
-| Maker         |            |         |
-| QiDAO         |            |         |
-| SushiSwap     |            |         |
-| Swapr         |            |         |
-| Symmetric     |            |         |
-| Uniswap       |            |         |
-| Unit Protocol |            |         |
+| Protocol      | Underlying | Rewards  |
+|---------------|------------|----------|
+| AAVE          | âœ”          | âœ”        |
+| Agave         | âœ”          | âœ”        |
+| Aura          | âœ”          | âœ”        |
+| Balancer      | âœ”          | âœ”        |
+| Convex        | âœ”          | âœ”        |
+| Curve         | âœ”          | âœ”        |
+| Elk           | âœ”          | âœ”        |
+| Honeyswap     | âœ”          | -        |
+| Maker         | âœ”          | -        |
+| QiDAO         | âœ”          | -        |
+| SushiSwap     | âœ”          | âœ”        |
+| Swapr         | âœ”          | âœ”        |
+| Symmetric     | âœ”          | âœ”        |
+| Unit Protocol | âœ”          | âœ”        |
 
 
 
