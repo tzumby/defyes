@@ -34,7 +34,7 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
         try:
             if token_mapping_data is None:
-                with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/db/token_mapping.json',
+                with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/token_mapping.json',
                           'r') as token_mapping_file:
                     # Reading from json file
                     token_mapping_data = json.load(token_mapping_file)
@@ -132,7 +132,7 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
 
 def get_today_prices_data(file_name, return_type='df'):
-    file = open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/' + file_name, 'r')
+    file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/' + file_name, 'r')
     token_file = json.load(file)
 
     price = []
