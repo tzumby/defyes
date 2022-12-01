@@ -29,6 +29,10 @@ GOERLI = 'goerli'
 
 with open(str(Path(os.path.abspath(__file__)).resolve().parents[1])+'/config.json', 'r') as config_file:
     config_data = json.load(config_file)
+    # try:
+    # if config_data['config'] != True:
+    #     print('please check configuration, your config would be considere locally')
+        
     config_file.close()
 
 NODE_ETH = {

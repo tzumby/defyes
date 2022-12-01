@@ -131,7 +131,7 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
                          execution=execution)
 
 
-def get_today_prices_data(file_name, return_type='df'):
+def get_today_prices_data(file_name, return_type='df',web3=None):
     file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/' + file_name, 'r')
     token_file = json.load(file)
 
@@ -140,6 +140,7 @@ def get_today_prices_data(file_name, return_type='df'):
     time_stamp = []
     blockchain = []
     token_address_data = []
+    date_stamp = []
 
     for j in tqdm((token_file.keys())):  # Recorro las blockchain
         for k in tqdm((token_file[j].keys())):
@@ -151,25 +152,28 @@ def get_today_prices_data(file_name, return_type='df'):
             now = datetime(datetime.now().year, datetime.now().month, datetime.now().day, datetime.now().hour,
                            datetime.now().minute)
             reference_block = (date_to_block(now.strftime('%Y-%m-%d %H:%M:%S'), token_blokchain))
-
-            data = get_price(token_address, reference_block, token_blokchain)
+            
+            data = get_price(token_address, reference_block, token_blokchain,web3=web3)
             # print('Price Of',token_symbol,data,)
             price.append(data[0])
             source.append(data[1])
-            time_stamp.append(now)
+            time_stamp.append(now.strftime("%Y-%m-%d %H:%M:00"))
+            date_stamp.append(now.strftime("%Y-%m-%d"))
             blockchain.append(data[2])
             token_address_data.append(token_address)
 
     # token_address.append(token_address[0])
 
     data_raw = {
-        'time_stamp': time_stamp,
-        'price': price,
-        'source': source,
-        'token_address': token_address_data,
-        'blockchain': blockchain
-
-    }
+        
+            'Price_Datetime' : time_stamp,
+            'Price_Date': date_stamp,  #.strftime("%Y-%m-%d")   
+            'Price' : price,
+            'Source': source,
+            'Token_Address' : token_address_data,
+            'Blockchain': blockchain
+        
+            }
 
     if return_type == 'df':
         df = pd.DataFrame(data_raw)

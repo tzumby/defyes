@@ -1,4 +1,5 @@
-{   
+{   "config": true,
+
     "apikeys": {
         "etherscan": "xyz",
         "polscan": "xyz",
