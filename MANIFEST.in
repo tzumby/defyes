@@ -8,6 +8,8 @@ include defi_protocols/Aura/Aura_db.json
 include defi_protocols/Convex/Convex_db.json
 include defi_protocols/SushiSwap/SushiSwap_db.json
 include defi_protocols/Symmetric/Symmetric_db.json
+include defi_protocols/prices/token_mapping.json
+
 include *.json
 exclude *.git*
 exclude *.coveragerc
