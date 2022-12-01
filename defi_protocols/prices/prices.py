@@ -151,9 +151,11 @@ def get_today_prices_data(file_name, return_type='df',web3=None):
 
             now = datetime(datetime.now().year, datetime.now().month, datetime.now().day, datetime.now().hour,
                            datetime.now().minute)
-            reference_block = (date_to_block(now.strftime('%Y-%m-%d %H:%M:%S'), token_blokchain))
+ 
+            # Use reference_block just if latest not needed.
+            # reference_block = (date_to_block(now.strftime('%Y-%m-%d %H:%M:%S'), token_blokchain))
             
-            data = get_price(token_address, reference_block, token_blokchain,web3=web3)
+            data = get_price(token_address, 'latest', token_blokchain,web3=web3)
             # print('Price Of',token_symbol,data,)
             price.append(data[0])
             source.append(data[1])
