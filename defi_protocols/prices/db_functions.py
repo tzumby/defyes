@@ -1,4 +1,4 @@
-from defi_protocols.functions.functions import *
+from defi_protocols.functions import *
 import json
 from pathlib import Path
 import os

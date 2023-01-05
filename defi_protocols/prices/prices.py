@@ -1,4 +1,4 @@
-from defi_protocols.functions.functions import *
+from defi_protocols.functions import *
 from defi_protocols.prices import Chainlink
 from defi_protocols.prices import CoinGecko
 from defi_protocols.prices import _1inch
