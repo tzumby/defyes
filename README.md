@@ -76,5 +76,5 @@ Follow use on [twitter](https://twitter.com/karpatkey)
 
 
 <p>
-  <img width='1500' height='500' src="img/baner2.png">
+  <img width='1500' height='250' src="img/baner2.png">
 </p>
