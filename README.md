@@ -9,7 +9,7 @@
 
 ## 🌻 Motivation
 
-While Karpatkey tech team has always been dealing with defi protocols for various purposes, being it getting prices, underlying tokens, pools, rewards, alerts, fees, reporting, APRs, etc. We were in constant search of one of a kind library, and we realized its now on us to contribute to the society so ended up creating this one!
+ Karpatkey tech team has always been dealing with defi protocols for various purposes, like getting prices, underlying tokens, pools, rewards, alerts, fees, reporting, APRs, etc. As a result of this search we created this protocol with all the knowledge acquired to contribute to the web3 and DEFI community. We hope it will be useful for your developments!
 
 
 ## Repo Url
@@ -38,25 +38,25 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 ## Protocols supported
 
 
-| Protocol      | Underlying | Rewards |
-|---------------|------------|---------|
-| AAVE          | ✔          | ✔       |
-| Agave         | ✔          | ✔       |
-| Aura          | ✔          | ✔       |
-| Balancer      | ✔          | ✔       |
-| Bancor        | ✔          | ?       |
-| Convex        | ✔          | ✔       |
-| Curve         | ✔          | ✔       |
-| Elk           | ✔          | ✔       |
-| Honeyswap     | ✔          | -       |
-| Maker         | ✔          | -       |
-| QiDao         | ✔          | -       |
-| SushiSwap     | ✔          | ✔       |
-| Swapr         | ✔          | ✔       |
-| Symmetric     | ✔          | ✔       |
-| Unit Protocol | ✔          | ✔       |
-| Uniswap V3    | ✔          | ?       |
-| Compound      | ✔          | pending |
+| Protocol      | Underlying | Rewards | Fees |
+|---------------|------------|---------|------|
+| AAVE          | ✔          | ✔       |  -   |
+| Agave         | ✔          | ✔       |  -   |
+| Aura          | ✔          | ✔       |  -   |
+| Balancer      | ✔          | ✔       |  -   |
+| Bancor        | ✔          | ?       |  -   |
+| Convex        | ✔          | ✔       |  -   |
+| Curve         | ✔          | ✔       |  -   |
+| Elk           | ✔          | ✔       |  -   |
+| Honeyswap     | ✔          | -       |  -   |
+| Maker         | ✔          | -       |  -   |
+| QiDao         | ✔          | -       |  -   |
+| SushiSwap     | ✔          | ✔       |  -   |
+| Swapr         | ✔          | ✔       |  -   |
+| Symmetric     | ✔          | ✔       |  -   |
+| Unit Protocol | ✔          | ✔       |  -   |
+| Uniswap V3    | ✔          | ?       |  -   |
+| Compound      | ✔          | pending |  -   |
 
 
 ## 💙 Contributing
