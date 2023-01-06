@@ -30,7 +30,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 
 ## Config 
 
-- First you will have to modify the [config.json](defi_protocols/config.json) and place under `/path/to/python/site-packages/defi-protocols/config.json`
+- First you will have to modify the [config.json](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/defi_protocols/config.json) and place under `/path/to/python/site-packages/defi-protocols/config.json`
 
 - You should provide `RPC` endpoints and `EXPLORER API KEYS`
 
