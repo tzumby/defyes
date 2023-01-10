@@ -726,6 +726,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
   </details>
 
 - <details><summary><b>Aura</b></summary>
+  
   # Aura
 
   ## Defined in Aura.py
