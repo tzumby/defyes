@@ -45,6 +45,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 | Aura          | ✔          | ✔       |  -   |
 | Balancer      | ✔          | ✔       |  -   |
 | Bancor        | ✔          | ?       |  -   |
+| Compound      | ✔          | pending |  -   |
 | Convex        | ✔          | ✔       |  -   |
 | Curve         | ✔          | ✔       |  -   |
 | Elk           | ✔          | ✔       |  -   |
@@ -56,7 +57,6 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 | Symmetric     | ✔          | ✔       |  -   |
 | Unit Protocol | ✔          | ✔       |  -   |
 | Uniswap V3    | ✔          | ?       |  -   |
-| Compound      | ✔          | pending |  -   |
 
 
 ## Docs
