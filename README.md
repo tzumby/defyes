@@ -2541,7 +2541,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 
   </details>
 
-- <details><summary><b>Functions</b></summary>
+- <details><summary><b>Reflexer</b></summary>
 
   # Reflexer
 
