@@ -2001,7 +2001,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 
   </details>
 
-- <details><summary><b>Curve</b></summary>
+- <details><summary><b>Elk</b></summary>
 
   # Elk
 
