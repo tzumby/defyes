@@ -43,18 +43,18 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 | AAVE          | ✔          | ✔       |  -   |
 | Agave         | ✔          | ✔       |  -   |
 | Aura          | ✔          | ✔       |  -   |
-| Balancer      | ✔          | ✔       |  -   |
+| Balancer      | ✔          | ✔       |  ✔   |
 | Bancor        | ✔          | ?       |  -   |
 | Compound      | ✔          | pending |  -   |
 | Convex        | ✔          | ✔       |  -   |
-| Curve         | ✔          | ✔       |  -   |
-| Elk           | ✔          | ✔       |  -   |
-| Honeyswap     | ✔          | -       |  -   |
+| Curve         | ✔          | ✔       |  ✔   |
+| Elk           | ✔          | ✔       |  ✔   |
+| Honeyswap     | ✔          | -       |  ✔   |
 | Maker         | ✔          | -       |  -   |
 | QiDao         | ✔          | -       |  -   |
-| SushiSwap     | ✔          | ✔       |  -   |
-| Swapr         | ✔          | ✔       |  -   |
-| Symmetric     | ✔          | ✔       |  -   |
+| SushiSwap     | ✔          | ✔       |  ✔   |
+| Swapr         | ✔          | ✔       |  ✔   |
+| Symmetric     | ✔          | ✔       |  ✔   |
 | Unit Protocol | ✔          | ✔       |  -   |
 | Uniswap V3    | ✔          | ?       |  -   |
 
