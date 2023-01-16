@@ -38,25 +38,25 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 ## Protocols supported
 
 
-| Protocol      | Underlying | Rewards | Fees |
-|---------------|------------|---------|------|
-| AAVE          | ✔          | ✔       |  -   |
-| Agave         | ✔          | ✔       |  -   |
-| Aura          | ✔          | ✔       |  -   |
-| Balancer      | ✔          | ✔       |  ✔   |
-| Bancor        | ✔          | ?       |  -   |
-| Compound      | ✔          | pending |  -   |
-| Convex        | ✔          | ✔       |  -   |
-| Curve         | ✔          | ✔       |  ✔   |
-| Elk           | ✔          | ✔       |  ✔   |
-| Honeyswap     | ✔          | -       |  ✔   |
-| Maker         | ✔          | -       |  -   |
-| QiDao         | ✔          | -       |  -   |
-| SushiSwap     | ✔          | ✔       |  ✔   |
-| Swapr         | ✔          | ✔       |  ✔   |
-| Symmetric     | ✔          | ✔       |  ✔   |
-| Unit Protocol | ✔          | ✔       |  -   |
-| Uniswap V3    | ✔          | ?       |  -   |
+| Protocol      | Underlying | Rewards | Fees | docs |
+|---------------|------------|---------|------|------|
+| AAVE          | ✔          | ✔       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Aave.md)   |
+| Agave         | ✔          | ✔       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Agave.md)   |
+| Aura          | ✔          | ✔       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Aura.md)   |
+| Balancer      | ✔          | ✔       |  ✔   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Balancer.md)   |
+| Bancor        | ✔          | ?       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Bancor.md)   |
+| Compound      | ✔          | pending |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Compound.md)   |
+| Convex        | ✔          | ✔       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Convex.md)   |
+| Curve         | ✔          | ✔       |  ✔   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Curve.md)   |
+| Elk           | ✔          | ✔       |  ✔   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Elk.md)   |
+| Honeyswap     | ✔          | -       |  ✔   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Honeyswap.md)   |
+| Maker         | ✔          | -       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Maker.md)   |
+| QiDao         | ✔          | -       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/QiDao.md)   |
+| SushiSwap     | ✔          | ✔       |  ✔   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Sushiswap.md)   |
+| Swapr         | ✔          | ✔       |  ✔   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Swapr.md)   |
+| Symmetric     | ✔          | ✔       |  ✔   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Symmetric.md)   |
+| Unit Protocol | ✔          | ✔       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/Unit.md)   |
+| Uniswap V3    | ✔          | ?       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/docs/UniswapV3.md)   |
 
 
 ## Docs
