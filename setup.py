@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="defi_protocols",
-    version="0.0.2",
+    version="0.0.3",
     author="dharmendrakariya",
     author_email="dharmendra@karpatkey.com",
     description="A simple defi_protocols package",
