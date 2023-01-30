@@ -420,6 +420,9 @@ def get_symbol(token_address, blockchain, execution=1, web3=None, block='latest'
 
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
+        
+        if not web3.isConnected():
+            raise Exception
 
         token_address = web3.toChecksumAddress(token_address)
 

@@ -7,7 +7,6 @@ import json
 # BLOCKCHAINS
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-CHIADO = 'chiado'
 ETHEREUM = 'ethereum'
 POLYGON = 'polygon'
 XDAI = 'xdai'
@@ -140,6 +139,7 @@ STETH_ETH = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
 STK_AAVE_ETH = '0x4da27a545c0c5B758a6BA100e3a049001de870f5'
 USDT_ETH = '0xdAC17F958D2ee523a2206206994597C13D831ec7'
 USDC_ETH = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+WBTC_ETH = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
 WETH_ETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 WSTETH_ETH = '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'
 X3CRV_ETH = '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490'

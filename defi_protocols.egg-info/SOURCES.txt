@@ -7,7 +7,6 @@ defi_protocols/Agave.py
 defi_protocols/Aura.py
 defi_protocols/Balancer.py
 defi_protocols/Bancor.py
-defi_protocols/Chiado.py
 defi_protocols/Compound.py
 defi_protocols/Convex.py
 defi_protocols/Curve.py
@@ -16,7 +15,6 @@ defi_protocols/Elk.py
 defi_protocols/Honeyswap.py
 defi_protocols/Maker.py
 defi_protocols/QiDao.py
-defi_protocols/Reflexer.py
 defi_protocols/SushiSwap.py
 defi_protocols/Swapr.py
 defi_protocols/Symmetric.py
@@ -26,7 +24,6 @@ defi_protocols/__init__.py
 defi_protocols/config.json
 defi_protocols/constants.py
 defi_protocols/functions.py
-defi_protocols/test_env.py
 defi_protocols.egg-info/PKG-INFO
 defi_protocols.egg-info/SOURCES.txt
 defi_protocols.egg-info/dependency_links.txt
@@ -44,4 +41,7 @@ defi_protocols/prices/db_functions.py
 defi_protocols/prices/prices.py
 defi_protocols/prices/token_mapping.json
 defi_protocols/util/__init__.py
+defi_protocols/util/api.py
+defi_protocols/util/enums.py
+defi_protocols/util/explorers.py
 defi_protocols/util/topic.py

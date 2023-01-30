@@ -31,6 +31,13 @@ ABI_REWARDER = '[{"inputs":[{"internalType":"uint256","name":"pid","type":"uint2
 ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getReserves","outputs":[{"internalType":"uint112","name":"_reserve0","type":"uint112"},{"internalType":"uint112","name":"_reserve1","type":"uint112"},{"internalType":"uint32","name":"_blockTimestampLast","type":"uint32"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
+ABI_LPTOKENV1 = '[{"constant": true,"inputs": [],"name": "getCurrentTokens","outputs": [{"internalType": "address[]","name": "tokens","type": "address[]"}],"payable": false,"stateMutability": "view","type": "function"},\
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getReserves","outputs":[{"internalType":"uint112","name":"_reserve0","type":"uint112"},{"internalType":"uint112","name":"_reserve1","type":"uint112"},{"internalType":"uint32","name":"_blockTimestampLast","type":"uint32"}],"stateMutability":"view","type":"function"}, \
+            {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
+            {"constant": true,"inputs": [{"internalType": "address","name": "token","type": "address"}],"name": "getBalance","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"}]'
+
+SWAP_EVENT_SIGNATURE = 'LOG_SWAP(address,address,address,uint256,uint256)'
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_vault_contract
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -628,3 +635,146 @@ def update_db():
     if update == True:
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0])+'/db/Symmetric_db.json', 'w') as db_file:
             json.dump(db_data, db_file)
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# underlying
+# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
+# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
+# 'web3' = web3 (Node) -> Improves performance
+# 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
+# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
+# Output: a list with 2 elements:
+# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance]
+# 2 - List of Tuples: [reward_token_address, balance]
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def underlyingv1(wallet: str, lptoken_address: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True, reward=False) -> list:
+    if execution > MAX_EXECUTIONS:
+        return None
+
+    balances = []
+
+    try:
+        if web3 is None:
+            web3 = get_node(blockchain, block=block, index=index)
+
+        wallet = web3.toChecksumAddress(wallet)
+        
+        lptoken_address = web3.toChecksumAddress(lptoken_address)
+
+        lp_token_contract = get_contract(lptoken_address,blockchain,block=block, web3=web3,abi=ABI_LPTOKENV1)
+        balance = lp_token_contract.functions.balanceOf(wallet).call()
+        totalsupply = lp_token_contract.functions.totalSupply().call()
+        current_tokens = lp_token_contract.functions.getCurrentTokens().call()
+        balance_token_1 = lp_token_contract.functions.getBalance(current_tokens[0]).call()
+        balance_token_2 = lp_token_contract.functions.getBalance(current_tokens[1]).call()
+        balances.append([current_tokens[0],((balance/totalsupply)*balance_token_1)/10**18])
+        balances.append([current_tokens[1],((balance/totalsupply)*balance_token_2)/10**18])
+        return balances
+
+    except GetNodeIndexError:
+        return underlyingv1(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
+
+    except:
+        return underlyingv1(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+
+
+
+def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
+
+    :param lptoken_address:
+    :param block_start:
+    :param block_end:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if execution > MAX_EXECUTIONS:
+        return None
+
+    result = {}
+    hash_overlap = []
+
+    try:
+        if web3 is None:
+            web3 = get_node(blockchain, block=block_start, index=index)
+
+        lptoken_address = web3.toChecksumAddress(lptoken_address)
+
+        lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1, block=block_start)
+        token0 = lptoken_contract.functions.getCurrentTokens().call()[0]
+        token1 = lptoken_contract.functions.getCurrentTokens().call()[1]
+        result['swaps'] = []
+
+        if decimals is True:
+            decimals0 = get_decimals(token0, blockchain, web3=web3)
+            decimals1 = get_decimals(token1, blockchain, web3=web3)
+        else:
+            decimals0 = 0
+            decimals1 = 0
+
+        get_logs_bool = True
+        block_from = block_start
+        block_to = block_end
+
+        swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
+
+        while get_logs_bool:
+            swap_logs = get_logs(block_from, block_to, lptoken_address, swap_event, blockchain)
+
+            log_count = len(swap_logs)
+
+            if log_count != 0:
+                last_block = int(
+                    swap_logs[log_count - 1]['blockNumber'][2:len(swap_logs[log_count - 1]['blockNumber'])], 16)
+
+                for swap_log in swap_logs:
+                    block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
+
+                    if swap_log['transactionHash'] in swap_log:
+                        continue
+
+                    if block_number == last_block:
+                        hash_overlap.append(swap_log['transactionHash'])
+
+                    if int(swap_log['data'][2:66], 16) == 0:
+                        swap_data = {
+                            'block': block_number,
+                            'token': token1,
+                            'amount': 0.003 * int(swap_log['data'][67:130], 16) / (10**decimals1)
+                        }
+                    else:
+                        swap_data = {
+                            'block': block_number,
+                            'token': token0,
+                            'amount': 0.003 * int(swap_log['data'][2:66], 16) / (10**decimals0)
+                        }
+
+                    result['swaps'].append(swap_data)
+
+            if log_count < 1000:
+                get_logs_bool = False
+
+            else:
+                block_from = block_number
+
+        return result
+
+    except GetNodeIndexError:
+        return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=0, execution=execution + 1)
+
+    except:
+        return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index + 1, execution=execution)
+
+
+# wallet = '0x5db6291455a6491ff9bd5460bc34655984e23a75'
+# block = 'latest'
+# blockchain = XDAI
+# pool = '0x65b0e9418e102a880c92790f001a9c5810b0ef32'
+# #test = underlyingv1(wallet,pool,block,blockchain)
+# test2 = swap_fees(pool,0,block,blockchain)
+# print(test2)

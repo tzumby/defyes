@@ -86,9 +86,10 @@ def get_rate_uniswap_v3(token_src, token_dst, block, blockchain, web3=None, exec
         token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
 
         if token_src == token0:
-            rate = ((sqrt_price_x96 ** 2) / (2 ** 192)) / (10 ** (token_dst_decimals - token_src_decimals))
+            rate = float(Decimal(sqrt_price_x96 ** 2) / Decimal(2 ** 192) / Decimal(10 ** (token_dst_decimals - token_src_decimals)))
         elif token_src == token1:
-            rate = ((2 ** 192) / (sqrt_price_x96 ** 2)) / (10 ** (token_dst_decimals - token_src_decimals))
+            rate = float(Decimal(2 ** 192) / Decimal(sqrt_price_x96 ** 2) / Decimal(10 ** (token_dst_decimals - token_src_decimals)))
+
 
         return rate
 
@@ -122,36 +123,54 @@ def underlying(wallet, nftid, block, blockchain, web3=None, execution=1, index=0
             token0 = nft_positions[2]
             token1 = nft_positions[3]
             fee = nft_positions[4]
-            liquidity = nft_positions[7]
+            liquidity = Decimal(nft_positions[7])
+
+
             if liquidity != 0:
                 if decimals is True:
                     decimals0 = get_decimals(token0, blockchain, web3=web3)
-                else:
-                    decimals0 = 0
-                if decimals is True:
                     decimals1 = get_decimals(token1, blockchain, web3=web3)
-                else:
-                    decimals1 = 0
+
                 pool_address = factory_address.functions.getPool(token0, token1, fee).call(block_identifier=block)
                 pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
                 current_tick = pool_contract.functions.slot0().call(block_identifier=block)[1]
-                sa = BASETICK ** (lower_tick / 2)
-                sb = BASETICK ** (upper_tick / 2)
-                current_square_price = BASETICK ** (current_tick / 2)
+                sqrt_price_X96 = pool_contract.functions.slot0().call(block_identifier=block)[0]
+
+                sa = Decimal(BASETICK) ** Decimal(lower_tick / 2)
+                sb = Decimal(BASETICK) ** Decimal(upper_tick / 2)
+                current_square_price = Decimal(sqrt_price_X96) / Decimal(2**96)
 
                 if upper_tick <= current_tick:
-                    amount1 = (liquidity * (sb - sa)) / (10 ** decimals1)
+                    amount1 = (liquidity * (sb - sa))
+                    if decimals is True:
+                        amount1 = float(amount1 / Decimal(10 ** decimals1))
+                    else:
+                        amount1 = int(amount1)
                     balances.append([token1, amount1])
                 elif lower_tick < current_tick < upper_tick:
-                    amount0 = (liquidity * (sb - current_square_price) / (current_square_price * sb)) / (
-                                10 ** decimals0)
-                    amount1 = (liquidity * (current_square_price - sa)) / (10 ** decimals1)
+                    amount0 = (liquidity * (sb - current_square_price) / (current_square_price * sb))
+                    amount1 = (liquidity * (current_square_price - sa))
+
+                    if decimals is True:
+                        amount0 = float(amount0 / Decimal(10 ** decimals0))
+                        amount1 = float(amount1 / Decimal(10 ** decimals1))
+                    else:
+                        amount0 = int(amount0)
+                        amount1 = int(amount1)
+
                     balances.append([token0, amount0])
                     balances.append([token1, amount1])
 
                 else:
-                    amount0 = (liquidity * (sb - sa) / (sa * sb)) / (10 ** decimals0)
+                    amount0 = (liquidity * (sb - sa) / (sa * sb))
+                    if decimals is True:
+                        amount0 = float(amount0 / Decimal(10 ** decimals0))
+                    else:
+                        amount0 = int(amount0)
                     balances.append([token0, amount0])
+            else:
+                balances.append([token0, 0])
+                balances.append([token1, 0])
             return balances
         else:
             return 'wallet is not owner of this NFT'
@@ -271,18 +290,13 @@ def get_fee(nftid, block, blockchain, web3=None, execution=1, index=0, decimals=
         return get_fee(nftid, block, blockchain, index=index + 1, execution=execution)
 
 # #to test
-# wallet='0x849D52316331967b6fF1198e5E32A0eB168D039d'
-# id = 339884
-# uniswapv3 = underlying(wallet,id,'latest',ETHEREUM)
-# print(uniswapv3)
-# # nfts_list = allnfts(wallet, 'latest', ETHEREUM)
-# # print(nfts_list)
-# # nfts = underlying_all(wallet,'latest',ETHEREUM)
-# # print(nfts)
-# feesunclaimed = get_fee(wallet,id,'latest',ETHEREUM)
-# print(feesunclaimed)
-
-
-
-
-
+#wallet='0x849D52316331967b6fF1198e5E32A0eB168D039d'
+#id = 339884
+#uniswapv3 = underlying(wallet,id,'latest',ETHEREUM)
+#print(uniswapv3)
+#nfts_list = allnfts(wallet, 'latest', ETHEREUM)
+#print(nfts_list)
+#nfts = underlying_all(wallet,'latest',ETHEREUM)
+#print(nfts)
+#feesunclaimed = get_fee(wallet,id,'latest',ETHEREUM)
+#print(feesunclaimed)

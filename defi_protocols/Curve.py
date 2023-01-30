@@ -246,6 +246,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, execution=1, 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_address
+# IMPORTANT: "crypto factory" pools are not considered because the pool address is retrieved by the function get_lptoken_data (minter function)
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_address(web3, lptoken_address, block, blockchain):
     """
@@ -323,8 +324,10 @@ def get_pool_data(web3, minter, block, blockchain):
         except ValueError:
             next_token = False
             continue
-
-        if token_address == X3CRV_ETH or token_address == X3CRV_POL or token_address == X3CRV_XDAI:
+        
+        # IMPORTANT: AD-HOC FIX UNTIL WE FIND A WAY TO SOLVE HOW META POOLS WORK FOR DIFFERENT POOL TYPES AND SIDE-CHAINS
+        # if token_address == X3CRV_ETH or token_address == X3CRV_POL or token_address == X3CRV_XDAI:
+        if token_address == X3CRV_ETH:
             pool_data['is_metapool'] = True
 
             x3crv_minter = get_pool_address(web3, token_address, block, blockchain)
@@ -900,6 +903,8 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
+# IMPORTANT: THIS FUNCTIONS MUST BE MODIFIED IN ORDER TO WROK PROPERLY. A DEEP RESEARCH MUST BE DONE TO GET THE SWAP FEES FOR META POOLS (FOR
+# EVERY POOL TYPE). THE "GET_POOL_DATA" FUNCTION MUST BE CHANGED AS WELL.
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True):
     """
@@ -941,10 +946,13 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
         result['swaps'] = []
 
         exchange_event_signatures = []
-        if pool_data['is_metapool'] is True:
-            exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES
-        else:
-            exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES
+
+        # IMPORTANT: AD-HOC FIX UNTIL WE FIND A WAY TO SOLVE HOW META POOLS WORK FOR DIFFERENT POOL TYPES AND SIDE-CHAINS
+        # if pool_data['is_metapool'] is True:
+        #     exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES
+        # else:
+        #     exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES
+        exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES + TOKEN_EXCHANGE_EVENT_SIGNATURES
 
         for exchange_event_signature in exchange_event_signatures:
 

@@ -338,7 +338,11 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web
 
         if len(extra_rewards) > 0:
             for extra_reward in extra_rewards:
-                all_rewards.append(extra_reward)
+                if extra_reward[0] in [reward[0] for reward in all_rewards]:
+                    index = [reward[0] for reward in all_rewards].index(extra_reward[0])
+                    all_rewards[index][1] += extra_reward[1]
+                else:
+                    all_rewards.append(extra_reward)
 
         return all_rewards
 
@@ -474,8 +478,9 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
             rewards.append(get_rewards(web3, aurabal_rewarder_contract, wallet, block, blockchain, decimals=decimals))
 
             # Extra Rewards
-            rewards.append(
-                get_extra_rewards(web3, aurabal_rewarder_contract, wallet, block, blockchain, decimals=decimals))
+            extra_rewards = get_extra_rewards(web3, aurabal_rewarder_contract, wallet, block, blockchain, decimals=decimals)
+            for n in range(0,len(extra_rewards)):
+                rewards.append(extra_rewards[n])
 
             # AURA Rewards
             if rewards[0][1] > 0:
@@ -653,4 +658,3 @@ def update_db():
 
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Aura_db.json', 'w') as db_file:
             json.dump(db_data, db_file)
-

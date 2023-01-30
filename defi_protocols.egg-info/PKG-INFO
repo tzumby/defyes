@@ -44,10 +44,31 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 
 ## Config 
 
-- First you will have to modify the [config.json](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/defi_protocols/config.json) and place under `/path/to/python/site-packages/defi-protocols/config.json`
+- First you will have to modify the [config.json](https://github.com/KarpatkeyDAO/defi-protocols/blob/dev/defi_protocols/config.json)
 
 - You should provide `RPC` endpoints and `EXPLORER API KEYS`
 
+- You should set the env `CONFIG_PATH` env with the config.json's absolute path or the config.json can be placed under default package path `/path/to/python/site-packages/defi-protocols/config.json`
+
+  <details><summary><b>Test</b></summary>
+
+  ```bash
+  nano /tmp/config.json
+
+  export CONFIG_PATH=/tmp/config.json
+  ```
+  ```python
+  from defi_protocols.constants import config_data
+
+  print(config_data)
+  ```
+
+  ```bash
+  output: 
+  {'apikeys': {'etherscan': 'xyz', 'polscan': 'xyz', 'gnosisscan': 'xyz', 'binance': 'xyz', 'avalanche': 'xyz', 'fantom': 'xyz', 'ethplorer': 'xyz'}, 'nodes': {'ethereum': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'polygon': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'xdai': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'binance': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'avalanche': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'fantom': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'ropsten': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'kovan': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}, 'goerli': {'latest': ['first', 'second', 'third', 'fourth'], 'archival': ['first', 'second', 'third', 'fourth']}}}
+  ```
+
+  </details>
 
 ## Protocols supported
 
