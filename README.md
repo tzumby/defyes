@@ -1,7 +1,7 @@
 
 <!-- logo -->
 <p align="center">
-  <img width='400' src="img/logo.jpg">
+  <img width='400' src="https://raw.githubusercontent.com/KarpatkeyDAO/defi-protocols/main/img/logo.jpg">
 </p>
 
 <!-- tag line -->
@@ -25,7 +25,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 
 ## Installing latest version available on pypi
 
-[pip3 install defi-protocols](https://pypi.org/project/defi-protocols/0.0.1/)
+[pip3 install defi-protocols](https://pypi.org/project/defi-protocols/)
 
 
 ## Config 
