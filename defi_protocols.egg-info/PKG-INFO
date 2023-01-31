@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: defi-protocols
-Version: 0.0.4
+Version: 0.0.5
 Summary: A simple defi_protocols package
 Home-page: https://github.com/KarpatkeyDAO/defi-protocols
 Author: dharmendrakariya
@@ -15,7 +15,7 @@ License-File: LICENSE
 
 <!-- logo -->
 <p align="center">
-  <img width='400' src="img/logo.jpg">
+  <img width='400' src="https://raw.githubusercontent.com/KarpatkeyDAO/defi-protocols/main/img/logo.jpg">
 </p>
 
 <!-- tag line -->
@@ -39,7 +39,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 
 ## Installing latest version available on pypi
 
-[pip3 install defi-protocols](https://pypi.org/project/defi-protocols/0.0.1/)
+[pip3 install defi-protocols](https://pypi.org/project/defi-protocols/)
 
 
 ## Config 
