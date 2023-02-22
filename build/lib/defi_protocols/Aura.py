@@ -220,9 +220,6 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, execution=1, web3=None,
     except GetNodeIndexError:
         return get_extra_rewards_airdrop(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-    except GetNodeIndexError:
-        return get_extra_rewards_airdrop(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
     except:
         return get_extra_rewards_airdrop(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
@@ -634,9 +631,14 @@ def update_db():
 
     :return:
     """
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Aura_db.json', 'r') as db_file:
-        db_data = json.load(db_file)
-
+    try:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Aura_db.json', 'r') as db_file:
+            db_data = json.load(db_file)
+    except:
+        db_data = {
+            'pools': {}
+        }
+    
     web3 = get_node(ETHEREUM)
 
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)

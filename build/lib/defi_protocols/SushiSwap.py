@@ -1,8 +1,10 @@
-from defi_protocols.functions import *
+from functions import *
 
-# from price_feeds import Prices
+from prices.prices import get_price
 from pathlib import Path
 import os
+from typing import Union
+from datetime import timedelta
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -936,6 +938,43 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
 #         return get_apr(lptoken_address, blockchain, block=block, index=index + 1, execution=execution)
 
 
+def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[int,str]= 'latest', web3=None, days: int =1, apy: bool =False) -> int:
+    block_start = date_to_block(datetime.strftime(datetime.strptime(block_to_date(block_end,blockchain),'%Y-%m-%d %H:%M:%S') - timedelta(days=days),'%Y-%m-%d %H:%M:%S'),blockchain)
+    fees = swap_fees(lptoken_address,block_start,block_end,blockchain,web3)
+    token0 = fees['swaps'][0]['token']
+    token0_fees = [0]
+    token1_fees = [0]
+    for k in fees['swaps']:
+        if k['token'] == token0:
+            token0_fees.append(k['amount'])
+        elif k['token'] != token0:
+            token1 = k['token']
+            token1_fees.append(k['amount'])
+
+    token0_fees_usd = get_price(token0,block_end,blockchain,web3)[0]*sum(token0_fees)
+    token1_fees_usd = get_price(token1,block_end,blockchain,web3)[0]*sum(token1_fees)
+    token_fees_usd = token0_fees_usd+token1_fees_usd
+    pool_contract = get_contract(lptoken_address,blockchain,web3,ABI_LPTOKEN,block_end)
+    token0_address = pool_contract.functions.token0().call()
+    token0_price = get_price(token0_address,block_end,blockchain,web3)[0]
+    token0_decimals = get_decimals(token0_address,blockchain,web3=web3,block=block_end)
+    token1_address = pool_contract.functions.token1().call()
+    token1_price = get_price(token1_address,block_end,blockchain,web3)[0]
+    token1_decimals = get_decimals(token1_address,blockchain,web3=web3,block=block_end)
+    reserves = pool_contract.functions.getReserves().call()
+    tvl = (reserves[0]/10**token0_decimals)*token0_price + (reserves[1]/10**token1_decimals)*token1_price
+    apr = token_fees_usd/tvl * (365/days) * 100
+    seconds_per_year = 365*24*60*60
+    if apy == True:
+        apy = (1+ (apr/seconds_per_year))**(seconds_per_year) -1
+        return apy
+    else:
+        return apr
+
+
+
+
+
 # #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # update_db
 # #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1017,3 +1056,14 @@ def update_db():
     if update is True:
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/SushiSwap_db.json', 'w') as db_file:
             json.dump(db_data, db_file)
+
+blockchain = ETHEREUM
+lptoken = '0xceff51756c56ceffca006cd410b03ffc46dd3a58'
+blockstart = date_to_block('2023-02-20 18:24:00',blockchain) 
+blockend = date_to_block('2023-02-21 18:24:00',blockchain)
+
+# feess = swap_fees(lptoken,blockstart,blockend,blockchain)
+# print(feess)
+
+feesss = get_swap_fees_APR(lptoken,blockend,blockchain)
+print(feesss)

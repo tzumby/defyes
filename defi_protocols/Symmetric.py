@@ -16,6 +16,12 @@ VAULT_XDAI = '0x24F87b37F4F249Da61D89c3FF776a55c321B2773'
 SYMMCHEF_XDAI = '0xdf667DeA9F6857634AaAf549cA40E06f04845C03'
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# SYMMCHEF
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# xDAI - SymmChef Contract Address
+SYMFACTORY_XDAI = '0x9B4214FD41cD24347A25122AC7bb6B479BED72Ac'
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Symmetric Vault ABI - getPoolTokens
@@ -30,11 +36,14 @@ ABI_REWARDER = '[{"inputs":[{"internalType":"uint256","name":"pid","type":"uint2
 # LP Token ABI - getPoolId, decimals, totalSupply, getReserves, balanceOf
 ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getReserves","outputs":[{"internalType":"uint112","name":"_reserve0","type":"uint112"},{"internalType":"uint112","name":"_reserve1","type":"uint112"},{"internalType":"uint32","name":"_blockTimestampLast","type":"uint32"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-
+# LP Token ABI V1 - getCurrentTokens, totalSupply, balanceOf, getBalance
 ABI_LPTOKENV1 = '[{"constant": true,"inputs": [],"name": "getCurrentTokens","outputs": [{"internalType": "address[]","name": "tokens","type": "address[]"}],"payable": false,"stateMutability": "view","type": "function"},\
             {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getReserves","outputs":[{"internalType":"uint112","name":"_reserve0","type":"uint112"},{"internalType":"uint112","name":"_reserve1","type":"uint112"},{"internalType":"uint32","name":"_blockTimestampLast","type":"uint32"}],"stateMutability":"view","type":"function"}, \
             {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
             {"constant": true,"inputs": [{"internalType": "address","name": "token","type": "address"}],"name": "getBalance","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"}]'
+
+# Is BPool?
+ABI_BPOOL = '{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"isBPool","inputs":[{"type":"address","name":"b","internalType":"address"}],"constant":true}'
 
 SWAP_EVENT_SIGNATURE = 'LOG_SWAP(address,address,address,uint256,uint256)'
 
@@ -349,9 +358,30 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
+        factory_contract = get_contract(SYMFACTORY_XDAI,blockchain,block=block, web3=web3,abi=ABI_BPOOL)
+
+
         if pool_info is None:
-            print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
-            return None
+            if factory_contract.functions.isBPool(lptoken_address).call() == True:
+                lp_token_contract = get_contract(lptoken_address,blockchain,block=block, web3=web3,abi=ABI_LPTOKENV1)
+                balance = lp_token_contract.functions.balanceOf(wallet).call()
+                totalsupply = lp_token_contract.functions.totalSupply().call()
+                current_tokens = lp_token_contract.functions.getCurrentTokens().call()
+                balance_token_1 = lp_token_contract.functions.getBalance(current_tokens[0]).call()
+                balance_token_2 = lp_token_contract.functions.getBalance(current_tokens[1]).call()
+                if decimals == True:
+                    token0_decimals = get_decimals(current_tokens[0],blockchain,web3=web3)
+                    token1_decimals = get_decimals(current_tokens[1],blockchain,web3=web3)
+                    balances.append([current_tokens[0],((balance/totalsupply)*balance_token_1)/10**token0_decimals])
+                    balances.append([current_tokens[1],((balance/totalsupply)*balance_token_2)/10**token1_decimals])
+                    return balances
+                else:
+                    balances.append([current_tokens[0],((balance/totalsupply)*balance_token_1)])
+                    balances.append([current_tokens[1],((balance/totalsupply)*balance_token_2)])
+                return balances  
+            else:          
+                print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
+                return None
 
         pool_id = pool_info['pool_info']['poolId']
         chef_contract = pool_info['chef_contract']
@@ -636,48 +666,6 @@ def update_db():
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0])+'/db/Symmetric_db.json', 'w') as db_file:
             json.dump(db_data, db_file)
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# underlying
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output: a list with 2 elements:
-# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance]
-# 2 - List of Tuples: [reward_token_address, balance]
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlyingv1(wallet: str, lptoken_address: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True, reward=False) -> list:
-    if execution > MAX_EXECUTIONS:
-        return None
-
-    balances = []
-
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
-
-        wallet = web3.toChecksumAddress(wallet)
-        
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
-
-        lp_token_contract = get_contract(lptoken_address,blockchain,block=block, web3=web3,abi=ABI_LPTOKENV1)
-        balance = lp_token_contract.functions.balanceOf(wallet).call()
-        totalsupply = lp_token_contract.functions.totalSupply().call()
-        current_tokens = lp_token_contract.functions.getCurrentTokens().call()
-        balance_token_1 = lp_token_contract.functions.getBalance(current_tokens[0]).call()
-        balance_token_2 = lp_token_contract.functions.getBalance(current_tokens[1]).call()
-        balances.append([current_tokens[0],((balance/totalsupply)*balance_token_1)/10**18])
-        balances.append([current_tokens[1],((balance/totalsupply)*balance_token_2)/10**18])
-        return balances
-
-    except GetNodeIndexError:
-        return underlyingv1(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return underlyingv1(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
-
-
 
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True):
     """
@@ -769,12 +757,3 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
 
     except:
         return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index + 1, execution=execution)
-
-
-# wallet = '0x5db6291455a6491ff9bd5460bc34655984e23a75'
-# block = 'latest'
-# blockchain = XDAI
-# pool = '0x65b0e9418e102a880c92790f001a9c5810b0ef32'
-# #test = underlyingv1(wallet,pool,block,blockchain)
-# test2 = swap_fees(pool,0,block,blockchain)
-# print(test2)

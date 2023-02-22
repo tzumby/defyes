@@ -707,7 +707,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# underlying_amount
+# unwrap
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
@@ -715,7 +715,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 # Output: a list with 1 element:
 # 1 - List of Tuples: [liquidity_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying_amount(lptoken_amount, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
     """
 
     :param lptoken_amount:
@@ -757,7 +757,7 @@ def underlying_amount(lptoken_amount, lptoken_address, block, blockchain, web3=N
 
             except ContractLogicError:
 
-                # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALETRNATIVE
+                # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALTERNATIVE
                 if i == 0:
                     pool_contract = get_contract(lptoken_data['minter'], blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE)
                 else:
@@ -782,17 +782,17 @@ def underlying_amount(lptoken_amount, lptoken_address, block, blockchain, web3=N
 
             token_balance = balance / (10**token_decimals) * pool_fraction
 
-            balances.append([token_address, token_balance, 0])
+            balances.append([token_address, token_balance])
 
             i += 1
 
         return balances
 
     except GetNodeIndexError:
-        return underlying_amount(lptoken_amount, lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
+        return unwrap(lptoken_amount, lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
     except:
-        return underlying_amount(lptoken_amount, lptoken_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+        return unwrap(lptoken_amount, lptoken_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -882,7 +882,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
                 if meta is False:
                     balances.append([token_address, token_balance])
                 else:
-                    underlying = underlying_amount(token_balance, token_address, block, blockchain)
+                    underlying = unwrap(token_balance, token_address, block, blockchain)
                     for element in underlying:
                         balances.append([element[0], element[1]])
 

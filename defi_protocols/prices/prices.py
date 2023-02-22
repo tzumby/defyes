@@ -2,6 +2,7 @@ from defi_protocols.functions import *
 from defi_protocols.prices import Chainlink
 from defi_protocols.prices import CoinGecko
 from defi_protocols.prices import _1inch
+from defi_protocols.prices import Zapper
 from pathlib import Path
 import os
 from tqdm import tqdm
@@ -87,6 +88,15 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
                     # returns price, source and blockchain:
                     return price_coingecko[1][1], 'coingecko', price_feed_data['blockchain']
+                
+                elif price_feed_data['source'] == 'zapper':
+                    price_zapper = Zapper.get_price(token_address_mapping, block_to_timestamp(block_price_feed,
+                                                                                                    price_feed_data[
+                                                                                                        'blockchain']),
+                                                          price_feed_data['blockchain'])
+                    
+                    # returns price, source and blockchain:
+                    return price_zapper[1][1], 'zapper', price_feed_data['blockchain']
 
             except:
                 raise Exception
@@ -116,7 +126,7 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
             else:
                 token_price = _1inch.get_price(token_address, block, blockchain)
-                source = 'block_eth'
+                source = '1inch'
                 final_blockchain = blockchain
 
             return token_price, source, final_blockchain
@@ -131,6 +141,22 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
                          execution=execution)
 
 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_etherscan_price
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_etherscan_price(token_address):
+    """
+
+    :param token_address:
+    """
+    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()['result'][0]['tokenPriceUSD']
+
+    return price, 'etherscan', ETHEREUM
+    
+    
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_today_prices_data
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_today_prices_data(file_name, return_type='df',web3=None):
     file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/' + file_name, 'r')
     token_file = json.load(file)
@@ -182,3 +208,5 @@ def get_today_prices_data(file_name, return_type='df',web3=None):
         return df
     else:
         return data_raw
+
+print(get_price('0xae78736Cd615f374D3085123A210448E74Fc6393', 'latest', ETHEREUM))

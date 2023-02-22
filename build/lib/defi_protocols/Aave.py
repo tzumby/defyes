@@ -28,8 +28,8 @@ ABI_PDP = '[{"inputs":[],"name":"getAllReservesTokens","outputs":[{"components":
 # Lending Pool Addresses Provider Registry ABI - getLendingPool, getPriceOracle
 ABI_LPAPR = '[{"inputs":[],"name":"getLendingPool","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getPriceOracle","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
-# Lending Pool ABI - getUserAccountData
-ABI_LENDING_POOL = '[{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserAccountData","outputs":[{"internalType":"uint256","name":"totalCollateralETH","type":"uint256"},{"internalType":"uint256","name":"totalDebtETH","type":"uint256"},{"internalType":"uint256","name":"availableBorrowsETH","type":"uint256"},{"internalType":"uint256","name":"currentLiquidationThreshold","type":"uint256"},{"internalType":"uint256","name":"ltv","type":"uint256"},{"internalType":"uint256","name":"healthFactor","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+# Lending Pool ABI - getUserAccountData, getReserveData
+ABI_LENDING_POOL = '[{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserAccountData","outputs":[{"internalType":"uint256","name":"totalCollateralETH","type":"uint256"},{"internalType":"uint256","name":"totalDebtETH","type":"uint256"},{"internalType":"uint256","name":"availableBorrowsETH","type":"uint256"},{"internalType":"uint256","name":"currentLiquidationThreshold","type":"uint256"},{"internalType":"uint256","name":"ltv","type":"uint256"},{"internalType":"uint256","name":"healthFactor","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getReserveData","outputs":[{"components":[{"components":[{"internalType":"uint256","name":"data","type":"uint256"}],"internalType":"struct DataTypes.ReserveConfigurationMap","name":"configuration","type":"tuple"},{"internalType":"uint128","name":"liquidityIndex","type":"uint128"},{"internalType":"uint128","name":"variableBorrowIndex","type":"uint128"},{"internalType":"uint128","name":"currentLiquidityRate","type":"uint128"},{"internalType":"uint128","name":"currentVariableBorrowRate","type":"uint128"},{"internalType":"uint128","name":"currentStableBorrowRate","type":"uint128"},{"internalType":"uint40","name":"lastUpdateTimestamp","type":"uint40"},{"internalType":"address","name":"aTokenAddress","type":"address"},{"internalType":"address","name":"stableDebtTokenAddress","type":"address"},{"internalType":"address","name":"variableDebtTokenAddress","type":"address"},{"internalType":"address","name":"interestRateStrategyAddress","type":"address"},{"internalType":"uint8","name":"id","type":"uint8"}],"internalType":"struct DataTypes.ReserveData","name":"","type":"tuple"}],"stateMutability":"view","type":"function"}]'
 
 # ChainLink: ETH/USD Price Feed ABI - latestAnswer, decimals
 ABI_CHAINLINK_ETH_USD = '[{"inputs":[],"name":"latestAnswer","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}]'
@@ -37,8 +37,8 @@ ABI_CHAINLINK_ETH_USD = '[{"inputs":[],"name":"latestAnswer","outputs":[{"intern
 # Price Oracle ABI - getAssetPrice
 ABI_PRICE_ORACLE = '[{"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getAssetPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-# Staked Agave ABI - REWARD_TOKEN, getTotalRewardsBalance
-ABI_STK_AAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"staker","type":"address"}],"name":"getTotalRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+# Staked Agave ABI - REWARD_TOKEN, getTotalRewardsBalance, assets
+ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"staker","type":"address"}],"name":"getTotalRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"assets","outputs":[{"internalType":"uint128","name":"emissionPerSecond","type":"uint128"},{"internalType":"uint128","name":"lastUpdateTimestamp","type":"uint128"},{"internalType":"uint256","name":"index","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -57,6 +57,15 @@ def get_lpapr_address(blockchain):
 
     if blockchain == ETHEREUM:
         return LPAPR_ETHEREUM
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_stkaave_address
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_stkaave_address(blockchain):
+
+    if blockchain == ETHEREUM:
+        return STKAAVE_ETH
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -91,6 +100,9 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
     balances = []
 
     pdp_address = get_protocol_data_provider(blockchain)
+    if pdp_address is None:
+        return None
+
     pdp_contract = get_contract(pdp_address, blockchain, web3=web3, abi=ABI_PDP, block=block)
 
     reserves_tokens = get_reserves_tokens(pdp_contract, block)
@@ -107,7 +119,7 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
         else:
             token_decimals = 0
 
-        # balance = currentATokenBalance - currentStableDebt - currentStableDebt
+        # balance = currentATokenBalance - currentStableDebt - currentVariableDebt
         balance = (user_reserve_data[0] - user_reserve_data[1] - user_reserve_data[2]) / 10 ** token_decimals
 
         if balance != 0:
@@ -160,6 +172,8 @@ def get_data(wallet, block, blockchain, execution = 1, web3=None, index=0, decim
         eth_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / (10**chainlink_eth_usd_decimals)
 
         balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
+        if balances is None:
+            return None
 
         if len(balances) > 0:
 
@@ -239,19 +253,22 @@ def get_all_rewards(wallet, block, blockchain, execution = 1, web3=None, index=0
 
         wallet = web3.toChecksumAddress(wallet)
 
-        if blockchain == ETHEREUM:
-            stk_aave_contract = get_contract(STK_AAVE_ETH, blockchain, web3=web3, abi=ABI_STK_AAVE, block=block)
+        stkaave_address = get_stkaave_address(blockchain)
+        if stkaave_address is None:
+            return None
 
-            reward_token = stk_aave_contract.functions.REWARD_TOKEN().call()
+        stkaave_contract = get_contract(stkaave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
 
-            if decimals is True:
-                reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3)
-            else:
-                reward_token_decimals = 0
+        reward_token = stkaave_contract.functions.REWARD_TOKEN().call()
 
-            reward_balance = stk_aave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (10**reward_token_decimals)
+        if decimals is True:
+            reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3)
+        else:
+            reward_token_decimals = 0
 
-            all_rewards.append([reward_token, reward_balance])
+        reward_balance = stkaave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (10**reward_token_decimals)
+
+        all_rewards.append([reward_token, reward_balance])
 
         return all_rewards
 
@@ -263,7 +280,7 @@ def get_all_rewards(wallet, block, blockchain, execution = 1, web3=None, index=0
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# underlying
+# underlying_all
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -272,7 +289,7 @@ def get_all_rewards(wallet, block, blockchain, execution = 1, web3=None, index=0
 # 1 - List of Tuples: [token_address, balance], where balance = currentATokenBalance - currentStableDebt - currentStableDebt
 # 2 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False):
+def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False):
     """
 
     :param wallet:
@@ -298,6 +315,8 @@ def underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decim
         wallet = web3.toChecksumAddress(wallet)
 
         balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
+        if balances is None:
+            return None
 
         if reward is True:
             all_rewards = get_all_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
@@ -311,7 +330,119 @@ def underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decim
         return result
 
     except GetNodeIndexError:
-        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
+        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
 
     except:
-        return underlying(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_apr
+# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
+# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
+# 'web3' = web3 (Node) -> Improves performance
+# 'apy' = True/False -> True = returns APY / False = returns APR
+# Output: Tuple:
+# 1 - Tuple: [{'metric': 'apr'/'apy', 'type': 'supply', 'value': supply_apr/supply_apy},
+#             {'metric': 'apr'/'apy', 'type': 'variable_borrow', 'value': borrow_apr/borrow_apy},
+#             {'metric': 'apr'/'apy', 'type': 'stable_borrow', 'value': borrow_apr/borrow_apy}]
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, apy=False):
+
+    """
+
+    :para token_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param apy:
+    :return:
+    """
+
+    try:
+        if web3 is None:
+            web3 = get_node(blockchain, block=block, index=index)
+
+        lpapr_address = get_lpapr_address(blockchain)
+        lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+
+        lending_pool_address = lpapr_contract.functions.getLendingPool().call()
+        lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
+
+        reserve_data = lending_pool_contract.functions.getReserveData(token_address).call(block_identifier=block)
+
+        liquidity_rate = reserve_data[3]
+        variable_borrow_rate = reserve_data[4]
+        stable_borrow_rate = reserve_data[5]
+
+        ray = 10**27
+        seconds_per_year = 31536000
+
+        deposit_apr = liquidity_rate/ray
+        variable_borrow_apr = variable_borrow_rate/ray
+        stable_borrow_apr = stable_borrow_rate/ray
+
+        if apy is False:
+            return [{'metric': 'apr', 'type': 'supply', 'value': deposit_apr}, {'metric': 'apr', 'type': 'variable_borrow', 'value': variable_borrow_apr}, {'metric': 'apr', 'type': 'stable_borrow', 'value': stable_borrow_apr}]
+        else:
+            deposit_apy = ((1 + (deposit_apr / seconds_per_year)) ** seconds_per_year) - 1
+            variable_borrow_apy = ((1 + (variable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
+            stable_borrow_apy = ((1 + (stable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
+
+            return [{'metric': 'apy', 'type': 'supply', 'value': deposit_apy}, {'metric': 'apy', 'type': 'variable_borrow', 'value': variable_borrow_apy}, {'metric': 'apy', 'type': 'stable_borrow', 'value': stable_borrow_apy}]
+    
+    except GetNodeIndexError:
+        return get_apr(token_address, block, blockchain, apy=apy, index=0, execution=execution + 1)
+
+    except:
+        return get_apr(token_address, block, blockchain, apy=apy, index=index + 1, execution=execution)
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_staking_apr
+# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
+# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
+# 'web3' = web3 (Node) -> Improves performance
+# 'apy' = True/False -> True = returns APY / False = returns APR
+# Output: Tuple:
+# 1 - Tuple: [{'metric': 'apr'/'apy', 'type': 'staking', 'value': staking_apr/staking_apy}]
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=False):
+
+    """
+
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
+
+    try:
+        if web3 is None:
+            web3 = get_node(blockchain, block=block, index=index)
+        
+        seconds_per_year = 31536000
+        stk_aave_address = get_stkaave_address(blockchain)
+        stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+        emission_per_second = stkaave_contract.functions.assets(stk_aave_address).call(block_identifier=block)[0]
+        aave_token_address = stkaave_contract.functions.REWARD_TOKEN().call()
+        current_stakes = balance_of(stk_aave_address, aave_token_address, block, blockchain, web3=web3, decimals=False)
+
+        staking_apr = emission_per_second * seconds_per_year / current_stakes
+
+        if apy is False:
+            return [{'metric': 'apr', 'type': 'staking', 'value': staking_apr}]
+        else:
+            staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1
+
+            return [{'metric': 'apy', 'type': 'staking', 'value': staking_apy}]
+
+    except GetNodeIndexError:
+        return get_staking_apr(block, blockchain, apy=apy, index=0, execution=execution + 1)
+
+    except:
+        return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)

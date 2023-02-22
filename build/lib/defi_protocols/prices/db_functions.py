@@ -9,7 +9,7 @@ import os
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_token_mapping(token_address_eth, token_address_pol, token_address_xdai, price_feed_source=None,
                          price_feed_blockchain=None, price_feed_connector=None):
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/token_mapping.json', 'r') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/token_mapping.json', 'r') as db_file:
         db_data = json.load(db_file)
 
     web3 = get_node(ETHEREUM)
@@ -230,5 +230,5 @@ def update_token_mapping(token_address_eth, token_address_pol, token_address_xda
 
             db_data[POLYGON][token_address_pol] = token_data
 
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[1]) + '/token_mapping.json', 'w') as db_file:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/token_mapping.json', 'w') as db_file:
         json.dump(db_data, db_file)

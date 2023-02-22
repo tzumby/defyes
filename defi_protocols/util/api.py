@@ -25,7 +25,7 @@ class RequestFromScan:
     
     def request(self):
         request = requests.get(
-            'https://api.{}.io/api?'.format(self.blockchain),
+            'https://api.{}/api?'.format(self.blockchain),
             params={k: v for k, v in self.__dict__.items() if k != 'kwargs'},
         ).json()
         return request

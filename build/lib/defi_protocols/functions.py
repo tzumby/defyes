@@ -8,6 +8,7 @@ import math
 from defi_protocols.constants import *
 import logging
 from decimal import *
+from typing import Union, Optional
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -60,6 +61,9 @@ def get_node(blockchain, block='latest', index=0):
     elif blockchain == FANTOM:
         node = NODE_FANTOM
 
+    elif blockchain == OPTIMISM:
+        node = NODE_OPTIMISM
+
     elif blockchain == ROPSTEN:
         node = NODE_ROPSTEN
 
@@ -90,16 +94,6 @@ def get_node(blockchain, block='latest', index=0):
             web3 = Web3(Web3.HTTPProvider(node['archival'][index]))
 
     return web3
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_price_zapper - Test
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_price_zapper():
-    data = requests.get(
-        'https://api.zapper.fi/v2/prices/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?network=ethereum&timeFrame=hour&currency=USD&api_key=04a45cb5-16d6-4d28-9ccc-e68ed47270f3').json()[
-        'prices']
-    print(data)
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -152,6 +146,9 @@ def timestamp_to_block(timestamp, blockchain) -> int:
 
         elif blockchain == FANTOM:
             data = requests.get(API_FANTOM_GETBLOCKNOBYTIME % (timestamp, API_KEY_FANTOM)).json()['result']
+        
+        elif blockchain == OPTIMISM:
+            data = requests.get(API_OPTIMISM_GETBLOCKNOBYTIME % (timestamp, API_KEY_OPTIMISM)).json()['result']
 
         elif blockchain == ROPSTEN:
             data = \
@@ -224,6 +221,12 @@ def block_to_timestamp(block, blockchain):
 
         elif blockchain == AVALANCHE:
             data = requests.get(API_AVALANCHE_GETBLOCKREWARD % (block, API_KEY_AVALANCHE)).json()['result']['timeStamp']
+        
+        elif blockchain == FANTOM:
+            data = requests.get(API_FANTOM_GETBLOCKREWARD % (block, API_KEY_FANTOM)).json()['result']['timeStamp']
+
+        elif blockchain == OPTIMISM:
+            data = requests.get(API_OPTIMISM_GETBLOCKREWARD % (block, API_KEY_OPTIMISM)).json()['result']['timeStamp']
 
         elif blockchain == ROPSTEN:
             data = requests.get(API_ROPSTEN_GETBLOCKREWARD % (block, API_KEY_ETHERSCAN), headers=TESTNET_HEADER).json()[
@@ -284,7 +287,7 @@ def token_info(token_address, blockchain):  # NO ESTÁ POLYGON
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def balance_of(address, contract_address, block, blockchain, execution=1, web3=None, index=0, decimals=True):
+def balance_of(address, contract_address, block, blockchain, execution=1, web3=None, index=0, decimals=True)->Union[int,float]:
     
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
@@ -307,17 +310,20 @@ def balance_of(address, contract_address, block, blockchain, execution=1, web3=N
         else:
             token_contract = web3.eth.contract(address=contract_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
 
-            if decimals is True:
-                token_decimals = token_contract.functions.decimals().call()
-            else:
-                token_decimals = 0
+
 
             try:
                 balance = token_contract.functions.balanceOf(address).call(block_identifier=block)
             except:
                 balance = 0
 
-            return float(Decimal(balance) / Decimal(10 ** token_decimals))
+            if decimals is True:
+                token_decimals = token_contract.functions.decimals().call()
+                return float(Decimal(balance) / Decimal(10 ** token_decimals))
+            else:
+                return balance
+
+
 
     except GetNodeIndexError:
         return balance_of(address, contract_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
@@ -492,6 +498,21 @@ def get_contract_abi(contract_address, blockchain):
 
         elif blockchain == BINANCE:
             data = requests.get(API_BINANCE_GETABI % (contract_address, API_KEY_BINANCE)).json()['result']
+            if data == 'Contract source code not verified':
+                raise abiNotVerified
+        
+        elif blockchain == AVALANCHE:
+            data = requests.get(API_AVALANCHE_GETABI % (contract_address, API_KEY_AVALANCHE)).json()['result']
+            if data == 'Contract source code not verified':
+                raise abiNotVerified
+        
+        elif blockchain == FANTOM:
+            data = requests.get(API_FANTOM_GETABI % (contract_address, API_KEY_FANTOM)).json()['result']
+            if data == 'Contract source code not verified':
+                raise abiNotVerified
+        
+        elif blockchain == OPTIMISM:
+            data = requests.get(API_OPTIMISM_GETABI % (contract_address, API_KEY_OPTIMISM)).json()['result']
             if data == 'Contract source code not verified':
                 raise abiNotVerified
 
@@ -711,6 +732,34 @@ def get_token_tx(token_address, contract_address, block_start, block_end, blockc
     elif blockchain == XDAI:
         data = requests.get(API_GNOSISSCAN_TOKENTX % (
         token_address, contract_address, block_start, block_end, API_KEY_GNOSISSCAN)).json()['result']
+    
+    elif blockchain == BINANCE:
+        data = requests.get(API_BINANCE_TOKENTX % (
+        token_address, contract_address, block_start, block_end, API_KEY_BINANCE)).json()['result']
+
+    elif blockchain == AVALANCHE:
+        data = requests.get(API_AVALANCHE_TOKENTX % (
+        token_address, contract_address, block_start, block_end, API_KEY_AVALANCHE)).json()['result']
+
+    elif blockchain == FANTOM:
+        data = requests.get(API_FANTOM_TOKENTX % (
+        token_address, contract_address, block_start, block_end, API_KEY_FANTOM)).json()['result']
+    
+    elif blockchain == OPTIMISM:
+        data = requests.get(API_OPTIMISM_TOKENTX % (
+        token_address, contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()['result']
+
+    elif blockchain == ROPSTEN:
+        data = requests.get(API_ROPSTEN_TOKENTX % (
+        token_address, contract_address, block_start, block_end, API_KEY_ETHERSCAN)).json()['result']
+
+    elif blockchain == KOVAN:
+        data = requests.get(API_KOVAN_TOKENTX % (
+        token_address, contract_address, block_start, block_end, API_KEY_ETHERSCAN)).json()['result']
+    
+    elif blockchain == GOERLI:
+        data = requests.get(API_GOERLI_TOKENTX % (
+        token_address, contract_address, block_start, block_end, API_KEY_ETHERSCAN)).json()['result']
 
     return data
 
@@ -734,6 +783,41 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
     elif blockchain == XDAI:
         data = \
         requests.get(API_GNOSISSCAN_TXLIST % (contract_address, block_start, block_end, API_KEY_GNOSISSCAN)).json()[
+            'result']
+    
+    elif blockchain == BINANCE:
+        data = \
+        requests.get(API_BINANCE_TXLIST % (contract_address, block_start, block_end, API_KEY_BINANCE)).json()[
+            'result']
+
+    elif blockchain == AVALANCHE:
+        data = \
+        requests.get(API_AVALANCHE_TXLIST % (contract_address, block_start, block_end, API_KEY_AVALANCHE)).json()[
+            'result']
+    
+    elif blockchain == FANTOM:
+        data = \
+        requests.get(API_FANTOM_TXLIST % (contract_address, block_start, block_end, API_KEY_FANTOM)).json()[
+            'result']
+
+    elif blockchain == OPTIMISM:
+        data = \
+        requests.get(API_OPTIMISM_TXLIST % (contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()[
+            'result']
+    
+    elif blockchain == ROPSTEN:
+        data = \
+        requests.get(API_ROPSTEN_TXLIST % (contract_address, block_start, block_end, API_KEY_ETHERSCAN)).json()[
+            'result']
+    
+    elif blockchain == KOVAN:
+        data = \
+        requests.get(API_KOVAN_TXLIST % (contract_address, block_start, block_end, API_KEY_ETHERSCAN)).json()[
+            'result']
+
+    elif blockchain == GOERLI:
+        data = \
+        requests.get(API_GOERLI_TXLIST % (contract_address, block_start, block_end, API_KEY_ETHERSCAN)).json()[
             'result']
 
     return data
@@ -819,6 +903,22 @@ def get_logs(block_start, block_end, address, topic0, blockchain, **kwargs):
     elif blockchain == FANTOM:
         data = requests.get(API_FANTOM_GETLOGS % (
         block_start, block_end, address, topic0, API_KEY_FANTOM) + optional_parameters).json()['result']
+    
+    elif blockchain == OPTIMISM:
+        data = requests.get(API_OPTIMISM_GETLOGS % (
+        block_start, block_end, address, topic0, API_KEY_OPTIMISM) + optional_parameters).json()['result']
+    
+    elif blockchain == ROPSTEN:
+        data = requests.get(API_ROPSTEN_GETLOGS % (
+        block_start, block_end, address, topic0, API_KEY_ETHERSCAN) + optional_parameters).json()['result']
+
+    elif blockchain == KOVAN:
+        data = requests.get(API_KOVAN_GETLOGS % (
+        block_start, block_end, address, topic0, API_KEY_ETHERSCAN) + optional_parameters).json()['result']
+    
+    elif blockchain == GOERLI:
+        data = requests.get(API_GOERLI_GETLOGS % (
+        block_start, block_end, address, topic0, API_KEY_ETHERSCAN) + optional_parameters).json()['result']
 
     return data
 
@@ -864,3 +964,16 @@ def is_archival(endpoint) -> bool:
     except ValueError:
         return False
     return True
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_logs_web3
+# 'web3' = web3 (Node) -> Improves performance
+# 'block' = block identifier used to call the getNode() function
+# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_logs_web3(address: str, blockchain: str, start_block: Optional[Union[int,str]]=None, topics: Optional[list]= None, block: Optional[Union[int,str]]=None, block_hash: Optional[str]=None, web3=None, index: int=0) -> dict:
+    if web3 == None: 
+        web3 = get_node(blockchain, block=block, index=index)
+
+    address = web3.toChecksumAddress(address)
+    return web3.eth.get_logs({'address': address, 'fromBlock': start_block, 'toBlock': block, 'topics': topics, 'blockHash':block_hash})

@@ -351,6 +351,38 @@
             "crvRewards": "0xcFF0Ce58A624F116faF936C4F8b84affEffE9399",
             "stash": "0xa4A09BEd63393b487eBc8263b2c09217e2b24A46",
             "shutdown": false
+        },
+        "0xC9C5Ff67bB2Fae526aE2467C359609D6BCb4c532": {
+            "poolId": 44,
+            "token": "0xa9c7E9a11DEA293C616991F5d60d079b3112ECA3",
+            "gauge": "0xE7ec5216ff485abffd9d390B82A5D742155f3A6f",
+            "crvRewards": "0xb5ACb8C828C7a8Be4eD3BaB6C34d4203c2c17b8f",
+            "stash": "0xb1704f057B65047F836de59D21D54d939EB1Dc36",
+            "shutdown": false
+        },
+        "0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6": {
+            "poolId": 45,
+            "token": "0x1AeD05BF3954049170adB38600Bb7C31D20801A6",
+            "gauge": "0xBC02eF87f4E15EF78A571f3B2aDcC726Fee70d8b",
+            "crvRewards": "0x22915f309EC0182c85cD8331C23bD187fd761360",
+            "stash": "0x02a6c2abE10512D0d2821F599E56168921De8E75",
+            "shutdown": false
+        },
+        "0xd590931466cdD6d488A25da1E89dD0539723800c": {
+            "poolId": 46,
+            "token": "0xE6a9cF0CD00EE40694DEe035a66352D5A0778e6F",
+            "gauge": "0x81C452E84B103555C2Dd2DEc0bFABC0c4d6B3065",
+            "crvRewards": "0xcBb7fF4e7c32b86994D1991e6Aeb198184c56554",
+            "stash": "0x3F4b0C4670816eE544cb807dd7B700CB7a17964d",
+            "shutdown": false
+        },
+        "0x9c6d47Ff73e0F5E51BE5FD53236e3F595C5793F2": {
+            "poolId": 47,
+            "token": "0x692F37c3166319F790B0a4A97E23252180B286A8",
+            "gauge": "0x01A9502C11f411b494c62746D37e89d6f7078657",
+            "crvRewards": "0xe35ae62Ff773D518172d4B0b1af293704790B670",
+            "stash": "0xa5546238Af4313C421929acBe7b307c83c7014Fc",
+            "shutdown": false
         }
     }
 }

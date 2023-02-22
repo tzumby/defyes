@@ -11,7 +11,7 @@ def get_price(token_address, timestamp, blockchain):
     :param blockchain:
     :return:
     """
-    if blockchain != ETHEREUM and blockchain != XDAI and blockchain != POLYGON and blockchain != AVALANCHE:
+    if blockchain != ETHEREUM and blockchain != XDAI and blockchain != POLYGON and blockchain != AVALANCHE and blockchain != OPTIMISM:
         return [timestamp, None]
 
     if token_address == ZERO_ADDRESS:
@@ -43,6 +43,8 @@ def get_price(token_address, timestamp, blockchain):
     else:
         if blockchain == POLYGON:
             blockchain_id = 'polygon-pos'
+        elif blockchain == OPTIMISM:
+            blockchain_id = 'optimistic-ethereum'
         else:
             blockchain_id = blockchain
 

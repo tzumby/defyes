@@ -1,4 +1,5 @@
 from defi_protocols.functions import *
+from tqdm import tqdm
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # STAKING REWARDS CONTRACT ADDRESSES
@@ -51,7 +52,7 @@ def get_staking_rewards_contract(web3, block, blockchain):
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_distribution_contracts
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns, block, blockchain):
+def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns, block, blockchain, db):
     """
 
     :param web3:
@@ -65,23 +66,37 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
     distribution_contracts = []
 
     if campaigns != 0:
-        campaign_counter = 0
-        
-        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier=block)
+        if db is True:
+            with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Swapr_db.json', 'r') as db_file:
+                db_data = json.load(db_file)
+            
+            try:
+                db_data[blockchain][lptoken_address]
+                for i in range(campaigns):
+                    try:
+                        distribution_contracts.append(get_contract(db_data[blockchain][lptoken_address][i], blockchain, web3=web3, abi=ABI_DISTRIBUTION, block=block))
+                    except:
+                        pass
+            except:
+                pass  
+        else:
+            campaign_counter = 0
+            
+            distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier=block)
 
-        for i in range(distributions_amount):
-            distribution_address = staking_rewards_contract.functions.distributions(distributions_amount - (i + 1)).call(block_identifier=block)
-            distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION, block=block)
-            stakable_token = distribution_contract.functions.stakableToken().call()
+            for i in range(distributions_amount):
+                distribution_address = staking_rewards_contract.functions.distributions(distributions_amount - (i + 1)).call(block_identifier=block)
+                distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION, block=block)
+                stakable_token = distribution_contract.functions.stakableToken().call()
 
-            if stakable_token.lower() == lptoken_address.lower():
-                distribution_contracts.append(web3.toChecksumAddress(distribution_contract))
-                campaign_counter += 1
-                
-                if campaigns == 'all' or campaign_counter < campaigns:               
-                    continue
-                else:
-                    break
+                if stakable_token.lower() == lptoken_address.lower():
+                    distribution_contracts.append(distribution_contract)
+                    campaign_counter += 1
+                    
+                    if campaigns == 'all' or campaign_counter < campaigns:               
+                        continue
+                    else:
+                        break
     
     return distribution_contracts
 
@@ -152,7 +167,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1,
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, campaigns=1, distribution_contracts=[]):
+def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, campaigns=1, distribution_contracts=None, db=True):
     """
 
     :param wallet:
@@ -178,9 +193,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        if distribution_contracts == []:
+        if distribution_contracts == None:
             staking_rewards_contract = get_staking_rewards_contract(web3, block, blockchain)
-            distribution_contracts = get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns, block, blockchain)
+            distribution_contracts = get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns, block, blockchain, db)
 
         if distribution_contracts == []:
             return []
@@ -210,10 +225,10 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
             return all_rewards
 
     except GetNodeIndexError:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, campaigns=campaigns, distribution_contracts=distribution_contracts, index=0, execution=execution + 1)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, campaigns=campaigns, distribution_contracts=distribution_contracts, db=db, index=0, execution=execution + 1)
     
     except:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, campaigns=campaigns, distribution_contracts=distribution_contracts, index=index + 1, execution=execution)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, campaigns=campaigns, distribution_contracts=distribution_contracts, db=db, index=index + 1, execution=execution)
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -230,7 +245,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 # 1 - List of Tuples: [liquidity_token_address, balance, staked_balance]
 # 2 - List of Tuples: [reward_token_address, balance]
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, reward=False, campaigns=1):
+def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, reward=False, campaigns=1, db=True):
     """
 
     :param wallet:
@@ -262,7 +277,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         lptoken_address = web3.toChecksumAddress(lptoken_address)
 
         staking_rewards_contract = get_staking_rewards_contract(web3, block, blockchain)
-        distribution_contracts = get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns, block, blockchain)
+        distribution_contracts = get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns, block, blockchain, db)
 
         lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
@@ -295,7 +310,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
             balances.append([token_address, token_balance, token_staked])
 
         if reward is True:
-            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, distribution_contracts=distribution_contracts)
+            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, distribution_contracts=distribution_contracts, db=db)
 
             result.append(balances)
             result.append(all_rewards)
@@ -306,10 +321,10 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         return result
 
     except GetNodeIndexError:
-        return underlying(wallet, lptoken_address, block, blockchain, campaigns=campaigns, reward=reward, decimals=decimals, index=0, execution=execution + 1)
+        return underlying(wallet, lptoken_address, block, blockchain, campaigns=campaigns, reward=reward, db=db, decimals=decimals, index=0, execution=execution + 1)
 
     except:
-        return underlying(wallet, lptoken_address, block, blockchain, campaigns=campaigns, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+        return underlying(wallet, lptoken_address, block, blockchain, campaigns=campaigns, reward=reward, db=db, decimals=decimals, index=index + 1, execution=execution)
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -474,3 +489,46 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
 
     except:
         return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index + 1, execution=execution)
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# update_db
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def update_db():
+    """
+
+    :return:
+    """
+    try:
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Swapr_db.json', 'r') as db_file:
+            db_data = json.load(db_file)
+    except:
+        db_data = {
+            ETHEREUM: {},
+            XDAI: {}
+        }
+
+    blockchain = ''
+    for blockchain in tqdm(db_data, desc='Fetching data from blockchains...'):
+
+        web3 = get_node(blockchain)
+
+        staking_rewards_contract = get_staking_rewards_contract(web3, 'latest', blockchain)
+
+        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call()
+
+        for i in tqdm(range(distributions_amount), desc='Fetching distributors...'):
+            distribution_address = staking_rewards_contract.functions.distributions(distributions_amount - (i + 1)).call()
+            distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION)
+            stakable_token = distribution_contract.functions.stakableToken().call()
+
+            try:
+                db_data[blockchain][stakable_token]
+            except:
+                db_data[blockchain][stakable_token] = []
+
+            db_data[blockchain][stakable_token].append(web3.toChecksumAddress(distribution_address))
+
+        
+        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Swapr_db.json', 'w') as db_file:
+                json.dump(db_data, db_file)

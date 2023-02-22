@@ -39,12 +39,12 @@ class Chain(ExtendedEnum):
 class Explorer(ExtendedEnum):
     """Enum for the blockexplorers"""
 
-    ETHERSCAN = 'etherscan'
-    POLYSCAN = 'polyscan'
-    GNOSISSCAN = 'gnosisscan'
-    BSCSCAN = 'bscscan'
-    AVAXSCAN = 'snowtrace'
-    FTMSCAN = 'ftmscan'
+    ETHERSCAN = 'etherscan.io'
+    POLYSCAN = 'polygonscan.com'
+    GNOSISSCAN = 'gnosisscan.io'
+    BSCSCAN = 'bscscan.com'
+    AVAXSCAN = 'snowtrace.io'
+    FTMSCAN = 'ftmscan.io'
 
     def __str__(self) -> str:
         """Represent as string."""

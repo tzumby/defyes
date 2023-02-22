@@ -1,9 +1,9 @@
-from functions import *
-from util.topic import TopicCreator,DecodeAddressHexor
-from util.api import RequestFromScan
+from defi_protocols.functions import *
+from defi_protocols.util.topic import TopicCreator,DecodeAddressHexor
+from defi_protocols.util.api import RequestFromScan
 from web3 import Web3
 #from defi_protocols import Curve
-from Curve import underlying_amount
+from defi_protocols.Curve import unwrap
 import time
 from decimal import *
 
@@ -93,12 +93,16 @@ def get_amount(wallet: str, name: str, principal_address: str, yield_address: st
         pool_token_vault_address = pool_token_contract.functions.getVault().call()
         pool_token_vault = get_contract(pool_token_vault_address,blockchain,web3=web3,abi=BALANCER_VAULT_ABI,block=block)
         pool_totals = pool_token_vault.functions.getPoolTokens(pool_id).call(block_identifier=block)
-        amount = pt_token_balanceOf + pool_totals[1][0]*pool_share_wallet + pool_totals[1][1]*pool_share_wallet #+ underlying_token_balanceOf
+        amount = pt_token_balanceOf + pool_totals[1][0]*pool_share_wallet + pool_totals[1][1]*pool_share_wallet
         token_decimals = get_decimals(pool_address, blockchain, web3=web3)
         if amount != 0:
             if 'Curve' in name or 'crv' in name.lower():
-                curve_amount = underlying_amount(amount,underlying_token,block,blockchain,web3,decimals=decimals)
-                balances.append([curve_amount[0][:2],curve_amount[1][:2]])
+                if decimals == True:
+                    curve_amount = unwrap(amount/(10**token_decimals),underlying_token,block,blockchain,web3,decimals=decimals)
+                    balances.append(curve_amount)
+                else: 
+                    curve_amount = unwrap(amount,underlying_token,block,blockchain,web3,decimals=decimals)
+                    balances.append(curve_amount)
             else:
                 if decimals == True:
                     balances.append([underlying_token, amount/(10**token_decimals)])
@@ -147,15 +151,15 @@ def get_addresses(block: int, blockchain: str, web3=None, execution=1, index=0) 
 def underlying(name: str, lptoken_address: str, wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True, reward=False) -> list:
 
     token_addresses = [x for x in get_addresses(block, blockchain, web3=web3, execution=execution, index=index) if x[0] == name][0]
-    balances = get_amount(wallet, token_addresses[0], token_addresses[1],token_addresses[2],token_addresses[3],token_addresses[5], token_addresses[4],block,blockchain,web3=web3, execution=execution, index=index)
-    return balances
+    balances = get_amount(wallet, token_addresses[0], token_addresses[1],token_addresses[2],token_addresses[3],token_addresses[5], token_addresses[4],block,blockchain,web3=web3, execution=execution, index=index, decimals=decimals)
+    return balances[0]
 
 
 def underlying_all(wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True, reward=False) -> list:
     token_addresses = get_addresses(block, blockchain, web3=web3, execution=execution, index=index)
     balances = []
     for x in token_addresses:
-        amounts = get_amount(wallet, x[0],x[1],x[2],x[3],x[5],x[4],block,blockchain,web3=web3, execution=execution, index=index)
+        amounts = get_amount(wallet, x[0],x[1],x[2],x[3],x[5],x[4],block,blockchain,web3=web3, execution=execution, index=index, decimals=decimals)
         if amounts:
             balances.append({'protocol':'Element','tranche':x[0],'amounts':amounts,'lptoken_address':x[3], 'wallet':wallet})
     return balances
@@ -169,8 +173,8 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, executio
 # wallet='0x849D52316331967b6fF1198e5E32A0eB168D039d'
 # lp = '0x06325440D014e39736583c165C2963BA99fAf14E'
 # element = underlying(name,lp,wallet,'latest',blockchain=ETHEREUM)
-#element3 = underlying_all(wallet,'latest',blockchain=ETHEREUM)
-#element2 = get_addresses('latest',ETHEREUM)
+# # #element3 = underlying_all(wallet,'latest',blockchain=ETHEREUM)
+# # #element2 = get_addresses('latest',ETHEREUM)
 # print(element)
 
 #calculate spot price:

@@ -7,7 +7,7 @@ class TopicCreator:
 
     def __repr__(self) -> str:
        chunks = self.function.split(' ') 
-       types = ['bytes32','uint256','address']
+       types = ['bytes32','uint256','address','uint48']
        type_list = []
        for chunk in chunks:
         if chunk in types:

@@ -515,6 +515,85 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# unwrap
+# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
+# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
+# 'web3' = web3 (Node) -> Improves performance
+# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
+# Output: a list with 1 elements:
+# 1 - List of Tuples: [liquidity_token_address, balance]
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
+    """
+
+    :param lptoken_amount:
+    :param lptoken_address:
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :param decimals:
+    :return:
+    """
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if execution > MAX_EXECUTIONS:
+        return None
+
+    balances = []
+
+    try:
+        if web3 is None:
+            web3 = get_node(blockchain, block=block, index=index)
+        
+        lptoken_address = web3.toChecksumAddress(lptoken_address)
+
+        vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
+
+        lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
+
+        pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier=block)
+        pool_tokens = pool_tokens_data[0]
+        pool_balances = pool_tokens_data[1]
+
+        pool_balance_fraction = lptoken_amount * (10**lptoken_data['decimals']) / lptoken_data['totalSupply']
+
+        for i in range(len(pool_tokens)):
+
+            if i == lptoken_data['bptIndex']:
+                continue
+
+            token_address = pool_tokens[i]
+            token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER, block=block)
+
+            if decimals is True:
+                token_decimals = token_contract.functions.decimals().call()
+            else:
+                token_decimals = 0
+
+            if lptoken_data['isBoosted'] is True:
+                token_rate = token_contract.functions.getRate().call(block_identifier=block) / (10**token_contract.functions.decimals().call())
+            else:
+                token_rate = 1
+
+            token_balance = pool_balances[i] / (10**token_decimals) * pool_balance_fraction * token_rate
+
+            if lptoken_data['isBoosted'] is True:
+                balances.append(
+                    [token_contract.functions.getMainToken().call(), token_balance])
+            else:
+                balances.append([pool_tokens[i], token_balance])
+        
+        return balances
+    
+    except GetNodeIndexError:
+        return unwrap(lptoken_amount, lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
+
+    except:
+        return unwrap(lptoken_amount, lptoken_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # swap_fees
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -603,3 +682,4 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
 
     except:
         return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index + 1, execution=execution)
+

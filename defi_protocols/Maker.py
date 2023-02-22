@@ -1,4 +1,5 @@
 from defi_protocols.functions import *
+from typing import Union
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CDP MANAGER
@@ -146,3 +147,24 @@ def underlying(vault_id, block, web3=None, execution=1, index=0):
 
     except:
         return underlying(vault_id, block, index=index + 1, execution=execution)
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_delegated_MKR(wallet:str, block:Union[int,str], web3=None, decimals=True, index:int =0, execution:int =1)->Union[int,float]:
+
+    if execution > MAX_EXECUTIONS:
+        return None
+
+    try:
+        if web3 is None:
+            web3 = get_node(ETHEREUM, block=block, index=index)
+
+        MKR_address = '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'
+        IOU_token_address = '0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7'
+
+        return [[MKR_address, balance_of(wallet, IOU_token_address, block, ETHEREUM, web3=web3, decimals=decimals)]]
+
+    except GetNodeIndexError:
+        return get_delegated_MKR(wallet, block, index=0, execution=execution + 1)
+
+    except:
+        return get_delegated_MKR(wallet, block, index=index + 1, execution=execution)
