@@ -1,6 +1,6 @@
-from functions import *
+from defi_protocols.functions import *
 
-from prices.prices import get_price
+from defi_protocols.prices.prices import get_price
 from pathlib import Path
 import os
 from typing import Union

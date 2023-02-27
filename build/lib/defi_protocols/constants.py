@@ -27,14 +27,24 @@ GOERLI = 'goerli'
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-with open(str(Path(os.path.abspath(__file__)).resolve().parents[0])+'/config.json', 'r') as config_file:
-    config_data = json.load(config_file)
-    # try:
-    # if config_data['config'] != True:
-    #     print('please check configuration, your config would be considere locally')
+# with open(str(Path(os.path.abspath(__file__)).resolve().parents[0])+'/config.json', 'r') as config_file:
+#     config_data = json.load(config_file)
+#     # try:
+#     # if config_data['config'] != True:
+#     #     print('please check configuration, your config would be considere locally')
         
-    config_file.close()
+#     config_file.close()
 
+if 'CONFIG_PATH' in os.environ:
+    config_path = os.environ['CONFIG_PATH']
+    with open(config_path, 'r') as config_file:
+        config_data = json.load(config_file)
+        config_file.close()
+else:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0])+'/config.json', 'r') as config_file:
+        config_data = json.load(config_file)
+        config_file.close()
+        
 NODE_ETH = {
     'latest': config_data['nodes'][ETHEREUM]['latest'],
     'archival': config_data['nodes'][ETHEREUM]['archival']
@@ -145,6 +155,7 @@ GNO_ETH = '0x6810e776880C02933D47DB1b9fc05908e5386b96'
 LDO_ETH = '0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32'
 RETH2_ETH = '0x20BC832ca081b91433ff6c17f85701B6e92486c5'
 SETH2_ETH = '0xFe2e637202056d30016725477c5da089Ab0A043A'
+SNOTE_ETH = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2'
 STETH_ETH = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
 STKAAVE_ETH = '0x4da27a545c0c5B758a6BA100e3a049001de870f5'
 SWISE_ETH = '0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2'

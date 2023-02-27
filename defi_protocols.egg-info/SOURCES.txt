@@ -17,6 +17,7 @@ defi_protocols/Honeyswap.py
 defi_protocols/Idle.py
 defi_protocols/IronBank.py
 defi_protocols/Maker.py
+defi_protocols/Notional.py
 defi_protocols/QiDao.py
 defi_protocols/RealT.py
 defi_protocols/Reflexer.py

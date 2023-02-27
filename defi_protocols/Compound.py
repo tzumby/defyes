@@ -135,11 +135,10 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     :para token_address:
     :param block:
     :param blockchain:
-    :param execution:
     :param web3:
+    :param decimals:
+    :param execution:
     :param index:
-    :param c_token_list:
-    :param underlying_token_list:
     :return:
     """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
@@ -225,8 +224,8 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
     :param execution:
     :param web3:
     :param index:
-    :param c_token_list:
-    :param underlying_token_list:
+    :param decimals:
+    :param reward:
     :return:
     """
 
@@ -292,10 +291,10 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
         return result
     
     except GetNodeIndexError:
-         return underlying_all(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
+         return underlying_all(wallet, block, blockchain, decimals=decimals, reward=reward, index=0, execution=execution + 1)
 
     except:
-         return underlying_all(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+         return underlying_all(wallet, block, blockchain, decimals=decimals, reward=reward, index=index + 1, execution=execution)
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
