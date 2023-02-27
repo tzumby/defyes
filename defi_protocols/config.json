@@ -7,7 +7,9 @@
         "binance": "xyz",
         "avalanche": "xyz",
         "fantom": "xyz",
-        "ethplorer": "xyz"
+        "ethplorer": "xyz",
+        "optimism": "xyz",
+        "zapper": ""
     },
 
     "nodes": {
@@ -124,6 +126,20 @@
             ]
         },
         "goerli": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "optimism": {
             "latest": [
                 "first",
                 "second",
