@@ -1,7 +1,7 @@
 
 <!-- logo -->
 <p align="center">
-  <img width='400' src="https://raw.githubusercontent.com/KarpatkeyDAO/defi-protocols/main/img/karpatkey_logo_black.svg">
+  <img width='400' src="https://raw.github.com/KarpatkeyDAO/defi-protocols/main/img/karpatkey_logo_black.png">
 </p>
 
 <!-- tag line -->
