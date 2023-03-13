@@ -1360,7 +1360,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_pro
 
     ```
     output: 
-    [['0x903bEF1736CDdf2A537176cf3C64579C3867A881', 41633.599736141], ['0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C', 0.0]]
+    [['0x803bEF1736CDdf2A537176cf3C64579C3867A881', 41633.599736141], ['0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C', 0.0]]
     ```
     </details>
 
