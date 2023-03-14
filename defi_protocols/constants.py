@@ -26,13 +26,13 @@ GOERLI = 'goerli'
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/config.json', 'r') as config_file:
-    config_data = json.load(config_file)
-    # try:
-    # if config_data['config'] != True:
-    #     print('please check configuration, your config would be considere locally')
-
-    config_file.close()
+if 'CONFIG_PATH' in os.environ:
+    config_path = os.environ['CONFIG_PATH']
+    with open(config_path, 'r') as config_file:
+        config_data = json.load(config_file)
+else:
+    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0])+'/config.json', 'r') as config_file:
+        config_data = json.load(config_file)
 
 NODE_ETH = {
     'latest': config_data['nodes'][ETHEREUM]['latest'],
