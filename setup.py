@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name="defi_protocols",
-    version="0.0.8",
+    version="0.0.9",
     author="karpatkey",
     author_email="info@karpatkey.com",
     description="A simple defi_protocols package",
