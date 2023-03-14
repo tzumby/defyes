@@ -13,23 +13,25 @@ def get_price(token_address, timestamp, blockchain):
     :param blockchain:
     :return:
     """
-    
+
     if blockchain == BINANCE:
         blockchain_id = 'binance-smart-chain'
     else:
         blockchain_id = blockchain
-    
-    if timestamp >= (math.floor((datetime.now()-relativedelta(days=1)).timestamp())):
+
+    if timestamp >= (math.floor((datetime.now() - relativedelta(days=1)).timestamp())):
         time_frame = 'hour'
-    elif timestamp < (math.floor((datetime.now()-relativedelta(days=1)).timestamp())) and timestamp >= (math.floor((datetime.now()-relativedelta(months=1)).timestamp())):
+    elif timestamp < (math.floor((datetime.now() - relativedelta(days=1)).timestamp())) and timestamp >= (
+    math.floor((datetime.now() - relativedelta(months=1)).timestamp())):
         time_frame = 'day'
-    elif timestamp < (math.floor((datetime.now()-relativedelta(months=1)).timestamp())) and timestamp >= (math.floor((datetime.now()-relativedelta(years=1)).timestamp())):
+    elif timestamp < (math.floor((datetime.now() - relativedelta(months=1)).timestamp())) and timestamp >= (
+    math.floor((datetime.now() - relativedelta(years=1)).timestamp())):
         time_frame = 'year'
     else:
         [999, [timestamp, None]]
 
     data = requests.get(API_ZAPPER_PRICE % (token_address, blockchain_id, time_frame, API_KEY_ZAPPER))
-    
+
     if data.status_code != 200:
         return [data.status_code, [timestamp, None]]
     else:

@@ -10,7 +10,7 @@ TOKEN_CONTRACT_XDAI: str = '0x7349C9eaA538e118725a6130e0f8341509b9f8A0'
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# RealT token contract ABI - UNDERLYING_ASSET_ADDRESS, balanceOf, decimals 
+# RealT token contract ABI - UNDERLYING_ASSET_ADDRESS, balanceOf, decimals
 TOKEN_CONTRACT_ABI = '[{"type":"function","stateMutability":"view","outputs":[{"type":"address","name":"","internalType":"address"}],"name":"UNDERLYING_ASSET_ADDRESS","inputs":[]},\
                         {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"balanceOf","inputs":[{"type":"address","name":"user","internalType":"address"}]},\
                         {"type":"function","stateMutability":"view","outputs":[{"type":"uint8","name":"","internalType":"uint8"}],"name":"decimals","inputs":[]}]'

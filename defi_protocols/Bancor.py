@@ -1,8 +1,8 @@
 from defi_protocols.functions import *
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # LITERALS
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Contracts for calling liquidity pools and underlying tokens
 BANCOR_NETWORK_ADDRESS = '0xeEF417e1D5CC832e619ae18D2F140De2999dD4fB'
 
@@ -10,10 +10,9 @@ BANCOR_NETWORK_INFO_ADDRESS = '0x8E303D296851B320e6a697bAcB979d13c9D6E760'
 
 BNT_TOKEN = '0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C'
 
-
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Network ABI - liquidityPools
 ABI_NETWORK = '[{"inputs":[],"name":"liquidityPools","outputs":[{"internalType":"contract Token[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"}]'
 
@@ -23,7 +22,9 @@ ABI_NETWORK_INFO = '[{"inputs":[{"internalType":"contract Token","name":"pool","
 # ABI of the pools - balanceOf, reserveToken
 ABI_POOL = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"reserveToken","outputs":[{"internalType":"contract Token","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
-def underlying(token_address: str, wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True, reward=False) -> list:
+
+def underlying(token_address: str, wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0,
+               decimals=True, reward=False) -> list:
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -35,11 +36,12 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
             web3 = get_node(blockchain, block=block, index=index)
 
         wallet = web3.toChecksumAddress(wallet)
-        bancor_poolcontract=get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
+        bancor_poolcontract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
         balance = bancor_poolcontract.functions.balanceOf(wallet).call(block_identifier=block)
         reserve_token = bancor_poolcontract.functions.reserveToken().call()
-        pooltokens_contract = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO, block=block)
-        bancor_pool = pooltokens_contract.functions.withdrawalAmounts(reserve_token,balance).call()
+        pooltokens_contract = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
+                                           block=block)
+        bancor_pool = pooltokens_contract.functions.withdrawalAmounts(reserve_token, balance).call()
         if balance != 0:
             if decimals is True:
                 decimals0 = get_decimals(reserve_token, blockchain, web3=web3)
@@ -53,16 +55,18 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
             balances.append([reserve_token, amount0])
             balances.append([BNT_TOKEN, amount1])
         return balances
-    
+
     except GetNodeIndexError:
-        return underlying(token_address, wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
+        return underlying(token_address, wallet, block, blockchain, reward=reward, decimals=decimals, index=0,
+                          execution=execution + 1)
 
     except:
-        return underlying(token_address, wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+        return underlying(token_address, wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
+                          execution=execution)
 
 
-
-def underlying_all(wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True, reward=False) -> list:
+def underlying_all(wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True,
+                   reward=False) -> list:
     """
 
     :param wallet:
@@ -88,28 +92,29 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, executio
 
         wallet = web3.toChecksumAddress(wallet)
 
-        liquiditypools_contract = get_contract(BANCOR_NETWORK_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK, block=block)
+        liquiditypools_contract = get_contract(BANCOR_NETWORK_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK,
+                                               block=block)
         liquidity_pools = liquiditypools_contract.functions.liquidityPools().call()
-        network_info_address = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO, block=block)
-        
+        network_info_address = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
+                                            block=block)
+
         for pool in liquidity_pools:
             bn_token = network_info_address.functions.reserveToken(pool).call()
             balance = underlying(bn_token, wallet, block, blockchain, web3, execution, index, decimals, reward)
             balances.append(balance)
         return balances
-        
+
 
     except GetNodeIndexError:
-        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
+        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=0,
+                              execution=execution + 1)
 
     except:
-        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
+                              execution=execution)
 
-
-        
-
-#to test
-#wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d'
-#token_address = '0x36FAbE4cAeF8c190550b6f93c306A5644E7dCef6'
-#bancor = underlying(token_address, wallet,'latest',ETHEREUM)
-#print(bancor)
+# to test
+# wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d'
+# token_address = '0x36FAbE4cAeF8c190550b6f93c306A5644E7dCef6'
+# bancor = underlying(token_address, wallet,'latest',ETHEREUM)
+# print(bancor)

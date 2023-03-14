@@ -1,6 +1,6 @@
 from defi_protocols.functions import *
 from typing import Union
-from defi_protocols.util.topic import TopicCreator,AddressHexor
+from defi_protocols.util.topic import TopicCreator, AddressHexor
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # RealT Token Address
@@ -29,14 +29,16 @@ EVENT_LIQUIDITY_ADDED_V2 = 'LiquidityAdded (index_topic_1 address account, index
 EVENT_LIQUIDITY_REMOVED_V1 = 'LiquidityRemoved (index_topic_1 address account, index_topic_2 uint48 leaf, uint256 amount)'
 EVENT_LIQUIDITY_REMOVED_V2 = 'LiquidityRemoved (index_topic_1 address account, index_topic_2 uint48 leaf, uint256 amount)'
 
-def get_deposit(wallet: str, nftid: str, contract_address: str, block: Union[int,str], blockchain: str, web3=None, execution:int =1, index:int =0) -> list:
+
+def get_deposit(wallet: str, nftid: str, contract_address: str, block: Union[int, str], blockchain: str, web3=None,
+                execution: int = 1, index: int = 0) -> list:
     if execution > MAX_EXECUTIONS:
         return None
 
     try:
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
-        
+
         wallet = web3.toChecksumAddress(wallet)
         azuro = web3.toChecksumAddress(contract_address)
         wallethex = str(AddressHexor(wallet))
@@ -44,33 +46,39 @@ def get_deposit(wallet: str, nftid: str, contract_address: str, block: Union[int
         amount = 0
         if contract_address == AZURO_POOL_V1:
             topic0 = str(TopicCreator(EVENT_LIQUIDITY_ADDED_V1))
-            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0, topics=[topic0,wallethex], block=block, web3=web3, index=index)
+            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0, topics=[topic0, wallethex],
+                                 block=block, web3=web3, index=index)
             for log in logs:
                 if log['data'][-11:] == nfthex[-11:]:
-                    amount = amount + int(log['data'][:66],16)
+                    amount = amount + int(log['data'][:66], 16)
             topic0 = str(TopicCreator(EVENT_LIQUIDITY_REMOVED_V1))
-            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0, topics=[topic0,wallethex,nfthex], block=block, web3=web3, index=index)
+            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0,
+                                 topics=[topic0, wallethex, nfthex], block=block, web3=web3, index=index)
             for log in logs:
-                amount = amount - int(log['data'],16)
+                amount = amount - int(log['data'], 16)
 
         else:
             topic0 = str(TopicCreator(EVENT_LIQUIDITY_ADDED_V2))
-            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0, topics=[topic0,wallethex,nfthex], block=block, web3=web3, index=index)
+            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0,
+                                 topics=[topic0, wallethex, nfthex], block=block, web3=web3, index=index)
             for log in logs:
-                amount = amount + int(log['data'],16)
+                amount = amount + int(log['data'], 16)
             topic0 = str(TopicCreator(EVENT_LIQUIDITY_REMOVED_V2))
-            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0, topics=[topic0,wallethex,nfthex], block=block, web3=web3, index=index)
+            logs = get_logs_web3(address=azuro, blockchain=blockchain, start_block=0,
+                                 topics=[topic0, wallethex, nfthex], block=block, web3=web3, index=index)
             for log in logs:
-                amount = amount - int(log['data'],16)
+                amount = amount - int(log['data'], 16)
         return amount
 
     except GetNodeIndexError:
         return get_deposit(wallet, nftid, block, blockchain, index=0, execution=execution + 1)
 
     except:
-        return get_deposit(wallet, nftid, block, blockchain, index=index + 1, execution=execution)                
+        return get_deposit(wallet, nftid, block, blockchain, index=index + 1, execution=execution)
 
-def get_amount(wallet: str, contract_1: str, contract_2: str, nftid: int, block: Union[int,str], blockchain: str, web3=None, execution:int =1, index:int =0, decimals:bool =True, rewards:bool =False) -> list:
+
+def get_amount(wallet: str, contract_1: str, contract_2: str, nftid: int, block: Union[int, str], blockchain: str,
+               web3=None, execution: int = 1, index: int = 0, decimals: bool = True, rewards: bool = False) -> list:
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -85,45 +93,47 @@ def get_amount(wallet: str, contract_1: str, contract_2: str, nftid: int, block:
             owner_1 = None
         try:
             owner_2 = contract_2.functions.ownerOf(nftid).call()
-        except: 
+        except:
             owner_2 = None
         if owner_1 == wallet:
             node_withdraw1 = contract_1.functions.nodeWithdrawView(nftid).call()
-            deposit = get_deposit(wallet,nftid,AZURO_POOL_V1,block,blockchain,web3)
+            deposit = get_deposit(wallet, nftid, AZURO_POOL_V1, block, blockchain, web3)
         else:
             node_withdraw1 = 0
         if owner_2 == wallet:
             node_withdraw2 = contract_2.functions.nodeWithdrawView(nftid).call()
-            deposit = get_deposit(wallet,nftid,AZURO_POOL_V2,block,blockchain,web3)
+            deposit = get_deposit(wallet, nftid, AZURO_POOL_V2, block, blockchain, web3)
         else:
             node_withdraw2 = 0
         token = contract_1.functions.token().call()
-        token_decimals = get_decimals(token,blockchain,block=block)
-        balance = node_withdraw1+node_withdraw2
-        reward = balance-deposit
+        token_decimals = get_decimals(token, blockchain, block=block)
+        balance = node_withdraw1 + node_withdraw2
+        reward = balance - deposit
         if decimals == True and rewards == True:
-            balances.append([token,balance/(10**token_decimals)])
-            balances.append([token,reward/(10**token_decimals)])
-        elif decimals == True and rewards == False: 
-            balances.append([token,balance/(10**token_decimals)])
+            balances.append([token, balance / (10 ** token_decimals)])
+            balances.append([token, reward / (10 ** token_decimals)])
+        elif decimals == True and rewards == False:
+            balances.append([token, balance / (10 ** token_decimals)])
         elif decimals == False and rewards == True:
-            balances.append([token,balance])
-            balances.append([token,reward])
+            balances.append([token, balance])
+            balances.append([token, reward])
         else:
-            balances.append([token,balance])
+            balances.append([token, balance])
         return balances
 
 
 
     except GetNodeIndexError:
-        return get_amount(wallet, contract_1, contract_2, nftid, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
+        return get_amount(wallet, contract_1, contract_2, nftid, block, blockchain, decimals=decimals, index=0,
+                          execution=execution + 1)
 
     except:
-        return get_amount(wallet, contract_1, contract_2, nftid, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+        return get_amount(wallet, contract_1, contract_2, nftid, block, blockchain, decimals=decimals, index=index + 1,
+                          execution=execution)
 
 
-
-def underlying(wallet: str, nftid: int, block: Union[int,str], blockchain: str, web3=None, execution:int =1, index:int =0, decimals:bool =True, rewards:bool =False) -> list:
+def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str, web3=None, execution: int = 1,
+               index: int = 0, decimals: bool = True, rewards: bool = False) -> list:
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -134,17 +144,21 @@ def underlying(wallet: str, nftid: int, block: Union[int,str], blockchain: str, 
         wallet = web3.toChecksumAddress(wallet)
         pool_address_v1 = get_contract(AZURO_POOL_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
         pool_address_v2 = get_contract(AZURO_POOL_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
-        balances = get_amount(wallet,pool_address_v1,pool_address_v2,nftid,block,blockchain,web3,decimals=decimals,rewards=rewards)
+        balances = get_amount(wallet, pool_address_v1, pool_address_v2, nftid, block, blockchain, web3,
+                              decimals=decimals, rewards=rewards)
         return balances
 
     except GetNodeIndexError:
-        return underlying(wallet, nftid, block, blockchain, decimals=decimals, index=0, execution=execution + 1, rewards=rewards)
+        return underlying(wallet, nftid, block, blockchain, decimals=decimals, index=0, execution=execution + 1,
+                          rewards=rewards)
 
     except:
-        return underlying(wallet, nftid, block, blockchain, decimals=decimals, index=index + 1, execution=execution, rewards=rewards)
+        return underlying(wallet, nftid, block, blockchain, decimals=decimals, index=index + 1, execution=execution,
+                          rewards=rewards)
 
 
-def underlying_all(wallet: str, block: Union[int,str], blockchain: str, web3=None, execution: int=1, index: int=0, decimals: bool=True, rewards: bool =False) -> list:
+def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
+                   decimals: bool = True, rewards: bool = False) -> list:
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -159,12 +173,14 @@ def underlying_all(wallet: str, block: Union[int,str], blockchain: str, web3=Non
         pool_address_v2 = get_contract(AZURO_POOL_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
         balance_of_pool1 = pool_address_v1.functions.balanceOf(wallet).call()
         balance_of_pool2 = pool_address_v2.functions.balanceOf(wallet).call()
-        for i in range(0,balance_of_pool1):
-            nftid = pool_address_v1.functions.tokenOfOwnerByIndex(wallet,i).call()
-            results.append([get_amount(wallet,pool_address_v1,pool_address_v2,nftid,block,blockchain,web3,decimals=decimals,rewards=rewards)][0])
-        for i in range(0,balance_of_pool2):
-            nftid = pool_address_v2.functions.tokenOfOwnerByIndex(wallet,i).call()
-            results.append([get_amount(wallet,pool_address_v1,pool_address_v2,nftid,block,blockchain,web3,decimals=decimals,rewards=rewards)][0])
+        for i in range(0, balance_of_pool1):
+            nftid = pool_address_v1.functions.tokenOfOwnerByIndex(wallet, i).call()
+            results.append([get_amount(wallet, pool_address_v1, pool_address_v2, nftid, block, blockchain, web3,
+                                       decimals=decimals, rewards=rewards)][0])
+        for i in range(0, balance_of_pool2):
+            nftid = pool_address_v2.functions.tokenOfOwnerByIndex(wallet, i).call()
+            results.append([get_amount(wallet, pool_address_v1, pool_address_v2, nftid, block, blockchain, web3,
+                                       decimals=decimals, rewards=rewards)][0])
         return results
 
     except GetNodeIndexError:

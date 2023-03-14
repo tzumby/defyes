@@ -3,42 +3,42 @@ from defi_protocols import Balancer
 from pathlib import Path
 import os
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Booster (Main Deposit Contract) Address
 # BOOSTER = '0x7818A1DA7BD1E64c199029E86Ba244a9798eEE10' (Old Version)
 BOOSTER = '0xA57b8d98dAE62B26Ec3bcC4a365338157060B234'
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # AURA LOCKER TOKEN ADDRESS
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # AURA locker token address
 AURA_LOCKER = '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC'
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # AURABAL REWARD CONTRACT ADDRESS
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # auraBAL Reward Contract Address
 # AURABAL_REWARDER = '0x5e5ea2048475854a5702f5b8468a51ba1296efcc' (Old Version)
 AURABAL_REWARDER = '0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2'
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # REWARD POOL DEPOSIT WRAPPER
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Reward Pool Deposit Wrapper
 REWARD_POOL_DEPOSIT_WRAPPER = '0xB188b1CB84Fb0bA13cb9ee1292769F903A9feC59'
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # EXTRA REWARDS DISTRIBUTOR
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Extra Rewards Distributor
 # Extra Rewards are from those that claimed the initial AURA airdrop to their wallet instead of locking it
 EXTRA_REWARDS_DISTRIBUTOR = '0xA3739b206097317c72EF416F0E75BB8f58FbD308'
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Booster ABI - poolInfo, poolLength
 ABI_BOOSTER = '[{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"poolInfo","outputs":[{"internalType":"address","name":"lptoken","type":"address"},{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"gauge","type":"address"},{"internalType":"address","name":"crvRewards","type":"address"},{"internalType":"address","name":"stash","type":"address"},{"internalType":"bool","name":"shutdown","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"poolLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
@@ -54,11 +54,12 @@ ABI_AURA_LOCKER = '[{"inputs":[{"internalType":"address","name":"","type":"addre
 # EXTRA REWARDS DISTRIBUTOR ABI - claimableRewards
 ABI_EXTRA_REWARDS_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"_account","type":"address"},{"internalType":"address","name":"_token","type":"address"}],"name":"claimableRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_info - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
-# Output: pool_info method return a list with the following data: 
+# Output: pool_info method return a list with the following data:
 # [0] lptoken address, [1] token address, [2] gauge address, [3] crvRewards address, [4] stash adress, [5] shutdown bool
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_info(booster_contract, lptoken_address, block):
     """
 
@@ -73,10 +74,11 @@ def get_pool_info(booster_contract, lptoken_address, block):
 
     try:
         pool_info = db_data['pools'][lptoken_address]
-        
+
         if pool_info['shutdown'] is False:
-            pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'], pool_info['stash'], pool_info['shutdown']]
-            
+            pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'],
+                         pool_info['stash'], pool_info['shutdown']]
+
             return pool_info
         else:
             return None
@@ -100,12 +102,12 @@ def get_pool_info(booster_contract, lptoken_address, block):
     return None
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_rewards
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - Tuples: [token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
     """
 
@@ -124,17 +126,18 @@ def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=Tru
     else:
         reward_token_decimals = 0
 
-    bal_rewards = rewarder_contract.functions.earned(wallet).call(block_identifier=block) / (10**reward_token_decimals)
+    bal_rewards = rewarder_contract.functions.earned(wallet).call(block_identifier=block) / (
+                10 ** reward_token_decimals)
 
     return [reward_token_address, bal_rewards]
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_extra_rewards
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
     """
 
@@ -153,7 +156,8 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
     for i in range(extra_rewards_length):
 
         extra_reward_contract_address = rewarder_contract.functions.extraRewards(i).call(block_identifier=block)
-        extra_reward_contract = get_contract(extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
+        extra_reward_contract = get_contract(extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDER,
+                                             block=block)
 
         extra_reward_token_address = extra_reward_contract.functions.rewardToken().call()
 
@@ -162,13 +166,15 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
         else:
             extra_reward_token_decimals = 0
 
-        extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block) / (10**extra_reward_token_decimals)
+        extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block) / (
+                    10 ** extra_reward_token_decimals)
 
         extra_rewards.append([extra_reward_token_address, extra_reward])
 
     return extra_rewards
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_extra_rewards_airdrop
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -176,7 +182,7 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_extra_rewards_airdrop(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
     """
 
@@ -189,21 +195,23 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, execution=1, web3=None,
     :param decimals:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
-    
+
     extra_rewards_airdrop = []
 
     try:
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
-        
+
         wallet = web3.toChecksumAddress(wallet)
 
-        extra_rewards_distributor = get_contract(EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block)
+        extra_rewards_distributor = get_contract(EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3,
+                                                 abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block)
 
-        extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, AURA_ETH).call(block_identifier=block)
+        extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, AURA_ETH).call(
+            block_identifier=block)
 
         if extra_reward > 0:
             if decimals is True:
@@ -211,26 +219,27 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, execution=1, web3=None,
             else:
                 extra_reward_token_decimals = 0
 
-            extra_reward = extra_reward / (10**extra_reward_token_decimals)
+            extra_reward = extra_reward / (10 ** extra_reward_token_decimals)
 
             extra_rewards_airdrop = [AURA_ETH, extra_reward]
 
         return extra_rewards_airdrop
-    
+
     except GetNodeIndexError:
         return get_extra_rewards_airdrop(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
     except:
-        return get_extra_rewards_airdrop(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+        return get_extra_rewards_airdrop(wallet, block, blockchain, decimals=decimals, index=index + 1,
+                                         execution=execution)
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_aura_mint_amount
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
 # 1 - Tuple: [aura_token_address, minted_amount]
 # WARNING: Check the amount of AURA retrieved
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
     """
 
@@ -272,7 +281,7 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
     return [AURA_ETH, aura_amount]
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -281,8 +290,9 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
 # 'bal_rewards_contract' = bal_rewards_contract -> Improves performance
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web3=None, index=0, decimals=True, bal_rewards_contract=None):
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web3=None, index=0, decimals=True,
+                    bal_rewards_contract=None):
     """
 
     :param wallet:
@@ -296,7 +306,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web
     :param bal_rewards_contract:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -319,7 +329,8 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web
                 return None
 
             bal_rewards_address = pool_info[3]
-            bal_rewards_contract = get_contract(bal_rewards_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
+            bal_rewards_contract = get_contract(bal_rewards_address, blockchain, web3=web3, abi=ABI_REWARDER,
+                                                block=block)
 
         bal_rewards = get_rewards(web3, bal_rewards_contract, wallet, block, blockchain, decimals=decimals)
         all_rewards.append(bal_rewards)
@@ -345,13 +356,15 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web
 
 
     except GetNodeIndexError:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals=decimals, bal_rewards_contract=bal_rewards_contract, index=0, execution=execution + 1)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals=decimals,
+                               bal_rewards_contract=bal_rewards_contract, index=0, execution=execution + 1)
 
     except:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals=decimals, bal_rewards_contract=bal_rewards_contract, index=index + 1, execution=execution)
+        return get_all_rewards(wallet, lptoken_address, block, blockchain, decimals=decimals,
+                               bal_rewards_contract=bal_rewards_contract, index=index + 1, execution=execution)
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_locked
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -361,7 +374,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web
 # Output:
 # 1 - List of Tuples: [aura_token_address, locked_balance]
 # 2 - List of Tuples: [reward_token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, reward=False, decimals=True):
     """
 
@@ -375,7 +388,7 @@ def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, rewar
     :param decimals:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -392,7 +405,8 @@ def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, rewar
         else:
             aura_decimals = 0
 
-        aura_locker = aura_locker_contract.functions.balances(wallet).call(block_identifier=block)[0] / (10**aura_decimals)
+        aura_locker = aura_locker_contract.functions.balances(wallet).call(block_identifier=block)[0] / (
+                    10 ** aura_decimals)
 
         result = [[AURA_ETH, aura_locker]]
 
@@ -409,7 +423,7 @@ def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, rewar
                     else:
                         reward_decimals = 0
 
-                    rewards.append([aura_locker_reward[0], aura_locker_reward[1] / (10**reward_decimals)])
+                    rewards.append([aura_locker_reward[0], aura_locker_reward[1] / (10 ** reward_decimals)])
 
             result += rewards
 
@@ -419,10 +433,11 @@ def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, rewar
         return get_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
 
     except:
-        return get_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+        return get_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
+                          execution=execution)
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_staked_aurabal
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -432,7 +447,7 @@ def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, rewar
 # Output:
 # 1 - List of Tuples: [aurabal_token_address, staked_balance]
 # 2 - List of Tuples: [reward_token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True):
     """
 
@@ -446,7 +461,7 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
     :param decimals:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -464,7 +479,8 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
         else:
             aurabal_decimals = 0
 
-        aurabal_staked = aurabal_rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block) / (10**aurabal_decimals)
+        aurabal_staked = aurabal_rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block) / (
+                    10 ** aurabal_decimals)
 
         result = [[aurabal_address, aurabal_staked]]
 
@@ -475,8 +491,9 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
             rewards.append(get_rewards(web3, aurabal_rewarder_contract, wallet, block, blockchain, decimals=decimals))
 
             # Extra Rewards
-            extra_rewards = get_extra_rewards(web3, aurabal_rewarder_contract, wallet, block, blockchain, decimals=decimals)
-            for n in range(0,len(extra_rewards)):
+            extra_rewards = get_extra_rewards(web3, aurabal_rewarder_contract, wallet, block, blockchain,
+                                              decimals=decimals)
+            for n in range(0, len(extra_rewards)):
                 rewards.append(extra_rewards[n])
 
             # AURA Rewards
@@ -491,23 +508,25 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
         return get_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
 
     except:
-        return get_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1, execution=execution)
+        return get_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
+                          execution=execution)
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
-# 'no_balancer_underlying' = True -> retrieves the LP Token balance / 
+# 'no_balancer_underlying' = True -> retrieves the LP Token balance /
 # 'no_balancer_underlying' = False or not passed onto the function -> retrieves the balance of the underlying Balancer tokens
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output: a list with 2 elements:
-# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance] | [liquidity_token_address, staked_balance] -> depending on 'no_balancer_underlying' value 
+# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance] | [liquidity_token_address, staked_balance] -> depending on 'no_balancer_underlying' value
 # 2 - List of Tuples: [reward_token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, no_balancer_underlying=False, decimals=True):
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False,
+               no_balancer_underlying=False, decimals=True):
     """
 
     :param wallet:
@@ -551,7 +570,8 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         lptoken_staked = bal_rewards_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
         if no_balancer_underlying is False:
-            balancer_data = Balancer.underlying(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, aura_staked=lptoken_staked)
+            balancer_data = Balancer.underlying(wallet, lptoken_address, block, blockchain, web3=web3,
+                                                decimals=decimals, aura_staked=lptoken_staked)
             balances = [[balancer_data[i][0], balancer_data[i][2]] for i in range(len(balancer_data))]
         else:
             if decimals is True:
@@ -559,12 +579,13 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
             else:
                 lptoken_decimals = 0
 
-            lptoken_staked = lptoken_staked / (10**lptoken_decimals)
+            lptoken_staked = lptoken_staked / (10 ** lptoken_decimals)
 
             balances.append([lptoken_address, lptoken_staked])
 
         if reward is True:
-            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, bal_rewards_contract=bal_rewards_contract)
+            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
+                                          bal_rewards_contract=bal_rewards_contract)
 
             result.append(balances)
             result.append(all_rewards)
@@ -575,13 +596,15 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         return result
 
     except GetNodeIndexError:
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_balancer_underlying=no_balancer_underlying, index=0, execution=execution + 1)
+        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals,
+                          no_balancer_underlying=no_balancer_underlying, index=0, execution=execution + 1)
 
     except:
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, no_balancer_underlying=no_balancer_underlying, index=index + 1, execution=execution)
+        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals,
+                          no_balancer_underlying=no_balancer_underlying, index=index + 1, execution=execution)
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # pool_balances
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
@@ -589,7 +612,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output: a list with 2 elements:
 # 1 - List of Tuples: [liquidity_token_address, balance]
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
     """
 
@@ -620,12 +643,13 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
         return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
     except:
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1,
+                             execution=execution)
 
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # update_db
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db():
     """
 
@@ -638,7 +662,7 @@ def update_db():
         db_data = {
             'pools': {}
         }
-    
+
     web3 = get_node(ETHEREUM)
 
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
@@ -655,7 +679,7 @@ def update_db():
                 'gauge': pool_info[2],
                 'crvRewards': pool_info[3],
                 'stash': pool_info[4],
-                'shutdown':pool_info[5]
+                'shutdown': pool_info[5]
             }
 
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Aura_db.json', 'w') as db_file:

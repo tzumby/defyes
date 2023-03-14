@@ -88,13 +88,13 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
                     # returns price, source and blockchain:
                     return price_coingecko[1][1], 'coingecko', price_feed_data['blockchain']
-                
+
                 elif price_feed_data['source'] == 'zapper':
                     price_zapper = Zapper.get_price(token_address_mapping, block_to_timestamp(block_price_feed,
-                                                                                                    price_feed_data[
-                                                                                                        'blockchain']),
-                                                          price_feed_data['blockchain'])
-                    
+                                                                                              price_feed_data[
+                                                                                                  'blockchain']),
+                                                    price_feed_data['blockchain'])
+
                     # returns price, source and blockchain:
                     return price_zapper[1][1], 'zapper', price_feed_data['blockchain']
 
@@ -149,15 +149,16 @@ def get_etherscan_price(token_address):
 
     :param token_address:
     """
-    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()['result'][0]['tokenPriceUSD']
+    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()['result'][0][
+        'tokenPriceUSD']
 
     return price, 'etherscan', ETHEREUM
-    
-    
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_today_prices_data
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_today_prices_data(file_name, return_type='df',web3=None):
+def get_today_prices_data(file_name, return_type='df', web3=None):
     file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/' + file_name, 'r')
     token_file = json.load(file)
 
@@ -177,11 +178,11 @@ def get_today_prices_data(file_name, return_type='df',web3=None):
 
             now = datetime(datetime.now().year, datetime.now().month, datetime.now().day, datetime.now().hour,
                            datetime.now().minute)
- 
+
             # Use reference_block just if latest not needed.
             # reference_block = (date_to_block(now.strftime('%Y-%m-%d %H:%M:%S'), token_blokchain))
-            
-            data = get_price(token_address, 'latest', token_blokchain,web3=web3)
+
+            data = get_price(token_address, 'latest', token_blokchain, web3=web3)
             # print('Price Of',token_symbol,data,)
             price.append(data[0])
             source.append(data[1])
@@ -193,20 +194,18 @@ def get_today_prices_data(file_name, return_type='df',web3=None):
     # token_address.append(token_address[0])
 
     data_raw = {
-        
-            'Price_Datetime' : time_stamp,
-            'Price_Date': date_stamp,  #.strftime("%Y-%m-%d")   
-            'Price' : price,
-            'Source': source,
-            'Token_Address' : token_address_data,
-            'Blockchain': blockchain
-        
-            }
+
+        'Price_Datetime': time_stamp,
+        'Price_Date': date_stamp,  # .strftime("%Y-%m-%d")
+        'Price': price,
+        'Source': source,
+        'Token_Address': token_address_data,
+        'Blockchain': blockchain
+
+    }
 
     if return_type == 'df':
         df = pd.DataFrame(data_raw)
         return df
     else:
         return data_raw
-
-print(get_price('0xae78736Cd615f374D3085123A210448E74Fc6393', 'latest', ETHEREUM))
