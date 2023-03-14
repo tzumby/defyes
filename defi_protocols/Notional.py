@@ -145,7 +145,7 @@ def all_note_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         if nproxy_contract is None:
             nproxy_address = get_nproxy_address(blockchain)
@@ -204,7 +204,7 @@ def get_staked(wallet, block, blockchain, web3=None, decimals=True, execution=1,
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         nproxy_address = get_nproxy_address(blockchain)
         nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
@@ -281,7 +281,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, executio
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         nproxy_address = get_nproxy_address(blockchain)
         nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
@@ -363,8 +363,8 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
-        token_address = web3.toChecksumAddress(token_address)
+        wallet = web3.to_checksum_address(wallet)
+        token_address = web3.to_checksum_address(token_address)
 
         nproxy_address = get_nproxy_address(blockchain)
         nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)

@@ -205,7 +205,7 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, execution=1, web3=None,
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         extra_rewards_distributor = get_contract(EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3,
                                                  abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block)
@@ -316,9 +316,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         if bal_rewards_contract is None:
             booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
@@ -396,7 +396,7 @@ def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, rewar
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         aura_locker_contract = get_contract(AURA_LOCKER, blockchain, web3=web3, abi=ABI_AURA_LOCKER, block=block)
 
@@ -469,7 +469,7 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         aurabal_rewarder_contract = get_contract(AURABAL_REWARDER, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
 
@@ -552,9 +552,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
 
@@ -633,7 +633,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         balances = Balancer.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
 

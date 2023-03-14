@@ -432,9 +432,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         if pool_info is None:
             pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
@@ -504,9 +504,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
@@ -594,7 +594,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
@@ -658,7 +658,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
         if web3 is None:
             web3 = get_node(blockchain, block=block_start, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
@@ -757,7 +757,7 @@ def get_wallet_by_tx(lptoken_address, block, blockchain, web3=None, execution=1,
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         if isinstance(block, str):
             if block == 'latest':
@@ -821,7 +821,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 

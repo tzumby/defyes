@@ -163,7 +163,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         lpapr_address = get_lpapr_address(blockchain)
         if lpapr_address is None:
@@ -264,7 +264,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         stkagave_address = get_stkagave_address(blockchain)
         if stkagave_address is None:
@@ -326,7 +326,7 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
         if balances is None:
