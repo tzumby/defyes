@@ -39,8 +39,8 @@ def get_deposit(wallet: str, nftid: str, contract_address: str, block: Union[int
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
-        azuro = web3.toChecksumAddress(contract_address)
+        wallet = web3.to_checksum_address(wallet)
+        azuro = web3.to_checksum_address(contract_address)
         wallethex = str(AddressHexor(wallet))
         nfthex = '0x00000000000000000000000000000000000000000000000000000' + hex(nftid)[2:]
         amount = 0
@@ -141,7 +141,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
         pool_address_v1 = get_contract(AZURO_POOL_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
         pool_address_v2 = get_contract(AZURO_POOL_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
         balances = get_amount(wallet, pool_address_v1, pool_address_v2, nftid, block, blockchain, web3,
@@ -168,7 +168,7 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=No
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
         pool_address_v1 = get_contract(AZURO_POOL_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
         pool_address_v2 = get_contract(AZURO_POOL_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
         balance_of_pool1 = pool_address_v1.functions.balanceOf(wallet).call()
@@ -194,8 +194,8 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=No
 # apiKey = "twj7sBzB1_Njwoejwj0EFM-_x-TKJkZb"
 # nftid = 1099511627781
 # web3 = Web3(Web3.HTTPProvider('https://rpc.gnosischain.com/'))
-# wallet = web3.toChecksumAddress('0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f')
-# azuro = web3.toChecksumAddress(AZURO_POOL_V2)
+# wallet = web3.to_checksum_address('0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f')
+# azuro = web3.to_checksum_address(AZURO_POOL_V2)
 # wallethex = str(AddressHexor(wallet))
 # print(wallethex)
 # nfthex = '0x00000000000000000000000000000000000000000000000000000' + hex(nftid)[2:]

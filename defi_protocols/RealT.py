@@ -26,7 +26,7 @@ def underlying(wallet: str, block: Union[int,str], blockchain: str, web3=None, e
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
         token_contract = get_contract(TOKEN_CONTRACT_XDAI,blockchain,web3,abi=TOKEN_CONTRACT_ABI)
         balance_of = token_contract.functions.balanceOf(wallet).call(block_identifier=block)
         token_decimals = token_contract.functions.decimals().call()

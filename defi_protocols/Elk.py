@@ -223,9 +223,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         if pool_contract is None:
             lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
@@ -287,9 +287,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
@@ -372,7 +372,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
@@ -434,7 +434,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
         if web3 is None:
             web3 = get_node(blockchain, block=block_start, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
@@ -520,7 +520,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
 #         if web3 is None:
 #             web3 = get_node(blockchain, block=block, index=index)
 
-#         lptoken_address = web3.toChecksumAddress(lptoken_address)
+#         lptoken_address = web3.to_checksum_address(lptoken_address)
 #         lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
 #         pool_address = get_pool_address(web3, lptoken_data['token0'], lptoken_data['token1'], block, blockchain)

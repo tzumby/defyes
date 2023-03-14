@@ -81,7 +81,7 @@ def get_mainnet_price(token_address, block, web3=None, execution=1, index=0):
         if web3 is None:
             web3 = get_node(ETHEREUM, block=block, index=index)
 
-        token_address = web3.toChecksumAddress(token_address)
+        token_address = web3.to_checksum_address(token_address)
 
         feed_registry_contract = get_contract(CHAINLINK_FEED_REGISTRY, ETHEREUM, web3=web3,
                                               abi=ABI_CHAINLINK_FEED_REGISTRY, block=block)

@@ -16,7 +16,7 @@ def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, we
         tx_input_data = tx_receipt['input']
 
         tx_to_impl_code = bytes.fromhex(Web3.toHex(web3.eth.get_storage_at(tx_to, 0))[2:])
-        proxy_address = web3.toChecksumAddress(tx_to_impl_code[-20:].hex())
+        proxy_address = web3.to_checksum_address(tx_to_impl_code[-20:].hex())
         proxy_address_abi = RequestFromScan(blockchain=blockchain, module='contract', action='getabi',
                                             kwargs={'address': proxy_address}).request()['result']
         proxy_contract = web3.eth.contract(address=proxy_address, abi=proxy_address_abi)
@@ -76,9 +76,9 @@ def decode_multisend_transaction(input_data: str, web3) -> list:
 
 def decode_function_input(function_address: str, input_hex: str, blockchain: str, web3) -> tuple:
     if function_address[:2] == '0x':
-        checksum_address = web3.toChecksumAddress(function_address)
+        checksum_address = web3.to_checksum_address(function_address)
     else:
-        checksum_address = web3.toChecksumAddress('0x' + function_address)
+        checksum_address = web3.to_checksum_address('0x' + function_address)
     function_abi = RequestFromScan(blockchain=blockchain, module='contract', action='getabi',
                                    kwargs={'address': checksum_address}).request()['result']
     function_contract = web3.eth.contract(address=checksum_address, abi=function_abi)

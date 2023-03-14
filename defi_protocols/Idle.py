@@ -132,7 +132,7 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
         gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
         idle_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
         if decimals == True:
@@ -179,7 +179,7 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
         cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
         aa_contract = get_contract(aa_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
         bb_contract = get_contract(bb_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)

@@ -236,9 +236,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         if crv_rewards_contract is None:
             pool_info = get_pool_info(lptoken_address, block)
@@ -310,7 +310,7 @@ def get_locked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         cvx_locker_contract = get_contract(CVX_LOCKER, blockchain, web3=web3, block=block)
 
@@ -383,7 +383,7 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         cvx_staking_contract = get_contract(CVX_STAKER, blockchain, web3=web3, block=block)
 
@@ -464,9 +464,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         pool_info = get_pool_info(lptoken_address, block)
 
@@ -542,7 +542,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         balances = Curve.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
 
