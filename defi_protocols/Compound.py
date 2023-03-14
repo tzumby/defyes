@@ -151,8 +151,8 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
-        token_address = web3.toChecksumAddress(token_address)
+        wallet = web3.to_checksum_address(wallet)
+        token_address = web3.to_checksum_address(token_address)
 
         comptroller_address = get_comptoller_address(blockchain)
         if comptroller_address is None:
@@ -245,7 +245,7 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         comptroller_address = get_comptoller_address(blockchain)
         if comptroller_address is None:
@@ -337,7 +337,7 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         compound_lens_address = get_compound_lens_address(blockchain)
         if compound_lens_address is None:
@@ -465,7 +465,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, c
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        token_address = web3.toChecksumAddress(token_address)
+        token_address = web3.to_checksum_address(token_address)
 
         if ctoken_address is None:
             comptroller_address = get_comptoller_address(blockchain)
@@ -572,7 +572,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, execution=1, index
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        token_address = web3.toChecksumAddress(token_address)
+        token_address = web3.to_checksum_address(token_address)
 
         comptroller_address = get_comptoller_address(blockchain)
         if comptroller_address is None:

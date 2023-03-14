@@ -16,15 +16,15 @@ def update_token_mapping(token_address_eth, token_address_pol, token_address_xda
 
     if token_address_xdai is not None and len(str(token_address_xdai)) > 0:
         if not web3.isChecksumAddress(token_address_xdai):
-            token_address_xdai = web3.toChecksumAddress(token_address_xdai)
+            token_address_xdai = web3.to_checksum_address(token_address_xdai)
 
     if token_address_eth is not None and len(str(token_address_eth)) > 0:
         if not web3.isChecksumAddress(token_address_eth):
-            token_address_eth = web3.toChecksumAddress(token_address_eth)
+            token_address_eth = web3.to_checksum_address(token_address_eth)
 
     if token_address_pol is not None and len(str(token_address_pol)) > 0:
         if not web3.isChecksumAddress(token_address_pol):
-            token_address_pol = web3.toChecksumAddress(token_address_pol)
+            token_address_pol = web3.to_checksum_address(token_address_pol)
 
     # XDAI Node
     if token_address_xdai is not None and len(str(token_address_xdai)) > 0:

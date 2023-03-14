@@ -173,9 +173,9 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        collateral_address = web3.toChecksumAddress(collateral_address)
+        collateral_address = web3.to_checksum_address(collateral_address)
 
         cdp_registry_address = get_cdp_registry_address(blockchain)
         cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY,
@@ -309,9 +309,9 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, execu
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        collateral_address = web3.toChecksumAddress(collateral_address)
+        collateral_address = web3.to_checksum_address(collateral_address)
 
         cdp_registry_address = get_cdp_registry_address(blockchain)
         cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY,
@@ -481,7 +481,7 @@ def underlying(wallet, block, blockchain, web3=None, execution=1, index=0, decim
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
         cdp_registry_address = get_cdp_registry_address(blockchain)
         cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY,

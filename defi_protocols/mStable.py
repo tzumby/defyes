@@ -33,8 +33,8 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
-        token_address = web3.toChecksumAddress(token_address)
+        wallet = web3.to_checksum_address(wallet)
+        token_address = web3.to_checksum_address(token_address)
         meta_vault_contract = get_contract(token_address,blockchain,web3=web3,abi=BASIC_META_VAULT_ABI,block=block)
         balance_of_vault = meta_vault_contract.functions.balanceOf(wallet).call(block_identifier=block)
         underlying_asset = meta_vault_contract.functions.asset().call()

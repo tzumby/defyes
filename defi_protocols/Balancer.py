@@ -276,9 +276,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         if gauge_address is None:
             gauge_factory_address = get_gauge_factory_address(blockchain)
@@ -359,9 +359,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
@@ -486,7 +486,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
@@ -564,7 +564,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, execut
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
@@ -646,7 +646,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
         if web3 is None:
             web3 = get_node(blockchain, block=block_start, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
@@ -677,7 +677,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
                     if block_number == last_block:
                         hash_overlap.append(swap_log['transactionHash'])
 
-                    token_in = web3.toChecksumAddress('0x' + swap_log['topics'][2][-40:])
+                    token_in = web3.to_checksum_address('0x' + swap_log['topics'][2][-40:])
                     token_in_decimals = get_decimals(token_in, blockchain, web3=web3)
 
                     lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)

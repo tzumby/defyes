@@ -72,7 +72,7 @@ def get_amount(wallet: str, name: str, principal_address: str, yield_address: st
         if web3 == None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
         pool_token_contract = get_contract(pool_address, blockchain=blockchain, web3=web3, abi=LP_PYV_ABI, block=block)
         pt_token = principal_address
         pt_token_contract = get_contract(pt_token, blockchain, web3=web3, abi=PT_ABI, block=block)
@@ -134,8 +134,8 @@ def get_addresses(block: int, blockchain: str, web3=None, execution=1, index=0) 
         if web3 == None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        underlying_address = web3.toChecksumAddress(ELEMENT_DEPLOYER)
-        underlying_address2 = web3.toChecksumAddress(ELEMENT_DEPLOYER2)
+        underlying_address = web3.to_checksum_address(ELEMENT_DEPLOYER)
+        underlying_address2 = web3.to_checksum_address(ELEMENT_DEPLOYER2)
         tranches_list1 = []
         tranches_list2 = []
         tx_list = RequestFromScan(blockchain=blockchain, module='account', action='txlist',

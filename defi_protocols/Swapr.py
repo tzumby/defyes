@@ -284,9 +284,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         staking_rewards_contract = get_staking_rewards_contract(web3, block, blockchain)
         distribution_contracts = get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns,
@@ -374,7 +374,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
@@ -438,7 +438,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
         if web3 is None:
             web3 = get_node(blockchain, block=block_start, index=index)
 
-        lptoken_address = web3.toChecksumAddress(lptoken_address)
+        lptoken_address = web3.to_checksum_address(lptoken_address)
 
         lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
@@ -548,7 +548,7 @@ def update_db():
             except:
                 db_data[blockchain][stakable_token] = []
 
-            db_data[blockchain][stakable_token].append(web3.toChecksumAddress(distribution_address))
+            db_data[blockchain][stakable_token].append(web3.to_checksum_address(distribution_address))
 
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Swapr_db.json', 'w') as db_file:
             json.dump(db_data, db_file)

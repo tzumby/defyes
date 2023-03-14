@@ -92,9 +92,9 @@ def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], 
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        token_src = web3.toChecksumAddress(token_src)
+        token_src = web3.to_checksum_address(token_src)
 
-        token_dst = web3.toChecksumAddress(token_dst)
+        token_dst = web3.to_checksum_address(token_dst)
 
         factory_contract = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
 
@@ -172,7 +172,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.toChecksumAddress(wallet)
+        wallet = web3.to_checksum_address(wallet)
         factory_address = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
         nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)
         nft_owner = nft_contract.functions.ownerOf(nftid).call(block_identifier=block)
