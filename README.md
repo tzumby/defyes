@@ -21,6 +21,7 @@
 
 ```bash
 pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_protocols
+pip3 install -r requirements.txt
 ```
 
 ## Installing latest version available on pypi
