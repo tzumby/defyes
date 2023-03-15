@@ -10,6 +10,7 @@ import logging
 from decimal import *
 from typing import Union, Optional
 
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CUSTOM EXCEPTIONS
@@ -455,7 +456,7 @@ def get_symbol(token_address, blockchain, execution=1, web3=None, block='latest'
                                                            abi=get_contract_abi(token_address, blockchain))
                         symbol = token_contract.functions.symbol().call()
                     except:
-                        print('Token %s has no symbol()' % token_address)
+                        logger.debug('Token %s has no symbol()' % token_address)
                         symbol = ''
 
             if not isinstance(symbol, str):
@@ -559,8 +560,8 @@ def get_contract(contract_address, blockchain, web3=None, abi=None, block='lates
         try:
             abi = get_contract_abi(contract_address, blockchain)
             return web3.eth.contract(address=contract_address, abi=abi)
-        except abiNotVerified as Ex:
-            logging.getLogger().exception(Ex)
+        except abiNotVerified:
+            logger.exception("ABI not verified")
             return None
     else:
         return web3.eth.contract(address=contract_address, abi=abi)
@@ -582,7 +583,7 @@ def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, w
         abi = get_contract_abi(abi_contract_address, blockchain)
         return web3.eth.contract(address=address, abi=abi)
     except abiNotVerified as Ex:
-        logging.getLogger().exception(Ex)
+        logger.exception(Ex)
         return None
 
 
@@ -710,8 +711,8 @@ def get_data(contract_address, function_name, parameters, blockchain, web3=None,
 
     try:
         return contract.encodeABI(fn_name=function_name, args=parameters)
-    except Exception as Ex:
-        print(Ex)
+    except Exception:
+        logger.exception('Exception in get_data')
         return None
 
 

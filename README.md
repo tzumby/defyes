@@ -469,6 +469,24 @@ pip3 install -r requirements.txt
 
   </details>
 
+- <details><summary><b>Logging</b></summary>
+  # Logging config
+
+  ## General setup for an application
+
+  defi_protocols will emit several logs using the standard libary logging module. It is expected that the application does the logging setup, for example using `logging.basicConfig`. You can use the standard logger interface to change the log level for defi_protocols’s logger:
+
+  ```python
+  import logging
+  logging.getLogger("defi_protocol").setLevel(logging.WARNING)
+  ```
+
+  ## Quick logging config
+
+  Call `defi_protocol.add_stderr_logger(logging.DEBUG)` to setup a quick logging handler that logs to stderr.
+
+  </details>
+
 - <details><summary><b>Aave</b></summary>
 
   # Aave
