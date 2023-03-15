@@ -6,6 +6,7 @@ import os
 from typing import Union
 from datetime import timedelta
 
+logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # MASTERCHEF_V1
@@ -440,7 +441,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
             pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
         if pool_info is None:
-            print('Error: Incorrect SushiSwap LPToken Address: ', lptoken_address)
+            logger.error('Incorrect SushiSwap LPToken Address: %s', lptoken_address)
             return None
 
         pool_id = pool_info['pool_info']['poolId']
