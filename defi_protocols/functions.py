@@ -1,9 +1,12 @@
 from web3 import Web3
+from web3.middleware import construct_simple_cache_middleware
 import eth_abi
 import requests
 import json
 from datetime import datetime
+import functools
 import calendar
+import lru
 import math
 from defi_protocols.constants import *
 import logging
@@ -94,6 +97,14 @@ def get_node(blockchain, block='latest', index=0):
         else:
             web3 = Web3(Web3.HTTPProvider(node['archival'][index]))
 
+
+    # enable simple web3 cache, for example to cache eth_chainId calls
+    # more methods can be cached after analysing whether they are safe to cache
+    simple_cache = construct_simple_cache_middleware(
+        cache_class=functools.partial(lru.LRU, 4096),
+        rpc_whitelist={'eth_chainId'},
+    )
+    web3.middleware_onion.add(simple_cache)
     return web3
 
 
