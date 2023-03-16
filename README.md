@@ -470,6 +470,7 @@ pip3 install -r requirements.txt
   </details>
 
 - <details><summary><b>Logging</b></summary>
+
   # Logging config
 
   ## General setup for an application
