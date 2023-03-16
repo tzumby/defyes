@@ -35,6 +35,46 @@ class abiNotVerified(Exception):
         super().__init__(self.message)
 
 
+def get_web3_provider(endpoint):
+    provider = Web3.HTTPProvider(endpoint)
+
+    web3 = Web3(provider)
+
+    # enable simple web3 cache, for example to cache eth_chainId calls
+    # more methods can be cached after analysing whether they are safe to cache
+    simple_cache = construct_simple_cache_middleware(
+        cache_class=functools.partial(lru.LRU, 4096),
+        rpc_whitelist={'eth_chainId'},
+    )
+
+    class CallCounterMiddleware:
+        call_count = 0
+
+        def __init__(self, make_request, w3):
+            breakpoint()
+            self.w3 = w3
+            self.make_request = make_request
+
+        @classmethod
+        def increment(cls):
+            cls.call_count += 1
+
+        def __call__(self, method, params):
+            self.increment()
+            logger.debug('Web3 call count: %d', self.call_count)
+            response = self.make_request(method, params)
+            return response
+
+    web3.middleware_onion.add(CallCounterMiddleware, 'call_counter')
+    # adding the cache after to get only effective calls counted by the counter
+    web3.middleware_onion.add(simple_cache, 'simple_cache')
+    return web3
+
+def get_web3_call_count(web3):
+    """Obtain the total number of calls that have been made by a web3 instance."""
+    return web3.middleware_onion['call_counter'].call_count
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_node
 # 'block' = 'latest' -> retrieves a Full Node / 'block' = block or not passed onto the function -> retrieves an Archival Node
@@ -86,9 +126,9 @@ def get_node(blockchain, block='latest', index=0):
                 if index > (len(node['latest']) + len(node['archival']) - 1):
                     raise GetNodeIndexError
                 else:
-                    web3 = Web3(Web3.HTTPProvider(node['archival'][index - len(node['latest'])]))
+                    web3 = get_web3_provider(node['archival'][index - len(node['latest'])])
             else:
-                web3 = Web3(Web3.HTTPProvider(node['latest'][index]))
+                web3 = get_web3_provider(node['latest'][index])
         else:
             raise ValueError('Incorrect block.')
 
@@ -96,7 +136,7 @@ def get_node(blockchain, block='latest', index=0):
         if index > (len(node['archival']) - 1):
             raise GetNodeIndexError
         else:
-            web3 = Web3(Web3.HTTPProvider(node['archival'][index]))
+            web3 = get_web3_provider(node['archival'][index])
 
 
     # enable simple web3 cache, for example to cache eth_chainId calls
