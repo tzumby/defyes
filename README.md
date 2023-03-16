@@ -4066,6 +4066,15 @@ pip3 install -r requirements.txt
 
   </details>
 
+## Running the test
+
+```
+pip install -r requirements-dev.txt
+
+pytest -vs tests/
+
+```
+
 ## 💙 Contributing
 
 PR's are welcome !
