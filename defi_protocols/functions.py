@@ -51,7 +51,6 @@ def get_web3_provider(endpoint):
         call_count = 0
 
         def __init__(self, make_request, w3):
-            breakpoint()
             self.w3 = w3
             self.make_request = make_request
 
