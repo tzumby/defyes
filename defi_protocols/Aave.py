@@ -481,16 +481,18 @@ def get_staking_balance(wallet: str, block: Union[int, str], blockchain: str, we
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
+        aave_wallet = web3.toChecksumAddress(wallet)
+
         stk_aave_address = get_stkaave_address(blockchain)
         stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
-        stkaave_balance = stkaave_contract.functions.balanceOf(wallet).call(block_identifier=block)
+        stkaave_balance = stkaave_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
         stkaave_decimals = stkaave_contract.functions.decimals().call()
 
         stkabpt_contract = get_contract(STAKED_ABPT_TOKEN, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
-        stkabpt_balance = stkabpt_contract.functions.balanceOf(wallet).call(block_identifier=block)
+        stkabpt_balance = stkabpt_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
         stkabpt_decimals = stkabpt_contract.functions.decimals().call()
 
-        if decimals ==True:
+        if decimals:
             stkabpt_balance = stkabpt_balance / 10 ** stkabpt_decimals
             stkaave_balance = stkaave_balance / 10 ** stkaave_decimals
         
@@ -505,10 +507,4 @@ def get_staking_balance(wallet: str, block: Union[int, str], blockchain: str, we
 
     except:
         return get_staking_balance(block, blockchain, web3=web3, index=index + 1, execution=execution)
-
-# wallet= '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-# block = 'latest'
-# blockchain = ETHEREUM
-# haha = get_staking_balance(wallet,block,blockchain)
-# print(haha)
 
