@@ -35,7 +35,7 @@ else:
         config_data = json.load(config_file)
 
 NODE_ETH = {
-    'latest': config_data['nodes'][ETHEREUM]['latest'],
+    'latest': [os.environ['NODE_ETH']] if 'NODE_ETH' in os.environ else config_data['nodes'][ETHEREUM]['latest'],
     'archival': config_data['nodes'][ETHEREUM]['archival']
 }
 
