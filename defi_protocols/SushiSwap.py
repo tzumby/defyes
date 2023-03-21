@@ -1,10 +1,14 @@
-from defi_protocols.functions import *
-
-from defi_protocols.prices.prices import get_price
-from pathlib import Path
+import logging
 import os
+import json
+import math
+from pathlib import Path
 from typing import Union
 from datetime import timedelta
+
+from defi_protocols.functions import get_contract, get_node, get_decimals, GetNodeIndexError
+from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS
+from defi_protocols.prices.prices import get_price
 
 logger = logging.getLogger(__name__)
 
@@ -252,7 +256,8 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1,
     except GetNodeIndexError:
         return get_lptoken_data(lptoken_address, block, blockchain, index=0, execution=execution + 1)
 
-    except:
+    except Exception as e:
+        logger.exception(e)
         return get_lptoken_data(lptoken_address, block, blockchain, index=index + 1, execution=execution)
 
 
@@ -559,7 +564,8 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=0,
                           execution=execution + 1)
 
-    except:
+    except Exception as e:
+        logger.exception(e)
         return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
                           execution=execution)
 
