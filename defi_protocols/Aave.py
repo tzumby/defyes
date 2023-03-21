@@ -1,4 +1,5 @@
 from defi_protocols.functions import *
+from typing import Union, Optional
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROTOCOL DATA PROVIDER
@@ -11,6 +12,12 @@ PDP_ETHEREUM = '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d'
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Lending Pool Addresses Provider Registry - Ethereum
 LPAPR_ETHEREUM = '0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5'
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# STAKED ABPT TOKEN
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#
+STAKED_ABPT_TOKEN = '0xa1116930326D21fB917d5A27F1E9943A9595fb47'
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS
@@ -37,8 +44,10 @@ ABI_CHAINLINK_ETH_USD = '[{"inputs":[],"name":"latestAnswer","outputs":[{"intern
 # Price Oracle ABI - getAssetPrice
 ABI_PRICE_ORACLE = '[{"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getAssetPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-# Staked Agave ABI - REWARD_TOKEN, getTotalRewardsBalance, assets
-ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"staker","type":"address"}],"name":"getTotalRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"assets","outputs":[{"internalType":"uint128","name":"emissionPerSecond","type":"uint128"},{"internalType":"uint128","name":"lastUpdateTimestamp","type":"uint128"},{"internalType":"uint256","name":"index","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+# Staked Aave ABI - REWARD_TOKEN, getTotalRewardsBalance, assets, balanceOf
+ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"staker","type":"address"}],"name":"getTotalRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"assets","outputs":[{"internalType":"uint128","name":"emissionPerSecond","type":"uint128"},{"internalType":"uint128","name":"lastUpdateTimestamp","type":"uint128"},{"internalType":"uint256","name":"index","type":"uint256"}],"stateMutability":"view","type":"function"},\
+                {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
+                {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}]'
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -454,3 +463,48 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
 
     except:
         return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
+
+def get_staking_balance(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
+    """
+
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
+
+    balances = []
+
+    try:
+        if web3 is None:
+            web3 = get_node(blockchain, block=block, index=index)
+
+        aave_wallet = web3.toChecksumAddress(wallet)
+
+        stk_aave_address = get_stkaave_address(blockchain)
+        stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+        stkaave_balance = stkaave_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
+        stkaave_decimals = stkaave_contract.functions.decimals().call()
+
+        stkabpt_contract = get_contract(STAKED_ABPT_TOKEN, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+        stkabpt_balance = stkabpt_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
+        stkabpt_decimals = stkabpt_contract.functions.decimals().call()
+
+        if decimals:
+            stkabpt_balance = stkabpt_balance / 10 ** stkabpt_decimals
+            stkaave_balance = stkaave_balance / 10 ** stkaave_decimals
+        
+        balances.append([stk_aave_address,stkaave_balance])
+        balances.append([STAKED_ABPT_TOKEN,stkabpt_balance])
+
+        return balances
+
+
+    except GetNodeIndexError:
+        return get_staking_balance(wallet, block, blockchain, web3=web3, index=0, execution=execution + 1)
+
+    except:
+        return get_staking_balance(wallet, block, blockchain, web3=web3, index=index + 1, execution=execution)
+

@@ -40,7 +40,9 @@ ABI_CHAINLINK_XDAI_USD = '[{"inputs":[],"name":"latestAnswer","outputs":[{"inter
 ABI_PRICE_ORACLE = '[{"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getAssetPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 # Staked Agave ABI - REWARD_TOKEN, getTotalRewardsBalance, assets
-ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"staker","type":"address"}],"name":"getTotalRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"assets","outputs":[{"internalType":"uint128","name":"emissionPerSecond","type":"uint128"},{"internalType":"uint128","name":"lastUpdateTimestamp","type":"uint128"},{"internalType":"uint256","name":"index","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"staker","type":"address"}],"name":"getTotalRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"assets","outputs":[{"internalType":"uint128","name":"emissionPerSecond","type":"uint128"},{"internalType":"uint128","name":"lastUpdateTimestamp","type":"uint128"},{"internalType":"uint256","name":"index","type":"uint256"}],"stateMutability":"view","type":"function"},\
+                                {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
+                {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}]'
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -472,3 +474,41 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
 
     except:
         return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
+
+def get_staking_balance(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
+    """
+
+    :param block:
+    :param blockchain:
+    :param web3:
+    :param execution:
+    :param index:
+    :return:
+    """
+
+    balances = []
+
+    try:
+        if web3 is None:
+            web3 = get_node(blockchain, block=block, index=index)
+
+        agave_wallet = web3.toChecksumAddress(wallet)
+
+        stk_agave_address = get_stkagave_address(blockchain)
+        stkagave_contract = get_contract(stk_agave_address, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+        stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
+        stkagave_decimals = stkagave_contract.functions.decimals().call()
+
+        if decimals:
+            stkagave_balance = stkagave_balance / 10 ** stkagave_decimals
+        
+        balances.append([stk_agave_address,stkagave_balance])
+
+        return balances
+
+
+    except GetNodeIndexError:
+        return get_staking_balance(wallet, block, blockchain, web3=web3, index=0, execution=execution + 1)
+
+    except:
+        return get_staking_balance(wallet, block, blockchain, web3=web3, index=index + 1, execution=execution)
