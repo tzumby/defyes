@@ -503,8 +503,8 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, 
 
 
     except GetNodeIndexError:
-        return get_staking_balance(wallet, block, blockchain, web3=web3, index=0, execution=execution + 1)
+        return get_staked(wallet, block, blockchain, web3=web3, index=0, execution=execution + 1)
 
     except:
-        return get_staking_balance(wallet, block, blockchain, web3=web3, index=index + 1, execution=execution)
+        return get_staked(wallet, block, blockchain, web3=web3, index=index + 1, execution=execution)
 
