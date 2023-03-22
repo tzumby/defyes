@@ -3,7 +3,7 @@ name: Defi Protocols
 on: [push]
 
 jobs:
-  build:
+  Test:
 
     runs-on: ubuntu-latest
 
@@ -22,4 +22,7 @@ jobs:
       - name: Run tests
         run: |
           pip install -r requirements-dev.txt
-          PYTHONPATH=${PYTHONPATH}:. NODE_ETH=${{ secrets.NODE_ETH }} pytest -vs
+          cat defi_protocols/config.json |\
+            jq --arg node_eth ${{ secrets.NODE_ETH }} '.nodes.ethereum.latest = [$node_eth]' \
+            > /tmp/tmp_config.json
+          PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs
