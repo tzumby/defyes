@@ -475,7 +475,7 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
     except:
         return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
 
-def get_staking_balance(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
+def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
     """
 
     :param block:
