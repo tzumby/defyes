@@ -59,7 +59,7 @@ if os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     _cache = None
 else:
     cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
-    _cache = diskcache.Cache(directory=cache_dir)
+    _cache = diskcache.Cache(directory=cache_dir, disk_pickle_protocol=5)
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
 
