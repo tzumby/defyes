@@ -481,7 +481,7 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, 
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        aave_wallet = web3.toChecksumAddress(wallet)
+        aave_wallet = web3.to_checksum_address(wallet)
 
         stk_aave_address = get_stkaave_address(blockchain)
         stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
