@@ -36,6 +36,9 @@ class abiNotVerified(Exception):
 
 
 def get_web3_provider(endpoint):
+    if "://" not in endpoint:
+        raise ValueError(f"Invalid endpoint URI '{endpoint}'")
+
     provider = Web3.HTTPProvider(endpoint)
 
     web3 = Web3(provider)
