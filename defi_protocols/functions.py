@@ -117,7 +117,7 @@ def get_node(blockchain, block='latest', index=0):
     elif blockchain == GOERLI:
         node = NODE_GOERLI
     else:
-        raise Exception
+        raise ValueError(f"Unknown blockchain '{blockchain}'")
 
     if isinstance(block, str):
         if block == 'latest':
