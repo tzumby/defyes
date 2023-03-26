@@ -272,24 +272,23 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
                 # cETH does not have the underlying function
                 underlying_token = ZERO_ADDRESS
 
-            if underlying_token is not ZERO_ADDRESS:
-                ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
-                                              ctoken_contract=ctoken_contract, underlying_token=underlying_token)
+            ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
+                                          ctoken_contract=ctoken_contract, underlying_token=underlying_token)
 
-                underlying_token_decimals = get_decimals(underlying_token, block=block, blockchain=blockchain,
-                                                         web3=web3, index=index)
+            underlying_token_decimals = get_decimals(underlying_token, block=block, blockchain=blockchain,
+                                                     web3=web3, index=index)
 
-                mantissa = 18 - (ctoken_data['decimals']) + underlying_token_decimals
+            mantissa = 18 - (ctoken_data['decimals']) + underlying_token_decimals
 
-                exchange_rate = ctoken_data['exchangeRateStored'] / (10 ** mantissa)
+            exchange_rate = ctoken_data['exchangeRateStored'] / (10 ** mantissa)
 
-                underlying_token_balance = ctoken_data['balanceOf'] / (10 ** ctoken_data['decimals']) * exchange_rate - \
-                                           ctoken_data['borrowBalanceStored'] / (10 ** underlying_token_decimals)
+            underlying_token_balance = ctoken_data['balanceOf'] / (10 ** ctoken_data['decimals']) * exchange_rate - \
+                                       ctoken_data['borrowBalanceStored'] / (10 ** underlying_token_decimals)
 
-                if decimals == False:
-                    underlying_token_balance = underlying_token_balance * (10 ** underlying_token_decimals)
+            if decimals == False:
+                underlying_token_balance = underlying_token_balance * (10 ** underlying_token_decimals)
 
-                balances.append([underlying_token, underlying_token_balance])
+            balances.append([underlying_token, underlying_token_balance])
 
         if reward is True:
             all_rewards = all_comp_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
