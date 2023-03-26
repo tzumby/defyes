@@ -1,0 +1,71 @@
+from defi_protocols import Compound
+from defi_protocols.constants import ETHEREUM, ETHTokenAddresses
+from defi_protocols.functions import get_node
+
+CTOKEN_CONTRACTS = {
+    'cbat_contract': '0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E',
+    'cdai_contract': '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643',
+    'ceth_contract': '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
+    'crep_contract': '0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1',
+    'cusdc_contract': '0x39AA39c021dfbaE8faC545936693aC917d5E7563',
+    'cusdt_contract': '0xf650C3d88D12dB855b8bf7D11Be6C55A4e07dCC9',
+    'cwbtc_contract': '0xC11b1268C1A384e55C48c2391d8d480264A3A7F4',
+    'czrx_contract': '0xB3319f5D18Bc0D84dD1b4825Dcde5d5f7266d407',
+    'csai_contract': '0xF5DCe57282A584D2746FaF1593d3121Fcac444dC',
+    'cuni_contract': '0x35A18000230DA775CAc24873d00Ff85BccdeD550',
+    'ccomp_contract': '0x70e36f6BF80a52b3B46b3aF8e106CC0ed743E8e4',
+    'cwbtc2_contract': '0xccF4429DB6322D5C611ee964527D42E5d685DD6a',
+    'ctusd_contract': '0x12392F67bdf24faE0AF363c24aC620a2f67DAd86',
+    'clink_contract': '0xFAce851a4921ce59e912d19329929CE6da6EB0c7',
+    'cmkr_contract': '0x95b4eF2869eBD94BEb4eEE400a99824BF5DC325b',
+    'csushi_contract': '0x4B0181102A0112A2ef11AbEE5563bb4a3176c9d7',
+    'caave_contract': '0xe65cdB6479BaC1e22340E4E755fAE7E509EcD06c',
+    'cyfi_contract': '0x80a2AE356fc9ef4305676f7a3E2Ed04e12C33946',
+    'cusdp_contract': '0x041171993284df560249B57358F931D9eB7b925D',
+    'cfei_contract': '0x7713DD9Ca933848F6819F38B8352D9A15EA73F67'
+    }
+
+WALLET_N1 = '0x31cD267D34EC6368eac930Be4f412dfAcc71A844'
+WALLET_N2 = '0x99e881e9e89152b0add27c367f0761f0fbe5ddc3'
+BLOCK = 'latest'
+
+
+def test_get_comptoller_address():
+    comptroller_address = Compound.get_comptoller_address(ETHEREUM)
+    assert Compound.COMPTROLLER_ETHEREUM == comptroller_address
+
+
+def test_get_compound_lens_address():
+    comp_lens_address = Compound.get_compound_lens_address(ETHEREUM)
+    assert Compound.COMPOUND_LENS_ETHEREUM == comp_lens_address
+
+
+def test_get_compound_token_address():
+    comp_eth = Compound.get_compound_token_address(ETHEREUM)
+    assert ETHTokenAddresses.COMP == comp_eth
+
+
+def test_get_ctokens_contract_list():
+    web3 = get_node(ETHEREUM, BLOCK)
+    ctokens_list = Compound.get_ctokens_contract_list(ETHEREUM, web3, BLOCK)
+    assert ctokens_list == list(CTOKEN_CONTRACTS.values())
+
+
+def test_get_ctoken_data():
+    wallet1_cdai = Compound.get_ctoken_data(CTOKEN_CONTRACTS['cdai_contract'], WALLET_N1, BLOCK, ETHEREUM)
+    assert wallet1_cdai['underlying'] == '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+    assert wallet1_cdai['decimals'] == 8
+    assert wallet1_cdai['borrowBalanceStored'] == 0
+    assert wallet1_cdai['balanceOf'] == 4505674362
+
+    wallet1_ceth = Compound.get_ctoken_data(CTOKEN_CONTRACTS['ceth_contract'], WALLET_N1, BLOCK, ETHEREUM)
+    assert wallet1_ceth['underlying'] == '0x0000000000000000000000000000000000000000'
+    assert wallet1_ceth['decimals'] == 8
+    assert wallet1_ceth['borrowBalanceStored'] == 0
+    assert wallet1_ceth['balanceOf'] == 4979680
+
+    wallet2_ccomp = Compound.get_ctoken_data(CTOKEN_CONTRACTS['ccomp_contract'], WALLET_N2, BLOCK, ETHEREUM)
+    assert wallet2_ccomp['underlying'] == '0xc00e94Cb662C3520282E6f5717214004A7f26888'
+    assert wallet2_ccomp['decimals'] == 8
+    assert wallet2_ccomp['borrowBalanceStored'] == 0
+    assert wallet2_ccomp['balanceOf'] == 24296781813013
