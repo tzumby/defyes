@@ -96,6 +96,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, execut
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
+        wallet = web3.to_checksum_address(wallet)
         ctoken_data = {}
 
         if ctoken_contract is not None:
