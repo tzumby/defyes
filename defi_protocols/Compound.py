@@ -59,6 +59,14 @@ def get_compound_token_address(blockchain):
         return COMP_ETH
 
 
+def get_ctokens_contract_list(blockchain, web3, block):
+    comptroller_address = get_comptoller_address(blockchain)
+    comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
+                                        block=block)
+
+    return comptroller_contract.functions.getAllMarkets().call()
+
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_ctoken_data
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
@@ -154,14 +162,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
         wallet = web3.to_checksum_address(wallet)
         token_address = web3.to_checksum_address(token_address)
 
-        comptroller_address = get_comptoller_address(blockchain)
-        if comptroller_address is None:
-            return None
-
-        comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                            block=block)
-
-        ctoken_list = comptroller_contract.functions.getAllMarkets().call()
+        ctoken_list = get_ctokens_contract_list(blockchain)
 
         found = False
         for ctoken_address in ctoken_list:
