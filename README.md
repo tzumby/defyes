@@ -20,7 +20,7 @@
 ## Installing from repository
 
 ```bash
-pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git#egg=defi_protocols
+pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git
 pip3 install -r requirements.txt
 ```
 
