@@ -274,10 +274,10 @@ def update_db() -> dict:
         json.dump(addresses, db_file, indent=4)
 
 
-wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-gauge = '0x675eC042325535F6e176638Dd2d4994F645502B9'
-rewors = get_all_rewards(wallet, gauge, 'latest', ETHEREUM)
-print(rewors)
+# wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
+# gauge = '0x675eC042325535F6e176638Dd2d4994F645502B9'
+# rewors = get_all_rewards(wallet, gauge, 'latest', ETHEREUM)
+# print(rewors)
 
 # CDO_address = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
 # wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
