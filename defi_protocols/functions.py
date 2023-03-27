@@ -55,6 +55,9 @@ class abiNotVerified(Exception):
 
 
 def get_web3_provider(endpoint):
+    if "://" not in endpoint:
+        raise ValueError(f"Invalid endpoint URI '{endpoint}'")
+
     provider = Web3.HTTPProvider(endpoint)
 
     web3 = Web3(provider)
@@ -136,7 +139,7 @@ def get_node(blockchain, block='latest', index=0):
     elif blockchain == GOERLI:
         node = NODE_GOERLI
     else:
-        raise Exception
+        raise ValueError(f"Unknown blockchain '{blockchain}'")
 
     if isinstance(block, str):
         if block == 'latest':
