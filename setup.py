@@ -16,7 +16,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
-          'web3>=5.15.0',
+          'web3>=5.31.4,<6.0',
           'requests>=2.28.1',
           'datetime>=4.7',
           'pathlib>=1.0.1',
