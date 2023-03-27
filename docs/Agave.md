@@ -3,25 +3,19 @@
 ## Defined in Agave.py
 
 
-### 1: get_reserves_tokens(pdp_contract, block)
+### 1: `get_reserves_tokens(pdp_contract, block)`
 
 > Description: function returns reserved tokens for agave protocol
 
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
-
-  from defi_protocols.functions import *
-
+  from defi_protocols.constants import XDAI
   from defi_protocols import Agave
 
-
-  f1 = Agave.get_contract('0x24dCbd376Db23e4771375092344f5CbEA3541FC0', XDAI)
-  f2 = Agave.get_reserves_tokens(f1, 'latest')
-  print(f2)
-
-
+  pdp_contract = Agave.get_contract(Agave.PDP_XDAI, XDAI)
+  tokens = Agave.get_reserves_tokens(pdp_contract, 'latest')
+  print(tokens)
   ```
 
   ```
@@ -30,53 +24,42 @@
   ```
   </details>
 
-### 2: get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
+### 2: `get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)`
 
 > Description: function returns reserved token balances for given wallet address
 
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
-
-  from defi_protocols.functions import *
-
+  from defi_protocols.constants import XDAI
+  from defi_protocols.functions import get_node
   from defi_protocols import Agave
 
   web3 = get_node(XDAI, 'latest', 0)
-
   f2 = Agave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', XDAI)
 
   print(f2)
-
 
   ```
 
   ```
   output: []
-  
   ```
   </details>
 
 
-### 3: get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimals=True)
+### 3: `get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimals=True)`
 
 > Description: function returns agave data for given wallet address
 
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
-
-  from defi_protocols.functions import *
-
+  from defi_protocols.constants import XDAI
   from defi_protocols import Agave
 
   f3 = Agave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', XDAI)
-
   print(f3)
-
-
   ```
 
   ```

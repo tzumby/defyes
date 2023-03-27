@@ -63,10 +63,8 @@ ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"
                 {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}]'
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_reserves_tokens
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens(pdp_contract, block):
+    logger.debug('get_reserves_tokens')
     reserves_tokens_addresses = []
 
     reserves_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
@@ -82,6 +80,7 @@ def get_reserves_tokens(pdp_contract, block):
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True):
+    logger.debug('get_reserves_tokens_balances')
     balances = []
 
     pdp_contract = get_contract(PDP_XDAI, blockchain, web3=web3, abi=ABI_PDP, block=block)
@@ -119,7 +118,9 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimals=True):
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    logger.debug(f'get_data({execution=}, {index=})')
     if execution > MAX_EXECUTIONS:
+        logger.debug(f'Max executions ({MAX_EXECUTIONS}) reached. Returning None.')
         return None
 
     agave_data = {}
@@ -145,8 +146,8 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
                     10 ** chainlink_eth_usd_decimals)
 
         balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
-        if balances is None:
-            return None
+
+        logger.debug(f'{balances = }')
 
         if len(balances) > 0:
 
@@ -171,6 +172,9 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
         # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor
         user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
 
+        logger.debug(f'{user_account_data = }')
+
+        # FIXME: this is producing ZeroDivisionError
         # Collateral Ratio
         agave_data['collateral_ratio'] = (user_account_data[0] / user_account_data[1]) * 100
 
@@ -193,6 +197,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
         return get_data(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
     except Exception as e:
+        # FIXME: we should not try again when e is ZeroDivisionError
         logger.exception(e)
         return get_data(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
 
@@ -362,15 +367,6 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, a
 # 1 - Tuple: [{'metric': 'apr'/'apy', 'type': 'staking', 'value': staking_apr/staking_apy}]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=False):
-    """
-
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :return:
-    """
 
     try:
         if web3 is None:
@@ -400,15 +396,6 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
         return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
 
 def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
-    """
-
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :return:
-    """
 
     balances = []
 
