@@ -242,6 +242,33 @@
                 "aa_gauge": null
             },
             "bb token": "0x56263BDE26b72b3e3D26d8e03399a275Aa8Bbfb2"
+        },
+        {
+            "underlying_token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            "CDO address": "0xb3f717a5064d2cbe1b8999fdfd3f8f3da98339a6",
+            "AA tranche": {
+                "aa_token": "0x6c0c8708e2FD507B7057762739cb04cF01b98d7b",
+                "aa_gauge": null
+            },
+            "bb token": "0xd69c52E6AF3aE708EE4b3d3e7C0C5b4CF4d6244B"
+        },
+        {
+            "underlying_token": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            "CDO address": "0x1329e8db9ed7a44726572d44729427f132fa290d",
+            "AA tranche": {
+                "aa_token": "0x9CAcd44cfDf22731bc99FaCf3531C809d56BD4A2",
+                "aa_gauge": null
+            },
+            "bb token": "0xf85Fd280B301c0A6232d515001dA8B6c8503D714"
+        },
+        {
+            "underlying_token": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            "CDO address": "0x5dca0b3ed7594a6613c1a2acd367d56e1f74f92d",
+            "AA tranche": {
+                "aa_token": "0x43eD68703006add5F99ce36b5182392362369C1c",
+                "aa_gauge": null
+            },
+            "bb token": "0x38D36353D07CfB92650822D9c31fB4AdA1c73D6E"
         }
     ]
 }
