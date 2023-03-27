@@ -3,16 +3,13 @@ import requests
 import calendar
 import math
 import logging
-import os
 from datetime import datetime
 from decimal import Decimal
 from typing import Union, Optional
-import diskcache
-
 
 import eth_abi
 from web3 import Web3
-from web3.middleware.cache import generate_cache_key
+from defi_protocols import cache
 from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOERLI, API_KOVAN_GETLOGS, KOVAN, API_ROPSTEN_GETLOGS, ROPSTEN,
                                      API_KEY_OPTIMISM, API_OPTIMISM_GETLOGS, OPTIMISM, API_KEY_FANTOM, API_FANTOM_GETLOGS, FANTOM,
                                      API_KEY_BINANCE, API_BINANCE_GETLOGS, BINANCE, API_KEY_AVALANCHE, API_AVALANCHE_GETLOGS,
@@ -55,39 +52,6 @@ class abiNotVerified(Exception):
         super().__init__(self.message)
 
 
-if os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
-    _cache = None
-else:
-    cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
-    _cache = diskcache.Cache(directory=cache_dir, disk_pickle_protocol=5)
-    if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
-        _cache.clear()
-
-def disk_cache_middleware(make_request, web3):
-    """
-    Cache middleware that supports multiple blockchains.
-    It also do not caches if block='latest'.
-    """
-
-    RPC_WHITELIST = {'eth_chainId', 'eth_call'}
-
-    def middleware(method, params):
-        if method in RPC_WHITELIST and 'latest' not in params:
-            params_hash = generate_cache_key(params)
-            cache_key = f"{web3._network_name}.{method}.{params_hash}"
-            if cache_key not in _cache:
-                response = make_request(method, params)
-                if not ('error' in response or 'result' not in response or response['result'] is None):
-                    _cache[cache_key] = response['result']
-                return response
-            else:
-                data = _cache[cache_key]
-                return {'jsonrpc': '2.0', 'id': 11, 'result': data}
-        else:
-            logger.debug(f'Not caching {method} as "latest" in params: {params}')
-            return make_request(method, params)
-    return middleware
-
 def get_web3_provider(endpoint):
     provider = Web3.HTTPProvider(endpoint)
 
@@ -111,9 +75,9 @@ def get_web3_provider(endpoint):
             return response
 
     web3.middleware_onion.add(CallCounterMiddleware, 'call_counter')
-    if _cache is not None:
+    if cache.is_enabled():
         # adding the cache after to get only effective calls counted by the counter
-        web3.middleware_onion.add(disk_cache_middleware, 'disk_cache')
+        web3.middleware_onion.add(cache.disk_cache_middleware, 'disk_cache')
     return web3
 
 def get_web3_call_count(web3):
