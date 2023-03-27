@@ -1,3 +1,14 @@
+'''
+Agave is the DeFi lending protocol on Gnosis.
+
+Agave rewards depositors with passive income
+and lets them use their deposits as collateral
+to borrow and lend digital assets.
+
+Agave is a fork of Aave, built by the
+1Hive community and deployed on the xDai chain
+'''
+
 import logging
 from typing import Union
 
@@ -53,38 +64,9 @@ ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_protocol_data_provider
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_protocol_data_provider(blockchain):
-    if blockchain == XDAI:
-        return PDP_XDAI
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_lpapr_address
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_lpapr_address(blockchain):
-    if blockchain == XDAI:
-        return LPAPR_XDAI
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_stkagave_address
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_stkagave_address(blockchain):
-    if blockchain == XDAI:
-        return STKAGAVE_XDAI
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_reserves_tokens
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens(pdp_contract, block):
-    """
-
-    :param pdp_contract:
-    :return:
-    """
     reserves_tokens_addresses = []
 
     reserves_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
@@ -100,22 +82,9 @@ def get_reserves_tokens(pdp_contract, block):
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True):
-    """
-
-    :param web3:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
     balances = []
 
-    pdp_address = get_protocol_data_provider(blockchain)
-    if pdp_address is None:
-        return None
-
-    pdp_contract = get_contract(pdp_address, blockchain, web3=web3, abi=ABI_PDP, block=block)
+    pdp_contract = get_contract(PDP_XDAI, blockchain, web3=web3, abi=ABI_PDP, block=block)
 
     reserves_tokens = get_reserves_tokens(pdp_contract, block)
 
@@ -149,17 +118,6 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimals=True):
-    """
-
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param execution:
-    :param web3:
-    :param index:
-    :param decimals:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -174,11 +132,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 
         wallet = web3.to_checksum_address(wallet)
 
-        lpapr_address = get_lpapr_address(blockchain)
-        if lpapr_address is None:
-            return None
-
-        lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+        lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
         lending_pool_address = lpapr_contract.functions.getLendingPool().call()
         lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
@@ -253,17 +207,6 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 # 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
-    """
-
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param execution:
-    :param web3:
-    :param index:
-    :param decimals:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -276,11 +219,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 
         wallet = web3.to_checksum_address(wallet)
 
-        stkagave_address = get_stkagave_address(blockchain)
-        if stkagave_address is None:
-            return None
-
-        stkagave_contract = get_contract(stkagave_address, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+        stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
 
         reward_token = stkagave_contract.functions.REWARD_TOKEN().call()
 
@@ -315,18 +254,6 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 # 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False):
-    """
-
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param execution:
-    :param web3:
-    :param index:
-    :param decimals:
-    :param reward:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -376,24 +303,12 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
 #             {'metric': 'apr'/'apy', 'type': 'stable_borrow', 'value': borrow_apr/borrow_apy}]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, apy=False):
-    """
-
-    :para token_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param apy:
-    :return:
-    """
 
     try:
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
-        lpapr_address = get_lpapr_address(blockchain)
-        lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+        lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
         lending_pool_address = lpapr_contract.functions.getLendingPool().call()
         lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
@@ -462,14 +377,11 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
             web3 = get_node(blockchain, block=block, index=index)
 
         seconds_per_year = 31536000
-        stkagave_address = get_stkagave_address(blockchain)
-        if stkagave_address is None:
-            return None
 
-        stkagave_contract = get_contract(stkagave_address, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
-        emission_per_second = stkagave_contract.functions.assets(stkagave_address).call(block_identifier=block)[0]
+        stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+        emission_per_second = stkagave_contract.functions.assets(STKAGAVE_XDAI).call(block_identifier=block)[0]
         agave_token_address = stkagave_contract.functions.REWARD_TOKEN().call()
-        current_stakes = balance_of(stkagave_address, agave_token_address, block, blockchain, web3=web3, decimals=False)
+        current_stakes = balance_of(STKAGAVE_XDAI, agave_token_address, block, blockchain, web3=web3, decimals=False)
 
         staking_apr = emission_per_second * seconds_per_year / current_stakes
 
@@ -506,15 +418,14 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, 
 
         agave_wallet = web3.to_checksum_address(wallet)
 
-        stk_agave_address = get_stkagave_address(blockchain)
-        stkagave_contract = get_contract(stk_agave_address, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+        stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
         stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
         stkagave_decimals = stkagave_contract.functions.decimals().call()
 
         if decimals:
             stkagave_balance = stkagave_balance / 10 ** stkagave_decimals
         
-        balances.append([stk_agave_address,stkagave_balance])
+        balances.append([STKAGAVE_XDAI, stkagave_balance])
 
         return balances
 
