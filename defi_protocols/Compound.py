@@ -159,12 +159,10 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     try:
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
-
         wallet = web3.to_checksum_address(wallet)
         token_address = web3.to_checksum_address(token_address)
 
-        ctoken_list = get_ctokens_contract_list(blockchain)
-
+        ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
         found = False
         for ctoken_address in ctoken_list:
 
