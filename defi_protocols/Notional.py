@@ -155,9 +155,12 @@ def all_note_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
 
         if decimals == True:
             note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(wallet, block_to_timestamp(block,
-                                                                                                             blockchain)).call() / (
+                                                                                                             blockchain)).call(block_identifier=block) / (
                                        10 ** (get_decimals(note_token_address, blockchain, web3=web3)))
-
+        else:
+            note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(wallet, block_to_timestamp(block,
+                                                                                                             blockchain)).call(block_identifier=block)
+            
         all_rewards.append([note_token_address, note_rewards])
 
         return all_rewards
@@ -405,6 +408,26 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
 # print(underlying_all('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 'latest', ETHEREUM, reward=True))
 # print(get_market_data('latest', ETHEREUM))
+# print(block_to_timestamp(16200000, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16200000, ETHEREUM))
+# print(block_to_timestamp(16200000, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16200000, ETHEREUM, decimals=False))
+# print(block_to_timestamp(16308189, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16308189, ETHEREUM))
+# print(block_to_timestamp(16522136, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16522136 , ETHEREUM))
+# print(block_to_timestamp(16722136, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16722136 , ETHEREUM))
+# print(block_to_timestamp(16822136, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16822136 , ETHEREUM))
+# print(block_to_timestamp(16902136, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16902136 , ETHEREUM))
+# print(block_to_timestamp(16922136, ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 16922136 , ETHEREUM))
+# print(block_to_timestamp(last_block(ETHEREUM), ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', last_block(ETHEREUM) , ETHEREUM))
+# print(block_to_timestamp(last_block(ETHEREUM), ETHEREUM))
+# print(all_note_rewards('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', last_block(ETHEREUM) , ETHEREUM, decimals=False))
 
 # print(get_staked('0x2A254687F5056EA5235d41f218D7E3BB946DAdFf', 'latest', ETHEREUM, reward=True))
 # print(underlying_all('0x2A254687F5056EA5235d41f218D7E3BB946DAdFf', 'latest', ETHEREUM))
