@@ -213,7 +213,9 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    logger.debug(f'get_all_rewards({execution=}, {index=})')
     if execution > MAX_EXECUTIONS:
+        logger.debug(f'Max executions ({MAX_EXECUTIONS}) reached. Returning None.')
         return None
 
     all_rewards = []

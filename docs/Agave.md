@@ -68,29 +68,22 @@
   ```
   </details>
 
-### 4: get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True)
+### 4: `get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True)`
 
 > Description: function returns all rewards for given wallet on agave protocol
 
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
-
-  from defi_protocols.functions import *
-
+  from defi_protocols.constants import XDAI
   from defi_protocols import Agave
 
   f4 = Agave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', XDAI)
-
   print(f4)
-
-
   ```
 
   ```
   output: [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 0.0]]
-  
   ```
   </details>
 

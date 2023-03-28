@@ -45,6 +45,11 @@ def test_get_data():
     assert data is None
 
 
+def test_get_all_rewards():
+    all_rewards = Agave.get_all_rewards(TEST_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3)
+    assert all_rewards == [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 14.019150785520575]]
+
+
 def test_get_staking_balance():
     data = Agave.get_staked(TEST_WALLET_ADDRESS, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3)
     assert data == [[STK_AGAVE, 103.6303835433784]]
