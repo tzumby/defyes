@@ -87,7 +87,9 @@
   ```
   </details>
 
-### 5: underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False)
+### 5: `underlying(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False)`
+
+FIXME: this function does not exist anymore
 
 > Description: function returns underlying tokens for given wallet from agave protocol
 

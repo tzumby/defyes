@@ -262,7 +262,9 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False):
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    logger.debug(f'underlying_all({execution=}, {index=})')
     if execution > MAX_EXECUTIONS:
+        logger.debug(f'Max executions ({MAX_EXECUTIONS}) reached. Returning None.')
         return None
 
     result = []
@@ -274,8 +276,6 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
         wallet = web3.to_checksum_address(wallet)
 
         balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
-        if balances is None:
-            return None
 
         if reward is True:
             all_rewards = get_all_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
@@ -286,6 +286,7 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
         else:
             result = balances
 
+        # FIXME: shape should not be dependent on arguments
         return result
 
     except GetNodeIndexError:
@@ -396,6 +397,7 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
     except Exception as e:
         logger.exception(e)
         return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
+
 
 def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
 

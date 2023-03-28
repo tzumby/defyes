@@ -1,4 +1,5 @@
 import logging
+import pytest
 
 from defi_protocols import Agave, add_stderr_logger
 from defi_protocols.constants import XDAI
@@ -48,6 +49,15 @@ def test_get_data():
 def test_get_all_rewards():
     all_rewards = Agave.get_all_rewards(TEST_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3)
     assert all_rewards == [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 14.019150785520575]]
+
+
+@pytest.mark.parametrize('reward', [True, False])
+def test_underlying_all(reward):
+    SOME_WALLET_ADDRESS = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
+    ua = Agave.underlying_all(SOME_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3, reward=reward)
+    # FIXME: shape should not be dependent on arguments
+    assert ua == {True: [[], [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 0.0]]],
+                  False: []}[reward]
 
 
 def test_get_staking_balance():
