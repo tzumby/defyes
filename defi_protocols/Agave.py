@@ -312,6 +312,11 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, apy=False):
 
+    logger.debug(f'get_apr({execution=}, {index=})')
+    if execution > MAX_EXECUTIONS:
+        logger.debug(f'Max executions ({MAX_EXECUTIONS}) reached. Returning None.')
+        return None
+
     try:
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
@@ -371,6 +376,11 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, a
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=False):
 
+    logger.debug(f'get_staking_apr({execution=}, {index=})')
+    if execution > MAX_EXECUTIONS:
+        logger.debug(f'Max executions ({MAX_EXECUTIONS}) reached. Returning None.')
+        return None
+
     try:
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
@@ -400,6 +410,11 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
 
 
 def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
+
+    logger.debug(f'get_staked({execution=}, {index=})')
+    if execution > MAX_EXECUTIONS:
+        logger.debug(f'Max executions ({MAX_EXECUTIONS}) reached. Returning None.')
+        return None
 
     balances = []
 

@@ -60,9 +60,26 @@ def test_underlying_all(reward):
                   False: []}[reward]
 
 
-def test_get_staking_balance():
-    data = Agave.get_staked(TEST_WALLET_ADDRESS, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3)
-    assert data == [[STK_AGAVE, 103.6303835433784]]
+@pytest.mark.parametrize('apy', [True, False])
+def test_get_apr(apy):
+    TOKEN_ADDRESS = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
+    apr = Agave.get_apr(TOKEN_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3, apy=apy)
+    # FIXME: make this more interesting:
+    assert apr == {True: [{'metric': 'apy', 'type': 'supply', 'value': 0.0}, {'metric': 'apy', 'type': 'variable_borrow', 'value': 0.0}, {'metric': 'apy', 'type': 'stable_borrow', 'value': 0.0}],
+                   False: [{'metric': 'apr', 'type': 'supply', 'value': 0.0}, {'metric': 'apr', 'type': 'variable_borrow', 'value': 0.0}, {'metric': 'apr', 'type': 'stable_borrow', 'value': 0.0}]}[apy]
 
-    data = Agave.get_staked(UNUSED_ADDRESS, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3)
-    assert data == [[STK_AGAVE, 0.0]]
+
+@pytest.mark.parametrize('apy', [True, False])
+def test_get_staking_apr(apy):
+    TOKEN_ADDRESS = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
+    stk_apr = Agave.get_staking_apr(TEST_BLOCK, XDAI, web3=WEB3, apy=apy)
+    assert stk_apr == {True: [{'metric': 'apy', 'type': 'staking', 'value': 0.1286313524174969}],
+                       False: [{'metric': 'apr', 'type': 'staking', 'value': 0.12100570935407559}]}[apy]
+
+
+@pytest.mark.parametrize('wallet_address', [TEST_WALLET_ADDRESS, UNUSED_ADDRESS])
+def test_get_staked(wallet_address):
+    expected = {TEST_WALLET_ADDRESS: 103.6303835433784, UNUSED_ADDRESS: 0.0}[wallet_address]
+
+    data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3)
+    assert data == [[STK_AGAVE, expected]]
