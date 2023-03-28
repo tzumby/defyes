@@ -1,5 +1,5 @@
 from defi_protocols import Compound
-from defi_protocols.constants import ETHEREUM, ETHTokenAddresses
+from defi_protocols.constants import ETHEREUM, ETHTokenAddresses, ZERO_ADDRESS
 from defi_protocols.functions import get_node
 
 CTOKEN_CONTRACTS = {
@@ -69,3 +69,40 @@ def test_get_ctoken_data():
     assert wallet2_ccomp['decimals'] == 8
     assert wallet2_ccomp['borrowBalanceStored'] == 0
     assert wallet2_ccomp['balanceOf'] == 24296781813013
+
+
+def test_underlying():
+    block = 16904422
+    dai_underlying = Compound.underlying(WALLET_N1, ETHTokenAddresses.DAI, block, ETHEREUM, web3=get_node(ETHEREUM))
+    assert dai_underlying == [['0x6B175474E89094C44Da98b954EedeAC495271d0F', 0.9999999998429369]]
+
+    block = 16906410
+    eth_underlying = Compound.underlying(WALLET_N1, ZERO_ADDRESS, block, ETHEREUM, web3=get_node(ETHEREUM))
+    assert eth_underlying == [['0x0000000000000000000000000000000000000000', 0.0009999999621424396]]
+
+
+def test_underlying_all():
+    block = 16906410
+    underlyings = Compound.underlying_all(WALLET_N1, block, ETHEREUM, web3=get_node(ETHEREUM))
+    assert underlyings == [['0x6B175474E89094C44Da98b954EedeAC495271d0F', 1.0000108840576543],
+                           ['0x0000000000000000000000000000000000000000', 0.0009999999621424396]]
+
+
+def test_all_comp_rewards():
+    block = 16924820
+    rewards = Compound.all_comp_rewards(WALLET_N1, block, ETHEREUM, web3=get_node(ETHEREUM))
+    assert rewards[0][0] == ETHTokenAddresses.COMP
+    assert rewards[0][1] == 1.508535739321e-06
+
+
+def test_unwrap():
+    block = 16924820
+    wallet1_cdai = Compound.get_ctoken_data(CTOKEN_CONTRACTS['cdai_contract'],
+                                            WALLET_N1,
+                                            block,
+                                            ETHEREUM,
+                                            web3=get_node(ETHEREUM))
+    ctoken_amount = wallet1_cdai['balanceOf']
+    ctoken_address = CTOKEN_CONTRACTS['cdai_contract']
+    unwrapped_data = Compound.unwrap(ctoken_amount, ctoken_address, block, ETHEREUM, web3=get_node(ETHEREUM))
+    assert unwrapped_data == ['0x6B175474E89094C44Da98b954EedeAC495271d0F', 100012432.30888236]
