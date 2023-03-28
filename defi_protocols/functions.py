@@ -1,8 +1,6 @@
-import requests
 import json
-import functools
+import requests
 import calendar
-import lru
 import math
 import logging
 from datetime import datetime
@@ -11,7 +9,7 @@ from typing import Union, Optional
 
 import eth_abi
 from web3 import Web3
-from web3.middleware import construct_simple_cache_middleware
+from defi_protocols import cache
 from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOERLI, API_KOVAN_GETLOGS, KOVAN, API_ROPSTEN_GETLOGS, ROPSTEN,
                                      API_KEY_OPTIMISM, API_OPTIMISM_GETLOGS, OPTIMISM, API_KEY_FANTOM, API_FANTOM_GETLOGS, FANTOM,
                                      API_KEY_BINANCE, API_BINANCE_GETLOGS, BINANCE, API_KEY_AVALANCHE, API_AVALANCHE_GETLOGS,
@@ -62,13 +60,6 @@ def get_web3_provider(endpoint):
 
     web3 = Web3(provider)
 
-    # enable simple web3 cache, for example to cache eth_chainId calls
-    # more methods can be cached after analysing whether they are safe to cache
-    simple_cache = construct_simple_cache_middleware(
-        cache_class=functools.partial(lru.LRU, 4096),
-        rpc_whitelist={'eth_chainId'},
-    )
-
     class CallCounterMiddleware:
         call_count = 0
 
@@ -87,8 +78,9 @@ def get_web3_provider(endpoint):
             return response
 
     web3.middleware_onion.add(CallCounterMiddleware, 'call_counter')
-    # adding the cache after to get only effective calls counted by the counter
-    web3.middleware_onion.add(simple_cache, 'simple_cache')
+    if cache.is_enabled():
+        # adding the cache after to get only effective calls counted by the counter
+        web3.middleware_onion.add(cache.disk_cache_middleware, 'disk_cache')
     return web3
 
 def get_web3_call_count(web3):
@@ -159,14 +151,8 @@ def get_node(blockchain, block='latest', index=0):
         else:
             web3 = get_web3_provider(node['archival'][index])
 
-
-    # enable simple web3 cache, for example to cache eth_chainId calls
-    # more methods can be cached after analysing whether they are safe to cache
-    simple_cache = construct_simple_cache_middleware(
-        cache_class=functools.partial(lru.LRU, 4096),
-        rpc_whitelist={'eth_chainId'},
-    )
-    web3.middleware_onion.add(simple_cache)
+    # temporal workarround
+    web3._network_name = blockchain
     return web3
 
 

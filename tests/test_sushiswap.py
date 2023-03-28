@@ -27,7 +27,6 @@ def test_get_pool_info_v1():
                                    blockchain=ETHEREUM, use_db=True)
     assert data['pool_info'] == {'poolId': 1, 'allocPoint': 8300}
     assert data['totalAllocPoint'] == 1639550
-    assert get_web3_call_count(web3) == 3  # eth_chainId call plus two eth_call
 
 
 def test_get_pool_info_v2():

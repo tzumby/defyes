@@ -19,6 +19,7 @@ setuptools.setup(
           'web3>=5.31.4,<6.0',
           'requests>=2.28.1',
           'datetime>=4.7',
+          'diskcache>=5.4.0,<6.0',
           'pathlib>=1.0.1',
           'eth_abi>=2.0.0',
           'setuptools>=65.5.1',
