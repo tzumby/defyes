@@ -9,9 +9,12 @@ logger = logging.getLogger(__name__)
 _cache = None
 if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
+    logger.debug(f"Cache enabled. Storage is at '{cache_dir}'.")
     _cache = diskcache.Cache(directory=cache_dir, disk_pickle_protocol=5)
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
+else:
+    logger.debug(f'Cache is disabled')
 
 def is_enabled():
     return _cache is not None
@@ -41,6 +44,6 @@ def disk_cache_middleware(make_request, web3):
                 data = _cache[cache_key]
                 return {'jsonrpc': '2.0', 'id': 11, 'result': data}
         else:
-            logger.debug(f'Not caching {method} as "latest" in params: {params}')
+            logger.debug(f"Not caching '{method}' with params: '{params}'")
             return make_request(method, params)
     return middleware
