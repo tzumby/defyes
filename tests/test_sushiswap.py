@@ -1,6 +1,6 @@
 import pytest
 from defi_protocols import SushiSwap
-from defi_protocols.constants import ETHEREUM, USDC_ETH, WETH_ETH, SUSHI_ETH
+from defi_protocols.constants import ETHEREUM, USDC_ETH, WETH_ETH, SUSHI_ETH, CVX_ETH
 from defi_protocols.functions import get_node, get_web3_call_count
 
 
@@ -46,7 +46,7 @@ def test_get_pool_info_v2_without_db():
     assert data['totalAllocPoint'] == 1125
 
 def test_get_virtual_total_supply():
-    supply = SushiSwap.get_virtual_total_supply('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', TEST_BLOCK, ETHEREUM)
+    supply = SushiSwap.get_virtual_total_supply(SUSHISWAP_POOL_USDC_WETH, TEST_BLOCK, ETHEREUM)
     assert supply == 2.3369488802805187e+17
 
 def test_get_rewarder_contract():
@@ -54,3 +54,37 @@ def test_get_rewarder_contract():
     contract = SushiSwap.get_chef_contract(web3, TEST_BLOCK, ETHEREUM)
     rewarder = SushiSwap.get_rewarder_contract(web3, TEST_BLOCK, ETHEREUM, contract, pool_id=1)
     assert rewarder.address == '0x9e01aaC4b3e8781a85b21d9d9F848e72Af77B362'
+
+def test_get_rewards():
+    web3 = get_node(ETHEREUM)
+    contract = SushiSwap.get_chef_contract(web3, TEST_BLOCK, ETHEREUM)
+    rewards = SushiSwap.get_rewards(web3, UNUSED_ADDRESS, contract, pool_id=1,
+                                    block=TEST_BLOCK, blockchain=ETHEREUM)
+    assert rewards == [[CVX_ETH, 0.0]]
+
+def test_pool_balances():
+    web3 = get_node(ETHEREUM)
+    balances = SushiSwap.pool_balances(SUSHISWAP_POOL_USDC_WETH, block=TEST_BLOCK,
+                                       blockchain=ETHEREUM)
+    assert balances == [[USDC_ETH, 16413544.906577],
+                        [WETH_ETH, 9860.137476763535]]
+
+def test_get_rewards_per_unit():
+    rwds = SushiSwap.get_rewards_per_unit(SUSHISWAP_POOL_USDC_WETH, block=TEST_BLOCK,
+                                          blockchain=ETHEREUM)
+    assert rwds == [{'sushiPerBlock': 5.06236467323351e+17, 'sushi_address': SUSHI_ETH}]
+
+def test_get_wallet_by_tx():
+    wallet = SushiSwap.get_wallet_by_tx(SUSHISWAP_POOL_USDC_WETH,
+                                        block=TEST_BLOCK, blockchain=ETHEREUM)
+    assert wallet == '0x9a044da6762352cefc5f7f1eaf1bda7f1e60fd11'
+
+def test_swap_fees():
+    fees = SushiSwap.swap_fees(SUSHISWAP_POOL_USDC_WETH, block_start=TEST_BLOCK, block_end=TEST_BLOCK+100,
+                               blockchain=ETHEREUM)
+    assert fees == {'swaps': [{'block': 16836208, 'token': WETH_ETH, 'amount': 0.001260902533618112},
+                              {'block': 16836209, 'token': WETH_ETH, 'amount': 0.00201},
+                              {'block': 16836228, 'token': WETH_ETH, 'amount': 0.000297375},
+                              {'block': 16836229, 'token': USDC_ETH, 'amount': 0.9},
+                              {'block': 16836265, 'token': WETH_ETH, 'amount': 0.00078},
+                              {'block': 16836287, 'token': USDC_ETH, 'amount': 0.75}]}
