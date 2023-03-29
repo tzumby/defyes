@@ -5,17 +5,18 @@ import math
 import logging
 from datetime import datetime
 from decimal import Decimal
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 import eth_abi
 from web3 import Web3
+from web3.providers import HTTPProvider, JSONBaseProvider
 from defi_protocols import cache
 from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOERLI, API_KOVAN_GETLOGS, KOVAN, API_ROPSTEN_GETLOGS, ROPSTEN,
-                                     API_KEY_OPTIMISM, API_OPTIMISM_GETLOGS, OPTIMISM, API_KEY_FANTOM, API_FANTOM_GETLOGS, FANTOM,
-                                     API_KEY_BINANCE, API_BINANCE_GETLOGS, BINANCE, API_KEY_AVALANCHE, API_AVALANCHE_GETLOGS,
-                                     AVALANCHE, API_KEY_GNOSISSCAN, API_GNOSISSCAN_GETLOGS, XDAI, API_KEY_POLSCAN, API_POLYGONSCAN_GETLOGS,
-                                     POLYGON, API_ETHERSCAN_GETLOGS, ETHEREUM, API_GOERLI_TXLIST, API_KOVAN_TXLIST, API_ROPSTEN_TXLIST,
-                                     API_OPTIMISM_TXLIST, API_FANTOM_TXLIST, API_AVALANCHE_TXLIST, API_BINANCE_TXLIST, API_GNOSISSCAN_TXLIST,
+                                      API_KEY_OPTIMISM, API_OPTIMISM_GETLOGS, OPTIMISM, API_KEY_FANTOM, API_FANTOM_GETLOGS, FANTOM,
+                                      API_KEY_BINANCE, API_BINANCE_GETLOGS, BINANCE, API_KEY_AVALANCHE, API_AVALANCHE_GETLOGS,
+                                      AVALANCHE, API_KEY_GNOSISSCAN, API_GNOSISSCAN_GETLOGS, XDAI, API_KEY_POLSCAN, API_POLYGONSCAN_GETLOGS,
+                                      POLYGON, API_ETHERSCAN_GETLOGS, ETHEREUM, API_GOERLI_TXLIST, API_KOVAN_TXLIST, API_ROPSTEN_TXLIST,
+                                      API_OPTIMISM_TXLIST, API_FANTOM_TXLIST, API_AVALANCHE_TXLIST, API_BINANCE_TXLIST, API_GNOSISSCAN_TXLIST,
                                       API_KEY_POLSCAN, API_POLYGONSCAN_TXLIST, API_ETHERSCAN_TXLIST, API_GOERLI_TOKENTX, API_KOVAN_TOKENTX,
                                       API_ROPSTEN_TOKENTX, API_OPTIMISM_TOKENTX, API_FANTOM_TOKENTX, API_AVALANCHE_TOKENTX, API_BINANCE_TOKENTX,
                                       API_GNOSISSCAN_TOKENTX, API_POLYGONSCAN_TOKENTX, API_ETHERSCAN_TOKENTX, ZERO_ADDRESS, TESTNET_HEADER,
@@ -27,7 +28,7 @@ from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOE
                                       API_ETHERSCAN_GETBLOCKREWARD, API_GOERLI_GETBLOCKNOBYTIME, API_KOVAN_GETBLOCKNOBYTIME, API_ROPSTEN_GETBLOCKNOBYTIME,
                                       API_OPTIMISM_GETBLOCKNOBYTIME, API_FANTOM_GETBLOCKNOBYTIME, API_AVALANCHE_GETBLOCKNOBYTIME, API_BINANCE_GETBLOCKNOBYTIME,
                                       API_GNOSISSCAN_GETBLOCKNOBYTIME, API_POLYGONSCAN_GETBLOCKNOBYTIME, API_ETHERSCAN_GETBLOCKNOBYTIME,
-                                      NODE_GOERLI, NODE_KOVAN, NODE_ROPSTEN, NODE_OPTIMISM, NODE_FANTOM, NODE_AVALANCHE, NODE_BINANCE, NODE_XDAI, NODE_POL, NODE_ETH)
+                                      NODES_ENDPOINTS)
 
 
 logger = logging.getLogger(__name__)
@@ -51,13 +52,39 @@ class abiNotVerified(Exception):
         self.message = message
         super().__init__(self.message)
 
+class AllProvidersDownError(Exception):
+    pass
 
-def get_web3_provider(endpoint):
-    if "://" not in endpoint:
-        raise ValueError(f"Invalid endpoint URI '{endpoint}'")
 
-    provider = Web3.HTTPProvider(endpoint)
+class ProviderManager(JSONBaseProvider):
+    def __init__(self, endpoints: List, max_fails_per_provider: int = 2, max_executions: int = 2):
+        super().__init__()
+        self.endpoints = endpoints
+        self.max_fails_per_provider = max_fails_per_provider
+        self.max_executions = max_executions
+        self.providers = []
 
+        for url in endpoints:
+            if "://" not in url:
+                raise ValueError(f"Invalid endpoint URI '{url}'")
+            provider = HTTPProvider(url)
+            errors = []
+            self.providers.append((provider, errors))
+
+    def make_request(self, method, params):
+        for _ in range(MAX_EXECUTIONS):
+            for provider, errors in self.providers:
+                if len(errors) > self.max_fails_per_provider:
+                    continue
+                try:
+                    response = provider.make_request(method, params)
+                    return response
+                except Exception as e:
+                    errors.append(e)
+                    logger.exception("Exception when making request.")
+        raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
+
+def get_web3_provider(provider):
     web3 = Web3(provider)
 
     class CallCounterMiddleware:
@@ -87,71 +114,32 @@ def get_web3_call_count(web3):
     """Obtain the total number of calls that have been made by a web3 instance."""
     return web3.middleware_onion['call_counter'].call_count
 
+# store latest and archival ProviderManagers as they are used
+_nodes_providers = dict()
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_node
-# 'block' = 'latest' -> retrieves a Full Node / 'block' = block or not passed onto the function -> retrieves an Archival Node
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_node(blockchain, block='latest', index=0):
+def get_node(blockchain, block='latest'):
     """
-
-    :param blockchain:
-    :param block:
-    :param index:
-    :return:
+    If block is 'latest'  it retrieves a Full Node, in other case it retrieves an Archival Node.
     """
-    if blockchain == ETHEREUM:
-        node = NODE_ETH
-
-    elif blockchain == POLYGON:
-        node = NODE_POL
-
-    elif blockchain == XDAI:
-        node = NODE_XDAI
-
-    elif blockchain == BINANCE:
-        node = NODE_BINANCE
-
-    elif blockchain == AVALANCHE:
-        node = NODE_AVALANCHE
-
-    elif blockchain == FANTOM:
-        node = NODE_FANTOM
-
-    elif blockchain == OPTIMISM:
-        node = NODE_OPTIMISM
-
-    elif blockchain == ROPSTEN:
-        node = NODE_ROPSTEN
-
-    elif blockchain == KOVAN:
-        node = NODE_KOVAN
-
-    elif blockchain == GOERLI:
-        node = NODE_GOERLI
-    else:
+    if blockchain not in NODES_ENDPOINTS:
         raise ValueError(f"Unknown blockchain '{blockchain}'")
+    node = NODES_ENDPOINTS[blockchain]
 
     if isinstance(block, str):
-        if block == 'latest':
-            if index > (len(node['latest']) - 1):
-                if index > (len(node['latest']) + len(node['archival']) - 1):
-                    raise GetNodeIndexError
-                else:
-                    web3 = get_web3_provider(node['archival'][index - len(node['latest'])])
-            else:
-                web3 = get_web3_provider(node['latest'][index])
-        else:
+        if block != 'latest':
             raise ValueError('Incorrect block.')
 
+        providers = _nodes_providers.get((blockchain, 'latest'), None)
+        if not providers:
+            providers = ProviderManager(endpoints=node['latest'] + node['archival'])
+            _nodes_providers[(blockchain, 'latest')] = providers
     else:
-        if index > (len(node['archival']) - 1):
-            raise GetNodeIndexError
-        else:
-            web3 = get_web3_provider(node['archival'][index])
+        providers = _nodes_providers.get((blockchain, 'archival'), None)
+        if not providers:
+            providers = ProviderManager(endpoints=node['archival'])
+            _nodes_providers[(blockchain, 'archival')] = providers
 
-    # temporal workarround
+    web3 = get_web3_provider(providers)
     web3._network_name = blockchain
     return web3
 
