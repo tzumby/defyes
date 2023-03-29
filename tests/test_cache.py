@@ -23,7 +23,10 @@ def test_const_call():
         web3_contract_function = Mock()
         web3_contract_function.address = '0xcafe'
         web3_contract_function.args = tuple()
+        web3_contract_function.kwargs = dict()
         web3_contract_function.function_identifier = 'decimals'
+        web3_contract_function.web3._network_name = 'ethereum'
+
         def _call():
             centinel()
         web3_contract_function.call = _call
