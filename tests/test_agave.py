@@ -8,12 +8,24 @@ from defi_protocols.functions import get_node, get_contract
 
 add_stderr_logger(logging.DEBUG)
 
+
 STK_AGAVE = '0x610525b415c1BFAeAB1a3fc3d85D87b92f048221'
 TEST_WALLET_ADDRESS = '0xc4d46395c01aa86389d4216c2830167878d7cab8'
 UNUSED_ADDRESS = '0xcafe6395c01aa86389d4216c2830167878d7cab8'
-TEST_BLOCK = 27038905
-
+TEST_BLOCK = 27187881
 WEB3 = get_node(blockchain=XDAI, block=TEST_BLOCK)
+
+TOP_WALLET_ADDRESS = '0xb4c575308221caa398e0dd2cdeb6b2f10d7b000a'
+TOP_WALLET_W = \
+    [['0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83', 129855918919],
+     ['0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d', 204984404799221030364433],
+     ['0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2', 116756629133928213523],
+     ['0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 816596478974281580761],
+     ['0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252', 20774443],
+     ['0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1', 282650106097633403696],
+     ['0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d', 4922397761223675816108],
+     ['0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 149615952]]
+
 
 # https://gnosisscan.io/address/0x24dcbd376db23e4771375092344f5cbea3541fc0#readContract
 # getAllReservesTokens
@@ -38,10 +50,8 @@ def test_get_reserves_tokens():
 
 
 def test_get_reserves_tokens_balances():
-    # FIXME: we should test with a more interesting wallet
-    balances = Agave.get_reserves_tokens_balances(WEB3, TEST_WALLET_ADDRESS, TEST_BLOCK, XDAI)
-    print(balances)
-    assert balances == []
+    balances = Agave.get_reserves_tokens_balances(WEB3, TOP_WALLET_ADDRESS, TEST_BLOCK, XDAI, decimals=False)
+    assert balances == TOP_WALLET_W
 
 
 def test_get_data():

@@ -82,24 +82,19 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
 
     reserves_tokens = get_reserves_tokens(pdp_contract, block)
 
-    for reserves_token in reserves_tokens:
+    cs_wallet = web3.to_checksum_address(wallet)
 
-        try:
-            user_reserve_data = pdp_contract.functions.getUserReserveData(reserves_token, wallet).call(
-                block_identifier=block)
-        except:
-            continue
+    for token in reserves_tokens:
+        user_reserve_data = pdp_contract.functions.getUserReserveData(token, cs_wallet).call(block_identifier=block)
 
-        if decimals == True:
-            token_decimals = get_decimals(reserves_token, blockchain, web3=web3)
-        else:
-            token_decimals = 0
+        token_decimals = get_decimals(token, blockchain, web3=web3) if decimals else 0
 
-        # balance = currentATokenBalance - currentStableDebt - currentVariableDebt
-        balance = (user_reserve_data[0] - user_reserve_data[1] - user_reserve_data[2]) / (10 ** token_decimals)
+        currentATokenBalance, currentStableDebt, currentVariableDebt, *_ = user_reserve_data
+        balance = currentATokenBalance - currentStableDebt - currentVariableDebt
 
+        # FIXME: shouldn't we use Decimal type?
         if balance != 0:
-            balances.append([reserves_token, balance])
+            balances.append([token, balance * 10**-token_decimals])
 
     return balances
 
