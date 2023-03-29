@@ -118,10 +118,29 @@ def test_get_apr():
     assert dai_apy == [{'metric': 'apy', 'type': 'supply', 'value': 0.017116487300299577},
                        {'metric': 'apy', 'type': 'borrow', 'value': 0.03595587221146879}]
 
-    dai_apr_contract = Compound.get_apr(ETHTokenAddresses.DAI,
-                                        block,
-                                        ETHEREUM,
-                                        web3=get_node(ETHEREUM),
-                                        ctoken_address=CTOKEN_CONTRACTS['cdai_contract'])
-    assert dai_apr_contract == [{'metric': 'apr', 'type': 'supply', 'value': 0.016971650612873646},
-                                {'metric': 'apr', 'type': 'borrow', 'value': 0.03532454536880891}]
+    dai_apr_with_contract = Compound.get_apr(ETHTokenAddresses.DAI,
+                                             block,
+                                             ETHEREUM,
+                                             web3=get_node(ETHEREUM),
+                                             ctoken_address=CTOKEN_CONTRACTS['cdai_contract'])
+    assert dai_apr_with_contract == [{'metric': 'apr', 'type': 'supply', 'value': 0.016971650612873646},
+                                     {'metric': 'apr', 'type': 'borrow', 'value': 0.03532454536880891}]
+
+
+def test_get_comp_apr():
+    block = 16924820
+    usdc_comp_apr = Compound.get_comp_apr(ETHTokenAddresses.USDC, block, ETHEREUM, web3=get_node(ETHEREUM))
+    assert usdc_comp_apr == [{'metric': 'apr', 'type': 'supply', 'value': 0.0},
+                             {'metric': 'apr', 'type': 'borrow', 'value': 0.004109315639766464}]
+
+    dai_comp_apy = Compound.get_comp_apr(ETHTokenAddresses.DAI, block, ETHEREUM, web3=get_node(ETHEREUM), apy=True)
+    assert dai_comp_apy == [{'metric': 'apy', 'type': 'supply', 'value': 0.007943711809621057},
+                            {'metric': 'apy', 'type': 'borrow', 'value': 0.01409698572150675}]
+
+    sushi_apr_contract = Compound.get_apr(ETHTokenAddresses.SUSHI,
+                                          block,
+                                          ETHEREUM,
+                                          web3=get_node(ETHEREUM),
+                                          ctoken_address=CTOKEN_CONTRACTS['csushi_contract'])
+    assert sushi_apr_contract == [{'metric': 'apr', 'type': 'supply', 'value': 0.003473483836557989},
+                                  {'metric': 'apr', 'type': 'borrow', 'value': 0.05069088908626895}]
