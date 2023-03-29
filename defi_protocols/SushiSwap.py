@@ -911,7 +911,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
 
 #     try:
 #         if web3 == None:
-#             web3 = get_node(blockchain, block=block, index=index)
+#             web3 = get_node(blockchain, block=block)
 
 #         data = get_rewards_per_unit(lptoken_address, blockchain, web3=web3, block=block)
 

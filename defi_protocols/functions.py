@@ -152,7 +152,7 @@ def get_node(blockchain, block='latest'):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def last_block(blockchain, web3=None, block='latest', index=0):
     if web3 is None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     return web3.eth.blockNumber
 
@@ -346,7 +346,7 @@ def balance_of(address, contract_address, block, blockchain, execution=1, web3=N
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         address = web3.to_checksum_address(address)
 
@@ -396,7 +396,7 @@ def total_supply(token_address, block, blockchain, execution=1, web3=None, index
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         if not web3.isChecksumAddress(token_address):
             token_address = web3.to_checksum_address(token_address)
@@ -431,7 +431,7 @@ def get_decimals(token_address, blockchain, execution=1, web3=None, block='lates
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         token_address = web3.to_checksum_address(token_address)
 
@@ -474,7 +474,7 @@ def get_symbol(token_address, blockchain, execution=1, web3=None, block='latest'
     try:
 
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         if not web3.isConnected():
             raise Exception
@@ -598,7 +598,7 @@ def get_contract_abi(contract_address, blockchain):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_contract(contract_address, blockchain, web3=None, abi=None, block='latest', index=0):
     if web3 == None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     contract_address = web3.to_checksum_address(contract_address)
 
@@ -621,7 +621,7 @@ def get_contract(contract_address, blockchain, web3=None, abi=None, block='lates
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, web3=None, block='latest', index=0):
     if web3 is None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     address = web3.to_checksum_address(contract_address)
 
@@ -1026,7 +1026,7 @@ def get_logs_web3(address: str, blockchain: str, start_block: Optional[Union[int
                   topics: Optional[list] = None, block: Optional[Union[int, str]] = None,
                   block_hash: Optional[str] = None, web3=None, index: int = 0) -> dict:
     if web3 == None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     address = web3.to_checksum_address(address)
     return web3.eth.get_logs(
@@ -1035,6 +1035,6 @@ def get_logs_web3(address: str, blockchain: str, start_block: Optional[Union[int
 
 def get_transaction(tx_hash: str, blockchain: str, block: str = 'latest', index: int = 0) -> dict:
     if web3 == None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     return web3.eth.get_transaction(tx_hash)  

@@ -101,7 +101,7 @@ def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], 
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         token_src = web3.to_checksum_address(token_src)
 
@@ -181,7 +181,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         factory_address = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
@@ -310,7 +310,7 @@ def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None, exe
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)
         nft_balance = nft_contract.functions.balanceOf(wallet).call(block_identifier=block)
@@ -395,7 +395,7 @@ def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, exec
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         factory_address = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
         nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)

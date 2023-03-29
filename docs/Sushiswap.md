@@ -63,7 +63,7 @@
   </details>
 
 
-### 3: get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1, index=0)
+### 3: get_lptoken_data(lptoken_address, block, blockchain, web3=None)
 
 > Description: function returns lp roken data on Sushiswap protocol
 
@@ -92,7 +92,7 @@
   </details>
 
 
-### 4: get_virtual_total_supply(lptoken_address, block, blockchain, web3=None, execution=1, index=0)
+### 4: get_virtual_total_supply(lptoken_address, block, blockchain, web3=None)
 
 > Description: function returns virtual total supply for given lp token
 
@@ -224,7 +224,7 @@
   </details>
 
 
-### 8: get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, pool_info=None)
+### 8: get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, pool_info=None)
 
 > Description: function returns all the rewards for given wallet and lp token
 
@@ -254,7 +254,7 @@
   ```
   </details>
 
-### 9: underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, reward=False)
+### 9: underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, reward=False)
 
 > Description: fucntion returns undrlying tokens for given wallet and lptoken
 
@@ -287,7 +287,7 @@
   ```
   </details>
 
-### 10: pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True)
+### 10: pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True)
 
 > Description: function returns pool balances for given lp token 
 
@@ -318,7 +318,7 @@
   </details>
 
 
-### 11: swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True)
+### 11: swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, decimals=True)
 
 > description: function returns swap fees for given lp token and given block range
 
@@ -344,7 +344,7 @@
   ```
   </details>
 
-### 12: get_wallet_by_tx(lptoken_address, block, blockchain, web3=None, execution=1, index=0, signature=DEPOSIT_EVENT_SIGNATURE)
+### 12: get_wallet_by_tx(lptoken_address, block, blockchain, web3=None, signature=DEPOSIT_EVENT_SIGNATURE)
 
 > Description: function returns wallet by signature
 
@@ -372,7 +372,7 @@
   ```
   </details>
 
-### 13: get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, index=0, block='latest')
+### 13: get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
 
 > Description: function returns rewards per unit for given lp token
 

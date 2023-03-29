@@ -169,7 +169,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimal
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -267,7 +267,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -330,7 +330,7 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -385,7 +385,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, a
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         lpapr_address = get_lpapr_address(blockchain)
         lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
@@ -450,7 +450,7 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         seconds_per_year = 31536000
         stk_aave_address = get_stkaave_address(blockchain)
@@ -490,7 +490,7 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, 
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         aave_wallet = web3.to_checksum_address(wallet)
 
