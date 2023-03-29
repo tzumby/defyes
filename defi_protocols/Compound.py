@@ -67,6 +67,10 @@ def get_ctokens_contract_list(blockchain, web3, block):
     return comptroller_contract.functions.getAllMarkets().call()
 
 
+def get_comptroller_contract(blockchain, web3, block):
+    comptroller_address = get_comptoller_address(blockchain)
+    return get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER, block=block)
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_ctoken_data
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
@@ -141,7 +145,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     """
 
     :param wallet:
-    :para token_address:
+    :param token_address:
     :param block:
     :param blockchain:
     :param web3:
@@ -247,15 +251,9 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
 
         wallet = web3.to_checksum_address(wallet)
 
-        comptroller_address = get_comptoller_address(blockchain)
-        if comptroller_address is None:
-            return None
-
-        comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                            block=block)
-
         assets_list = []
-        ctoken_list = comptroller_contract.functions.getAllMarkets().call()
+        ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
+
         for ctoken_address in ctoken_list:
             if balance_of(wallet, ctoken_address, block, blockchain, web3=web3) > 0:
                 assets_list.append(ctoken_address)
@@ -317,7 +315,8 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
 # 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def all_comp_rewards(wallet, block, blockchain, web3=None, execution=1, index=0, decimals=True):
-    '''
+    """
+
     :param wallet:
     :param block:
     :param blockchain:
@@ -326,7 +325,8 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
     :param index:
     :param decimals:
     :return:
-    '''
+    """
+
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -445,7 +445,7 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, executio
 def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, ctoken_address=None, apy=False):
     """
 
-    :para token_address:
+    :param token_address:
     :param block:
     :param blockchain:
     :param web3:
@@ -467,14 +467,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, c
         token_address = web3.to_checksum_address(token_address)
 
         if ctoken_address is None:
-            comptroller_address = get_comptoller_address(blockchain)
-            if comptroller_address is None:
-                return None
-
-            comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                                block=block)
-
-            ctoken_list = comptroller_contract.functions.getAllMarkets().call()
+            ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
 
             found = False
             for ctoken_address in ctoken_list:
@@ -552,7 +545,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, c
 def get_comp_apr(token_address, block, blockchain, web3=None, execution=1, index=0, ctoken_address=None, apy=False):
     """
 
-    :para token_address:
+    :param token_address:
     :param block:
     :param blockchain:
     :param web3:
@@ -573,16 +566,8 @@ def get_comp_apr(token_address, block, blockchain, web3=None, execution=1, index
 
         token_address = web3.to_checksum_address(token_address)
 
-        comptroller_address = get_comptoller_address(blockchain)
-        if comptroller_address is None:
-            return None
-
-        comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                            block=block)
-
         if ctoken_address is None:
-
-            ctoken_list = comptroller_contract.functions.getAllMarkets().call()
+            ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
 
             found = False
             for ctoken_address in ctoken_list:
@@ -619,6 +604,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, execution=1, index
         days_per_year = 365
         seconds_per_year = 31536000
 
+        comptroller_contract = get_comptroller_contract(blockchain, web3, block)
         comp_supply_speed_per_block = comptroller_contract.functions.compSupplySpeeds(ctoken_address).call(
             block_identifier=block) / mantissa
         comp_supply_per_day = comp_supply_speed_per_block * blocks_per_day
