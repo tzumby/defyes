@@ -15,20 +15,26 @@ TEST_BLOCK = 27038905
 
 WEB3 = get_node(blockchain=XDAI, block=TEST_BLOCK)
 
+# https://gnosisscan.io/address/0x24dcbd376db23e4771375092344f5cbea3541fc0#readContract
+# getAllReservesTokens
+# 2023.03.29
+RESERVES_TOKENS = \
+    [('USDC', '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'),
+     ('WXDAI', '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'),
+     ('LINK', '0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2'),
+     ('GNO', '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb'),
+     ('WBTC', '0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252'),
+     ('WETH', '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'),
+     ('FOX', '0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d'),
+     ('USDT', '0x4ECaBa5870353805a9F068101A40E0f32ed605C6'),
+     ('EURe', '0xcB444e90D8198415266c6a2724b7900fb12FC56E')]
+
 
 def test_get_reserves_tokens():
     pdp_contract = get_contract(Agave.PDP_XDAI, XDAI, web3=WEB3, abi=Agave.ABI_PDP,
                                 block=TEST_BLOCK)
     reserves_tokens = Agave.get_reserves_tokens(pdp_contract, TEST_BLOCK)
-    assert reserves_tokens == ['0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
-                               '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
-                               '0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2',
-                               '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb',
-                               '0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252',
-                               '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
-                               '0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d',
-                               '0x4ECaBa5870353805a9F068101A40E0f32ed605C6',
-                               '0xcB444e90D8198415266c6a2724b7900fb12FC56E']
+    assert reserves_tokens == [e[1] for e in RESERVES_TOKENS]
 
 
 def test_get_reserves_tokens_balances():
@@ -41,9 +47,7 @@ def test_get_reserves_tokens_balances():
 def test_get_data():
     SOME_WALLET_ADDRESS = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
     data = Agave.get_data(SOME_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3)
-    print(data)
-    # FIXME: this test is passing for the wrong reasons
-    assert data is None
+    assert data == {'collateral_ratio': 0, 'liquidation_ratio': 0, 'xdai_price_usd': 1.00004, 'collaterals': [], 'debts': []}
 
 
 def test_get_all_rewards():

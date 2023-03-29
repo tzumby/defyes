@@ -65,14 +65,9 @@ ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"
 
 def get_reserves_tokens(pdp_contract, block):
     logger.debug('get_reserves_tokens')
-    reserves_tokens_addresses = []
 
-    reserves_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
-
-    for reserves_token in reserves_tokens:
-        reserves_tokens_addresses.append(reserves_token[1])
-
-    return reserves_tokens_addresses
+    rt = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
+    return [e[1] for e in rt]
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -169,17 +164,34 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
                     collaterals.append(asset)
 
         # getUserAccountData return a list with the following data:
-        # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor
+        # [0] = totalCollateralETH,
+        # [1] = totalDebtETH,
+        # [2] = availableBorrowsETH,
+        # [3] = currentLiquidationThreshold,
+        # [4] = ltv,
+        # [5] = healthFactor
         user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
 
         logger.debug(f'{user_account_data = }')
 
-        # FIXME: this is producing ZeroDivisionError
+        total_collateral_ETH, total_debt_ETH, current_liquidation_th, *_ = user_account_data
+
         # Collateral Ratio
-        agave_data['collateral_ratio'] = (user_account_data[0] / user_account_data[1]) * 100
+        if total_collateral_ETH > 0:
+            if total_debt_ETH > 0:
+                agave_data['collateral_ratio'] = 100 * total_collateral_ETH / total_debt_ETH
+            else:
+                # FIXME: this must be wrong:
+                agave_data['collateral_ratio'] = 1
+        else:
+            agave_data['collateral_ratio'] = 0
 
         # Liquidation Ratio
-        agave_data['liquidation_ratio'] = (1 / user_account_data[3]) * 1000000
+        if current_liquidation_th > 0:
+            agave_data['liquidation_ratio'] = 1000000 / current_liquidation_th
+        else:
+            # FIXME: this must be wrong:
+            agave_data['liquidation_ratio'] = 0
 
         # Ether price in USD
         agave_data['xdai_price_usd'] = xdai_usd_price
