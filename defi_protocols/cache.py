@@ -98,13 +98,11 @@ def cache_call(exclude_args=None):
         return wrapper
     return decorator
 
-def const_call(f, *args, **kwargs):
+def const_call(f):
     """Utility to do .call() on web3 contracts that are known to be cacheable"""
-    if args or kwargs:
-        raise ValueError("const_call do not support arguments")
-    cache_key = generate_cache_key((f.web3._network_name, f.address, f.function_identifier))
+    cache_key = generate_cache_key((f.web3._network_name, f.address, f.function_identifier, f.args, f.kwargs))
     if cache_key not in _cache:
-        result = f.call(*args, **kwargs)
+        result = f.call()
         _cache[cache_key] = result
     else:
         result = _cache[cache_key]
