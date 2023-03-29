@@ -15,3 +15,6 @@ def test_get_node():
 
 def test_get_node_of_unknown_network():
     raises(ValueError, get_node, 'unknown_network')
+
+def test_get_decimals():
+    get_decimals(CVX_ETH, ETHEREUM)
