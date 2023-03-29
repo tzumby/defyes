@@ -14,10 +14,10 @@ def test_get_lptoken_data():
     assert data['decimals'] == 18
 
 def test_get_lptoken_data_on_gnosis_differ_to_ethereum_when_using_const_call():
-    web3 = get_node(XDAI)
+    web3 = get_node(XDAI, block=16836190)
     contract = SushiSwap.get_chef_contract(web3=web3, block='latest', blockchain=XDAI)
     gnosis_lptoken0_address = const_call(contract.functions.lpToken(0))
-    web3 = get_node(ETHEREUM)
+    web3 = get_node(ETHEREUM, block=16836190)
     contract = SushiSwap.get_chef_contract(web3=web3, block='latest', blockchain=ETHEREUM)
     eth_lptoken0_address = const_call(contract.functions.lpToken(0))
     assert gnosis_lptoken0_address != eth_lptoken0_address
