@@ -106,3 +106,22 @@ def test_unwrap():
     ctoken_address = CTOKEN_CONTRACTS['cdai_contract']
     unwrapped_data = Compound.unwrap(ctoken_amount, ctoken_address, block, ETHEREUM, web3=get_node(ETHEREUM))
     assert unwrapped_data == ['0x6B175474E89094C44Da98b954EedeAC495271d0F', 100012432.30888236]
+
+
+def test_get_apr():
+    block = 16924820
+    comp_apr = Compound.get_apr(ETHTokenAddresses.COMP, block, ETHEREUM, web3=get_node(ETHEREUM))
+    assert comp_apr == [{'metric': 'apr', 'type': 'supply', 'value': 0.0028302645027622475},
+                        {'metric': 'apr', 'type': 'borrow', 'value': 0.05500756675758112}]
+
+    dai_apy = Compound.get_apr(ETHTokenAddresses.DAI, block, ETHEREUM, web3=get_node(ETHEREUM), apy=True)
+    assert dai_apy == [{'metric': 'apy', 'type': 'supply', 'value': 0.017116487300299577},
+                       {'metric': 'apy', 'type': 'borrow', 'value': 0.03595587221146879}]
+
+    dai_apr_contract = Compound.get_apr(ETHTokenAddresses.DAI,
+                                        block,
+                                        ETHEREUM,
+                                        web3=get_node(ETHEREUM),
+                                        ctoken_address=CTOKEN_CONTRACTS['cdai_contract'])
+    assert dai_apr_contract == [{'metric': 'apr', 'type': 'supply', 'value': 0.016971650612873646},
+                                {'metric': 'apr', 'type': 'borrow', 'value': 0.03532454536880891}]
