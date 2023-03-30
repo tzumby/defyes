@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Union
 from datetime import datetime, timedelta
 
-from defi_protocols.functions import get_contract, get_node, get_decimals, get_logs, last_block, get_token_tx, get_tx_list, date_to_block, block_to_date, GetNodeIndexError
-from defi_protocols.constants import ETHEREUM, POLYGON, XDAI, MAX_EXECUTIONS, ZERO_ADDRESS
+from defi_protocols.functions import get_contract, get_node, get_decimals, get_logs, last_block, get_token_tx, get_tx_list, date_to_block, block_to_date
+from defi_protocols.constants import ETHEREUM, POLYGON, XDAI, ZERO_ADDRESS
 from defi_protocols.prices.prices import get_price
 
 logger = logging.getLogger(__name__)
@@ -209,8 +209,6 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_lptoken_data
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
@@ -250,8 +248,6 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_virtual_total_supply
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_virtual_total_supply(lptoken_address, block, blockchain, web3=None):
@@ -382,8 +378,6 @@ def get_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, decimal
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # 'pool_info' = Dictionary -> Improves performance
@@ -440,8 +434,6 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
@@ -524,8 +516,6 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # pool_balances
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output: a list with 1 element:
@@ -576,8 +566,6 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # swap_fees
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -665,8 +653,6 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_wallet_by_tx
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'signature' = signature of the type of transaction that will be searched for
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -716,8 +702,6 @@ def get_wallet_by_tx(lptoken_address, block, blockchain, web3=None,
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_rewards_per_unit
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -794,8 +778,6 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
 
 # #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # get_apr
-# # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # # 'web3' = web3 (Node) -> Improves performance
 # # 'block' = block identifier
 # #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
