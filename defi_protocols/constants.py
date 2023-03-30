@@ -87,6 +87,19 @@ NODE_GOERLI = {
     'archival': config_data['nodes'][GOERLI]['archival']
 }
 
+NODES_ENDPOINTS = {
+    ETHEREUM: NODE_ETH,
+    POLYGON: NODE_POL,
+    XDAI: NODE_XDAI,
+    BINANCE: NODE_BINANCE,
+    AVALANCHE: NODE_AVALANCHE,
+    FANTOM: NODE_FANTOM,
+    OPTIMISM: NODE_OPTIMISM,
+    ROPSTEN: NODE_ROPSTEN,
+    KOVAN: NODE_KOVAN,
+    GOERLI: NODE_GOERLI
+}
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # MAX EXECUTIONS

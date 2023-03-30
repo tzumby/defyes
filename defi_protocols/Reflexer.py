@@ -39,7 +39,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
