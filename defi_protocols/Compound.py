@@ -18,7 +18,7 @@ COMPOUND_LENS_ETHEREUM = '0xdCbDb7306c6Ff46f77B349188dC18cEd9DF30299'
 # ABIs
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # cToken ABI - decimals, balanceOf, totalSupply, exchangeRateStored, underlying, borrowBalanceStored, supplyRatePerBlock, borrowRatePerBlock, totalBorrows
-ABI_CTOKEN = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"exchangeRateStored","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"underlying","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"borrowBalanceStored","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"supplyRatePerBlock","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"borrowRatePerBlock","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalBorrows","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+ABI_CTOKEN = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"exchangeRateStored","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"underlying","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"borrowBalanceStored","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"supplyRatePerBlock","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"borrowRatePerBlock","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalBorrows","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
 # Comptroller ABI - getAllMarkets, compRate, compSpeeds, compSupplySpeeds, compBorrowSpeeds
 ABI_COMPTROLLER = '[{"constant":true,"inputs":[],"name":"getAllMarkets","outputs":[{"internalType":"contract CToken[]","name":"","type":"address[]"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"compRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"compSpeeds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"compSupplySpeeds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"compBorrowSpeeds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
@@ -59,6 +59,18 @@ def get_compound_token_address(blockchain):
         return COMP_ETH
 
 
+def get_ctokens_contract_list(blockchain, web3, block):
+    comptroller_address = get_comptoller_address(blockchain)
+    comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
+                                        block=block)
+
+    return comptroller_contract.functions.getAllMarkets().call()
+
+
+def get_comptroller_contract(blockchain, web3, block):
+    comptroller_address = get_comptoller_address(blockchain)
+    return get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER, block=block)
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_ctoken_data
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
@@ -88,6 +100,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, execut
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
 
+        wallet = web3.to_checksum_address(wallet)
         ctoken_data = {}
 
         if ctoken_contract is not None:
@@ -132,7 +145,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     """
 
     :param wallet:
-    :para token_address:
+    :param token_address:
     :param block:
     :param blockchain:
     :param web3:
@@ -150,19 +163,10 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     try:
         if web3 is None:
             web3 = get_node(blockchain, block=block, index=index)
-
         wallet = web3.to_checksum_address(wallet)
         token_address = web3.to_checksum_address(token_address)
 
-        comptroller_address = get_comptoller_address(blockchain)
-        if comptroller_address is None:
-            return None
-
-        comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                            block=block)
-
-        ctoken_list = comptroller_contract.functions.getAllMarkets().call()
-
+        ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
         found = False
         for ctoken_address in ctoken_list:
 
@@ -247,15 +251,9 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
 
         wallet = web3.to_checksum_address(wallet)
 
-        comptroller_address = get_comptoller_address(blockchain)
-        if comptroller_address is None:
-            return None
-
-        comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                            block=block)
-
         assets_list = []
-        ctoken_list = comptroller_contract.functions.getAllMarkets().call()
+        ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
+
         for ctoken_address in ctoken_list:
             if balance_of(wallet, ctoken_address, block, blockchain, web3=web3) > 0:
                 assets_list.append(ctoken_address)
@@ -270,24 +268,23 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
                 # cETH does not have the underlying function
                 underlying_token = ZERO_ADDRESS
 
-            if underlying_token is not ZERO_ADDRESS:
-                ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
-                                              ctoken_contract=ctoken_contract, underlying_token=underlying_token)
+            ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
+                                          ctoken_contract=ctoken_contract, underlying_token=underlying_token)
 
-                underlying_token_decimals = get_decimals(underlying_token, block=block, blockchain=blockchain,
-                                                         web3=web3, index=index)
+            underlying_token_decimals = get_decimals(underlying_token, block=block, blockchain=blockchain,
+                                                     web3=web3, index=index)
 
-                mantissa = 18 - (ctoken_data['decimals']) + underlying_token_decimals
+            mantissa = 18 - (ctoken_data['decimals']) + underlying_token_decimals
 
-                exchange_rate = ctoken_data['exchangeRateStored'] / (10 ** mantissa)
+            exchange_rate = ctoken_data['exchangeRateStored'] / (10 ** mantissa)
 
-                underlying_token_balance = ctoken_data['balanceOf'] / (10 ** ctoken_data['decimals']) * exchange_rate - \
-                                           ctoken_data['borrowBalanceStored'] / (10 ** underlying_token_decimals)
+            underlying_token_balance = ctoken_data['balanceOf'] / (10 ** ctoken_data['decimals']) * exchange_rate - \
+                                       ctoken_data['borrowBalanceStored'] / (10 ** underlying_token_decimals)
 
-                if decimals == False:
-                    underlying_token_balance = underlying_token_balance * (10 ** underlying_token_decimals)
+            if decimals == False:
+                underlying_token_balance = underlying_token_balance * (10 ** underlying_token_decimals)
 
-                balances.append([underlying_token, underlying_token_balance])
+            balances.append([underlying_token, underlying_token_balance])
 
         if reward is True:
             all_rewards = all_comp_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
@@ -318,7 +315,8 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
 # 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def all_comp_rewards(wallet, block, blockchain, web3=None, execution=1, index=0, decimals=True):
-    '''
+    """
+
     :param wallet:
     :param block:
     :param blockchain:
@@ -327,7 +325,8 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
     :param index:
     :param decimals:
     :return:
-    '''
+    """
+
     if execution > MAX_EXECUTIONS:
         return None
 
@@ -446,7 +445,7 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, executio
 def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, ctoken_address=None, apy=False):
     """
 
-    :para token_address:
+    :param token_address:
     :param block:
     :param blockchain:
     :param web3:
@@ -468,14 +467,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, c
         token_address = web3.to_checksum_address(token_address)
 
         if ctoken_address is None:
-            comptroller_address = get_comptoller_address(blockchain)
-            if comptroller_address is None:
-                return None
-
-            comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                                block=block)
-
-            ctoken_list = comptroller_contract.functions.getAllMarkets().call()
+            ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
 
             found = False
             for ctoken_address in ctoken_list:
@@ -553,7 +545,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, c
 def get_comp_apr(token_address, block, blockchain, web3=None, execution=1, index=0, ctoken_address=None, apy=False):
     """
 
-    :para token_address:
+    :param token_address:
     :param block:
     :param blockchain:
     :param web3:
@@ -574,16 +566,8 @@ def get_comp_apr(token_address, block, blockchain, web3=None, execution=1, index
 
         token_address = web3.to_checksum_address(token_address)
 
-        comptroller_address = get_comptoller_address(blockchain)
-        if comptroller_address is None:
-            return None
-
-        comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                            block=block)
-
         if ctoken_address is None:
-
-            ctoken_list = comptroller_contract.functions.getAllMarkets().call()
+            ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
 
             found = False
             for ctoken_address in ctoken_list:
@@ -620,6 +604,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, execution=1, index
         days_per_year = 365
         seconds_per_year = 31536000
 
+        comptroller_contract = get_comptroller_contract(blockchain, web3, block)
         comp_supply_speed_per_block = comptroller_contract.functions.compSupplySpeeds(ctoken_address).call(
             block_identifier=block) / mantissa
         comp_supply_per_day = comp_supply_speed_per_block * blocks_per_day
