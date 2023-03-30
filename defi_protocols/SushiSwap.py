@@ -693,7 +693,7 @@ def get_wallet_by_tx(lptoken_address, block, blockchain, web3=None,
         if block == 'latest':
             block = last_block(blockchain, web3=web3)
 
-    chef_contract = get_pool_info(web3, lptoken_address, block, blockchain)[0]
+    chef_contract = get_pool_info(web3, lptoken_address, block, blockchain)['chef_contract']
 
     if chef_contract is not None:
 
