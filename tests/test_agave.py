@@ -15,6 +15,7 @@ UNUSED_ADDRESS = '0xcafe6395c01aa86389d4216c2830167878d7cab8'
 TEST_BLOCK = 27187881
 WEB3 = get_node(blockchain=XDAI, block=TEST_BLOCK)
 
+# 2023.03.29
 TOP_WALLET_ADDRESS = '0xb4c575308221caa398e0dd2cdeb6b2f10d7b000a'
 TOP_WALLET_W = \
     [['0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83', 129855918919],
@@ -61,8 +62,8 @@ def test_get_data():
 
 
 def test_get_all_rewards():
-    all_rewards = Agave.get_all_rewards(TEST_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3)
-    assert all_rewards == [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 14.019150785520575]]
+    all_rewards = Agave.get_all_rewards(TEST_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3, decimals=True)
+    assert all_rewards == [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 14.334056377962964]]
 
 
 @pytest.mark.parametrize('reward', [True, False])
