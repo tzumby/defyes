@@ -1,5 +1,5 @@
 from defi_protocols import Compound
-from defi_protocols.constants import ETHEREUM, ETHTokenAddresses, ZERO_ADDRESS
+from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node
 
 CTOKEN_CONTRACTS = {
@@ -27,7 +27,6 @@ CTOKEN_CONTRACTS = {
 
 WALLET_N1 = '0x31cD267D34EC6368eac930Be4f412dfAcc71A844'
 WALLET_N2 = '0x99e881e9e89152b0add27c367f0761f0fbe5ddc3'
-BLOCK = 'latest'
 
 
 def test_get_comptoller_address():
@@ -42,38 +41,45 @@ def test_get_compound_lens_address():
 
 def test_get_compound_token_address():
     comp_eth = Compound.get_compound_token_address(ETHEREUM)
-    assert ETHTokenAddresses.COMP == comp_eth
+    assert ETHTokenAddr.COMP == comp_eth
 
 
 def test_get_ctokens_contract_list():
-    web3 = get_node(ETHEREUM, BLOCK)
-    ctokens_list = Compound.get_ctokens_contract_list(ETHEREUM, web3, BLOCK)
+    block = 16904422
+    web3 = get_node(ETHEREUM, block)
+    ctokens_list = Compound.get_ctokens_contract_list(ETHEREUM, web3, block)
     assert ctokens_list == list(CTOKEN_CONTRACTS.values())
 
 
 def test_get_ctoken_data():
-    wallet1_cdai = Compound.get_ctoken_data(CTOKEN_CONTRACTS['cdai_contract'], WALLET_N1, BLOCK, ETHEREUM)
-    assert wallet1_cdai['underlying'] == '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+    block = 16904422
+    wallet1_cdai = Compound.get_ctoken_data(CTOKEN_CONTRACTS['cdai_contract'], WALLET_N1, block, ETHEREUM)
+    assert wallet1_cdai['underlying'] == ETHTokenAddr.DAI
     assert wallet1_cdai['decimals'] == 8
     assert wallet1_cdai['borrowBalanceStored'] == 0
     assert wallet1_cdai['balanceOf'] == 4505674362
+    assert wallet1_cdai['exchangeRateStored'] == 221942359677997719508746620
 
-    wallet1_ceth = Compound.get_ctoken_data(CTOKEN_CONTRACTS['ceth_contract'], WALLET_N1, BLOCK, ETHEREUM)
-    assert wallet1_ceth['underlying'] == '0x0000000000000000000000000000000000000000'
+    block = 16906410
+    wallet1_ceth = Compound.get_ctoken_data(CTOKEN_CONTRACTS['ceth_contract'], WALLET_N1, block, ETHEREUM)
+    assert wallet1_ceth['underlying'] == ZERO_ADDRESS
     assert wallet1_ceth['decimals'] == 8
     assert wallet1_ceth['borrowBalanceStored'] == 0
     assert wallet1_ceth['balanceOf'] == 4979680
+    assert wallet1_ceth['exchangeRateStored'] == 200816109095853438085339051
 
-    wallet2_ccomp = Compound.get_ctoken_data(CTOKEN_CONTRACTS['ccomp_contract'], WALLET_N2, BLOCK, ETHEREUM)
-    assert wallet2_ccomp['underlying'] == '0xc00e94Cb662C3520282E6f5717214004A7f26888'
+    block = 16906410
+    wallet2_ccomp = Compound.get_ctoken_data(CTOKEN_CONTRACTS['ccomp_contract'], WALLET_N2, block, ETHEREUM)
+    assert wallet2_ccomp['underlying'] == ETHTokenAddr.COMP
     assert wallet2_ccomp['decimals'] == 8
     assert wallet2_ccomp['borrowBalanceStored'] == 0
     assert wallet2_ccomp['balanceOf'] == 24296781813013
+    assert wallet2_ccomp['exchangeRateStored'] == 204174793505775477876721754
 
 
 def test_underlying():
     block = 16904422
-    dai_underlying = Compound.underlying(WALLET_N1, ETHTokenAddresses.DAI, block, ETHEREUM, web3=get_node(ETHEREUM))
+    dai_underlying = Compound.underlying(WALLET_N1, ETHTokenAddr.DAI, block, ETHEREUM, web3=get_node(ETHEREUM))
     assert dai_underlying == [['0x6B175474E89094C44Da98b954EedeAC495271d0F', 0.9999999998429369]]
 
     block = 16906410
@@ -84,14 +90,14 @@ def test_underlying():
 def test_underlying_all():
     block = 16906410
     underlyings = Compound.underlying_all(WALLET_N1, block, ETHEREUM, web3=get_node(ETHEREUM))
-    assert underlyings == [['0x6B175474E89094C44Da98b954EedeAC495271d0F', 1.0000108840576543],
-                           ['0x0000000000000000000000000000000000000000', 0.0009999999621424396]]
+    assert underlyings == [[ETHTokenAddr.DAI, 1.0000108840576543],
+                           [ZERO_ADDRESS, 0.0009999999621424396]]
 
 
 def test_all_comp_rewards():
     block = 16924820
     rewards = Compound.all_comp_rewards(WALLET_N1, block, ETHEREUM, web3=get_node(ETHEREUM))
-    assert rewards[0][0] == ETHTokenAddresses.COMP
+    assert rewards[0][0] == ETHTokenAddr.COMP
     assert rewards[0][1] == 1.508535739321e-06
 
 
@@ -105,20 +111,20 @@ def test_unwrap():
     ctoken_amount = wallet1_cdai['balanceOf']
     ctoken_address = CTOKEN_CONTRACTS['cdai_contract']
     unwrapped_data = Compound.unwrap(ctoken_amount, ctoken_address, block, ETHEREUM, web3=get_node(ETHEREUM))
-    assert unwrapped_data == ['0x6B175474E89094C44Da98b954EedeAC495271d0F', 100012432.30888236]
+    assert unwrapped_data == [ETHTokenAddr.DAI, 100012432.30888236]
 
 
 def test_get_apr():
     block = 16924820
-    comp_apr = Compound.get_apr(ETHTokenAddresses.COMP, block, ETHEREUM, web3=get_node(ETHEREUM))
+    comp_apr = Compound.get_apr(ETHTokenAddr.COMP, block, ETHEREUM, web3=get_node(ETHEREUM))
     assert comp_apr == [{'metric': 'apr', 'type': 'supply', 'value': 0.0028302645027622475},
                         {'metric': 'apr', 'type': 'borrow', 'value': 0.05500756675758112}]
 
-    dai_apy = Compound.get_apr(ETHTokenAddresses.DAI, block, ETHEREUM, web3=get_node(ETHEREUM), apy=True)
+    dai_apy = Compound.get_apr(ETHTokenAddr.DAI, block, ETHEREUM, web3=get_node(ETHEREUM), apy=True)
     assert dai_apy == [{'metric': 'apy', 'type': 'supply', 'value': 0.017116487300299577},
                        {'metric': 'apy', 'type': 'borrow', 'value': 0.03595587221146879}]
 
-    dai_apr_with_contract = Compound.get_apr(ETHTokenAddresses.DAI,
+    dai_apr_with_contract = Compound.get_apr(ETHTokenAddr.DAI,
                                              block,
                                              ETHEREUM,
                                              web3=get_node(ETHEREUM),
@@ -129,15 +135,15 @@ def test_get_apr():
 
 def test_get_comp_apr():
     block = 16924820
-    usdc_comp_apr = Compound.get_comp_apr(ETHTokenAddresses.USDC, block, ETHEREUM, web3=get_node(ETHEREUM))
+    usdc_comp_apr = Compound.get_comp_apr(ETHTokenAddr.USDC, block, ETHEREUM, web3=get_node(ETHEREUM))
     assert usdc_comp_apr == [{'metric': 'apr', 'type': 'supply', 'value': 0.0},
                              {'metric': 'apr', 'type': 'borrow', 'value': 0.004109315639766464}]
 
-    dai_comp_apy = Compound.get_comp_apr(ETHTokenAddresses.DAI, block, ETHEREUM, web3=get_node(ETHEREUM), apy=True)
+    dai_comp_apy = Compound.get_comp_apr(ETHTokenAddr.DAI, block, ETHEREUM, web3=get_node(ETHEREUM), apy=True)
     assert dai_comp_apy == [{'metric': 'apy', 'type': 'supply', 'value': 0.007943711809621057},
                             {'metric': 'apy', 'type': 'borrow', 'value': 0.01409698572150675}]
 
-    sushi_apr_contract = Compound.get_apr(ETHTokenAddresses.SUSHI,
+    sushi_apr_contract = Compound.get_apr(ETHTokenAddr.SUSHI,
                                           block,
                                           ETHEREUM,
                                           web3=get_node(ETHEREUM),
