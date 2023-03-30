@@ -66,7 +66,8 @@ class ProviderManager(JSONBaseProvider):
 
         for url in endpoints:
             if "://" not in url:
-                raise ValueError(f"Invalid endpoint URI '{url}'")
+                logger.warning(f"Skipping invalid endpoint URI '{url}'.")
+                continue
             provider = HTTPProvider(url)
             errors = []
             self.providers.append((provider, errors))
