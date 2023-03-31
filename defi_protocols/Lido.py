@@ -9,7 +9,9 @@ STETH_PROXY_ABI = "0x47EbaB13B806773ec2A2d16873e2dF770D130b50"
 STETH_DECIMALS = 18
 WSTETH_DECIMALS = 18
 
+STETH_ABI = '[{"constant":true,"inputs":[{"name":"_account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
 WSTETH_ABI = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"stEthPerToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+
 
 def underlying(wallet: str, block: Union[int, str], steth: bool= False, decimals: bool = True,web3:object=None, execution:int =1, index:int =0)->list:
     """
@@ -51,8 +53,10 @@ def underlying(wallet: str, block: Union[int, str], steth: bool= False, decimals
         if web3 is None:
             web3 = get_node(ETHEREUM, block=block, index=index)
 
-        steth_balance = balance_of(wallet,STETH_ADDRESS,block,ETHEREUM, decimals=False, web3=web3, index=index)
-        wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, block=block, web3=web3,index=index)
+        steth_contract = get_contract(STETH_ADDRESS, ETHEREUM, abi=STETH_ABI, block=block, web3=web3)
+        steth_balance = steth_contract.functions.balanceOf(wallet).call(block_identifier=block)
+
+        wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, abi=WSTETH_ABI, block=block, web3=web3)
         wsteth_balance = wsteth_contract.functions.balanceOf(wallet).call(block_identifier=block)
         stEthPerToken = Decimal(wsteth_contract.functions.stEthPerToken().call(block_identifier=block))/(Decimal(10**18))
 
@@ -116,7 +120,7 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False
         if web3 is None:
             web3 = get_node(ETHEREUM, block=block, index=index)
 
-        wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, block=block, web3=web3, index=index)
+        wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, block=block, web3=web3)
         wsteth_balance = Decimal(amount)
         stEthPerToken = Decimal(wsteth_contract.functions.stEthPerToken().call(block_identifier=block)) / (
             Decimal(10 ** 18))
@@ -137,9 +141,4 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False
 
     except:
         return unwrap(amount, block, steth=steth, decimals=decimals, index=index + 1, execution=execution)
-
-
-
-
-
 
