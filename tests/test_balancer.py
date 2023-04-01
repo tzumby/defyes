@@ -50,3 +50,13 @@ def test_bal_rewards():
     bal_rewards = Balancer.get_bal_rewards(node, gauge_contract, WALLET_N2, block, ETHEREUM)
     assert bal_rewards[0] == ETHTokenAddr.BAL
     assert bal_rewards[1] == 0.002223198404020921
+
+
+def test_vebal_rewards():
+    block = 16950590
+    node = get_node(ETHEREUM, block)
+
+    vebal_rewards = Balancer.get_vebal_rewards(node, WALLET_N2, block, ETHEREUM)
+    assert vebal_rewards[0] == [ETHTokenAddr.BAL, 1.9372013715193e-05]
+    assert vebal_rewards[1] == [ETHTokenAddr.BB_A_USD_OLD, 0.0]
+    assert vebal_rewards[2] == [ETHTokenAddr.BB_A_USD, 0.000210261212072964]
