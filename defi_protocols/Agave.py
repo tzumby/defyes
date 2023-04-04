@@ -13,7 +13,7 @@ import logging
 from typing import Union
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, GetNodeIndexError
-from defi_protocols.constants import XDAI, STKAGAVE_XDAI, MAX_EXECUTIONS
+from defi_protocols.constants import XDAI, AGVE_XDAI, STKAGAVE_XDAI, MAX_EXECUTIONS
 
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -229,7 +229,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -278,7 +278,7 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -326,7 +326,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, a
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
@@ -390,7 +390,7 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         seconds_per_year = 31536000
 
@@ -416,36 +416,27 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
         return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
 
 
-def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
-
-    logger.debug(f'get_staked({execution=}, {index=})')
-    if execution > MAX_EXECUTIONS:
-        logger.debug(f'Max executions ({MAX_EXECUTIONS}) reached. Returning None.')
-        return None
+def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkagve: bool = False, web3=None, decimals: bool = True) -> list:
 
     balances = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        agave_wallet = web3.to_checksum_address(wallet)
+    agave_wallet = web3.to_checksum_address(wallet)
 
-        stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
-        stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
-        stkagave_decimals = stkagave_contract.functions.decimals().call()
+    stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
+    stkagave_decimals = stkagave_contract.functions.decimals().call()
 
-        if decimals:
-            stkagave_balance = stkagave_balance / 10 ** stkagave_decimals
-        
-        balances.append([STKAGAVE_XDAI, stkagave_balance])
+    if decimals:
+        stkagave_balance = stkagave_balance / 10 ** stkagave_decimals
+    
+    balances.append([STKAGAVE_XDAI, stkagave_balance])
 
-        return balances
+    if stkagve:
+        balances.append([STKAGAVE_XDAI,stkagave_balance])
+    else:
+        balances.append([AGVE_XDAI, stkagave_balance])
 
-
-    except GetNodeIndexError:
-        return get_staked(wallet, block, blockchain, web3=web3, index=0, execution=execution + 1)
-
-    except Exception as e:
-        logger.exception(e)
-        return get_staked(wallet, block, blockchain, web3=web3, index=index + 1, execution=execution)
+    return balances

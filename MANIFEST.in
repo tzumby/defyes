@@ -6,6 +6,7 @@ recursive-exclude __pycache__  *.pyc *.pyo *.orig
 include defi_protocols/config.json
 include defi_protocols/db/Aura_db.json
 include defi_protocols/db/Convex_db.json
+include defi_protocols/db/Idle_db.json
 include defi_protocols/db/SushiSwap_db.json
 include defi_protocols/db/Symmetric_db.json
 include defi_protocols/db/Swapr_db.json

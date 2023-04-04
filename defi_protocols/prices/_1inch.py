@@ -93,7 +93,7 @@ def get_rate(token_src, block, blockchain, web3=None, execution=1, index=0, use_
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         token_src = web3.to_checksum_address(token_src)
 
@@ -158,7 +158,7 @@ def get_price(token_src, block, blockchain, web3=None, execution=1, index=0, use
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         token_src = web3.to_checksum_address(token_src)
 

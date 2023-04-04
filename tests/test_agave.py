@@ -98,3 +98,4 @@ def test_get_staked(wallet_address):
 
     data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3)
     assert data == [[STK_AGAVE, expected]]
+
