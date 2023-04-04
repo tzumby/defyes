@@ -1,8 +1,8 @@
 import logging
 from typing import Union, Optional
 
-from defi_protocols.constants import ETHEREUM, STKAAVE_ETH, MAX_EXECUTIONS
-from defi_protocols.functions import get_contract, get_node, get_decimals, balance_of, GetNodeIndexError
+from defi_protocols.constants import ETHEREUM, STKAAVE_ETH, AAVE_ETH
+from defi_protocols.functions import get_contract, get_node, get_decimals, balance_of
 
 
 logger = logging.getLogger(__name__)
@@ -421,7 +421,7 @@ def get_staking_apr(block, blockchain, web3=None, apy=False):
         return [{'metric': 'apy', 'type': 'staking', 'value': staking_apy}]
 
 
-def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
+def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, decimals: bool = True) -> list:
     """
 
     :param block:
@@ -452,8 +452,12 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, 
         stkabpt_balance = stkabpt_balance / 10 ** stkabpt_decimals
         stkaave_balance = stkaave_balance / 10 ** stkaave_decimals
 
-    balances.append([stk_aave_address,stkaave_balance])
-    balances.append([STAKED_ABPT_TOKEN,stkabpt_balance])
+    if stkaave:
+        balances.append([STKAAVE_ETH, stkaave_balance])
+        balances.append([STAKED_ABPT_TOKEN, stkabpt_balance])
+    else:
+        balances.append([AAVE_ETH, stkaave_balance])
+        balances.append([AAVE_ETH, stkabpt_balance])
 
     return balances
 
