@@ -70,10 +70,6 @@ def get_reserves_tokens(pdp_contract, block):
     return [e[1] for e in rt]
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_reserves_tokens_balances
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True):
     logger.debug('get_reserves_tokens_balances')
     balances = []
@@ -92,7 +88,7 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
         currentATokenBalance, currentStableDebt, currentVariableDebt, *_ = user_reserve_data
         balance = currentATokenBalance - currentStableDebt - currentVariableDebt
 
-        # FIXME: shouldn't we use Decimal type?
+        # FIXME: shouldn't we use Decimal or Int type?
         if balance != 0:
             balances.append([token, balance * 10**-token_decimals])
 
@@ -216,7 +212,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=1, decimal
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output:
-# 1 - List of Tuples: [reward_token_address, balance]
+# 1 - List of 2-element lists: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
@@ -237,10 +233,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 
         reward_token = stkagave_contract.functions.REWARD_TOKEN().call()
 
-        if decimals is True:
-            reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3)
-        else:
-            reward_token_decimals = 0
+        reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3) if decimals else 0
 
         reward_balance = stkagave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (
                     10 ** reward_token_decimals)
