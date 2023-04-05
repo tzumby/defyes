@@ -170,7 +170,6 @@ def test_swap_fees():
                               {'block': 16671542, 'tokenIn': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'amountIn': 0.07953507489302288}]
 
 
-@pytest.mark.skip(reason="Takes too long. swap_fees needs refactor")
 def test_swap_fees_apr():
     blockend = date_to_block('2023-02-20 18:30:00', ETHEREUM)
     swaps_apr = Balancer.get_swap_fees_APR(B80BAL20WETH_ADDR, ETHEREUM, blockend)
