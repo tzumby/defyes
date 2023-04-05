@@ -78,6 +78,13 @@ def get_gauge_factory_address(blockchain):
         return LIQUIDITY_GAUGE_FACTORY_ARBITRUM
 
 
+def get_gauge_address(blockchain, block, web3, lptoken_addr):
+    gauge_factory_address = get_gauge_factory_address(blockchain)
+    gauge_factory_contract = get_contract(gauge_factory_address, blockchain, web3=web3,
+                                          abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block)
+
+    return gauge_factory_contract.functions.getPoolGauge(lptoken_addr).call()
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_lptoken_data
 # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
@@ -281,10 +288,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         lptoken_address = web3.to_checksum_address(lptoken_address)
 
         if gauge_address is None:
-            gauge_factory_address = get_gauge_factory_address(blockchain)
-            gauge_factory_contract = get_contract(gauge_factory_address, blockchain, web3=web3,
-                                                  abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block)
-            gauge_address = gauge_factory_contract.functions.getPoolGauge(lptoken_address).call()
+            gauge_address = get_gauge_address(blockchain, block, web3, lptoken_address)
 
         # veBAL Rewards
         if blockchain == ETHEREUM:
@@ -365,11 +369,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
         vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
-        gauge_factory_address = get_gauge_factory_address(blockchain)
-        gauge_factory_contract = get_contract(gauge_factory_address, blockchain, web3=web3,
-                                              abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block)
-
-        gauge_address = gauge_factory_contract.functions.getPoolGauge(lptoken_address).call()
+        gauge_address = get_gauge_address(blockchain, block, web3, lptoken_address)
 
         lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
