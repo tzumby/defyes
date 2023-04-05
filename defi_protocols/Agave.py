@@ -12,8 +12,8 @@ Agave is a fork of Aave, built by the
 import logging
 from typing import Union, List, Dict
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, GetNodeIndexError
-from defi_protocols.constants import XDAI, AGVE_XDAI, STKAGAVE_XDAI
+from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of
+from defi_protocols.constants import AGVE_XDAI, STKAGAVE_XDAI
 
 
 logger = logging.getLogger(__name__)
@@ -64,7 +64,6 @@ ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"
 
 
 def get_reserves_tokens(pdp_contract, block: Union[int, str]) -> List[str]:
-    logger.debug('get_reserves_tokens')
 
     rt = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
     return [e[1] for e in rt]
@@ -72,7 +71,6 @@ def get_reserves_tokens(pdp_contract, block: Union[int, str]) -> List[str]:
 
 def get_reserves_tokens_balances(web3, wallet: str, block: Union[int, str], blockchain: str,
                                  decimals: bool = True) -> List[List]:
-    logger.debug('get_reserves_tokens_balances')
     balances = []
 
     pdp_contract = get_contract(PDP_XDAI, blockchain, web3=web3, abi=ABI_PDP, block=block)
@@ -251,7 +249,7 @@ def get_apr(token_address: str, block: Union[int, str], blockchain: str,
          {'metric': 'apr'/'apy', 'type': 'variable_borrow', 'value': borrow_apr/borrow_apy},
          {'metric': 'apr'/'apy', 'type': 'stable_borrow', 'value': borrow_apr/borrow_apy}]
     '''
-    
+
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -308,7 +306,7 @@ def get_staking_apr(block: Union[int, str], blockchain: str,
     staking_apr = emission_per_second * seconds_per_year / current_stakes
     staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1
 
-    return [{'metric': 'apy', 'type': 'staking', 'value': staking_apy if apy else staking_apr}]
+    return [{'metric': 'apy' if apy else 'apr', 'type': 'staking', 'value': staking_apy if apy else staking_apr}]
 
 
 def get_staked(wallet: str, block: Union[int, str], blockchain: str,
@@ -327,7 +325,7 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str,
 
     if decimals:
         stkagave_balance = stkagave_balance / 10 ** stkagave_decimals
-    
+
     if stkagve:
         balances.append([STKAGAVE_XDAI, stkagave_balance])
     else:
