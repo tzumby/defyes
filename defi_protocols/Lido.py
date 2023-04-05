@@ -53,6 +53,8 @@ def underlying(wallet: str, block: Union[int, str], steth: bool= False, decimals
         if web3 is None:
             web3 = get_node(ETHEREUM, block=block, index=index)
 
+        wallet = web3.to_checksum_address(wallet)
+
         steth_contract = get_contract(STETH_ADDRESS, ETHEREUM, abi=STETH_ABI, block=block, web3=web3)
         steth_balance = steth_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
@@ -141,4 +143,3 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False
 
     except:
         return unwrap(amount, block, steth=steth, decimals=decimals, index=index + 1, execution=execution)
-
