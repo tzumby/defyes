@@ -140,18 +140,19 @@ def test_get_apr():
 
 def test_get_comp_apr():
     block = 16924820
-    usdc_comp_apr = Compound.get_comp_apr(ETHTokenAddr.USDC, block, ETHEREUM, web3=get_node(ETHEREUM))
+    node = get_node(ETHEREUM, block)
+    usdc_comp_apr = Compound.get_comp_apr(ETHTokenAddr.USDC, block, ETHEREUM, web3=node)
     assert usdc_comp_apr == [{'metric': 'apr', 'type': 'supply', 'value': 0.0},
                              {'metric': 'apr', 'type': 'borrow', 'value': 0.004109315639766464}]
 
-    dai_comp_apy = Compound.get_comp_apr(ETHTokenAddr.DAI, block, ETHEREUM, web3=get_node(ETHEREUM), apy=True)
+    dai_comp_apy = Compound.get_comp_apr(ETHTokenAddr.DAI, block, ETHEREUM, web3=node, apy=True)
     assert dai_comp_apy == [{'metric': 'apy', 'type': 'supply', 'value': 0.007943711809621057},
                             {'metric': 'apy', 'type': 'borrow', 'value': 0.01409698572150675}]
 
     sushi_apr_contract = Compound.get_apr(ETHTokenAddr.SUSHI,
                                           block,
                                           ETHEREUM,
-                                          web3=get_node(ETHEREUM),
+                                          web3=node,
                                           ctoken_address=CTOKEN_CONTRACTS['csushi_contract'])
     assert sushi_apr_contract == [{'metric': 'apr', 'type': 'supply', 'value': 0.003473483836557989},
                                   {'metric': 'apr', 'type': 'borrow', 'value': 0.05069088908626895}]
