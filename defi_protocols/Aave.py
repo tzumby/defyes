@@ -1,4 +1,5 @@
 from defi_protocols.functions import *
+
 from typing import Union, Optional
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -464,7 +465,7 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
     except:
         return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
 
-def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
+def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
     """
 
     :param block:
@@ -496,15 +497,18 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, web3=None, 
             stkabpt_balance = stkabpt_balance / 10 ** stkabpt_decimals
             stkaave_balance = stkaave_balance / 10 ** stkaave_decimals
         
-        balances.append([stk_aave_address,stkaave_balance])
-        balances.append([STAKED_ABPT_TOKEN,stkabpt_balance])
+        if stkaave:
+            balances.append([STKAAVE_ETH,stkaave_balance])
+            balances.append([STAKED_ABPT_TOKEN,stkabpt_balance])            
+        else:
+            balances.append([AAVE_ETH,stkaave_balance])
+            balances.append([AAVE_ETH,stkabpt_balance])
 
         return balances
 
 
     except GetNodeIndexError:
-        return get_staked(wallet, block, blockchain, web3=web3, index=0, execution=execution + 1)
+        return get_staked(wallet, block, blockchain, stkaave, web3=web3, index=0, execution=execution + 1)
 
     except:
-        return get_staked(wallet, block, blockchain, web3=web3, index=index + 1, execution=execution)
-
+        return get_staked(wallet, block, blockchain, stkaave, web3=web3, index=index + 1, execution=execution)
