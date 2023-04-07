@@ -1,3 +1,5 @@
+
+import logging
 from typing import Union
 from datetime import datetime, timedelta
 
@@ -6,6 +8,9 @@ from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS, ZERO_ADDRESS, X3C
 
 from web3.exceptions import ContractLogicError
 from defi_protocols.prices.prices import get_price
+
+
+logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROVIDER ADDRESS
@@ -70,14 +75,6 @@ TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES = ['TokenExchangeUnderlying(address,i
 # id = 6 -> Registry for Crypto Factory Pools
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_registry_contract(web3, id, block, blockchain):
-    """
-
-    :param web3:
-    :param id:
-    :param block:
-    :param blockchain:
-    :return:
-    """
     provider_contract = get_contract(PROVIDER_ADDRESS, blockchain, web3=web3, abi=ABI_PROVIDER, block=block)
 
     registry_address = provider_contract.functions.get_address(id).call()
@@ -96,20 +93,7 @@ def get_registry_contract(web3, id, block, blockchain):
     return get_contract(registry_address, blockchain, web3=web3, abi=abi, block=block)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_pool_gauge_address
-# Output: gauge_address
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchain):
-    """
-
-    :param web3:
-    :param pool_address:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :return:
-    """
     gauge_address = None
 
     # 1: Try to retrieve the gauge address assuming the pool is a Regular Pool
@@ -150,107 +134,95 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_gauge_version
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
 # 'only_version' = True -> return just the gauge_version / 'only_version' = False -> return [gauge_contract, gauge_version]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_gauge_version(gauge_address, block, blockchain, web3=None, execution=1, index=0, only_version=True):
-    """
+def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=True):
+    # FIXME: this should be splitted into 2 functions for version and for contract
+    # FIXME: nested try/except abuse
 
-    :param gauge_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param only_version:
-    :return:
-    """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    # The ABI used to get the Gauge Contract is a general ABI for all types. This is because some gauges do not have
+    # their ABIs available in the explorers
+    gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
 
     try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+        gauge_contract.functions.version().call()
 
-        # The ABI used to get the Gauge Contract is a general ABI for all types. This is because some gauges do not have
-        # their ABIs available in the explorers
-        gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
+        if blockchain != ETHEREUM:
+            if only_version is True:
+                return 'ChildGauge'
+            else:
+                return ['ChildGauge', gauge_contract]
+
+        if only_version is True:
+            return 'LiquidityGaugeV5'
+        else:
+            return ['LiquidityGaugeV5', gauge_contract]
+    except Exception as exception:
+        logger.error(f'{exception = }')
+        pass
+
+    try:
+        gauge_contract.functions.claimable_reward_write(ZERO_ADDRESS, ZERO_ADDRESS).call()
 
         try:
-            gauge_contract.functions.version().call()
-
-            if blockchain != ETHEREUM:
-                if only_version is True:
-                    return 'ChildGauge'
-                else:
-                    return ['ChildGauge', gauge_contract]
+            gauge_contract.functions.crv_token().call()
 
             if only_version is True:
-                return 'LiquidityGaugeV5'
+                return 'LiquidityGaugeV3'
             else:
-                return ['LiquidityGaugeV5', gauge_contract]
-        except:
-            pass
+                return ['LiquidityGaugeV3', gauge_contract]
 
-        try:
-            gauge_contract.functions.claimable_reward_write(ZERO_ADDRESS, ZERO_ADDRESS).call()
-
-            try:
-                gauge_contract.functions.crv_token().call()
-
-                if only_version is True:
-                    return 'LiquidityGaugeV3'
-                else:
-                    return ['LiquidityGaugeV3', gauge_contract]
-
-            except:
-                if only_version is True:
-                    return 'RewardsOnlyGauge'
-                else:
-                    return ['RewardsOnlyGauge', gauge_contract]
-
-        except:
-            pass
-
-        try:
-            gauge_contract.functions.minter().call()
-
-            try:
-                gauge_contract.functions.decimals().call()
-
-                if only_version is True:
-                    return 'LiquidityGaugeV2'
-                else:
-                    return ['LiquidityGaugeV2', gauge_contract]
-
-            except:
-                try:
-                    gauge_contract.functions.claimable_reward(ZERO_ADDRESS).call()
-                    if only_version is True:
-                        return 'LiquidityGaugeReward'
-                    else:
-                        return ['LiquidityGaugeReward', gauge_contract]
-
-                except:
-                    if only_version is True:
-                        return 'LiquidityGauge'
-                    else:
-                        return ['LiquidityGauge', gauge_contract]
-
-        except:
+        except Exception as exception:
+            logger.error(f'{exception = }')
+            # ContractLogicError('execution reverted')
             if only_version is True:
-                return 'LiquidityGaugeV4'
+                return 'RewardsOnlyGauge'
             else:
-                return ['LiquidityGaugeV4', gauge_contract]
+                return ['RewardsOnlyGauge', gauge_contract]
 
-    except GetNodeIndexError:
-        return get_gauge_version(gauge_address, block, blockchain, index=0, execution=execution + 1)
+    except Exception as exception:
+        logger.error(f'{exception = }')
+        # ContractLogicError('execution reverted')
+        pass
 
-    except:
-        return get_gauge_version(gauge_address, block, blockchain, index=index + 1, execution=execution)
+    try:
+        gauge_contract.functions.minter().call()
+
+        try:
+            gauge_contract.functions.decimals().call()
+
+            if only_version is True:
+                return 'LiquidityGaugeV2'
+            else:
+                return ['LiquidityGaugeV2', gauge_contract]
+
+        except Exception as exception:
+            logger.error(f'{exception = }')
+            # ContractLogicError('execution reverted')
+            try:
+                gauge_contract.functions.claimable_reward(ZERO_ADDRESS).call()
+                if only_version is True:
+                    return 'LiquidityGaugeReward'
+                else:
+                    return ['LiquidityGaugeReward', gauge_contract]
+
+            except Exception as exception:
+                logger.error(f'{exception = }')
+                # ContractLogicError('execution reverted')
+                if only_version is True:
+                    return 'LiquidityGauge'
+                else:
+                    return ['LiquidityGauge', gauge_contract]
+
+    except Exception as exception:
+        logger.error(f'{exception = }')
+        if only_version is True:
+            return 'LiquidityGaugeV4'
+        else:
+            return ['LiquidityGaugeV4', gauge_contract]
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -258,14 +230,6 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, execution=1, 
 # IMPORTANT: "crypto factory" pools are not considered because the pool address is retrieved by the function get_lptoken_data (minter function)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_address(web3, lptoken_address, block, blockchain):
-    """
-
-    :param web3:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :return:
-    """
     # 1: Try to retrieve the pool address assuming the pool is a Regular Pool
     registry_contract = get_registry_contract(web3, 0, block, blockchain)
 
@@ -286,18 +250,7 @@ def get_pool_address(web3, lptoken_address, block, blockchain):
     return pool_address
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_pool_data
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_data(web3, minter, block, blockchain):
-    """
-
-    :param web3:
-    :param minter:
-    :param block:
-    :param blockchain:
-    :return:
-    """
     pool_data = {
         'contract': None,
         'is_metapool': False,
@@ -375,130 +328,125 @@ def get_pool_data(web3, minter, block, blockchain):
     return pool_data
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_lptoken_data
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1, index=0):
-    """
+def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :return:
-    """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    lptoken_data = {}
+
+    lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
     try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+        lptoken_data['minter'] = lptoken_data['contract'].functions.minter().call()
+    except Exception as exception:
+        logger.error(f'{exception = }')
+        # web3.exceptions.ContractLogicError: execution reverted
+        lptoken_data['minter'] = None
 
-        lptoken_data = {}
+    lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+    lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
 
-        lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
-
-        try:
-            lptoken_data['minter'] = lptoken_data['contract'].functions.minter().call()
-        except:
-            lptoken_data['minter'] = None
-
-        lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
-        lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
-
-        return lptoken_data
-
-    except GetNodeIndexError:
-        return get_lptoken_data(lptoken_address, block, blockchain, index=0, execution=execution + 1)
-
-    except:
-        return get_lptoken_data(lptoken_address, block, blockchain, index=index + 1, execution=execution)
-
+    return lptoken_data
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# 'gauge_address' = gauge_address -> Improves performance
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True,
+def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True,
                     gauge_address=None):
-    """
-
-    :param wallet:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param decimals:
-    :param gauge_address:
-    :return:
-    """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
 
     all_rewards = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = web3.to_checksum_address(lptoken_address)
 
-        if gauge_address is None:
-            minter = get_pool_address(web3, lptoken_address, block, blockchain)
+    if gauge_address is None:
+        minter = get_pool_address(web3, lptoken_address, block, blockchain)
 
-            gauge_address = get_pool_gauge_address(web3, minter, lptoken_address, block, blockchain)
+        gauge_address = get_pool_gauge_address(web3, minter, lptoken_address, block, blockchain)
 
-        if gauge_address is None:
-            return []
+    if gauge_address is None:
+        return []
 
-        gauge_data = get_gauge_version(gauge_address, block, blockchain, only_version=False)
+    gauge_data = get_gauge_version(gauge_address, block, blockchain, only_version=False)
 
-        gauge_version = gauge_data[0]
-        gauge_contract = gauge_data[1]
+    gauge_version = gauge_data[0]
+    gauge_contract = gauge_data[1]
 
-        if gauge_version == 'LiquidityGaugeV5' or gauge_version == 'LiquidityGaugeV4' or gauge_version == 'LiquidityGaugeV2' or gauge_version == 'ChildGauge':
+    if gauge_version == 'LiquidityGaugeV5' or gauge_version == 'LiquidityGaugeV4' or gauge_version == 'LiquidityGaugeV2' or gauge_version == 'ChildGauge':
 
-            next_token = True
-            i = 0
-            while (next_token is True):
+        next_token = True
+        i = 0
+        while (next_token is True):
 
-                token_address = gauge_contract.functions.reward_tokens(i).call()
+            token_address = gauge_contract.functions.reward_tokens(i).call()
 
-                if token_address != ZERO_ADDRESS:
+            if token_address != ZERO_ADDRESS:
 
-                    if decimals is True:
-                        token_decimals = get_decimals(token_address, blockchain, web3=web3)
-                    else:
-                        token_decimals = 0
-
-                    token_reward = gauge_contract.functions.claimable_reward(wallet, token_address).call(
-                        block_identifier=block) / (10 ** token_decimals)
-
-                    all_rewards.append([token_address, token_reward])
-
-                    i += 1
-
+                if decimals is True:
+                    token_decimals = get_decimals(token_address, blockchain, web3=web3)
                 else:
-                    next_token = False
-                    break
+                    token_decimals = 0
 
+                token_reward = gauge_contract.functions.claimable_reward(wallet, token_address).call(
+                    block_identifier=block) / (10 ** token_decimals)
+
+                all_rewards.append([token_address, token_reward])
+
+                i += 1
+
+            else:
+                next_token = False
+                break
+
+        # CRV rewards
+        if blockchain == ETHEREUM:
+            token_address = CRV_ETH
+        elif blockchain == XDAI:
+            token_address = CRV_XDAI
+
+        if decimals is True:
+            token_decimals = get_decimals(token_address, blockchain, web3=web3)
+        else:
+            token_decimals = 0
+
+        token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block) / (
+                    10 ** token_decimals)
+
+        all_rewards.append([token_address, token_reward])
+
+    elif gauge_version == 'LiquidityGaugeV3' or gauge_version == 'RewardsOnlyGauge':
+
+        next_token = True
+        i = 0
+        while (next_token is True):
+            token_address = gauge_contract.functions.reward_tokens(i).call()
+
+            if token_address != ZERO_ADDRESS:
+
+                if decimals is True:
+                    token_decimals = get_decimals(token_address, blockchain, web3=web3)
+                else:
+                    token_decimals = 0
+
+                token_reward = gauge_contract.functions.claimable_reward_write(wallet, token_address).call(
+                    block_identifier=block) / (10 ** token_decimals)
+
+                all_rewards.append([token_address, token_reward])
+
+                i += 1
+
+            else:
+                next_token = False
+                break
+
+        if gauge_version == 'LiquidityGaugeV3':
             # CRV rewards
             if blockchain == ETHEREUM:
                 token_address = CRV_ETH
@@ -515,86 +463,36 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 
             all_rewards.append([token_address, token_reward])
 
-        elif gauge_version == 'LiquidityGaugeV3' or gauge_version == 'RewardsOnlyGauge':
+    elif gauge_version == 'LiquidityGaugeReward' or gauge_version == 'LiquidityGauge':
 
-            next_token = True
-            i = 0
-            while (next_token is True):
-                token_address = gauge_contract.functions.reward_tokens(i).call()
+        token_address = gauge_contract.functions.crv_token().call()
 
-                if token_address != ZERO_ADDRESS:
+        if decimals is True:
+            token_decimals = get_decimals(token_address, blockchain, web3=web3)
+        else:
+            token_decimals = 0
 
-                    if decimals is True:
-                        token_decimals = get_decimals(token_address, blockchain, web3=web3)
-                    else:
-                        token_decimals = 0
+        token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block) / (
+                    10 ** token_decimals)
 
-                    token_reward = gauge_contract.functions.claimable_reward_write(wallet, token_address).call(
-                        block_identifier=block) / (10 ** token_decimals)
+        all_rewards.append([token_address, token_reward])
 
-                    all_rewards.append([token_address, token_reward])
-
-                    i += 1
-
-                else:
-                    next_token = False
-                    break
-
-            if gauge_version == 'LiquidityGaugeV3':
-                # CRV rewards
-                if blockchain == ETHEREUM:
-                    token_address = CRV_ETH
-                elif blockchain == XDAI:
-                    token_address = CRV_XDAI
-
-                if decimals is True:
-                    token_decimals = get_decimals(token_address, blockchain, web3=web3)
-                else:
-                    token_decimals = 0
-
-                token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block) / (
-                            10 ** token_decimals)
-
-                all_rewards.append([token_address, token_reward])
-
-        elif gauge_version == 'LiquidityGaugeReward' or gauge_version == 'LiquidityGauge':
-
-            token_address = gauge_contract.functions.crv_token().call()
+        if gauge_version == 'LiquidityGaugeReward':
+            # Additional rewards
+            token_address = gauge_contract.functions.rewarded_token().call()
 
             if decimals is True:
                 token_decimals = get_decimals(token_address, blockchain, web3=web3)
             else:
                 token_decimals = 0
 
-            token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block) / (
-                        10 ** token_decimals)
+            token_reward = (gauge_contract.function.claimable_reward(wallet).call(
+                block_identifier=block) - gauge_contract.claimed_rewards_for(wallet).call(
+                block_identifier=block)) / (10 ** token_decimals)
 
             all_rewards.append([token_address, token_reward])
 
-            if gauge_version == 'LiquidityGaugeReward':
-                # Additional rewards
-                token_address = gauge_contract.functions.rewarded_token().call()
-
-                if decimals is True:
-                    token_decimals = get_decimals(token_address, blockchain, web3=web3)
-                else:
-                    token_decimals = 0
-
-                token_reward = (gauge_contract.function.claimable_reward(wallet).call(
-                    block_identifier=block) - gauge_contract.claimed_rewards_for(wallet).call(
-                    block_identifier=block)) / (10 ** token_decimals)
-
-                all_rewards.append([token_address, token_reward])
-
-        return all_rewards
-
-    except GetNodeIndexError:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, gauge_address=gauge_address,
-                               decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, gauge_address=gauge_address,
-                               decimals=decimals, index=index + 1, execution=execution)
+    return all_rewards
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
