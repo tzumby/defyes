@@ -2,12 +2,13 @@ import pytest
 import logging
 
 from defi_protocols.functions import get_node
-from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH
+from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH, DAI_ETH, USDC_ETH, USDT_ETH
 from defi_protocols import Curve, add_stderr_logger
 
 
+_h = add_stderr_logger(logging.DEBUG)
 logger = logging.getLogger(__name__)
-add_stderr_logger(logging.DEBUG)
+logger.addHandler(_h)
 
 # 2023.04.06
 TEST_BLOCK = 16993460
@@ -61,9 +62,9 @@ def test_get_gauge_version():
 def test_get_pool_data():
     pd = Curve.get_pool_data(WEB3, CURVE_3POOL, TEST_BLOCK, ETHEREUM)
     expected = {'is_metapool': False,
-                'coins': {0: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-                          1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-                          2: '0xdAC17F958D2ee523a2206206994597C13D831ec7'}}
+                'coins': {0: DAI_ETH,
+                          1: USDC_ETH,
+                          2: USDT_ETH}}
     assert expected == {k: pd[k] for k in expected}
 
 
@@ -71,14 +72,70 @@ def test_get_all_rewards():
     rewards = Curve.get_all_rewards(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM,
                                     web3=WEB3, decimals=False)
     # FIXME: why decimals=False gives this?:
+    # It should be an Int!
     assert rewards == [[CRV_ETH, 1.2062444658284873e+20]]
 
 
-# Pending tests:
-#   underlying
-#   unwrap
-#   pool_balances
-#   swap_fees
-#   get_base_apr
-#   swap_fees_v2
-#   get_swap_fees_APR
+@pytest.mark.parametrize('reward', [True, False])
+def test_underlying(reward):
+    u = Curve.underlying(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3,
+                         reward=reward)
+    print(u) 
+    expected = [[DAI_ETH, 0.0, 0.0],
+                [USDC_ETH, 0.0, 0.0],
+                [USDT_ETH, 0.0, 0.0]]
+    # FIXME: shape should not depend on args
+    if reward:
+        expected = [expected, [[CRV_ETH, 120.62444658284873]]]
+
+    assert u == expected
+
+
+@pytest.mark.parametrize('lptoken_amount', [0, 10])
+def test_unwrap(lptoken_amount):
+    u = Curve.unwrap(lptoken_amount, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3)
+
+    expected = {0:
+                      [[DAI_ETH, 0.0],
+                      [USDC_ETH, 0.0],
+                      [USDT_ETH, 0.0]],
+                10:
+                      [[DAI_ETH, 3.9173546855571995],
+                      [USDC_ETH, 4.147544963364351],
+                      [USDT_ETH, 2.1904608756716426]],
+                }
+    assert u == expected[lptoken_amount]
+
+
+def test_pool_balances():
+    pb = Curve.pool_balances(X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3)
+    assert pb == [[DAI_ETH, 165857824.62925413],
+                  [USDC_ETH, 175604425.510732],
+                  [USDT_ETH, 92743777.79551]]
+
+
+def test_swap_fees():
+    sf = Curve.swap_fees(X3CRV_ETH, TEST_BLOCK-10, TEST_BLOCK, ETHEREUM, web3=WEB3)
+    print(sf)
+    assert sf == {'swaps': []}
+
+
+@pytest.mark.skip('web3.exceptions.ABIFunctionNotFound')
+@pytest.mark.parametrize('apy', [False, True])
+def test_get_base_apr(apy):
+    x = Curve.get_base_apr(X3CRV_ETH, ETHEREUM, TEST_BLOCK, web3=WEB3, apy=apy)
+    print(x)
+    assert True
+
+
+@pytest.mark.skip('web3.exceptions.ABIFunctionNotFound')
+@pytest.mark.parametrize('apy', [False, True])
+def test_swap_fees_v2(apy):
+    sf = Curve.swap_fees_v2(X3CRV_ETH, ETHEREUM, TEST_BLOCK, web3=WEB3, apy=apy)
+    print(sf)
+    assert True
+
+
+@pytest.mark.skip('unfinished')
+def test_get_swap_fees_APR():
+    assert True
