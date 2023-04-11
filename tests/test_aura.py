@@ -10,12 +10,6 @@ balancer_OHMwstETHgauge_ADDR = "0xE879f17910E77c01952b97E4A098B0ED15B6295c"
 aura_OHMwstETHvault_ADDR = "0x636024F9Ddef77e625161b2cCF3A2adfbfAd3615"  # Aura base reward pool
 aura_OHMwstETHstash_ADDR = "0x04B4e364FFBF1C8f938D6A6258bDC8cb503DEB64"  # Aura extra reward pool stash
 
-balancer_80SD20WETH_ADDR = "0xE4010EF5E37dc23154680f23c4A0d48BFca91687"
-aura_80SD20WETH_TOKEN = "0xfBc4BA0dd708850D9Aa809090873F71E188798EB"
-balancer_80SD20WETHgauge_ADDR = "0x37eCa8DaaB052E722e3bf8ca861aa4e1C047143b"
-aura_80SD20WETHvault_ADDR = "0x890bdF60C6566Df09Ce37132DEb652050E5685bD"  # Aura base reward pool
-aura_80SD20WETHstash_ADDR = "0x740f9Af398CB77C7cD67EA9744d0F02D8F23de70"  # Aura extra reward pool stash
-
 balancer_auraBALSTABLE_ADDR = "0x3dd0843A028C86e0b760b1A76929d1C5Ef93a2dd"
 aura_auraBALSTABLE_TOKEN = "0x12e9DA849f12d47707A94e29f781f1cd20A7f49A"
 balancer_auraBALSTABLEgauge_ADDR = "0x0312AA8D0BA4a1969Fddb382235870bF55f7f242"
@@ -23,8 +17,9 @@ aura_auraBALSTABLEvault_ADDR = "0xACAdA51C320947E7ed1a0D0F6b939b0FF465E4c2"
 aura_auraBALSTABLEstash_ADDR = "0x7b3307af981F55C8D6cd22350b08C39Ec7Ec481B"
 
 WALLET_N1 = "0xb74e5e06f50fa9e4eF645eFDAD9d996D33cc2d9D"
-WALLET_N2 = "0xA2f32ADc4908565113cba479821f435d453968Be"
-WALLET_N3 = "0x6d707F73f621722fEc0E6A260F43f24cCC8d4997"
+WALLET_N2 = "0x6d707F73f621722fEc0E6A260F43f24cCC8d4997"
+WALLET_N3 = "0x76d3a0F4Cdc9E75E0A4F898A7bCB1Fb517c9da88"
+WALLET_N4 = "0xB1f881f47baB744E7283851bC090bAA626df931d"
 
 
 def test_db_uptodate():
@@ -61,5 +56,41 @@ def test_get_extra_rewards():
     node = get_node(ETHEREUM, block)
     rewarder_contract = get_contract(aura_auraBALSTABLEvault_ADDR, ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block)
 
-    rewards = Aura.get_extra_rewards(node, rewarder_contract, WALLET_N3, block, ETHEREUM)
+    rewards = Aura.get_extra_rewards(node, rewarder_contract, WALLET_N2, block, ETHEREUM)
     assert rewards[0] == [ETHTokenAddr.AURA, 0.198621417050926]
+
+
+def test_get_extra_rewards_airdrop():
+    block = 16795239
+    node = get_node(ETHEREUM, block)
+
+    rewards = Aura.get_extra_rewards_airdrop(WALLET_N3, block, ETHEREUM, web3=node)
+    assert rewards == [ETHTokenAddr.AURA, 4.902499061089479]
+
+
+def test_get_aura_mint_amount():
+    block = 17020318
+    node = get_node(ETHEREUM, block)
+    rewarder_contract = get_contract(aura_OHMwstETHvault_ADDR, ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block)
+
+    bal_token, bal_earned = Aura.get_rewards(node, rewarder_contract, WALLET_N1, block, ETHEREUM)
+
+    aura_minted = Aura.get_aura_mint_amount(node, bal_earned, block, ETHEREUM)
+    assert aura_minted == [ETHTokenAddr.AURA, 6.428092448343376]
+
+
+def test_get_all_rewards():
+    block = 17018536
+    node = get_node(ETHEREUM, block)
+    bal_rewards, aura_rewards = Aura.get_all_rewards(WALLET_N2, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
+    assert bal_rewards == [ETHTokenAddr.BAL, 0.06402473271805358]
+    assert aura_rewards == [ETHTokenAddr.AURA, 0.40622008081383604]
+
+
+def test_get_locked():
+    block = 17026907
+    node = get_node(ETHEREUM, block)
+
+    aura_locked, reward = Aura.get_locked(WALLET_N4, block, ETHEREUM, web3=node, reward=True)
+    assert aura_locked == [ETHTokenAddr.AURA, 1001043.3486000001]
+    assert reward == [ETHTokenAddr.auraBAL, 3.504020381401145]
