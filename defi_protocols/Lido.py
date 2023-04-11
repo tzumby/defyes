@@ -84,7 +84,7 @@ def underlying(wallet: str, block: Union[int, str], steth: bool= False, decimals
 
 
 
-def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False, decimals: bool = True, web3:object=None, execution:int =1, index:int =0)->list:
+def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False, web3:object=None, execution:int =1, index:int =0)->list:
     """
     Returns the balance of the underlying ETH (or stETH if steth=True) corresponding to the inputted amount of wstETH.
 	Parameters
@@ -101,8 +101,6 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False
 		times the NODE_BLOCKCHAIN list is iterated (first of second)
     index: int
 		positional index of the RPC endpoint to be used in the NODE_BLOCKCHAIN endpoints list
-    decimals: bool
-		specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True
 
     Returns
 	----------
@@ -128,10 +126,11 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False
             Decimal(10 ** 18))
 
         steth_equivalent = wsteth_balance * stEthPerToken
-        if decimals:
-            steth_equivalent = float(steth_equivalent / Decimal(10 ** STETH_DECIMALS))
-        else:
+
+        if isinstance(amount, int):
             steth_equivalent = int(steth_equivalent)
+        else:
+            steth_equivalent = float(steth_equivalent)
 
         if steth is True:
             return [STETH_ADDRESS, steth_equivalent]
@@ -139,7 +138,7 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False
             return [ZERO_ADDRESS, steth_equivalent]
 
     except GetNodeIndexError:
-        return unwrap(amount, block, steth=steth, decimals=decimals, index=0, execution=execution + 1)
+        return unwrap(amount, block, steth=steth, index=0, execution=execution + 1)
 
     except:
-        return unwrap(amount, block, steth=steth, decimals=decimals, index=index + 1, execution=execution)
+        return unwrap(amount, block, steth=steth, index=index + 1, execution=execution)
