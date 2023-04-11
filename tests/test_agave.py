@@ -59,13 +59,17 @@ def test_get_reserves_tokens_balances():
 def test_get_data():
     SOME_WALLET_ADDRESS = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
     data = Agave.get_data(SOME_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3)
+    # FIXME: Find a more interesting wallet!
 
     # We can't test xdai_price_usd because it fluctuates.
-    expected = {'collateral_ratio': 0,
-                'liquidation_ratio': 0,
+    expected = {# 'collateral_ratio': 0,
+                # 'liquidation_ratio': 0,
                 # 'xdai_price_usd': 1.00004,
                 'collaterals': [],
                 'debts': []}
+    assert 'collateral_ratio' not in data
+    assert 'liquidation_ratio' not in data
+    assert 'xdai_price_usd' in data
     assert {k: data[k] for k in expected} == expected
 
 

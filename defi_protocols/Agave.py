@@ -153,22 +153,12 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
 
     total_collateral_ETH, total_debt_ETH, current_liquidation_th, *_ = user_account_data
 
-    # Collateral Ratio
-    if total_collateral_ETH > 0:
-        if total_debt_ETH > 0:
-            agave_data['collateral_ratio'] = 100 * total_collateral_ETH / total_debt_ETH
-        else:
-            # FIXME: this must be wrong:
-            agave_data['collateral_ratio'] = 1
-    else:
-        agave_data['collateral_ratio'] = 0
+    if total_collateral_ETH > 0 and total_debt_ETH > 0:
+        # FIXME: why 100?
+        agave_data['collateral_ratio'] = 100 * total_collateral_ETH / total_debt_ETH
 
-    # Liquidation Ratio
     if current_liquidation_th > 0:
         agave_data['liquidation_ratio'] = 1000000 / current_liquidation_th
-    else:
-        # FIXME: this must be wrong:
-        agave_data['liquidation_ratio'] = 0
 
     # Ether price in USD
     agave_data['xdai_price_usd'] = xdai_usd_price
