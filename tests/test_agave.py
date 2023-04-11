@@ -1,5 +1,6 @@
 import logging
 import pytest
+from decimal import Decimal
 
 from defi_protocols import Agave, add_stderr_logger
 from defi_protocols.constants import XDAI, AGVE_XDAI
@@ -70,7 +71,8 @@ def test_get_data():
 
 def test_get_all_rewards():
     all_rewards = Agave.get_all_rewards(TEST_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3, decimals=True)
-    assert all_rewards == [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 14.334056377962964]]
+    assert all_rewards == [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843',
+                            Decimal('14.334056377962964551')]]
 
 
 @pytest.mark.parametrize('reward', [True, False])
@@ -102,7 +104,8 @@ def test_get_staking_apr(apy):
 
 @pytest.mark.parametrize('wallet_address', [TEST_WALLET_ADDRESS, UNUSED_ADDRESS])
 def test_get_staked(wallet_address):
-    expected = {TEST_WALLET_ADDRESS: 103.6303835433784, UNUSED_ADDRESS: 0.0}[wallet_address]
+    expected = {TEST_WALLET_ADDRESS: Decimal('103.630383543378402291'),
+                UNUSED_ADDRESS: 0.0}[wallet_address]
 
     data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3)
     assert data == [[AGVE_XDAI, expected]]

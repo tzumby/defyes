@@ -11,6 +11,7 @@ Agave is a fork of Aave, built by the
 
 import logging
 from typing import Union, List, Dict
+from decimal import Decimal
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of
 from defi_protocols.constants import AGVE_XDAI, STKAGAVE_XDAI
@@ -82,14 +83,12 @@ def get_reserves_tokens_balances(web3, wallet: str, block: Union[int, str], bloc
     for token in reserves_tokens:
         user_reserve_data = pdp_contract.functions.getUserReserveData(token, cs_wallet).call(block_identifier=block)
 
+        currentATokenBalance, currentStableDebt, currentVariableDebt, *_ = user_reserve_data
+        balance = Decimal(currentATokenBalance - currentStableDebt - currentVariableDebt)
         token_decimals = get_decimals(token, blockchain, web3=web3) if decimals else 0
 
-        currentATokenBalance, currentStableDebt, currentVariableDebt, *_ = user_reserve_data
-        balance = currentATokenBalance - currentStableDebt - currentVariableDebt
-
-        # FIXME: shouldn't we use Decimal or Int type?
         if balance != 0:
-            balances.append([token, balance * 10**-token_decimals])
+            balances.append([token, balance / Decimal(10 ** token_decimals)])
 
     return balances
 
@@ -115,8 +114,8 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
     chainlink_eth_usd_contract = get_contract(CHAINLINK_XDAI_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_XDAI_USD,
                                               block=block)
     chainlink_eth_usd_decimals = chainlink_eth_usd_contract.functions.decimals().call()
-    xdai_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / (
-                10 ** chainlink_eth_usd_decimals)
+    xdai_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block)
+    xdai_usd_price = Decimal(xdai_usd_price) / Decimal(10 ** chainlink_eth_usd_decimals)
 
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
@@ -125,16 +124,16 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
     if len(balances) > 0:
 
         price_oracle_address = lpapr_contract.functions.getPriceOracle().call()
-        price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE,
-                                             block=block)
+        price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block)
 
         for balance in balances:
             asset = {}
 
             asset['token_address'] = balance[0]
             asset['token_amount'] = abs(balance[1])
-            asset['token_price_usd'] = price_oracle_contract.functions.getAssetPrice(asset['token_address']).call(
-                block_identifier=block) / (10 ** 18) * xdai_usd_price
+
+            token_price_usd = price_oracle_contract.functions.getAssetPrice(asset['token_address']).call(block_identifier=block)
+            asset['token_price_usd'] = Decimal(token_price_usd) / Decimal(10 ** 18) * xdai_usd_price
 
             if balance[1] < 0:
                 debts.append(asset)
@@ -202,8 +201,9 @@ def get_all_rewards(wallet: str, block: Union[int, str], blockchain: str,
 
     reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3) if decimals else 0
 
-    reward_balance = stkagave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (
-                10 ** reward_token_decimals)
+    reward_balance = stkagave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
+
+    reward_balance = Decimal(reward_balance) / Decimal(10 ** reward_token_decimals)
 
     all_rewards.append([reward_token, reward_balance])
 
@@ -321,10 +321,10 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str,
 
     stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
     stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
-    stkagave_decimals = stkagave_contract.functions.decimals().call()
 
     if decimals:
-        stkagave_balance = stkagave_balance / 10 ** stkagave_decimals
+        stkagave_decimals = stkagave_contract.functions.decimals().call()
+        stkagave_balance = Decimal(stkagave_balance) / Decimal(10 ** stkagave_decimals)
 
     if stkagve:
         balances.append([STKAGAVE_XDAI, stkagave_balance])
