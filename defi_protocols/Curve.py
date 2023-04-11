@@ -132,10 +132,6 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
     return gauge_address
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_gauge_version
-# 'only_version' = True -> return just the gauge_version / 'only_version' = False -> return [gauge_contract, gauge_version]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=True):
     # FIXME: this should be splitted into 2 functions for version and for contract
     # FIXME: nested try/except abuse
@@ -151,17 +147,16 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
         gauge_contract.functions.version().call()
 
         if blockchain != ETHEREUM:
-            if only_version is True:
+            if only_version:
                 return 'ChildGauge'
             else:
                 return ['ChildGauge', gauge_contract]
 
-        if only_version is True:
+        if only_version:
             return 'LiquidityGaugeV5'
         else:
             return ['LiquidityGaugeV5', gauge_contract]
-    except Exception as exception:
-        logger.error(f'{exception = }')
+    except ContractLogicError:
         pass
 
     try:
@@ -170,22 +165,18 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
         try:
             gauge_contract.functions.crv_token().call()
 
-            if only_version is True:
+            if only_version:
                 return 'LiquidityGaugeV3'
             else:
                 return ['LiquidityGaugeV3', gauge_contract]
 
-        except Exception as exception:
-            logger.error(f'{exception = }')
-            # ContractLogicError('execution reverted')
-            if only_version is True:
+        except ContractLogicError:
+            if only_version:
                 return 'RewardsOnlyGauge'
             else:
                 return ['RewardsOnlyGauge', gauge_contract]
 
-    except Exception as exception:
-        logger.error(f'{exception = }')
-        # ContractLogicError('execution reverted')
+    except ContractLogicError:
         pass
 
     try:
@@ -194,32 +185,27 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
         try:
             gauge_contract.functions.decimals().call()
 
-            if only_version is True:
+            if only_version:
                 return 'LiquidityGaugeV2'
             else:
                 return ['LiquidityGaugeV2', gauge_contract]
 
-        except Exception as exception:
-            logger.error(f'{exception = }')
-            # ContractLogicError('execution reverted')
+        except ContractLogicError:
             try:
                 gauge_contract.functions.claimable_reward(ZERO_ADDRESS).call()
-                if only_version is True:
+                if only_version:
                     return 'LiquidityGaugeReward'
                 else:
                     return ['LiquidityGaugeReward', gauge_contract]
 
-            except Exception as exception:
-                logger.error(f'{exception = }')
-                # ContractLogicError('execution reverted')
-                if only_version is True:
+            except ContractLogicError:
+                if only_version:
                     return 'LiquidityGauge'
                 else:
                     return ['LiquidityGauge', gauge_contract]
 
-    except Exception as exception:
-        logger.error(f'{exception = }')
-        if only_version is True:
+    except ContractLogicError:
+        if only_version:
             return 'LiquidityGaugeV4'
         else:
             return ['LiquidityGaugeV4', gauge_contract]
@@ -268,7 +254,7 @@ def get_pool_data(web3, minter, block, blockchain):
     next_token = True
     i = 0
     j = 0
-    while (next_token is True):
+    while next_token:
 
         try:
             token_address = pool_data['contract'].functions.coins(i).call(block_identifier=block)
@@ -297,7 +283,7 @@ def get_pool_data(web3, minter, block, blockchain):
             x3crv_pool_contract = get_contract(x3crv_minter, blockchain, web3=web3, block=block, abi=ABI_POOL)
 
             x3crv_next_token = True
-            while (x3crv_next_token is True):
+            while x3crv_next_token:
 
                 try:
                     token_address = x3crv_pool_contract.functions.coins(j).call(block_identifier=block)
@@ -383,13 +369,13 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
         next_token = True
         i = 0
-        while (next_token is True):
+        while next_token:
 
             token_address = gauge_contract.functions.reward_tokens(i).call()
 
             if token_address != ZERO_ADDRESS:
 
-                if decimals is True:
+                if decimals:
                     token_decimals = get_decimals(token_address, blockchain, web3=web3)
                 else:
                     token_decimals = 0
@@ -410,7 +396,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         elif blockchain == XDAI:
             token_address = CRV_XDAI
 
-        if decimals is True:
+        if decimals:
             token_decimals = get_decimals(token_address, blockchain, web3=web3)
         else:
             token_decimals = 0
@@ -424,12 +410,12 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
         next_token = True
         i = 0
-        while (next_token is True):
+        while next_token:
             token_address = gauge_contract.functions.reward_tokens(i).call()
 
             if token_address != ZERO_ADDRESS:
 
-                if decimals is True:
+                if decimals:
                     token_decimals = get_decimals(token_address, blockchain, web3=web3)
                 else:
                     token_decimals = 0
@@ -452,7 +438,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
             elif blockchain == XDAI:
                 token_address = CRV_XDAI
 
-            if decimals is True:
+            if decimals:
                 token_decimals = get_decimals(token_address, blockchain, web3=web3)
             else:
                 token_decimals = 0
@@ -466,7 +452,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
         token_address = gauge_contract.functions.crv_token().call()
 
-        if decimals is True:
+        if decimals:
             token_decimals = get_decimals(token_address, blockchain, web3=web3)
         else:
             token_decimals = 0
@@ -480,7 +466,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
             # Additional rewards
             token_address = gauge_contract.functions.rewarded_token().call()
 
-            if decimals is True:
+            if decimals:
                 token_decimals = get_decimals(token_address, blockchain, web3=web3)
             else:
                 token_decimals = 0
@@ -541,7 +527,7 @@ def underlying(wallet, lptoken_address, block, blockchain,
 
     next_token = True
     i = 0
-    while (next_token is True):
+    while next_token:
 
         try:
             token_address = pool_contract.functions.coins(i).call(block_identifier=block)
@@ -561,7 +547,7 @@ def underlying(wallet, lptoken_address, block, blockchain,
             next_token = False
             continue
 
-        if decimals is True:
+        if decimals:
             if token_address == E_ADDRESS:
                 token_decimals = get_decimals(ZERO_ADDRESS, blockchain, web3=web3)
             else:
@@ -585,7 +571,7 @@ def underlying(wallet, lptoken_address, block, blockchain,
 
         i += 1
 
-    if reward is True:
+    if reward:
 
         all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
                                       gauge_address=lptoken_data['gauge'])
@@ -622,7 +608,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
 
     next_token = True
     i = 0
-    while (next_token is True):
+    while next_token:
 
         try:
             token_address = pool_contract.functions.coins(i).call(block_identifier=block)
@@ -642,7 +628,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
             next_token = False
             continue
 
-        if decimals is True:
+        if decimals:
             if token_address == E_ADDRESS:
                 token_decimals = get_decimals(ZERO_ADDRESS, blockchain, web3=web3)
             else:
@@ -691,7 +677,7 @@ def pool_balances(lptoken_address, block, blockchain,
 
     next_token = True
     i = 0
-    while (next_token is True):
+    while next_token:
 
         try:
             token_address = pool_contract.functions.coins(i).call(block_identifier=block)
@@ -710,7 +696,7 @@ def pool_balances(lptoken_address, block, blockchain,
             next_token = False
             continue
 
-        if decimals is True:
+        if decimals:
             if token_address == E_ADDRESS:
                 token_decimals = get_decimals(ZERO_ADDRESS, blockchain, web3=web3)
             else:
@@ -772,7 +758,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain,
     exchange_event_signatures = []
 
     # IMPORTANT: AD-HOC FIX UNTIL WE FIND A WAY TO SOLVE HOW META POOLS WORK FOR DIFFERENT POOL TYPES AND SIDE-CHAINS
-    # if pool_data['is_metapool'] is True:
+    # if pool_data['is_metapool']:
     #     exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES
     # else:
     #     exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES
@@ -892,7 +878,7 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str,
                       block_end: Union[int, str] = 'latest', web3=None,
                       days: int = 1, apy: bool = False) -> int:
 
-    rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy, execution, index)
+    rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
     apr = ((1 + rate) ** (365 / days) - 1) * 100
     seconds_per_year = 365 * 24 * 60 * 60
     if apy == True:

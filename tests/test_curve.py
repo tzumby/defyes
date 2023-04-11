@@ -136,6 +136,8 @@ def test_swap_fees_v2(apy):
     assert True
 
 
-@pytest.mark.skip('unfinished')
+@pytest.mark.skip('web3.exceptions.ABIFunctionNotFound')
 def test_get_swap_fees_APR():
+    sf = Curve.get_swap_fees_APR(X3CRV_ETH, ETHEREUM, TEST_BLOCK, web3=WEB3)
+    print(sf)
     assert True
