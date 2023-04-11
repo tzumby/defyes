@@ -209,8 +209,6 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str,
     2 - List of Tuples: [reward_token_address, balance]
     '''
 
-    result = []
-
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -218,16 +216,11 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str,
 
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
-    if reward is True:
+    result = balances
+    if reward:
         all_rewards = get_all_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
+        result.extend(all_rewards)
 
-        result.append(balances)
-        result.append(all_rewards)
-
-    else:
-        result = balances
-
-    # FIXME: shape should not be dependent on arguments
     return result
 
 

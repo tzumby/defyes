@@ -84,7 +84,7 @@ def test_underlying_all(reward):
     SOME_WALLET_ADDRESS = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
     ua = Agave.underlying_all(SOME_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3, reward=reward)
     # FIXME: shape should not be dependent on arguments
-    assert ua == {True: [[], [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', 0.0]]],
+    assert ua == {True: [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', Decimal(0.0)]],
                   False: []}[reward]
 
 
