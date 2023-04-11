@@ -615,6 +615,21 @@
             "crvRewards": "0x2d9d3e3D0655766Aa801Ae0f6dC925db2DF291A1",
             "stash": "0xf46f19E3a7E082812f3Ee0250F1ac62A9678b683",
             "shutdown": false
+        },
+        "0xCAa052584b462198A5a9356c28bcE0634D65f65C": {
+            "poolId": 77,
+            "token": "0x09D2eaa56B582BDd09971A8e07798B32B068e0C9",
+            "gauge": "0x254f3a52Ba9e0cac4E32B648d129529622D1A46c",
+            "crvRewards": "0x81455dBF8aee385102d1e6BE4476671f34b123E7",
+            "stash": "0xF59410Cf20984d09324D6793CF8Af4934A950d18",
+            "shutdown": false},
+        "0x9CC64EE4CB672Bc04C54B00a37E1Ed75b2Cc19Dd": {
+            "poolId": 78,
+            "token": "0x7CC61dCa79b0968ae33EA0f5271036256612FfCc",
+            "gauge": "0x6661136537dfDCA26EEA05c8500502d7D5796E5E",
+            "crvRewards":"0x2BDa0C27ac4A322c26727586700D0D42Be3db10E",
+            "stash":"0x26d89d167C7c7a1d16AeF673e49a30Dc2655Ac69",
+            "shutdown": false
         }
     }
 }
