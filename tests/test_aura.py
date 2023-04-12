@@ -4,6 +4,8 @@ from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node, get_contract
 
 
+B80BAL20WETH_TOKEN = '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56'
+
 balancer_50OHM50wstETH_ADDR = "0xd4f79CA0Ac83192693bce4699d0c10C66Aa6Cf0F"
 aura_OHMwstETH_TOKEN = "0x0EF97ef0e20F84e82ec2D79CBD9Eda923C3DAF09"
 balancer_OHMwstETHgauge_ADDR = "0xE879f17910E77c01952b97E4A098B0ED15B6295c"
@@ -20,6 +22,7 @@ WALLET_N1 = "0xb74e5e06f50fa9e4eF645eFDAD9d996D33cc2d9D"
 WALLET_N2 = "0x6d707F73f621722fEc0E6A260F43f24cCC8d4997"
 WALLET_N3 = "0x76d3a0F4Cdc9E75E0A4F898A7bCB1Fb517c9da88"
 WALLET_N4 = "0xB1f881f47baB744E7283851bC090bAA626df931d"
+WALLET_N5 = "0x36cc7B13029B5DEe4034745FB4F24034f3F2ffc6"
 
 
 def test_db_uptodate():
@@ -94,3 +97,35 @@ def test_get_locked():
     aura_locked, reward = Aura.get_locked(WALLET_N4, block, ETHEREUM, web3=node, reward=True)
     assert aura_locked == [ETHTokenAddr.AURA, 1001043.3486000001]
     assert reward == [ETHTokenAddr.auraBAL, 3.504020381401145]
+
+
+def test_get_staked():
+    block = 17030603
+    node = get_node(ETHEREUM, block)
+    aurabal, bal, bb_a_usd, aura = Aura.get_staked(WALLET_N5, block, ETHEREUM, web3=node, reward=True)
+    assert aurabal == [ETHTokenAddr.auraBAL, 76788.35575384754]
+    assert bal == [ETHTokenAddr.BAL, 5.959443245175148]
+    assert bb_a_usd == [ETHTokenAddr.BB_A_USD, 0.0]
+    assert aura == [ETHTokenAddr.AURA, 20.42193231463297]
+
+
+def test_underlying():
+    block = 17030603
+    node = get_node(ETHEREUM, block)
+
+    bal_eth, aurabal = Aura.underlying(WALLET_N5, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
+    assert bal_eth == [B80BAL20WETH_TOKEN, 56316.3825938839]
+    assert aurabal == [ETHTokenAddr.auraBAL, 63020.44124792096]
+
+    ohm, steth = Aura.underlying(WALLET_N1, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
+    assert ohm == [ETHTokenAddr.OHM, 1231058673158.3909]
+    assert steth == [ETHTokenAddr.stETH, 6.05714004986533e+18]
+
+
+def test_pool_balances():
+    block = 17030603
+    node = get_node(ETHEREUM, block)
+
+    ohm, steth = Aura.pool_balances(balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node)
+    assert ohm == [ETHTokenAddr.OHM, 23962.880591594]
+    assert steth == [ETHTokenAddr.stETH, 117.90382286905813]
