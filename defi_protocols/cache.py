@@ -35,7 +35,7 @@ def disk_cache_middleware(make_request, web3):
         do_cache = False
         if method in RPC_WHITELIST and 'latest' not in params:
             do_cache = True
-        elif method == 'eth_chainId':
+        if method == 'eth_chainId':
             do_cache = True
 
         if do_cache:
