@@ -445,20 +445,20 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                         token_balance = token_balance / (token_contract.functions.rate().call(block_identifier=block) / (10**27))
 
                 else:
-                    token_balance = pool_balances[i] / (10 ** token_decimals)
+                    token_balance = pool_balances[i]
             
             if decimals is True:
-                token_balance = token_balance * pool_balance_fraction
-            else:
-                token_balance = token_balance * pool_balance_fraction * (10**token_decimals)
+                token_balance = token_balance / (10**token_decimals)
 
             if aura_staked is None:
-                token_staked = token_balance / (10 ** token_decimals) * pool_staked_fraction
+                token_staked = token_balance * pool_staked_fraction
             else:
                 aura_pool_fraction = aura_staked / lptoken_data['totalSupply']
-                token_staked = token_balance / (10 ** token_decimals) * aura_pool_fraction
+                token_staked = token_balance * aura_pool_fraction
 
-            token_locked = token_balance / (10 ** token_decimals) * pool_locked_fraction
+            token_locked = token_balance * pool_locked_fraction
+
+            token_balance = token_balance * pool_balance_fraction
 
             balances.append([main_token, token_balance, token_staked, token_locked])
 
@@ -564,7 +564,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
                 balances.append([main_token, token_balance])
         
         first = itemgetter(0)
-        balances = [(k, sum(item[1] for item in tups_to_sum)) for k, tups_to_sum in groupby(balances, key=first)]
+        balances = [[k, sum(item[1] for item in tups_to_sum)] for k, tups_to_sum in groupby(balances, key=first)]
 
         return balances
 
@@ -662,7 +662,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, execut
                 balances.append([pool_tokens[i], token_balance])
         
         first = itemgetter(0)
-        balances = [(k, sum(item[1] for item in tups_to_sum)) for k, tups_to_sum in groupby(balances, key=first)]
+        balances = [[k, sum(item[1] for item in tups_to_sum)] for k, tups_to_sum in groupby(balances, key=first)]
 
         return balances
 
@@ -831,7 +831,7 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
 #print(underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM, decimals=False))
 #print(underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM))
 
-# print(underlying("0x849D52316331967b6fF1198e5E32A0eB168D039d", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM))
+#print(underlying("0x849D52316331967b6fF1198e5E32A0eB168D039d", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM))
 
 #print(underlying("0x2c96586aCd25C974804Ab15D4A19A163F527135A", "0xbD482fFb3E6E50dC1c437557C3Bea2B68f3683Ee", 'latest', ETHEREUM))
 
