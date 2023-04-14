@@ -303,9 +303,8 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str,
     stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
     stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
 
-    if decimals:
-        stkagave_decimals = stkagave_contract.functions.decimals().call()
-        stkagave_balance = Decimal(stkagave_balance) / Decimal(10 ** stkagave_decimals)
+    stkagave_decimals = stkagave_contract.functions.decimals().call() if decimals else 0
+    stkagave_balance = Decimal(stkagave_balance) / Decimal(10 ** stkagave_decimals)
 
     if stkagve:
         balances.append([STKAGAVE_XDAI, stkagave_balance])
