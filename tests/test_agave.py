@@ -13,7 +13,11 @@ add_stderr_logger(logging.DEBUG)
 STK_AGAVE = '0x610525b415c1BFAeAB1a3fc3d85D87b92f048221'
 TEST_WALLET_ADDRESS = '0xc4d46395c01aa86389d4216c2830167878d7cab8'
 UNUSED_ADDRESS = '0xcafe6395c01aa86389d4216c2830167878d7cab8'
+
 TEST_BLOCK = 27187881
+# 2023.04.14
+# TEST_BLOCK = 27450341
+
 WEB3 = get_node(blockchain=XDAI, block=TEST_BLOCK)
 
 # 2023.03.29
@@ -27,6 +31,37 @@ TOP_WALLET_W = \
      ['0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1', 282650106097633403696],
      ['0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d', 4922397761223675816108],
      ['0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 149615952]]
+    # TODO: use descriptive constants
+
+# 2023.04.14
+GNOSIS_SAFE_IN_GNO = '0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f'
+GNOSIS_SAFE_UNDERLYING_ALL_WITH_REWARDS = \
+[['0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83', Decimal('861490609530')],
+ ['0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d', Decimal('2861467152146117938998419')],
+ ['0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', Decimal('5004431568185442780597')],
+ ['0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1', Decimal('552005140092550220243')],
+ ['0x4ECaBa5870353805a9F068101A40E0f32ed605C6', Decimal('311298154329')],
+ ['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', Decimal('0')]]
+GNOSIS_SAFE_DATA = {'liquidation_ratio': 2.445712572154852e-19,
+                    'xdai_price_usd': Decimal('0.99974566'),
+                    'collaterals': [{'token_address': '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+                                     'token_amount': Decimal('861490.60953'),
+                                     'token_price_usd': Decimal('0.99985874999999999944370486')},
+                                    {'token_address': '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+                                     'token_amount': Decimal('2861467.152146117938998419'),
+                                     'token_price_usd': Decimal('0.99974566')},
+                                    {'token_address': '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb',
+                                     'token_amount': Decimal('5004.431568185442780597'),
+                                     'token_price_usd': Decimal('112.4299999999999999994793535')},
+                                    {'token_address': '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+                                     'token_amount': Decimal('552.005140092550220243'),
+                                     'token_price_usd': Decimal('1790.096799999999999999143554')},
+                                    {'token_address': '0x4ECaBa5870353805a9F068101A40E0f32ed605C6',
+                                     'token_amount': Decimal('311298.154329'),
+                                     'token_price_usd': Decimal('1.00050699999999999942231082')}],
+                    'debts': []}
+    # TODO: use descriptive constants
+
 
 
 # https://gnosisscan.io/address/0x24dcbd376db23e4771375092344f5cbea3541fc0#readContract
@@ -42,6 +77,7 @@ RESERVES_TOKENS = \
      ('FOX', '0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d'),
      ('USDT', '0x4ECaBa5870353805a9F068101A40E0f32ed605C6'),
      ('EURe', '0xcB444e90D8198415266c6a2724b7900fb12FC56E')]
+    # TODO: use descriptive constants
 
 
 def test_get_reserves_tokens():
@@ -57,20 +93,8 @@ def test_get_reserves_tokens_balances():
 
 
 def test_get_data():
-    SOME_WALLET_ADDRESS = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-    data = Agave.get_data(SOME_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3)
-    # FIXME: Find a more interesting wallet!
-
-    # We can't test xdai_price_usd because it fluctuates.
-    expected = {# 'collateral_ratio': 0,
-                # 'liquidation_ratio': 0,
-                # 'xdai_price_usd': 1.00004,
-                'collaterals': [],
-                'debts': []}
-    assert 'collateral_ratio' not in data
-    assert 'liquidation_ratio' not in data
-    assert 'xdai_price_usd' in data
-    assert {k: data[k] for k in expected} == expected
+    data = Agave.get_data(GNOSIS_SAFE_IN_GNO, TEST_BLOCK, XDAI, web3=WEB3)
+    assert data == GNOSIS_SAFE_DATA
 
 
 def test_get_all_rewards():
@@ -80,12 +104,14 @@ def test_get_all_rewards():
 
 
 @pytest.mark.parametrize('reward', [True, False])
-def test_underlying_all(reward):
-    SOME_WALLET_ADDRESS = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-    ua = Agave.underlying_all(SOME_WALLET_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3, reward=reward)
-    # FIXME: shape should not be dependent on arguments
-    assert ua == {True: [['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', Decimal(0.0)]],
-                  False: []}[reward]
+def test_underlying_all(reward, decimals=False):
+    # TODO: maybe test for decimals=True
+    ua = Agave.underlying_all(GNOSIS_SAFE_IN_GNO, TEST_BLOCK, XDAI, web3=WEB3, reward=reward, decimals=decimals)
+    # print(f'for {reward = } and {decimals = }: {ua}')
+    expected = GNOSIS_SAFE_UNDERLYING_ALL_WITH_REWARDS
+    if not reward:
+        expected = expected[:-1]
+    assert ua == expected
 
 
 @pytest.mark.parametrize('apy', [True, False])

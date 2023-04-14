@@ -86,6 +86,7 @@ def get_reserves_tokens_balances(web3, wallet: str, block: Union[int, str], bloc
         currentATokenBalance, currentStableDebt, currentVariableDebt, *_ = user_reserve_data
         balance = Decimal(currentATokenBalance - currentStableDebt - currentVariableDebt)
         token_decimals = get_decimals(token, blockchain, web3=web3) if decimals else 0
+        # logger.debug(f'{token_decimals = }')
 
         if balance != 0:
             balances.append([token, balance / Decimal(10 ** token_decimals)])
@@ -119,7 +120,7 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
 
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
-    logger.debug(f'{balances = }')
+    # logger.debug(f'{balances = }')
 
     if len(balances) > 0:
 
@@ -154,7 +155,6 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
     total_collateral_ETH, total_debt_ETH, current_liquidation_th, *_ = user_account_data
 
     if total_collateral_ETH > 0 and total_debt_ETH > 0:
-        # FIXME: why 100?
         agave_data['collateral_ratio'] = 100 * total_collateral_ETH / total_debt_ETH
 
     if current_liquidation_th > 0:
@@ -175,7 +175,7 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
 def get_all_rewards(wallet: str, block: Union[int, str], blockchain: str,
                     web3=None, decimals: bool = True) -> List[List]:
     '''
-    List of 2-element lists: [reward_token_address, balance]
+    Output: List of 2-element lists: [[reward_token_1_address, balance_1], [t2, b2], ... ]
     '''
 
     all_rewards = []
@@ -190,6 +190,7 @@ def get_all_rewards(wallet: str, block: Union[int, str], blockchain: str,
     reward_token = stkagave_contract.functions.REWARD_TOKEN().call()
 
     reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3) if decimals else 0
+    # logger.debug(f'{reward_token_decimals = }')
 
     reward_balance = stkagave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
 
@@ -203,10 +204,7 @@ def get_all_rewards(wallet: str, block: Union[int, str], blockchain: str,
 def underlying_all(wallet: str, block: Union[int, str], blockchain: str,
                    web3=None, decimals: bool = True, reward: bool = False) -> List[List]:
     '''
-    Output: a list with 2 elements:
-    1 - List of Tuples: [token_address, balance],
-            where balance = currentATokenBalance - currentStableDebt - currentStableDebt
-    2 - List of Tuples: [reward_token_address, balance]
+    Output: a list of 2-element lists: [[token_1_address, balance_1], [t2, b2], ... ].
     '''
 
     if web3 is None:
