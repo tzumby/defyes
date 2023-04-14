@@ -44,6 +44,7 @@ GNOSIS_SAFE_UNDERLYING_ALL_WITH_REWARDS = \
  ['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', Decimal('0')]]
 GNOSIS_SAFE_DATA = {'liquidation_ratio': 2.445712572154852e-19,
                     'xdai_price_usd': Decimal('0.99974566'),
+                    'collateral_ratio': float('infinity'),
                     'collaterals': [{'token_address': '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
                                      'token_amount': Decimal('861490.60953'),
                                      'token_price_usd': Decimal('0.99985874999999999944370486')},
