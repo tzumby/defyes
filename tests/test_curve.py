@@ -1,5 +1,6 @@
 import pytest
 import logging
+from decimal import Decimal
 
 from defi_protocols.functions import get_node
 from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH, DAI_ETH, USDC_ETH, USDT_ETH
@@ -8,7 +9,7 @@ from defi_protocols import Curve, add_stderr_logger
 
 _h = add_stderr_logger(logging.DEBUG)
 logger = logging.getLogger(__name__)
-logger.addHandler(_h)
+# logger.addHandler(_h)
 
 # 2023.04.06
 TEST_BLOCK = 16993460
@@ -68,56 +69,73 @@ def test_get_pool_data():
     assert expected == {k: pd[k] for k in expected}
 
 
-def test_get_all_rewards():
+@pytest.mark.parametrize('decimals', [True, False])
+def test_get_all_rewards(decimals):
     rewards = Curve.get_all_rewards(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM,
-                                    web3=WEB3, decimals=False)
-    # FIXME: why decimals=False gives this?:
-    # It should be an Int!
-    assert rewards == [[CRV_ETH, 1.2062444658284873e+20]]
+                                    web3=WEB3, decimals=decimals)
+    assert rewards == [[CRV_ETH, Decimal('120624446582848732188') / Decimal(10**(18 if decimals else 0))]]
 
 
 @pytest.mark.parametrize('reward', [True, False])
-def test_underlying(reward):
+@pytest.mark.parametrize('decimals', [True, False])
+def test_underlying(reward, decimals):
     u = Curve.underlying(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3,
-                         reward=reward)
+                         reward=reward, decimals=decimals)
     print(u) 
-    expected = [[DAI_ETH, 0.0, 0.0],
+    expected = [[DAI_ETH, Decimal('0E-18'), Decimal('0E-18')],
                 [USDC_ETH, 0.0, 0.0],
                 [USDT_ETH, 0.0, 0.0]]
     # FIXME: shape should not depend on args
     if reward:
-        expected = [expected, [[CRV_ETH, 120.62444658284873]]]
+        expected = [expected, [[CRV_ETH, 120624446582848732188 / Decimal(10**(18 if decimals else 0))]]]
 
     assert u == expected
 
 
 @pytest.mark.parametrize('lptoken_amount', [0, 10])
-def test_unwrap(lptoken_amount):
-    u = Curve.unwrap(lptoken_amount, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3)
-
+@pytest.mark.parametrize('decimals', [True, False])
+def test_unwrap(lptoken_amount, decimals):
+    u = Curve.unwrap(lptoken_amount, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3,
+                     decimals=decimals)
+    print(u)
     expected = {0:
                       [[DAI_ETH, 0.0],
                       [USDC_ETH, 0.0],
                       [USDT_ETH, 0.0]],
                 10:
-                      [[DAI_ETH, 3.9173546855571995],
-                      [USDC_ETH, 4.147544963364351],
-                      [USDT_ETH, 2.1904608756716426]],
+                      [[DAI_ETH, Decimal('3917354685557199081.180899410') / Decimal(10**(18 if decimals else 0))],
+                      [USDC_ETH, Decimal('4147544.963364350419868516281') / Decimal(10**(6 if decimals else 0))],
+                      [USDT_ETH, Decimal('2190460.875671642443221745933') / Decimal(10**(6 if decimals else 0))]],
                 }
     assert u == expected[lptoken_amount]
 
 
-def test_pool_balances():
-    pb = Curve.pool_balances(X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3)
-    assert pb == [[DAI_ETH, 165857824.62925413],
-                  [USDC_ETH, 175604425.510732],
-                  [USDT_ETH, 92743777.79551]]
+@pytest.mark.parametrize('decimals', [True, False])
+def test_pool_balances(decimals):
+    pb = Curve.pool_balances(X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3, decimals=decimals)
+    print(pb)
+    assert pb == [[DAI_ETH, Decimal('165857824629254122209119338') / Decimal(10**(18 if decimals else 0))],
+                  [USDC_ETH, Decimal('175604425510732') / Decimal(10**(6 if decimals else 0))],
+                  [USDT_ETH, Decimal('92743777795510') / Decimal(10**(6 if decimals else 0))]]
 
 
-def test_swap_fees():
-    sf = Curve.swap_fees(X3CRV_ETH, TEST_BLOCK-10, TEST_BLOCK, ETHEREUM, web3=WEB3)
-    print(sf)
-    assert sf == {'swaps': []}
+@pytest.mark.parametrize('decimals', [True, False])
+def test_swap_fees(decimals):
+    sf = Curve.swap_fees(X3CRV_ETH, TEST_BLOCK-100, TEST_BLOCK, ETHEREUM, web3=WEB3,
+                         decimals=decimals)
+    # FIXME: decimals is ignored
+    assert sf['swaps'] == [{'block': 16993412,
+                             'tokenOut': '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                             'amountOut': Decimal('0.0119984762770876226292')},
+                           {'block': 16993445,
+                            'tokenOut': '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                            'amountOut': Decimal('0.0108986139097754796211')},
+                           {'block': 16993412,
+                            'tokenOut': '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                            'amountOut': Decimal('0.0119984762770876226292')},
+                           {'block': 16993445,
+                            'tokenOut': '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                            'amountOut': Decimal('0.0108986139097754796211')}]
 
 
 @pytest.mark.skip('web3.exceptions.ABIFunctionNotFound')
