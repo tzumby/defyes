@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from defi_protocols.functions import get_contract, get_node, get_decimals, get_logs, last_block, get_token_tx, get_tx_list, date_to_block, block_to_date
 from defi_protocols.constants import ETHEREUM, POLYGON, XDAI, ZERO_ADDRESS
 from defi_protocols.prices.prices import get_price
+from defi_protocols.cache import const_call
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +170,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
 
         for pool_id in range(pool_length):
 
-            address = result['chef_contract'].functions.lpToken(pool_id).call()
+            address = const_call(result['chef_contract'].functions.lpToken(pool_id))
 
             if address == lptoken_address:
                 result['pool_info'] = {
@@ -228,10 +229,10 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
     lptoken_data = {}
     lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-    lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+    lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
     lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
-    lptoken_data['token0'] = lptoken_data['contract'].functions.token0().call()
-    lptoken_data['token1'] = lptoken_data['contract'].functions.token1().call()
+    lptoken_data['token0'] = const_call(lptoken_data['contract'].functions.token0())
+    lptoken_data['token1'] = const_call(lptoken_data['contract'].functions.token1())
     lptoken_data['reserves'] = lptoken_data['contract'].functions.getReserves().call(block_identifier=block)
     lptoken_data['kLast'] = lptoken_data['contract'].functions.kLast().call(block_identifier=block)
 
@@ -320,9 +321,9 @@ def get_sushi_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, d
     :return:
     """
     try:
-        sushi_address = chef_contract.functions.SUSHI().call()
+        sushi_address = const_call(chef_contract.functions.SUSHI())
     except:
-        sushi_address = chef_contract.functions.sushi().call()
+        sushi_address = const_call(chef_contract.functions.sushi())
 
     if decimals is True:
         sushi_decimals = get_decimals(sushi_address, blockchain, web3=web3)
@@ -545,17 +546,16 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     reserves = lptoken_contract.functions.getReserves().call(block_identifier=block)
 
     for i in range(len(reserves)):
-        try:
-            func = getattr(lptoken_contract.functions, 'token' + str(i))
-        except:
+        func = getattr(lptoken_contract.functions, 'token' + str(i), None)
+        if func is None:
             continue
 
-        token_address = func().call()
+        token_address = const_call(func())
 
         if decimals is True:
             token_decimals = get_decimals(token_address, blockchain, web3=web3)
         else:
-            token_balance = 0
+            token_decimals = 0
 
         token_balance = reserves[i] / (10 ** token_decimals)
 
@@ -592,8 +592,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
-    token0 = lptoken_contract.functions.token0().call()
-    token1 = lptoken_contract.functions.token1().call()
+    token0 = const_call(lptoken_contract.functions.token0())
+    token1 = const_call(lptoken_contract.functions.token1())
     result['swaps'] = []
 
     if decimals is True:
@@ -735,9 +735,9 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
     sushi_reward_data = {}
 
     try:
-        sushi_reward_data['sushi_address'] = chef_contract.functions.SUSHI().call()
+        sushi_reward_data['sushi_address'] = const_call(chef_contract.functions.SUSHI())
     except:
-        sushi_reward_data['sushi_address'] = chef_contract.functions.sushi().call()
+        sushi_reward_data['sushi_address'] = const_call(chef_contract.functions.sushi())
 
     try:
         sushi_reward_data['sushiPerBlock'] = chef_contract.functions.sushiPerBlock().call(
@@ -846,10 +846,10 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
     token1_fees_usd = get_price(token1,block_end,blockchain,web3)[0]*sum(token1_fees)
     token_fees_usd = token0_fees_usd+token1_fees_usd
     pool_contract = get_contract(lptoken_address,blockchain,web3,ABI_LPTOKEN,block_end)
-    token0_address = pool_contract.functions.token0().call()
+    token0_address = const_call(pool_contract.functions.token0())
     token0_price = get_price(token0_address,block_end,blockchain,web3)[0]
     token0_decimals = get_decimals(token0_address,blockchain,web3=web3,block=block_end)
-    token1_address = pool_contract.functions.token1().call()
+    token1_address = const_call(pool_contract.functions.token1())
     token1_price = get_price(token1_address,block_end,blockchain,web3)[0]
     token1_decimals = get_decimals(token1_address,blockchain,web3=web3,block=block_end)
     reserves = pool_contract.functions.getReserves().call()
