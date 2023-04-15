@@ -11,6 +11,7 @@ import eth_abi
 from web3 import Web3
 from web3.providers import HTTPProvider, JSONBaseProvider
 from defi_protocols import cache
+from defi_protocols.cache import const_call
 from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOERLI, API_KOVAN_GETLOGS, KOVAN, API_ROPSTEN_GETLOGS, ROPSTEN,
                                       API_KEY_OPTIMISM, API_OPTIMISM_GETLOGS, OPTIMISM, API_KEY_FANTOM, API_FANTOM_GETLOGS, FANTOM,
                                       API_KEY_BINANCE, API_BINANCE_GETLOGS, BINANCE, API_KEY_AVALANCHE, API_AVALANCHE_GETLOGS,
@@ -405,7 +406,7 @@ def get_decimals(token_address, blockchain, web3=None, block='latest'):
         decimals = 18
     else:
         token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
-        decimals = token_contract.functions.decimals().call()
+        decimals = const_call(token_contract.functions.decimals())
 
     return decimals
 
