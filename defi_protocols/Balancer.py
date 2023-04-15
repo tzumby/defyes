@@ -426,9 +426,10 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
             token_decimals = token_contract.functions.decimals().call()
             
+            unwrapped_balances = []
             try:
                 token_contract.functions.getRate().call()
-                main_token, token_balance = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)[0]
+                unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
             except:
                 try:
                     main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
@@ -436,7 +437,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                     main_token = token_address
 
                 if lptoken_data['scalingFactors'] is not None:
-                    token_balance = pool_balances[i] / (10 ** token_decimals) * lptoken_data['scalingFactors'][i] / (10**18)
+                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10**18)
                     
                     if token_decimals != 18:
                         token_balance = token_balance / (10**(2*token_decimals))
@@ -447,20 +448,26 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                 else:
                     token_balance = pool_balances[i]
             
-            if decimals is True:
-                token_balance = token_balance / (10**token_decimals)
+                if decimals is True:
+                    token_balance = token_balance / (10**token_decimals)
+                
+                unwrapped_balances.append([main_token, token_balance])
 
-            if aura_staked is None:
-                token_staked = token_balance * pool_staked_fraction
-            else:
-                aura_pool_fraction = aura_staked / lptoken_data['totalSupply']
-                token_staked = token_balance * aura_pool_fraction
+            for unwrapped_balance in unwrapped_balances:
+                
+                main_token, token_balance = unwrapped_balance
+                
+                if aura_staked is None:
+                    token_staked = token_balance * pool_staked_fraction
+                else:
+                    aura_pool_fraction = aura_staked / lptoken_data['totalSupply']
+                    token_staked = token_balance * aura_pool_fraction
 
-            token_locked = token_balance * pool_locked_fraction
+                token_locked = token_balance * pool_locked_fraction
 
-            token_balance = token_balance * pool_balance_fraction
+                token_balance = token_balance * pool_balance_fraction
 
-            balances.append([main_token, token_balance, token_staked, token_locked])
+                balances.append([main_token, token_balance, token_staked, token_locked])
 
         if reward is True:
             all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
@@ -815,29 +822,30 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
 # feess = get_swap_fees_APR(lptoken,blockchain,blockend)
 # print(feess)
 
+# print(underlying("0x64aE36eeaC5BF9c1F4b7Cc6F0Fa32bBa19aaF9Bc","0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
 # print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
-#print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
+# print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
 
 # print(pool_balances("0x76fcf0e8c7ff37a47a799fa2cd4c13cde0d981c9", 'latest', ETHEREUM))
 
 # print(pool_balances("0xa13a9247ea42d743238089903570127dda72fe44", 'latest', ETHEREUM, decimals=False))
-#print(pool_balances("0xa13a9247ea42d743238089903570127dda72fe44", 'latest', ETHEREUM))
+# print(pool_balances("0xa13a9247ea42d743238089903570127dda72fe44", 'latest', ETHEREUM))
 
 # print(pool_balances("0xae37d54ae477268b9997d4161b96b8200755935c", 'latest', ETHEREUM))
 # print(pool_balances("0x82698aecc9e28e9bb27608bd52cf57f704bd1b83", 'latest', ETHEREUM))
 # print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", 'latest', ETHEREUM))
-#print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", 'latest', ETHEREUM, decimals=False))
+# print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", 'latest', ETHEREUM, decimals=False))
 
-#print(underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM, decimals=False))
-#print(underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM))
+# print(underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM, decimals=False))
+# print(underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM))
 
-#print(underlying("0x849D52316331967b6fF1198e5E32A0eB168D039d", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM))
+# print(underlying("0x849D52316331967b6fF1198e5E32A0eB168D039d", "0xA13a9247ea42D743238089903570127DdA72fE44", 'latest', ETHEREUM))
 
-#print(underlying("0x2c96586aCd25C974804Ab15D4A19A163F527135A", "0xbD482fFb3E6E50dC1c437557C3Bea2B68f3683Ee", 'latest', ETHEREUM))
+# print(underlying("0x2c96586aCd25C974804Ab15D4A19A163F527135A", "0xbD482fFb3E6E50dC1c437557C3Bea2B68f3683Ee", 'latest', ETHEREUM))
 
 
 
-#print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", 'latest', ETHEREUM))
+# print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", 'latest', ETHEREUM))
 #print(unwrap(17785638.135896144152263360, '0xae37d54ae477268b9997d4161b96b8200755935c', 'latest', ETHEREUM))
 
 
