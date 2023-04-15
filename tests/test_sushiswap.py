@@ -1,7 +1,8 @@
 import pytest
 from defi_protocols import SushiSwap
-from defi_protocols.constants import ETHEREUM, USDC_ETH, WETH_ETH, SUSHI_ETH, CVX_ETH
-from defi_protocols.functions import get_node, get_web3_call_count
+from defi_protocols.constants import ETHEREUM, USDC_ETH, WETH_ETH, SUSHI_ETH, CVX_ETH, XDAI
+from defi_protocols.functions import get_node
+from defi_protocols.cache import const_call
 
 
 SUSHISWAP_POOL_USDC_WETH = '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0'
@@ -13,6 +14,15 @@ def test_get_lptoken_data():
     assert data['token0'] == USDC_ETH
     assert data['token1'] == WETH_ETH
     assert data['decimals'] == 18
+
+def test_get_lptoken_data_on_gnosis_differ_to_ethereum_when_using_const_call():
+    web3 = get_node(XDAI, block=16836190)
+    contract = SushiSwap.get_chef_contract(web3=web3, block='latest', blockchain=XDAI)
+    gnosis_lptoken0_address = const_call(contract.functions.lpToken(0))
+    web3 = get_node(ETHEREUM, block=16836190)
+    contract = SushiSwap.get_chef_contract(web3=web3, block='latest', blockchain=ETHEREUM)
+    eth_lptoken0_address = const_call(contract.functions.lpToken(0))
+    assert gnosis_lptoken0_address != eth_lptoken0_address
 
 def test_underlying_of_empty_address():
     data = SushiSwap.underlying(UNUSED_ADDRESS, SUSHISWAP_POOL_USDC_WETH, TEST_BLOCK, ETHEREUM)

@@ -1,3 +1,4 @@
+import functools
 import logging
 import os
 
@@ -22,6 +23,24 @@ def is_enabled():
 def clear():
     if is_enabled():
         _cache.clear()
+
+class TemporaryCache:
+    """Provides a context with a temporary cache.
+
+    Useful for tests. Not thread safe!
+    """
+    def __init__(self):
+        self.original_cache = _cache
+
+    def __enter__(self):
+        global _cache
+        _cache = diskcache.Cache(disk_pickle_protocol=5)
+        return _cache
+
+    def __exit__(self, *args, **kwargs):
+        global _cache
+        _cache = self.original_cache
+
 
 def disk_cache_middleware(make_request, web3):
     """
@@ -53,3 +72,44 @@ def disk_cache_middleware(make_request, web3):
             logger.debug(f"Not caching '{method}' with params: '{params}'")
             return make_request(method, params)
     return middleware
+
+def cache_call(exclude_args=None):
+    """Decorator to cache the result of a function.
+
+    It has the ability to exclude arguments that the result
+    of the call is not dependant.
+
+    In the following example, the function does not depend on the http_client:
+
+    @cache_call(exclude_args=['http_client'])
+    def get_pi_digits(http_client, count):
+        response = http_client.get(f"https://api.pi.delivery/v1/pi?start=0&numberOfDigits={count}")
+        return response["content"]
+    """
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            from inspect import getcallargs
+            cache_args = getcallargs(f, *args, **kwargs)
+            if exclude_args:
+                for arg in exclude_args:
+                    cache_args.pop(arg)
+            cache_key = generate_cache_key((f.__qualname__, cache_args))
+            if cache_key not in _cache:
+                result = f(*args, **kwargs)
+                _cache[cache_key] = result
+            else:
+                result = _cache[cache_key]
+            return result
+        return wrapper
+    return decorator
+
+def const_call(f):
+    """Utility to do .call() on web3 contracts that are known to be cacheable"""
+    cache_key = generate_cache_key((f.web3._network_name, f.address, f.function_identifier, f.args, f.kwargs))
+    if cache_key not in _cache:
+        result = f.call()
+        _cache[cache_key] = result
+    else:
+        result = _cache[cache_key]
+    return result
