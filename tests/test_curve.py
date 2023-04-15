@@ -85,9 +85,8 @@ def test_underlying(reward, decimals):
     expected = [[DAI_ETH, Decimal('0E-18'), Decimal('0E-18')],
                 [USDC_ETH, 0.0, 0.0],
                 [USDT_ETH, 0.0, 0.0]]
-    # FIXME: shape should not depend on args
     if reward:
-        expected = [expected, [[CRV_ETH, 120624446582848732188 / Decimal(10**(18 if decimals else 0))]]]
+        expected.append([CRV_ETH, 120624446582848732188 / Decimal(10**(18 if decimals else 0))])
 
     assert u == expected
 

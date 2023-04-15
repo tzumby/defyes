@@ -462,7 +462,6 @@ def underlying(wallet, lptoken_address, block, blockchain,
     2 - List of Tuples: [reward_token_address, balance]
     '''
 
-    result = []
     balances = []
 
     if web3 is None:
@@ -544,17 +543,14 @@ def underlying(wallet, lptoken_address, block, blockchain,
 
         i += 1
 
+    result = balances
     if reward:
 
         all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain,
                                       web3=web3, decimals=decimals,
                                       gauge_address=lptoken_data['gauge'])
 
-        result.append(balances)
-        result.append(all_rewards)
-
-    else:
-        result = balances
+        result.extend(all_rewards)
 
     return result
 
