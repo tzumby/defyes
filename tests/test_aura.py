@@ -108,19 +108,17 @@ def test_get_staked():
 
 
 def test_underlying():
-    #block = 17030603
-    block = 17048116
+    block = 17030603
     node = get_node(ETHEREUM, block)
 
-    print(Aura.underlying(WALLET_N5, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node))
     bal, eth, aurabal = Aura.underlying(WALLET_N5, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
-    assert bal == [ETHTokenAddr.BAL, 114549.7650850694]
+    assert bal == [ETHTokenAddr.BAL, 116433.71368955923]
+    assert eth == [ETHTokenAddr.WETH, 108.28071123323124]
+    assert aurabal == [ETHTokenAddr.auraBAL,63020.44124792097]
 
-    assert aurabal == [ETHTokenAddr.auraBAL, 63020.44124792096]
-
-    #ohm, steth = Aura.underlying(WALLET_N1, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
-    #assert ohm == [ETHTokenAddr.OHM, 1231058673158.3909]
-    #assert steth == [ETHTokenAddr.stETH, 6.05714004986533e+18]
+    ohm, steth = Aura.underlying(WALLET_N1, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
+    assert ohm == [ETHTokenAddr.OHM, 1231058673158.3909]
+    assert steth == [ETHTokenAddr.stETH, 6.05714004986533e+18]
 
 
 def test_pool_balances():
