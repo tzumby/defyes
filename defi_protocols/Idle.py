@@ -67,7 +67,7 @@ def get_addresses(block: Union[int, str], blockchain: str, web3=None, execution:
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         cdo_events = web3.eth.get_logs({'fromBlock': 0, 'toBlock': block, 'address': CDO_PROXY})
         gauges = get_gauges(block, blockchain, web3=web3, execution=1, index=0)
@@ -106,7 +106,7 @@ def get_gauges(block: Union[int, str], blockchain: str, web3=None, execution: in
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         gauge_controller_contract = get_contract(GAUGE_CONTROLLER, blockchain, web3=web3, abi=ABI_GAUGE_CONTROLLER,
                                                  block=block)
@@ -134,7 +134,7 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
@@ -181,7 +181,7 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)

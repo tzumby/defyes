@@ -34,7 +34,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         bancor_poolcontract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
@@ -89,7 +89,7 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, executio
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 

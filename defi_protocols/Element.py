@@ -68,7 +68,7 @@ def get_amount(wallet: str, name: str, principal_address: str, yield_address: st
 
     try:
         if web3 == None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         pool_token_contract = get_contract(pool_address, blockchain=blockchain, web3=web3, abi=LP_PYV_ABI, block=block)
@@ -130,7 +130,7 @@ def get_addresses(block: int, blockchain: str, web3=None, execution=1, index=0) 
 
     try:
         if web3 == None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         underlying_address = web3.to_checksum_address(ELEMENT_DEPLOYER)
         underlying_address2 = web3.to_checksum_address(ELEMENT_DEPLOYER2)

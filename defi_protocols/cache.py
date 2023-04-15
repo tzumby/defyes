@@ -51,7 +51,13 @@ def disk_cache_middleware(make_request, web3):
     RPC_WHITELIST = {'eth_chainId', 'eth_call'}
 
     def middleware(method, params):
+        do_cache = False
         if method in RPC_WHITELIST and 'latest' not in params:
+            do_cache = True
+        if method == 'eth_chainId':
+            do_cache = True
+
+        if do_cache:
             params_hash = generate_cache_key(params)
             cache_key = f"{web3._network_name}.{method}.{params_hash}"
             if cache_key not in _cache:

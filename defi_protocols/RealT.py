@@ -26,7 +26,7 @@ def underlying(wallet: str, block: Union[int,str], blockchain: str, web3=None, e
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         token_contract = get_contract(TOKEN_CONTRACT_XDAI,blockchain,web3,abi=TOKEN_CONTRACT_ABI)

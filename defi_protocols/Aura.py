@@ -58,6 +58,19 @@ ABI_AURA_LOCKER = '[{"inputs":[{"internalType":"address","name":"","type":"addre
 ABI_EXTRA_REWARDS_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"_account","type":"address"},{"internalType":"address","name":"_token","type":"address"}],"name":"claimableRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
+##### DB
+# Format
+# { balancerLPcontractAddr: {
+#     "poolId": poolId,
+#     "token": auraLPtoken,
+#     "gauge": balancerLPGauge,
+#     "crvRewards": auraBaseRewardPool,
+#     "stash": auraExtraRewardStash,
+#     "shutdown": bool  # deprecated pool
+#     },
+# }
+DB_FILE = Path(__file__).parent / "db" / "Aura_db.json"
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_info - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
 # Output: pool_info method return a list with the following data:
@@ -71,8 +84,7 @@ def get_pool_info(booster_contract, lptoken_address, block):
     :param block:
     :return:
     """
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Aura_db.json', 'r') as db_file:
-        # Reading from json file
+    with open(DB_FILE, 'r') as db_file:
         db_data = json.load(db_file)
 
     try:
@@ -206,7 +218,7 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, execution=1, web3=None,
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -317,7 +329,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, execution=1, web
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -397,7 +409,7 @@ def get_locked(wallet, block, blockchain, execution=1, web3=None, index=0, rewar
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -470,7 +482,7 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -553,7 +565,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -634,7 +646,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         lptoken_address = web3.to_checksum_address(lptoken_address)
 
@@ -653,13 +665,13 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # update_db
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def update_db():
+def update_db(output_file=DB_FILE):
     """
 
     :return:
     """
     try:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Aura_db.json', 'r') as db_file:
+        with open(DB_FILE, 'r') as db_file:
             db_data = json.load(db_file)
     except:
         db_data = {
@@ -672,8 +684,9 @@ def update_db():
     db_pool_length = len(db_data['pools'])
     pools_delta = booster.functions.poolLength().call() - db_pool_length
 
+    updated = False
     if pools_delta > 0:
-
+        updated = True
         for i in range(pools_delta):
             pool_info = booster.functions.poolInfo(db_pool_length + i).call()
             db_data['pools'][pool_info[0]] = {
@@ -685,5 +698,7 @@ def update_db():
                 'shutdown': pool_info[5]
             }
 
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Aura_db.json', 'w') as db_file:
+        with open(output_file, 'w') as db_file:
             json.dump(db_data, db_file)
+
+    return updated

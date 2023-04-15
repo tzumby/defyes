@@ -14,7 +14,7 @@ def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, we
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         tx_receipt = web3.eth.get_transaction(tx_hash)
         tx_to = tx_receipt['to']
