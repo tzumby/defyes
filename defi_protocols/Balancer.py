@@ -436,7 +436,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                     main_token = token_address
 
                 if lptoken_data['scalingFactors'] is not None:
-                    token_balance = pool_balances[i] / (10 ** token_decimals) * lptoken_data['scalingFactors'][i] / (10**18)
+                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10**18)
                     
                     if token_decimals != 18:
                         token_balance = token_balance / (10**(2*token_decimals))
@@ -447,8 +447,8 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                 else:
                     token_balance = pool_balances[i]
             
-            if decimals is True:
-                token_balance = token_balance / (10**token_decimals)
+                if decimals is True:
+                    token_balance = token_balance / (10**token_decimals)
 
             if aura_staked is None:
                 token_staked = token_balance * pool_staked_fraction
