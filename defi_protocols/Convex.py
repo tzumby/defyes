@@ -356,6 +356,7 @@ def update_db():
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'r') as db_file:
             # Reading from json file
             db_data = json.load(db_file)
+    # FIXME: use specific exception
     except:
         db_data = {
             'pools': {}
