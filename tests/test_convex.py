@@ -28,6 +28,7 @@ def test_get_rewards():
                                block=TEST_BLOCK)
     x = Convex.get_rewards(WEB3, rw_contract, TEST_WALLET, TEST_BLOCK,
                            ETHEREUM, decimals=False)
+    # FIXME: interestingficate!
     assert x == ['0xD533a949740bb3306d119CC777fa900bA034cd52', 0.0]
 
 
@@ -38,6 +39,7 @@ def test_get_extra_rewards():
                                block=TEST_BLOCK)
     x = Convex.get_extra_rewards(WEB3, rw_contract, TEST_WALLET, TEST_BLOCK,
                                  ETHEREUM, decimals=False)
+    # FIXME: interestingficate!
     assert x == []
 
 
