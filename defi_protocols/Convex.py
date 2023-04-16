@@ -1,10 +1,14 @@
 import json
 import os
+import logging
 from pathlib import Path
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, GetNodeIndexError
 from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS, CVX_ETH, CVXCRV_ETH
 from defi_protocols import Curve
+
+
+logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BACKLOG LIST
@@ -48,12 +52,6 @@ ABI_CVX = '[{"inputs":[],"name":"reductionPerCliff","outputs":[{"internalType":"
 # [0] lptoken address, [1] token address, [2] gauge address, [3] crvRewards address, [4] stash adress, [5] shutdown bool
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_info(lptoken_address, block):
-    """
-
-    :param lptoken_address:
-    :param block:
-    :return:
-    """
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'r') as db_file:
         # Reading from json file
         db_data = json.load(db_file)
@@ -69,7 +67,8 @@ def get_pool_info(lptoken_address, block):
         else:
             return None
 
-    except:
+    except Exception as e:
+        # logger.exception(e)
         booster_contract = get_contract(BOOSTER, ETHEREUM, abi=ABI_BOOSTER, block=block)
 
         number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
@@ -96,16 +95,6 @@ def get_pool_info(lptoken_address, block):
 # 1 - Tuples: [token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
-    """
-
-    :param web3:
-    :param rewarder_contract:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
     reward_token_address = rewarder_contract.functions.rewardToken().call()
 
     if decimals is True:
@@ -126,16 +115,6 @@ def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=Tru
 # 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=True):
-    """
-
-    :param web3:
-    :param crv_rewards_contract:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
     extra_rewards = []
 
     extra_rewards_length = crv_rewards_contract.functions.extraRewardsLength().call(block_identifier=block)
@@ -167,15 +146,6 @@ def get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, dec
 # 1 - Tuple: [cvx_token_address, minted_amount]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
-    """
-
-    :param web3:
-    :param crv_earned:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
     cvx_amount = 0
 
     cvx_contract = get_contract(CVX_ETH, blockchain, web3=web3, abi=ABI_CVX, block=block)
@@ -216,19 +186,6 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True,
                     crv_rewards_contract=None):
-    """
-
-    :param wallet:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param decimals:
-    :param crv_rewards_contract:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -293,18 +250,6 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 # 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_locked(wallet, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True):
-    """
-
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param reward:
-    :param decimals:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -366,18 +311,6 @@ def get_locked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
 # 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True):
-    """
-
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param reward:
-    :param decimals:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -442,20 +375,6 @@ def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0, rewar
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True,
                no_curve_underlying=False):
-    """
-
-    :param wallet:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param reward:
-    :param decimals:
-    :param no_curve_underlying:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -526,17 +445,6 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 # 1 - List of Tuples: [liquidity_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
-    """
-
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param decimals:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -563,10 +471,6 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 # update_db
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db():
-    """
-
-    :return:
-    """
     try:
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'r') as db_file:
             # Reading from json file
