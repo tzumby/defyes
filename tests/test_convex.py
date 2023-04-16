@@ -50,27 +50,27 @@ def test_get_cvx_mint_amount():
 
 def test_get_all_rewards():
     x = Convex.get_all_rewards(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM,
-                               WEB3, 1, 1, False, None)
+                               WEB3, False, None)
     assert x == [['0xD533a949740bb3306d119CC777fa900bA034cd52', 0.0],
                  ['0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', 0.0]]
 
 
 def test_get_locked():
     x = Convex.get_locked(TEST_WALLET, TEST_BLOCK, ETHEREUM,
-                          WEB3, 1, 1, reward=False, decimals=False)
+                          WEB3, reward=False, decimals=False)
     assert x == [['0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', 0.0]]
 
 
 def test_get_staked():
     x = Convex.get_staked(TEST_WALLET, TEST_BLOCK, ETHEREUM,
-                          WEB3, 1, 1, reward=False, decimals=False)
+                          WEB3, reward=False, decimals=False)
     assert x == [['0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', 0.0]]
 
 
 def test_underlying():
     # (wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True, no_curve_underlying=False) 
     x = Convex.underlying(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM,
-                          WEB3, 1, 1, reward=False, decimals=False,
+                          WEB3, reward=False, decimals=False,
                           no_curve_underlying=False)
     assert x == [['0x6B175474E89094C44Da98b954EedeAC495271d0F', Decimal('0')],
                  ['0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', Decimal('0')],
@@ -80,7 +80,7 @@ def test_underlying():
 def test_pool_balances():
     # (lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True) 
     x = Convex.pool_balances(X3CRV_ETH, TEST_BLOCK, ETHEREUM,
-                             WEB3, 1, 1, decimals=False)
+                             WEB3, decimals=False)
     assert x == [['0x6B175474E89094C44Da98b954EedeAC495271d0F',
                             Decimal('165857824629254122209119338')],
                  ['0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

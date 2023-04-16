@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from decimal import Decimal
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, GetNodeIndexError
+from defi_protocols.functions import get_node, get_contract, get_decimals
 from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS, CVX_ETH, CVXCRV_ETH
 from defi_protocols import Curve
 
@@ -167,185 +167,21 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
 
 
 def get_all_rewards(wallet, lptoken_address, block, blockchain,
-                    web3=None, execution=1, index=0, decimals=True,
-                    crv_rewards_contract=None):
+                    web3=None, decimals=True, crv_rewards_contract=None):
     '''
     Output:
         List of Tuples: [reward_token_address, balance]
     '''
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     all_rewards = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = web3.to_checksum_address(lptoken_address)
 
-        if crv_rewards_contract is None:
-            pool_info = get_pool_info(lptoken_address, block)
-
-            if pool_info is None:
-                print('Error: Incorrect Convex LPToken Address: ', lptoken_address)
-                return None
-
-            crv_rewards_address = pool_info[3]
-            crv_rewards_contract = get_contract(crv_rewards_address, blockchain,
-                                                web3=web3, abi=ABI_REWARDS,
-                                                block=block)
-
-        crv_rewards = get_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=decimals)
-        all_rewards.append(crv_rewards)
-
-        # all_rewards[0][1] = crv_rewards_amount - cvx_mint_amount is calculated using the crv_rewards_amount
-        if all_rewards[0][1] >= 0:
-            cvx_mint_amount = get_cvx_mint_amount(web3, all_rewards[0][1], block, blockchain, decimals=decimals)
-
-            if (len(cvx_mint_amount) > 0):
-                all_rewards.append(cvx_mint_amount)
-
-        extra_rewards = get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=decimals)
-
-        if len(extra_rewards) > 0:
-            for extra_reward in extra_rewards:
-                all_rewards.append(extra_reward)
-
-        return all_rewards
-
-    except GetNodeIndexError:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract,
-                               decimals=decimals, index=0, execution=execution + 1)
-
-    except Exception as e:
-        logger.exception(e)
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, crv_rewards_contract=crv_rewards_contract,
-                               decimals=decimals, index=index + 1, execution=execution)
-
-
-def get_locked(wallet, block, blockchain, web3=None, execution=1, index=0,
-               reward=False, decimals=True):
-    '''
-    Output:
-    1 - List of Tuples: [cvx_token_address, locked_balance]
-    2 - List of Tuples: [reward_token_address, balance]
-    '''
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
-
-        wallet = web3.to_checksum_address(wallet)
-
-        cvx_locker_contract = get_contract(CVX_LOCKER, blockchain, web3=web3, block=block)
-
-        cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3) if decimals else 0
-
-        cvx_locker = Decimal(cvx_locker_contract.functions.balances(wallet).call(block_identifier=block)[0]) / Decimal(10 ** cvx_decimals)
-
-        result = [[CVX_ETH, cvx_locker]]
-
-        if reward:
-            rewards = []
-            cvx_locker_rewards = cvx_locker_contract.functions.claimableRewards(wallet).call(block_identifier=block)
-
-            for cvx_locker_reward in cvx_locker_rewards:
-
-                if cvx_locker_reward[1] > 0:
-
-                    reward_decimals = get_decimals(cvx_locker_reward[0], blockchain, web3=web3) if decimals else 0
-                    rewards.append([cvx_locker_reward[0], Decimal(cvx_locker_reward[1]) / Decimal(10 ** reward_decimals)])
-
-            result += rewards
-
-        return result
-
-    except GetNodeIndexError:
-        return get_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_locked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                          execution=execution)
-
-
-def get_staked(wallet, block, blockchain, web3=None, execution=1, index=0,
-               reward=False, decimals=True):
-    '''
-    Output:
-    1 - List of Tuples: [cvx_token_address, staked_balance]
-    2 - List of Tuples: [reward_token_address, balance]
-    '''
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
-
-        wallet = web3.to_checksum_address(wallet)
-
-        cvx_staking_contract = get_contract(CVX_STAKER, blockchain, web3=web3, block=block)
-
-        cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3) if decimals else 0
-
-        cvx_staked = Decimal(cvx_staking_contract.functions.balanceOf(wallet).call(block_identifier=block)) / Decimal(10 ** cvx_decimals)
-
-        result = [[CVX_ETH, cvx_staked]]
-
-        if reward:
-            rewards = []
-            cvx_staked_rewards = cvx_staking_contract.functions.earned(wallet).call(block_identifier=block)
-
-            if cvx_staked_rewards > 0:
-
-                reward_decimals = get_decimals(CVXCRV_ETH, blockchain, web3=web3) if decimals else 0
-
-            rewards.append([CVXCRV_ETH, Decimal(cvx_staked_rewards) / Decimal(10 ** reward_decimals)])
-
-            result += rewards
-
-        return result
-
-    except GetNodeIndexError:
-        return get_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_staked(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                          execution=execution)
-
-
-def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True,
-               no_curve_underlying=False):
-    '''
-    'no_curve_underlying' = True -> retrieves the LP Token balance /
-    'no_curve_underlying' = False or not passed onto the function -> retrieves the balance of the underlying Curve tokens
-    Output: a list with 2 elements:
-    1 - List of Tuples: [liquidity_token_address, balance, staked_balance] | [liquidity_token_address, staked_balance] -> depending on 'no_curve_underlying' value
-    2 - List of Tuples: [reward_token_address, balance]
-    '''
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
-    result = []
-    balances = []
-
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
-
-        wallet = web3.to_checksum_address(wallet)
-
-        lptoken_address = web3.to_checksum_address(lptoken_address)
-
+    if crv_rewards_contract is None:
         pool_info = get_pool_info(lptoken_address, block)
 
         if pool_info is None:
@@ -353,70 +189,172 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
             return None
 
         crv_rewards_address = pool_info[3]
-        crv_rewards_contract = get_contract(crv_rewards_address, blockchain, web3=web3, abi=ABI_REWARDS, block=block)
+        crv_rewards_contract = get_contract(crv_rewards_address, blockchain,
+                                            web3=web3, abi=ABI_REWARDS,
+                                            block=block)
 
-        lptoken_staked = crv_rewards_contract.functions.balanceOf(wallet).call(block_identifier=block)
+    crv_rewards = get_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=decimals)
+    all_rewards.append(crv_rewards)
 
-        if no_curve_underlying is False:
-            balances = Curve.underlying(wallet, lptoken_address, block, blockchain,
-                                        web3=web3, decimals=decimals,
-                                        convex_staked=lptoken_staked)
-        else:
-            lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3) if decimals else 0
+    # all_rewards[0][1] = crv_rewards_amount - cvx_mint_amount is calculated using the crv_rewards_amount
+    if all_rewards[0][1] >= 0:
+        cvx_mint_amount = get_cvx_mint_amount(web3, all_rewards[0][1], block, blockchain, decimals=decimals)
 
-            lptoken_staked = Decimal(lptoken_staked) / Decimal(10 ** lptoken_decimals)
+        if (len(cvx_mint_amount) > 0):
+            all_rewards.append(cvx_mint_amount)
 
-            balances.append([lptoken_address, lptoken_staked])
+    extra_rewards = get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=decimals)
 
-        # FIXME: shape!
-        if reward:
-            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain,
-                                          web3=web3, decimals=decimals,
-                                          crv_rewards_contract=crv_rewards_contract)
+    if len(extra_rewards) > 0:
+        for extra_reward in extra_rewards:
+            all_rewards.append(extra_reward)
 
-            result.append(balances)
-            result.append(all_rewards)
-
-        else:
-            result = balances
-
-        return result
-
-    except GetNodeIndexError:
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals,
-                          no_curve_underlying=no_curve_underlying, index=0, execution=execution + 1)
-
-    except:
-        return underlying(wallet, lptoken_address, block, blockchain, reward=reward, decimals=decimals,
-                          no_curve_underlying=no_curve_underlying, index=index + 1, execution=execution)
+    return all_rewards
 
 
-def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0,
+def get_locked(wallet, block, blockchain, web3=None,
+               reward=False, decimals=True):
+    '''
+    Output:
+    1 - List of Tuples: [cvx_token_address, locked_balance]
+    2 - List of Tuples: [reward_token_address, balance]
+    '''
+    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    wallet = web3.to_checksum_address(wallet)
+
+    cvx_locker_contract = get_contract(CVX_LOCKER, blockchain, web3=web3, block=block)
+
+    cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3) if decimals else 0
+
+    cvx_locker = Decimal(cvx_locker_contract.functions.balances(wallet).call(block_identifier=block)[0]) / Decimal(10 ** cvx_decimals)
+
+    result = [[CVX_ETH, cvx_locker]]
+
+    if reward:
+        rewards = []
+        cvx_locker_rewards = cvx_locker_contract.functions.claimableRewards(wallet).call(block_identifier=block)
+
+        for cvx_locker_reward in cvx_locker_rewards:
+
+            if cvx_locker_reward[1] > 0:
+
+                reward_decimals = get_decimals(cvx_locker_reward[0], blockchain, web3=web3) if decimals else 0
+                rewards.append([cvx_locker_reward[0], Decimal(cvx_locker_reward[1]) / Decimal(10 ** reward_decimals)])
+
+        result += rewards
+
+    return result
+
+
+def get_staked(wallet, block, blockchain, web3=None,
+               reward=False, decimals=True):
+    '''
+    Output:
+    1 - List of Tuples: [cvx_token_address, staked_balance]
+    2 - List of Tuples: [reward_token_address, balance]
+    '''
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    wallet = web3.to_checksum_address(wallet)
+
+    cvx_staking_contract = get_contract(CVX_STAKER, blockchain, web3=web3, block=block)
+
+    cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3) if decimals else 0
+
+    cvx_staked = Decimal(cvx_staking_contract.functions.balanceOf(wallet).call(block_identifier=block)) / Decimal(10 ** cvx_decimals)
+
+    result = [[CVX_ETH, cvx_staked]]
+
+    if reward:
+        rewards = []
+        cvx_staked_rewards = cvx_staking_contract.functions.earned(wallet).call(block_identifier=block)
+
+        if cvx_staked_rewards > 0:
+
+            reward_decimals = get_decimals(CVXCRV_ETH, blockchain, web3=web3) if decimals else 0
+
+        rewards.append([CVXCRV_ETH, Decimal(cvx_staked_rewards) / Decimal(10 ** reward_decimals)])
+
+        result += rewards
+
+    return result
+
+
+def underlying(wallet, lptoken_address, block, blockchain, web3=None,
+               reward=False, decimals=True, no_curve_underlying=False):
+    '''
+    'no_curve_underlying' = True -> retrieves the LP Token balance /
+    'no_curve_underlying' = False or not passed onto the function -> retrieves the balance of the underlying Curve tokens
+    Output: a list with 2 elements:
+    1 - List of Tuples: [liquidity_token_address, balance, staked_balance] | [liquidity_token_address, staked_balance] -> depending on 'no_curve_underlying' value
+    2 - List of Tuples: [reward_token_address, balance]
+    '''
+
+    result = []
+    balances = []
+
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    wallet = web3.to_checksum_address(wallet)
+
+    lptoken_address = web3.to_checksum_address(lptoken_address)
+
+    pool_info = get_pool_info(lptoken_address, block)
+
+    if pool_info is None:
+        print('Error: Incorrect Convex LPToken Address: ', lptoken_address)
+        return None
+
+    crv_rewards_address = pool_info[3]
+    crv_rewards_contract = get_contract(crv_rewards_address, blockchain, web3=web3, abi=ABI_REWARDS, block=block)
+
+    lptoken_staked = crv_rewards_contract.functions.balanceOf(wallet).call(block_identifier=block)
+
+    if no_curve_underlying is False:
+        balances = Curve.underlying(wallet, lptoken_address, block, blockchain,
+                                    web3=web3, decimals=decimals,
+                                    convex_staked=lptoken_staked)
+    else:
+        lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3) if decimals else 0
+
+        lptoken_staked = Decimal(lptoken_staked) / Decimal(10 ** lptoken_decimals)
+
+        balances.append([lptoken_address, lptoken_staked])
+
+    # FIXME: shape!
+    if reward:
+        all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain,
+                                      web3=web3, decimals=decimals,
+                                      crv_rewards_contract=crv_rewards_contract)
+
+        result.append(balances)
+        result.append(all_rewards)
+
+    else:
+        result = balances
+
+    return result
+
+
+def pool_balances(lptoken_address, block, blockchain, web3=None,
                   decimals=True):
     '''
     # Output: a list with 2 elements:
     # 1 - List of Tuples: [liquidity_token_address, balance]
     '''
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    lptoken_address = web3.to_checksum_address(lptoken_address)
 
-        lptoken_address = web3.to_checksum_address(lptoken_address)
+    balances = Curve.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
 
-        balances = Curve.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
-
-        return balances
-
-    except GetNodeIndexError:
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1,
-                             execution=execution)
+    return balances
 
 
 def update_db():
