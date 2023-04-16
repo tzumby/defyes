@@ -68,17 +68,18 @@ def test_get_staked():
 
 
 def test_underlying():
-    # (wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, reward=False, decimals=True, no_curve_underlying=False) 
     x = Convex.underlying(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM,
-                          WEB3, reward=False, decimals=False,
+                          WEB3, reward=True, decimals=False,
                           no_curve_underlying=False)
-    assert x == [['0x6B175474E89094C44Da98b954EedeAC495271d0F', Decimal('0')],
-                 ['0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', Decimal('0')],
-                 ['0xdAC17F958D2ee523a2206206994597C13D831ec7', Decimal('0')]]
+    assert x == \
+        [['0x6B175474E89094C44Da98b954EedeAC495271d0F', Decimal('0')],
+         ['0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', Decimal('0')],
+         ['0xdAC17F958D2ee523a2206206994597C13D831ec7', Decimal('0')],
+         ['0xD533a949740bb3306d119CC777fa900bA034cd52', Decimal('0')],
+         ['0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', Decimal('0E-58')]]
 
 
 def test_pool_balances():
-    # (lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True) 
     x = Convex.pool_balances(X3CRV_ETH, TEST_BLOCK, ETHEREUM,
                              WEB3, decimals=False)
     assert x == [['0x6B175474E89094C44Da98b954EedeAC495271d0F',

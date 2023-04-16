@@ -294,7 +294,6 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None,
     2 - List of Tuples: [reward_token_address, balance]
     '''
 
-    result = []
     balances = []
 
     if web3 is None:
@@ -326,17 +325,12 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None,
 
         balances.append([lptoken_address, lptoken_staked])
 
-    # FIXME: shape!
+    result = balances
     if reward:
         all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain,
                                       web3=web3, decimals=decimals,
                                       crv_rewards_contract=crv_rewards_contract)
-
-        result.append(balances)
-        result.append(all_rewards)
-
-    else:
-        result = balances
+        result.extend(all_rewards)
 
     return result
 
