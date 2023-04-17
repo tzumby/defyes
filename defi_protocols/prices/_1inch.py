@@ -1,4 +1,5 @@
-from defi_protocols.functions import *
+from defi_protocols.functions import get_node, get_contract, get_decimals, GetNodeIndexError
+from defi_protocols.constants import ETHEREUM, POLYGON, XDAI, BINANCE, KOVAN, OPTIMISM, ARBITRUM, AVAX, MAX_EXECUTIONS, ZERO_ADDRESS
 from defi_protocols.prices import Chainlink
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -92,7 +93,7 @@ def get_rate(token_src, block, blockchain, web3=None, execution=1, index=0, use_
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         token_src = web3.to_checksum_address(token_src)
 
@@ -157,7 +158,7 @@ def get_price(token_src, block, blockchain, web3=None, execution=1, index=0, use
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         token_src = web3.to_checksum_address(token_src)
 

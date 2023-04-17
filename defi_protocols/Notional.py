@@ -1,5 +1,5 @@
-from defi_protocols.functions import *
-from defi_protocols.constants import *
+from defi_protocols.functions import get_node, get_contract, block_to_timestamp, get_decimals, GetNodeIndexError
+from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, SNOTE_ETH
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # NPROXY
@@ -62,7 +62,7 @@ def get_markets_data(block, blockchain, web3=None, decimals=True, execution=1, i
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         markets_data = []
 
@@ -143,7 +143,7 @@ def all_note_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -205,7 +205,7 @@ def get_staked(wallet, block, blockchain, web3=None, decimals=True, execution=1,
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -282,7 +282,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, executio
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -364,7 +364,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         token_address = web3.to_checksum_address(token_address)

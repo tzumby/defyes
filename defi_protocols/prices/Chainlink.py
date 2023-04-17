@@ -1,4 +1,5 @@
-from defi_protocols.functions import *
+from defi_protocols.functions import get_node, get_contract, GetNodeIndexError
+from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, POLYGON, XDAI
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS
@@ -79,7 +80,7 @@ def get_mainnet_price(token_address, block, web3=None, execution=1, index=0):
 
     try:
         if web3 is None:
-            web3 = get_node(ETHEREUM, block=block, index=index)
+            web3 = get_node(ETHEREUM, block=block)
 
         token_address = web3.to_checksum_address(token_address)
 

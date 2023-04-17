@@ -1,17 +1,36 @@
-from web3 import Web3
-from web3.middleware import construct_simple_cache_middleware
-import eth_abi
-import requests
 import json
-from datetime import datetime
-import functools
+import requests
 import calendar
-import lru
 import math
-from defi_protocols.constants import *
 import logging
-from decimal import *
-from typing import Union, Optional
+from datetime import datetime
+from decimal import Decimal
+from typing import Union, Optional, List
+
+import eth_abi
+from web3 import Web3
+from web3.providers import HTTPProvider, JSONBaseProvider
+from defi_protocols import cache
+from defi_protocols.cache import const_call
+from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOERLI, API_KOVAN_GETLOGS, KOVAN, API_ROPSTEN_GETLOGS, ROPSTEN,
+                                      API_KEY_OPTIMISM, API_OPTIMISM_GETLOGS, OPTIMISM, API_KEY_FANTOM, API_FANTOM_GETLOGS, FANTOM,
+                                      API_KEY_BINANCE, API_BINANCE_GETLOGS, BINANCE, API_KEY_AVALANCHE, API_AVALANCHE_GETLOGS,
+                                      AVALANCHE, API_KEY_GNOSISSCAN, API_GNOSISSCAN_GETLOGS, XDAI, API_KEY_POLSCAN, API_POLYGONSCAN_GETLOGS,
+                                      POLYGON, API_ETHERSCAN_GETLOGS, ETHEREUM, API_GOERLI_TXLIST, API_KOVAN_TXLIST, API_ROPSTEN_TXLIST,
+                                      API_OPTIMISM_TXLIST, API_FANTOM_TXLIST, API_AVALANCHE_TXLIST, API_BINANCE_TXLIST, API_GNOSISSCAN_TXLIST,
+                                      API_KEY_POLSCAN, API_POLYGONSCAN_TXLIST, API_ETHERSCAN_TXLIST, API_GOERLI_TOKENTX, API_KOVAN_TOKENTX,
+                                      API_ROPSTEN_TOKENTX, API_OPTIMISM_TOKENTX, API_FANTOM_TOKENTX, API_AVALANCHE_TOKENTX, API_BINANCE_TOKENTX,
+                                      API_GNOSISSCAN_TOKENTX, API_POLYGONSCAN_TOKENTX, API_ETHERSCAN_TOKENTX, ZERO_ADDRESS, TESTNET_HEADER,
+                                      API_GOERLI_GETABI, API_KOVAN_GETABI, API_ROPSTEN_GETABI, API_OPTIMISM_GETABI, API_FANTOM_GETABI, API_AVALANCHE_GETABI,
+                                      API_BINANCE_GETABI, API_BLOCKSCOUT_GETABI, API_GNOSISSCAN_GETABI, API_POLYGONSCAN_GETABI, API_ETHERSCAN_GETABI,
+                                      ABI_TOKEN_SIMPLIFIED, E_ADDRESS, MAX_EXECUTIONS, API_BLOCKSCOUT_GETTOKENCONTRACT, API_KEY_ETHPLORER, API_ETHPLORER_GETTOKENINFO,
+                                      API_GOERLI_GETBLOCKREWARD, API_KOVAN_GETBLOCKREWARD, API_ROPSTEN_GETBLOCKREWARD, API_OPTIMISM_GETBLOCKREWARD, API_FANTOM_GETBLOCKREWARD,
+                                      API_AVALANCHE_GETBLOCKREWARD, API_BINANCE_GETBLOCKREWARD, API_GNOSISSCAN_GETBLOCKREWARD, API_POLYGONSCAN_GETBLOCKREWARD,
+                                      API_ETHERSCAN_GETBLOCKREWARD, API_GOERLI_GETBLOCKNOBYTIME, API_KOVAN_GETBLOCKNOBYTIME, API_ROPSTEN_GETBLOCKNOBYTIME,
+                                      API_OPTIMISM_GETBLOCKNOBYTIME, API_FANTOM_GETBLOCKNOBYTIME, API_AVALANCHE_GETBLOCKNOBYTIME, API_BINANCE_GETBLOCKNOBYTIME,
+                                      API_GNOSISSCAN_GETBLOCKNOBYTIME, API_POLYGONSCAN_GETBLOCKNOBYTIME, API_ETHERSCAN_GETBLOCKNOBYTIME,
+                                      NODES_ENDPOINTS)
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,18 +53,41 @@ class abiNotVerified(Exception):
         self.message = message
         super().__init__(self.message)
 
+class AllProvidersDownError(Exception):
+    pass
 
-def get_web3_provider(endpoint):
-    provider = Web3.HTTPProvider(endpoint)
 
+class ProviderManager(JSONBaseProvider):
+    def __init__(self, endpoints: List, max_fails_per_provider: int = 2, max_executions: int = 2):
+        super().__init__()
+        self.endpoints = endpoints
+        self.max_fails_per_provider = max_fails_per_provider
+        self.max_executions = max_executions
+        self.providers = []
+
+        for url in endpoints:
+            if "://" not in url:
+                logger.warning(f"Skipping invalid endpoint URI '{url}'.")
+                continue
+            provider = HTTPProvider(url)
+            errors = []
+            self.providers.append((provider, errors))
+
+    def make_request(self, method, params):
+        for _ in range(MAX_EXECUTIONS):
+            for provider, errors in self.providers:
+                if len(errors) > self.max_fails_per_provider:
+                    continue
+                try:
+                    response = provider.make_request(method, params)
+                    return response
+                except Exception as e:
+                    errors.append(e)
+                    logger.exception("Exception when making request.")
+        raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
+
+def get_web3_provider(provider):
     web3 = Web3(provider)
-
-    # enable simple web3 cache, for example to cache eth_chainId calls
-    # more methods can be cached after analysing whether they are safe to cache
-    simple_cache = construct_simple_cache_middleware(
-        cache_class=functools.partial(lru.LRU, 4096),
-        rpc_whitelist={'eth_chainId'},
-    )
 
     class CallCounterMiddleware:
         call_count = 0
@@ -65,86 +107,42 @@ def get_web3_provider(endpoint):
             return response
 
     web3.middleware_onion.add(CallCounterMiddleware, 'call_counter')
-    # adding the cache after to get only effective calls counted by the counter
-    web3.middleware_onion.add(simple_cache, 'simple_cache')
+    if cache.is_enabled():
+        # adding the cache after to get only effective calls counted by the counter
+        web3.middleware_onion.add(cache.disk_cache_middleware, 'disk_cache')
     return web3
 
 def get_web3_call_count(web3):
     """Obtain the total number of calls that have been made by a web3 instance."""
     return web3.middleware_onion['call_counter'].call_count
 
+# store latest and archival ProviderManagers as they are used
+_nodes_providers = dict()
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_node
-# 'block' = 'latest' -> retrieves a Full Node / 'block' = block or not passed onto the function -> retrieves an Archival Node
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_node(blockchain, block='latest', index=0):
+def get_node(blockchain, block='latest'):
     """
-
-    :param blockchain:
-    :param block:
-    :param index:
-    :return:
+    If block is 'latest'  it retrieves a Full Node, in other case it retrieves an Archival Node.
     """
-    if blockchain == ETHEREUM:
-        node = NODE_ETH
-
-    elif blockchain == POLYGON:
-        node = NODE_POL
-
-    elif blockchain == XDAI:
-        node = NODE_XDAI
-
-    elif blockchain == BINANCE:
-        node = NODE_BINANCE
-
-    elif blockchain == AVALANCHE:
-        node = NODE_AVALANCHE
-
-    elif blockchain == FANTOM:
-        node = NODE_FANTOM
-
-    elif blockchain == OPTIMISM:
-        node = NODE_OPTIMISM
-
-    elif blockchain == ROPSTEN:
-        node = NODE_ROPSTEN
-
-    elif blockchain == KOVAN:
-        node = NODE_KOVAN
-
-    elif blockchain == GOERLI:
-        node = NODE_GOERLI
-    else:
-        raise Exception
+    if blockchain not in NODES_ENDPOINTS:
+        raise ValueError(f"Unknown blockchain '{blockchain}'")
+    node = NODES_ENDPOINTS[blockchain]
 
     if isinstance(block, str):
-        if block == 'latest':
-            if index > (len(node['latest']) - 1):
-                if index > (len(node['latest']) + len(node['archival']) - 1):
-                    raise GetNodeIndexError
-                else:
-                    web3 = get_web3_provider(node['archival'][index - len(node['latest'])])
-            else:
-                web3 = get_web3_provider(node['latest'][index])
-        else:
+        if block != 'latest':
             raise ValueError('Incorrect block.')
 
+        providers = _nodes_providers.get((blockchain, 'latest'), None)
+        if not providers:
+            providers = ProviderManager(endpoints=node['latest'] + node['archival'])
+            _nodes_providers[(blockchain, 'latest')] = providers
     else:
-        if index > (len(node['archival']) - 1):
-            raise GetNodeIndexError
-        else:
-            web3 = get_web3_provider(node['archival'][index])
+        providers = _nodes_providers.get((blockchain, 'archival'), None)
+        if not providers:
+            providers = ProviderManager(endpoints=node['archival'])
+            _nodes_providers[(blockchain, 'archival')] = providers
 
-
-    # enable simple web3 cache, for example to cache eth_chainId calls
-    # more methods can be cached after analysing whether they are safe to cache
-    simple_cache = construct_simple_cache_middleware(
-        cache_class=functools.partial(lru.LRU, 4096),
-        rpc_whitelist={'eth_chainId'},
-    )
-    web3.middleware_onion.add(simple_cache)
+    web3 = get_web3_provider(providers)
+    web3._network_name = blockchain
     return web3
 
 
@@ -152,11 +150,10 @@ def get_node(blockchain, block='latest', index=0):
 # last_block
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier used to call the getNode() function
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def last_block(blockchain, web3=None, block='latest', index=0):
+def last_block(blockchain, web3=None, block='latest'):
     if web3 is None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     return web3.eth.blockNumber
 
@@ -339,128 +336,86 @@ def token_info(token_address, blockchain):  # NO ESTÁ POLYGON
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # balance_of
 # 'web3' = web3 (Node) -> Improves performance
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def balance_of(address, contract_address, block, blockchain, execution=1, web3=None, index=0, decimals=True) -> Union[
+def balance_of(address, contract_address, block, blockchain, web3=None, decimals=True) -> Union[
     int, float]:
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        address = web3.to_checksum_address(address)
+    address = web3.to_checksum_address(address)
 
-        contract_address = web3.to_checksum_address(contract_address)
+    contract_address = web3.to_checksum_address(contract_address)
 
-        if contract_address == ZERO_ADDRESS:
-            if decimals is True:
-                return web3.eth.get_balance(address, block) / (10 ** 18)
-            else:
-                return web3.eth.get_balance(address, block)
-
+    if contract_address == ZERO_ADDRESS:
+        if decimals is True:
+            return web3.eth.get_balance(address, block) / (10 ** 18)
         else:
-            token_contract = web3.eth.contract(address=contract_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
+            return web3.eth.get_balance(address, block)
 
-            try:
-                balance = token_contract.functions.balanceOf(address).call(block_identifier=block)
-            except:
-                balance = 0
+    else:
+        token_contract = web3.eth.contract(address=contract_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
 
-            if decimals is True:
-                token_decimals = token_contract.functions.decimals().call()
-                return float(Decimal(balance) / Decimal(10 ** token_decimals))
-            else:
-                return balance
+        try:
+            balance = token_contract.functions.balanceOf(address).call(block_identifier=block)
+        except:
+            balance = 0
 
-
-
-    except GetNodeIndexError:
-        return balance_of(address, contract_address, block, blockchain, decimals=decimals, index=0,
-                          execution=execution + 1)
-
-    except:
-        return balance_of(address, contract_address, block, blockchain, decimals=decimals, index=index + 1,
-                          execution=execution)
+        if decimals is True:
+            token_decimals = token_contract.functions.decimals().call()
+            return float(Decimal(balance) / Decimal(10 ** token_decimals))
+        else:
+            return balance
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # total_supply
 # 'web3' = web3 (Node) -> Improves performance
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def total_supply(token_address, block, blockchain, execution=1, web3=None, index=0, decimals=True):
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+def total_supply(token_address, block, blockchain, web3=None, decimals=True):
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    if not web3.isChecksumAddress(token_address):
+        token_address = web3.to_checksum_address(token_address)
 
-        if not web3.isChecksumAddress(token_address):
-            token_address = web3.to_checksum_address(token_address)
+    token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
+    total_supply_v = token_contract.functions.totalSupply().call(block_identifier=block)
 
-        token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
-        total_supply_v = token_contract.functions.totalSupply().call(block_identifier=block)
+    if decimals is True:
+        token_decimals = token_contract.functions.decimals().call(block_identifier=block)
+    else:
+        token_decimals = 0
 
-        if decimals is True:
-            token_decimals = token_contract.functions.decimals().call(block_identifier=block)
-        else:
-            token_decimals = 0
-
-        return float(Decimal(total_supply_v) / Decimal(10 ** token_decimals))
-
-    except GetNodeIndexError:
-        return total_supply(token_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return total_supply(token_address, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
-
+    return float(Decimal(total_supply_v) / Decimal(10 ** token_decimals))
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_decimals
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier used to call the getNode() function
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_decimals(token_address, blockchain, execution=1, web3=None, block='latest', index=0):
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+def get_decimals(token_address, blockchain, web3=None, block='latest'):
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    token_address = web3.to_checksum_address(token_address)
 
-        token_address = web3.to_checksum_address(token_address)
+    if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
+        decimals = 18
+    else:
+        token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
+        decimals = const_call(token_contract.functions.decimals())
 
-        if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
-            decimals = 18
-        else:
-            token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
-            decimals = token_contract.functions.decimals().call()
-
-        return decimals
-
-    except GetNodeIndexError:
-        return get_decimals(token_address, blockchain, block=block, index=0, execution=execution + 1)
-
-    except:
-        return get_decimals(token_address, blockchain, block=block, index=index + 1, execution=execution)
-
+    return decimals
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_symbol
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier used to call the getNode() function
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_symbol(token_address, blockchain, execution=1, web3=None, block='latest', index=0) -> str:
+def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
     """
 
     :param str token_address:
@@ -471,55 +426,43 @@ def get_symbol(token_address, blockchain, execution=1, web3=None, block='latest'
     :return:
     """
 
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
+    if not web3.isConnected():
+        raise Exception
 
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    token_address = web3.to_checksum_address(token_address)
 
-        if not web3.isConnected():
-            raise Exception
+    if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
+        if blockchain == ETHEREUM:
+            symbol = 'ETH'
+        elif blockchain == POLYGON:
+            symbol = 'MATIC'
+        elif blockchain == XDAI:
+            symbol = 'XDAI'
+    else:
+        token_contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
 
-        token_address = web3.to_checksum_address(token_address)
-
-        if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
-            if blockchain == ETHEREUM:
-                symbol = 'ETH'
-            elif blockchain == POLYGON:
-                symbol = 'MATIC'
-            elif blockchain == XDAI:
-                symbol = 'XDAI'
-        else:
-            token_contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
-
+        try:
+            symbol = token_contract.functions.symbol().call()
+        except:
             try:
-                symbol = token_contract.functions.symbol().call()
+                symbol = token_contract.functions.SYMBOL().call()
             except:
                 try:
-                    symbol = token_contract.functions.SYMBOL().call()
+                    token_contract = web3.eth.contract(address=token_address,
+                                                       abi=get_contract_abi(token_address, blockchain))
+                    symbol = token_contract.functions.symbol().call()
                 except:
-                    try:
-                        token_contract = web3.eth.contract(address=token_address,
-                                                           abi=get_contract_abi(token_address, blockchain))
-                        symbol = token_contract.functions.symbol().call()
-                    except:
-                        logger.debug('Token %s has no symbol()' % token_address)
-                        symbol = ''
+                    logger.debug('Token %s has no symbol()' % token_address)
+                    symbol = ''
 
-            if not isinstance(symbol, str):
-                symbol = symbol.hex()
-                symbol = bytes.fromhex(symbol).decode('utf-8').rstrip('\x00')
+        if not isinstance(symbol, str):
+            symbol = symbol.hex()
+            symbol = bytes.fromhex(symbol).decode('utf-8').rstrip('\x00')
 
-        return symbol
-
-    except GetNodeIndexError:
-        return get_symbol(token_address, blockchain, block=block, index=0, execution=execution + 1)
-
-    except:
-        return get_symbol(token_address, blockchain, block=block, index=index + 1, execution=execution)
+    return symbol
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -598,11 +541,10 @@ def get_contract_abi(contract_address, blockchain):
 # 'web3' = web3 (Node) -> Improves performance
 # 'abi' = specifies the exact ABI (used when contracts are not verified)
 # 'block' = block identifier used to call the getNode() function
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_contract(contract_address, blockchain, web3=None, abi=None, block='latest', index=0):
+def get_contract(contract_address, blockchain, web3=None, abi=None, block='latest'):
     if web3 == None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     contract_address = web3.to_checksum_address(contract_address)
 
@@ -621,11 +563,10 @@ def get_contract(contract_address, blockchain, web3=None, abi=None, block='lates
 # get_contract_proxy_abi
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier used to call the getNode() function
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, web3=None, block='latest', index=0):
+def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, web3=None, block='latest'):
     if web3 is None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     address = web3.to_checksum_address(contract_address)
 
@@ -1024,21 +965,20 @@ def is_archival(endpoint) -> bool:
 # get_logs_web3
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier used to call the getNode() function
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_logs_web3(address: str, blockchain: str, start_block: Optional[Union[int, str]] = None,
                   topics: Optional[list] = None, block: Optional[Union[int, str]] = None,
-                  block_hash: Optional[str] = None, web3=None, index: int = 0) -> dict:
+                  block_hash: Optional[str] = None, web3=None) -> dict:
     if web3 == None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     address = web3.to_checksum_address(address)
     return web3.eth.get_logs(
         {'address': address, 'fromBlock': start_block, 'toBlock': block, 'topics': topics, 'blockHash': block_hash})
 
 
-def get_transaction(tx_hash: str, blockchain: str, block: str = 'latest', index: int = 0) -> dict:
+def get_transaction(tx_hash: str, blockchain: str, block: str = 'latest') -> dict:
     if web3 == None:
-        web3 = get_node(blockchain, block=block, index=index)
+        web3 = get_node(blockchain, block=block)
 
     return web3.eth.get_transaction(tx_hash)  

@@ -1,7 +1,9 @@
-from defi_protocols.functions import *
-# from price_feeds import Prices
-from pathlib import Path
 import os
+import json
+from pathlib import Path
+
+from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, GetNodeIndexError
+from defi_protocols.constants import MAX_EXECUTIONS, XDAI, ZERO_ADDRESS
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SYMMETRIC VAULT
@@ -144,7 +146,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1,
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         lptoken_data = {}
 
@@ -287,7 +289,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -358,7 +360,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -471,7 +473,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         lptoken_address = web3.to_checksum_address(lptoken_address)
 
@@ -533,7 +535,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         lptoken_address = web3.to_checksum_address(lptoken_address)
 
@@ -707,7 +709,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block_start, index=index)
+            web3 = get_node(blockchain, block=block_start)
 
         lptoken_address = web3.to_checksum_address(lptoken_address)
 

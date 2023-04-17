@@ -29,3 +29,8 @@ jobs:
               '.nodes.ethereum.latest = [$node_eth] | .nodes.ethereum.archival = [$node_eth] | .nodes.xdai.archival = [$node_xdai] | .apikeys.etherscan = $etherscan' \
             > /tmp/tmp_config.json
           PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs
+      - name: Archive cache
+        uses: actions/upload-artifact@v3
+        with:
+          name: cache-db
+          path: /tmp/defi_protocols/cache.db
