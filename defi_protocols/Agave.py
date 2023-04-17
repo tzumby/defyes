@@ -86,7 +86,6 @@ def get_reserves_tokens_balances(web3, wallet: str, block: Union[int, str], bloc
         currentATokenBalance, currentStableDebt, currentVariableDebt, *_ = user_reserve_data
         balance = Decimal(currentATokenBalance - currentStableDebt - currentVariableDebt)
         token_decimals = get_decimals(token, blockchain, web3=web3) if decimals else 0
-        # logger.debug(f'{token_decimals = }')
 
         if balance != 0:
             balances.append([token, balance / Decimal(10 ** token_decimals)])
@@ -120,8 +119,6 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
 
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
-    # logger.debug(f'{balances = }')
-
     if len(balances) > 0:
 
         price_oracle_address = lpapr_contract.functions.getPriceOracle().call()
@@ -149,8 +146,6 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
     # [4] = ltv,
     # [5] = healthFactor
     user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
-
-    logger.debug(f'{user_account_data = }')
 
     total_collateral_ETH, total_debt_ETH, current_liquidation_th, *_ = user_account_data
 
@@ -197,7 +192,6 @@ def get_all_rewards(wallet: str, block: Union[int, str], blockchain: str,
     reward_token = stkagave_contract.functions.REWARD_TOKEN().call()
 
     reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3) if decimals else 0
-    # logger.debug(f'{reward_token_decimals = }')
 
     reward_balance = stkagave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
 
