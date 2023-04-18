@@ -22,6 +22,10 @@ ABI_NETWORK_INFO = '[{"inputs":[{"internalType":"contract Token","name":"pool","
 # ABI of the pools - balanceOf, reserveToken
 ABI_POOL = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"reserveToken","outputs":[{"internalType":"contract Token","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
+# Addresses for ETH
+ETH_ADDR = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+bnETH_ADDR = '0x256Ed1d83E3e4EfDda977389A5389C3433137DDA'
+
 
 def underlying(token_address: str, wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0,
                decimals=True, reward=False) -> list:
@@ -36,7 +40,8 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
             web3 = get_node(blockchain, block=block, index=index)
 
         wallet = web3.to_checksum_address(wallet)
-        bancor_poolcontract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
+        bn_token = token_address if token_address != ETH_ADDR else bnETH_ADDR
+        bancor_poolcontract = get_contract(bn_token, blockchain, web3=web3, abi=ABI_POOL, block=block)
         balance = bancor_poolcontract.functions.balanceOf(wallet).call(block_identifier=block)
         reserve_token = bancor_poolcontract.functions.reserveToken().call()
         pooltokens_contract = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
@@ -99,7 +104,7 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, executio
                                             block=block)
 
         for pool in liquidity_pools:
-            bn_token = network_info_address.functions.reserveToken(pool).call()
+            bn_token = network_info_address.functions.poolToken(pool).call()
             balance = underlying(bn_token, wallet, block, blockchain, web3, execution, index, decimals, reward)
             balances.append(balance)
         return balances
