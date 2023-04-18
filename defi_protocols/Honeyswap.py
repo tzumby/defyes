@@ -1,6 +1,10 @@
 import math
+import logging
+from decimal import Decimal
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -69,12 +73,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
 
         token_address = lptoken_data['token' + str(i)]
 
-        if decimals is True:
-            token_decimals = get_decimals(token_address, blockchain, web3=web3)
-        else:
-            token_decimals = 0
+        token_decimals = get_decimals(token_address, blockchain, web3=web3) if decimals else 0
 
-        token_balance = lptoken_data['reserves'][i] / (10 ** token_decimals) * (pool_balance_fraction)
+        token_balance = Decimal(lptoken_data['reserves'][i]) / Decimal(10 ** token_decimals) * Decimal(pool_balance_fraction)
 
         result.append([token_address, token_balance])
 
@@ -104,12 +105,9 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
         token_address = func().call()
 
-        if decimals is True:
-            token_decimals = get_decimals(token_address, blockchain, web3=web3)
-        else:
-            token_balance = 0
+        token_decimals = get_decimals(token_address, blockchain, web3=web3) if decimals else 0
 
-        token_balance = reserves[i] / (10 ** token_decimals)
+        token_balance = Decimal(reserves[i]) / Decimal(10 ** token_decimals)
 
         balances.append([token_address, token_balance])
 
@@ -132,12 +130,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     token1 = lptoken_contract.functions.token1().call()
     result['swaps'] = []
 
-    if decimals is True:
-        decimals0 = get_decimals(token0, blockchain, web3=web3)
-        decimals1 = get_decimals(token1, blockchain, web3=web3)
-    else:
-        decimals0 = 0
-        decimals1 = 0
+    decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0
+    decimals1 = get_decimals(token1, blockchain, web3=web3) if decimals else 0
 
     get_logs_bool = True
     block_from = block_start
@@ -167,13 +161,13 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
                     swap_data = {
                         'block': block_number,
                         'token': token1,
-                        'amount': 0.003 * int(swap_log['data'][67:130], 16) / (10 ** decimals1)
+                        'amount': Decimal(0.003) * Decimal(int(swap_log['data'][67:130], 16)) / Decimal(10 ** decimals1)
                     }
                 else:
                     swap_data = {
                         'block': block_number,
                         'token': token0,
-                        'amount': 0.003 * int(swap_log['data'][2:66], 16) / (10 ** decimals0)
+                        'amount': Decimal(0.003) * Decimal(int(swap_log['data'][2:66], 16)) / Decimal(10 ** decimals0)
                     }
 
                 result['swaps'].append(swap_data)

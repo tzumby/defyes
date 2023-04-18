@@ -1,4 +1,5 @@
 import pytest
+from decimal import Decimal
 
 from defi_protocols import Honeyswap, add_stderr_logger
 from defi_protocols.functions import get_node
@@ -26,22 +27,30 @@ def test_get_lptoken_data():
     assert expected == {k: data[k] for k in expected}
 
 
-@pytest.mark.parametrize('decimals', [True, ])
+@pytest.mark.parametrize('decimals', [True, False])
 def test_underlying(decimals):
     x = Honeyswap.underlying(TEST_WALLET, UNIv2, TEST_BLOCK, XDAI,
                              WEB3, decimals=decimals)
-    assert x == [[WETH_XDAI, 697.3869748255132],
-                 [GNO_XDAI, 11931.07199502602]]
+    assert x == [[WETH_XDAI, Decimal('697386974825513160345.1899328') / (10 ** (18 if decimals else 0))],
+                 [GNO_XDAI, Decimal('11931071995026020760025.04652') / (10 ** (18 if decimals else 0))]]
 
 
-def test_pool_balances():
+@pytest.mark.parametrize('decimals', [True, False])
+def test_pool_balances(decimals):
     x = Honeyswap.pool_balances(UNIv2, TEST_BLOCK, XDAI, WEB3,
-                                decimals=True)
-    assert x == [[WETH_XDAI, 697.3891903357664],
-                 [GNO_XDAI, 11931.109898533387]]
+                                decimals=decimals)
+    assert x == [[WETH_XDAI, Decimal('697389190335766422886') / (10 ** (18 if decimals else 0))],
+                 [GNO_XDAI, Decimal('11931109898533386964234') / (10 ** (18 if decimals else 0))]]
 
 
-def test_swap_fees():
-    x = Honeyswap.swap_fees(UNIv2, TEST_BLOCK-100, TEST_BLOCK, XDAI, WEB3,
-                            decimals=True)
-    assert x == {'swaps': []}
+@pytest.mark.parametrize('decimals', [True, False])
+def test_swap_fees(decimals):
+    x = Honeyswap.swap_fees(UNIv2, TEST_BLOCK - 1000, TEST_BLOCK, XDAI, WEB3,
+                            decimals=decimals)
+    assert x['swaps'] == [{'block': 27449397,
+                           'token': GNO_XDAI,
+                           'amount': Decimal('18914160864473196.13873006656') / Decimal(10 ** (18 if decimals else 0))},
+                          {'block': 27450198,
+                           'token': GNO_XDAI,
+                           'amount': Decimal('2825275064344436.161812851763') / (10 ** (18 if decimals else 0))}]
+
