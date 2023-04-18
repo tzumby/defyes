@@ -118,7 +118,7 @@ def test_underlying():
 
     ohm, steth = Aura.underlying(WALLET_N1, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
     assert ohm == [ETHTokenAddr.OHM, 1231058673158.3909]
-    assert steth == [ETHTokenAddr.stETH, 6.05714004986533e+18]
+    assert steth == [ETHTokenAddr.wstETH, 6.05714004986533e+18]
 
 
 def test_pool_balances():
@@ -127,4 +127,4 @@ def test_pool_balances():
 
     ohm, steth = Aura.pool_balances(balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node)
     assert ohm == [ETHTokenAddr.OHM, 23962.880591594]
-    assert steth == [ETHTokenAddr.stETH, 117.90382286905813]
+    assert steth == [ETHTokenAddr.wstETH, 117.90382286905813]
