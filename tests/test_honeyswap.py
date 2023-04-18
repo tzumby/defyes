@@ -1,3 +1,4 @@
+import pytest
 
 from defi_protocols import Honeyswap, add_stderr_logger
 from defi_protocols.functions import get_node
@@ -12,7 +13,7 @@ UNIv2 = '0x28dbd35fd79f48bfa9444d330d14683e7101d817'
 
 
 def test_get_lptoken_data():
-    data = Honeyswap.get_lptoken_data(UNIv2, TEST_BLOCK, XDAI, WEB3, 1, 0)
+    data = Honeyswap.get_lptoken_data(UNIv2, TEST_BLOCK, XDAI, WEB3)
     expected =  {'decimals': 18,
                  'totalSupply': 2780438593422870570963,
                  'token0': WETH_XDAI,
@@ -25,21 +26,22 @@ def test_get_lptoken_data():
     assert expected == {k: data[k] for k in expected}
 
 
-def test_underlying():
+@pytest.mark.parametrize('decimals', [True, ])
+def test_underlying(decimals):
     x = Honeyswap.underlying(TEST_WALLET, UNIv2, TEST_BLOCK, XDAI,
-                             WEB3, 1, 0, True)
+                             WEB3, decimals=decimals)
     assert x == [[WETH_XDAI, 697.3869748255132],
                  [GNO_XDAI, 11931.07199502602]]
 
 
 def test_pool_balances():
     x = Honeyswap.pool_balances(UNIv2, TEST_BLOCK, XDAI, WEB3,
-                                1, 0, decimals=True)
+                                decimals=True)
     assert x == [[WETH_XDAI, 697.3891903357664],
                  [GNO_XDAI, 11931.109898533387]]
 
 
 def test_swap_fees():
     x = Honeyswap.swap_fees(UNIv2, TEST_BLOCK-100, TEST_BLOCK, XDAI, WEB3,
-                            1, 0, decimals=True)
+                            decimals=True)
     assert x == {'swaps': []}
