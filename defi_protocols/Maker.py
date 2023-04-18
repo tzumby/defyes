@@ -1,5 +1,5 @@
 from defi_protocols.functions import get_node, get_contract, balance_of
-from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, DAI_ETH
+from defi_protocols.constants import ETHEREUM, DAI_ETH, ETHTokenAddr
 from typing import Union
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -48,11 +48,16 @@ def get_vault_data(vault_id, block, web3=None):
     if web3 is None:
         web3 = get_node(ETHEREUM, block=block)
 
-    cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
-    ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY,
+    cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM,
+                                        web3=web3, abi=ABI_CDP_MANAGER,
+                                        block=block)
+    ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM,
+                                         web3=web3, abi=ABI_ILK_REGISTRY,
                                          block=block)
-    vat_contract = get_contract(VAT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_VAT, block=block)
-    spot_contract = get_contract(SPOT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_SPOT, block=block)
+    vat_contract = get_contract(VAT_ADDRESS, ETHEREUM,
+                                web3=web3, abi=ABI_VAT, block=block)
+    spot_contract = get_contract(SPOT_ADDRESS, ETHEREUM,
+                                 web3=web3, abi=ABI_SPOT, block=block)
 
     ilk = cpd_manager_contract.functions.ilks(vault_id).call(block_identifier=block)
 
@@ -106,7 +111,8 @@ def get_delegated_MKR(wallet: str, block: Union[int, str],
     if web3 is None:
         web3 = get_node(ETHEREUM, block=block)
 
-    MKR_address = '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'
     IOU_token_address = '0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7'
+    balance = balance_of(wallet, IOU_token_address, block, ETHEREUM,
+                         web3=web3, decimals=decimals)
 
-    return [[MKR_address, balance_of(wallet, IOU_token_address, block, ETHEREUM, web3=web3, decimals=decimals)]]
+    return [[ETHTokenAddr.MKR, balance]]
