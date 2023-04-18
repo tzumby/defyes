@@ -1,4 +1,4 @@
-from defi_protocols.functions import get_node, get_contract, balance_of, GetNodeIndexError
+from defi_protocols.functions import get_node, get_contract, balance_of
 from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, DAI_ETH
 from typing import Union
 
@@ -42,103 +42,71 @@ ABI_VAT = '[{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type
 ABI_SPOT = '[{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"ilks","outputs":[{"internalType":"contract PipLike","name":"pip","type":"address"},{"internalType":"uint256","name":"mat","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
 
-def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
+def get_vault_data(vault_id, block, web3=None):
     vault_data = {}
 
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(ETHEREUM, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(ETHEREUM, block=block)
+    cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
+    ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY,
+                                         block=block)
+    vat_contract = get_contract(VAT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_VAT, block=block)
+    spot_contract = get_contract(SPOT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_SPOT, block=block)
 
-        cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
-        ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY,
-                                             block=block)
-        vat_contract = get_contract(VAT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_VAT, block=block)
-        spot_contract = get_contract(SPOT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_SPOT, block=block)
+    ilk = cpd_manager_contract.functions.ilks(vault_id).call(block_identifier=block)
 
-        ilk = cpd_manager_contract.functions.ilks(vault_id).call(block_identifier=block)
+    ilk_info = ilk_registry_contract.functions.info(ilk).call()
 
-        ilk_info = ilk_registry_contract.functions.info(ilk).call()
+    urn_handler_address = cpd_manager_contract.functions.urns(vault_id).call(block_identifier=block)
 
-        urn_handler_address = cpd_manager_contract.functions.urns(vault_id).call(block_identifier=block)
+    urn_data = vat_contract.functions.urns(ilk, urn_handler_address).call(block_identifier=block)
 
-        urn_data = vat_contract.functions.urns(ilk, urn_handler_address).call(block_identifier=block)
+    vault_data['mat'] = spot_contract.functions.ilks(ilk).call(block_identifier=block)[1] / 10 ** 27
+    vault_data['gem'] = ilk_info[4]
+    vault_data['dai'] = DAI_ETH
+    vault_data['ink'] = urn_data[0] / 10 ** 18
+    vault_data['art'] = urn_data[1] / 10 ** 18
 
-        vault_data['mat'] = spot_contract.functions.ilks(ilk).call(block_identifier=block)[1] / 10 ** 27
-        vault_data['gem'] = ilk_info[4]
-        vault_data['dai'] = DAI_ETH
-        vault_data['ink'] = urn_data[0] / 10 ** 18
-        vault_data['art'] = urn_data[1] / 10 ** 18
+    ilk_data = vat_contract.functions.ilks(ilk).call(block_identifier=block)
 
-        ilk_data = vat_contract.functions.ilks(ilk).call(block_identifier=block)
+    vault_data['Art'] = ilk_data[0] / 10 ** 18
+    vault_data['rate'] = ilk_data[1] / 10 ** 27
+    vault_data['spot'] = ilk_data[2] / 10 ** 27
+    vault_data['line'] = ilk_data[3] / 10 ** 45
+    vault_data['dust'] = ilk_data[4] / 10 ** 45
 
-        vault_data['Art'] = ilk_data[0] / 10 ** 18
-        vault_data['rate'] = ilk_data[1] / 10 ** 27
-        vault_data['spot'] = ilk_data[2] / 10 ** 27
-        vault_data['line'] = ilk_data[3] / 10 ** 45
-        vault_data['dust'] = ilk_data[4] / 10 ** 45
-
-        return vault_data
-
-    except GetNodeIndexError:
-        return get_vault_data(vault_id, block, index=0, execution=execution + 1)
-
-    except:
-        return get_vault_data(vault_id, block, index=index + 1, execution=execution)
+    return vault_data
 
 
-def underlying(vault_id, block, web3=None, execution=1, index=0):
+def underlying(vault_id, block, web3=None):
     '''
     Output:
     1 - Tuple: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
     '''
     result = []
 
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(ETHEREUM, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(ETHEREUM, block=block)
+    vault_data = get_vault_data(vault_id, block, web3=web3)
 
-        vault_data = get_vault_data(vault_id, block, web3=web3)
+    # Append the Collateral Address and Balance to result[]
+    result.append([vault_data['gem'], vault_data['ink']])
 
-        # Append the Collateral Address and Balance to result[]
-        result.append([vault_data['gem'], vault_data['ink']])
+    # Append the Debt Address (DAI Address) and Balance to result[]
+    total_debt = (vault_data['art'] * vault_data['rate']) * -1
+    result.append([vault_data['dai'], total_debt])
 
-        # Append the Debt Address (DAI Address) and Balance to result[]
-        total_debt = (vault_data['art'] * vault_data['rate']) * -1
-        result.append([vault_data['dai'], total_debt])
-
-        return result
-
-    except GetNodeIndexError:
-        return underlying(vault_id, block, index=0, execution=execution + 1)
-
-    except:
-        return underlying(vault_id, block, index=index + 1, execution=execution)
+    return result
 
 
-def get_delegated_MKR(wallet: str, block: Union[int, str], web3=None, decimals=True, index: int = 0,
-                      execution: int = 1) -> Union[int, float]:
-    if execution > MAX_EXECUTIONS:
-        return None
+def get_delegated_MKR(wallet: str, block: Union[int, str],
+                      web3=None, decimals=True) -> Union[int, float]:
+    if web3 is None:
+        web3 = get_node(ETHEREUM, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(ETHEREUM, block=block)
+    MKR_address = '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'
+    IOU_token_address = '0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7'
 
-        MKR_address = '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'
-        IOU_token_address = '0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7'
-
-        return [[MKR_address, balance_of(wallet, IOU_token_address, block, ETHEREUM, web3=web3, decimals=decimals)]]
-
-    except GetNodeIndexError:
-        return get_delegated_MKR(wallet, block, index=0, execution=execution + 1)
-
-    except:
-        return get_delegated_MKR(wallet, block, index=index + 1, execution=execution)
+    return [[MKR_address, balance_of(wallet, IOU_token_address, block, ETHEREUM, web3=web3, decimals=decimals)]]

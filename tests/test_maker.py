@@ -12,7 +12,7 @@ VAULT_ID = 10
 
 
 def test_get_vault_data():
-    x = Maker.get_vault_data(VAULT_ID, TEST_BLOCK, WEB3, 1, 1)
+    x = Maker.get_vault_data(VAULT_ID, TEST_BLOCK, WEB3)
     assert x == {'mat': 1.45,
                  'gem': WETH_ETH,
                  'dai': DAI_ETH, 
@@ -26,12 +26,12 @@ def test_get_vault_data():
 
 
 def test_underlying():
-    x = Maker.underlying(VAULT_ID, TEST_BLOCK, WEB3, 1, 1)
+    x = Maker.underlying(VAULT_ID, TEST_BLOCK, WEB3)
     assert x == [[WETH_ETH, 0.0],
                  [DAI_ETH, 0.0]]
 
 
 def test_get_delegated_MKR():
     x = Maker.get_delegated_MKR(TEST_WALLET, TEST_BLOCK, WEB3,
-                                decimals=False, index=1, execution=1)
+                                decimals=False)
     assert x == [[ETHTokenAddr.MKR, 0]]
