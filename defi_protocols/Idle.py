@@ -5,10 +5,10 @@ from pathlib import Path
 from decimal import Decimal
 from typing import Union
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, GetNodeIndexError
-from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, MAX_EXECUTIONS, ETHEREUM
+from defi_protocols.functions import get_node, get_contract, get_decimals
+from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
 from defi_protocols.util.topic import DecodeAddressHexor
-
+from defi_protocols.cache import const_call
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # IDLE Deployer
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -57,169 +57,115 @@ ABI_CDO_PROXY: str = '[{"anonymous":false,"inputs":[{"indexed":false,"internalTy
 
 
 # function for getting all addresses you need to get underlying
-def get_addresses(block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
-                  decimals: bool = True) -> list:
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
+def get_addresses(block: Union[int, str], blockchain: str, web3=None,
+                  decimals: bool = True) -> dict:
     addresses = {"tranches": []}
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        cdo_events = web3.eth.get_logs({'fromBlock': 0, 'toBlock': block, 'address': CDO_PROXY})
-        gauges = get_gauges(block, blockchain, web3=web3, execution=1, index=0)
-        for event in cdo_events:
-            cdo_address = str(DecodeAddressHexor(event['data']))
-            cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
-            aa_token = cdo_contract.functions.AATranche().call()
-            bb_token = cdo_contract.functions.BBTranche().call()
-            gauge_contract_address = [x[0] for x in gauges if re.match(aa_token, x[1])]
-            if gauge_contract_address:
-                gauge_contract_address = gauge_contract_address[0]
-            else:
-                gauge_contract_address = None
-            underlying_token = cdo_contract.functions.token().call()
-            addresses['tranches'].append({'underlying_token': underlying_token, 'CDO address': cdo_address,
-                                          'AA tranche': {'aa_token': aa_token, 'aa_gauge': gauge_contract_address},
-                                          'bb token': bb_token})
-        return addresses
-
-    except GetNodeIndexError:
-        return get_addresses(block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_addresses(block, blockchain, decimals=decimals, index=index + 1, execution=execution)
-
-    # function for getting all gauge addresses that are deployed
+    cdo_events = web3.eth.get_logs({'fromBlock': 0, 'toBlock': block, 'address': CDO_PROXY})
+    gauges = get_gauges(block, blockchain, web3=web3)
+    for event in cdo_events:
+        cdo_address = str(DecodeAddressHexor(event['data']))
+        cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
+        aa_token = const_call(cdo_contract.functions.AATranche())
+        bb_token = const_call(cdo_contract.functions.BBTranche())
+        gauge_contract_address = [x[0] for x in gauges if re.match(aa_token, x[1])]
+        if gauge_contract_address:
+            gauge_contract_address = gauge_contract_address[0]
+        else:
+            gauge_contract_address = None
+        underlying_token = const_call(cdo_contract.functions.token())
+        addresses['tranches'].append({'underlying_token': underlying_token, 'CDO address': cdo_address,
+                                      'AA tranche': {'aa_token': aa_token, 'aa_gauge': gauge_contract_address},
+                                      'bb token': bb_token})
+    return addresses
 
 
-def get_gauges(block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
-               decimals=True) -> list:
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
+def get_gauges(block: Union[int, str], blockchain: str, web3=None, decimals=True) -> list:
     gauges = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        gauge_controller_contract = get_contract(GAUGE_CONTROLLER, blockchain, web3=web3, abi=ABI_GAUGE_CONTROLLER,
-                                                 block=block)
-        n_gauges = gauge_controller_contract.functions.n_gauges().call()
-        for i in range(0, n_gauges):
-            gauge_address = gauge_controller_contract.functions.gauges(i).call()
-            gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
-            lp_token_address = gauge_contract.functions.lp_token().call()
-            gauges.append([gauge_address, lp_token_address])
-        return gauges
-
-    except GetNodeIndexError:
-        return get_gauges(block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_gauges(block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+    gauge_controller_contract = get_contract(GAUGE_CONTROLLER, blockchain, web3=web3, abi=ABI_GAUGE_CONTROLLER,
+                                             block=block)
+    n_gauges = gauge_controller_contract.functions.n_gauges().call()
+    for i in range(0, n_gauges):
+        gauge_address = gauge_controller_contract.functions.gauges(i).call()
+        gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
+        lp_token_address = gauge_contract.functions.lp_token().call()
+        gauges.append([gauge_address, lp_token_address])
+    return gauges
 
 
 def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blockchain: str, web3=None,
-                    execution: int = 1, index: int = 0, decimals: bool = True) -> list:
-    if execution > MAX_EXECUTIONS:
-        return None
-
+                    decimals: bool = True) -> list:
     rewards = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
-        gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
-        idle_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
+    wallet = web3.to_checksum_address(wallet)
+    gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
+    idle_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
+    if decimals == True:
+        token_decimals = get_decimals(IDLE_TOKEN, blockchain, web3=web3)
+        rewards.append([IDLE_TOKEN, idle_rewards / (10 ** token_decimals)])
+    else:
+        rewards.append([IDLE_TOKEN, idle_rewards])
+
+    for i in range(0, 10):
+        reward_tokens = gauge_contract.functions.reward_tokens(i).call()
+        if reward_tokens == '0x0000000000000000000000000000000000000000':
+            break
+        claimable_rewards = gauge_contract.functions.claimable_reward_write(wallet, reward_tokens).call(
+            block_identifier=block)
+        claimed_rewards = gauge_contract.functions.claimed_reward(wallet, reward_tokens).call(
+            block_identifier=block)
         if decimals == True:
-            token_decimals = get_decimals(IDLE_TOKEN, blockchain, web3=web3)
-            rewards.append([IDLE_TOKEN, idle_rewards / (10 ** token_decimals)])
+            token_decimals = get_decimals(reward_tokens, blockchain, web3=web3)
+            rewards.append([reward_tokens, (claimable_rewards + claimed_rewards) / 10 ** token_decimals])
         else:
-            rewards.append([IDLE_TOKEN, idle_rewards])
-
-        for i in range(0, 10):
-            reward_tokens = gauge_contract.functions.reward_tokens(i).call()
-            if reward_tokens == '0x0000000000000000000000000000000000000000':
-                break
-            claimable_rewards = gauge_contract.functions.claimable_reward_write(wallet, reward_tokens).call(
-                block_identifier=block)
-            claimed_rewards = gauge_contract.functions.claimed_reward(wallet, reward_tokens).call(
-                block_identifier=block)
-            if decimals == True:
-                token_decimals = get_decimals(reward_tokens, blockchain, web3=web3)
-                rewards.append([reward_tokens, (claimable_rewards + claimed_rewards) / 10 ** token_decimals])
-            else:
-                rewards.append([reward_tokens, claimable_rewards + claimed_rewards])
-        return rewards
-
-    except GetNodeIndexError:
-        return get_all_rewards(wallet, gauge_address, block, blockchain, web3=None, index=0, execution=execution + 1,
-                               decimals=decimals)
-
-    except:
-        return get_all_rewards(wallet, gauge_address, block, blockchain, web3=None, index=index + 1,
-                               execution=execution, decimals=decimals)
-
-    # function for getting the amounts of certain tranche
+            rewards.append([reward_tokens, claimable_rewards + claimed_rewards])
+    return rewards
 
 
 def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_address: str, gauge_address: str,
-                wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
-                decimals: bool = True) -> list:
-    if execution > MAX_EXECUTIONS:
-        return None
-
+                wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True) -> list:
     balances = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
-        cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
-        aa_contract = get_contract(aa_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
-        bb_contract = get_contract(bb_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
-        if gauge_address:
-            gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
-            gauge_balance = gauge_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-                        cdo_contract.functions.virtualPrice(aa_address).call() / Decimal(10 ** 18))
-        else:
-            gauge_balance = 0
-        aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
+    wallet = web3.to_checksum_address(wallet)
+    cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
+    aa_contract = get_contract(aa_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
+    bb_contract = get_contract(bb_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
+    if gauge_address:
+        gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
+        gauge_balance = gauge_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
                     cdo_contract.functions.virtualPrice(aa_address).call() / Decimal(10 ** 18))
-        bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-                    cdo_contract.functions.virtualPrice(bb_address).call() / Decimal(10 ** 18))
-        decimals_underlying = gauge_contract.functions.decimals().call()
+    else:
+        gauge_balance = 0
+    aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
+                cdo_contract.functions.virtualPrice(aa_address).call() / Decimal(10 ** 18))
+    bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
+                cdo_contract.functions.virtualPrice(bb_address).call() / Decimal(10 ** 18))
 
-        if decimals is True:
-            [balances.append([underlying_address, float(i / Decimal(10 ** decimals_underlying))]) for i in
-             [aa_balance, bb_balance, gauge_balance] if i != 0]
-            return balances
-        else:
-            [balances.append([underlying_address, i]) for i in [aa_balance, bb_balance, gauge_balance] if i != 0]
-            return balances
-
-    except GetNodeIndexError:
-        return get_amounts(underlying_address, cdo_address, aa_address, bb_address, gauge_address, wallet, block,
-                           blockchain, web3=None, index=0, execution=execution + 1, decimals=decimals)
-
-    except:
-        return get_amounts(underlying_address, cdo_address, aa_address, bb_address, gauge_address, wallet, block,
-                           blockchain, web3=None, index=index + 1, execution=execution, decimals=decimals)
-
-    # function to get balances in underlying token
+    if decimals is True:
+        decimals_underlying = const_call(gauge_contract.functions.decimals())
+        [balances.append([underlying_address, float(i / Decimal(10 ** decimals_underlying))]) for i in
+         [aa_balance, bb_balance, gauge_balance] if i != 0]
+        return balances
+    else:
+        [balances.append([underlying_address, i]) for i in [aa_balance, bb_balance, gauge_balance] if i != 0]
+        return balances
 
 
-def underlying(token_address: str, wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1,
-               index: int = 0, decimals: bool = True, db: bool = True, rewards: bool = False) -> list:
+def underlying(token_address: str, wallet: str, block: Union[int, str], blockchain: str, web3=None,
+               decimals: bool = True, db: bool = True, rewards: bool = False) -> list:
     if db == True:
         file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Idle_db.json')
         data = json.load(file)
@@ -230,7 +176,7 @@ def underlying(token_address: str, wallet: str, block: Union[int, str], blockcha
             0]
     amounts = get_amounts(addresses['underlying_token'], addresses['CDO address'], addresses['AA tranche']['aa_token'],
                           addresses['bb token'], addresses['AA tranche']['aa_gauge'],
-                          wallet, block, blockchain, web3, execution, index, decimals)
+                          wallet, block, blockchain, web3, decimals)
     if rewards == True:
         rewards = get_all_rewards(wallet, addresses['AA tranche']['aa_gauge'], block, blockchain, web3,
                                   decimals=decimals)
@@ -238,7 +184,7 @@ def underlying(token_address: str, wallet: str, block: Union[int, str], blockcha
     return amounts
 
 
-def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
+def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=None,
                    decimals: bool = True, db: bool = True, rewards: bool = False) -> list:
     balances_all = []
     if db == True:
@@ -251,7 +197,7 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=No
     for address in addresses:
         amounts = get_amounts(address['underlying_token'], address['CDO address'], address['AA tranche']['aa_token'],
                               address['bb token'], address['AA tranche']['aa_gauge'],
-                              wallet, block, blockchain, web3, execution, index, decimals)
+                              wallet, block, blockchain, web3, decimals)
         if amounts:
             if rewards == True and address['AA tranche']['aa_gauge'] != None:
                 rewards = get_all_rewards(wallet, address['AA tranche']['aa_gauge'], block, blockchain, web3,
