@@ -4,5 +4,7 @@ build
 dist
 __pycache__
 *.pyc
+config.json
 *,cover
 .coverage
+*.egg-info

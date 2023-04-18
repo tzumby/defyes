@@ -1,6 +1,6 @@
 from pytest import raises
-from defi_protocols.functions import get_web3_provider, get_node
-from defi_protocols.constants import ETHEREUM
+from defi_protocols.functions import get_web3_provider, get_node, get_decimals
+from defi_protocols.constants import ETHEREUM, CVX_ETH
 
 def test_get_node():
     node = get_node(ETHEREUM)

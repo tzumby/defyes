@@ -21,7 +21,6 @@
 
 ```bash
 pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git
-pip3 install -r requirements.txt
 ```
 
 ## Installing latest version available on pypi
@@ -4074,6 +4073,16 @@ pip install -r requirements-dev.txt
 pytest -vs tests/
 
 ```
+
+## Building and distributing
+
+```
+pip install --upgrade build
+
+python -m build
+
+```
+
 
 ## 💙 Contributing
 
