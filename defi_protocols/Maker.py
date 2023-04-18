@@ -42,22 +42,7 @@ ABI_VAT = '[{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type
 ABI_SPOT = '[{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"ilks","outputs":[{"internalType":"contract PipLike","name":"pip","type":"address"},{"internalType":"uint256","name":"mat","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_vault_data
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'web3' = web3 (Node) -> Improves performance
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
-    """
-
-    :param vault_id:
-    :param block:
-    :param web3:
-    :param execution:
-    :param index:
-    :return:
-    """
     vault_data = {}
 
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
@@ -105,25 +90,11 @@ def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
         return get_vault_data(vault_id, block, index=index + 1, execution=execution)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# underlying
-# **kwargs:
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# Output:
-# 1 - Tuple: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(vault_id, block, web3=None, execution=1, index=0):
-    """
-
-    :param vault_id:
-    :param block:
-    :param web3:
-    :param execution:
-    :param index:
-    :return:
-    """
+    '''
+    Output:
+    1 - Tuple: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
+    '''
     result = []
 
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
@@ -152,7 +123,6 @@ def underlying(vault_id, block, web3=None, execution=1, index=0):
         return underlying(vault_id, block, index=index + 1, execution=execution)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_delegated_MKR(wallet: str, block: Union[int, str], web3=None, decimals=True, index: int = 0,
                       execution: int = 1) -> Union[int, float]:
     if execution > MAX_EXECUTIONS:
