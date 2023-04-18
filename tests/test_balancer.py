@@ -29,12 +29,14 @@ def test_get_lptoken_data():
     block = 16950590
 
     lptoken_data = Balancer.get_lptoken_data(B60WETH40DAI_ADDR, block, ETHEREUM)
-    assert list(lptoken_data.keys()) == ['contract', 'poolId', 'decimals', 'totalSupply', 'isBoosted', 'bptIndex']
+    assert list(lptoken_data.keys()) == ['contract', 'poolId', 'decimals', 'totalSupply', 'isBoosted', 'bptIndex', 'scalingFactors', 'wrappedIndex']
     assert lptoken_data['poolId'] == b'\x0b\t\xde\xa1gh\xf0y\x90e\xc4u\xbe\x02\x91\x95\x03\xcb*5\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a'
     assert lptoken_data['decimals'] == 18
     assert lptoken_data['totalSupply'] == 12835022143788475405205
     assert not lptoken_data['isBoosted']
     assert lptoken_data['bptIndex'] is None
+    assert lptoken_data['scalingFactors'] is None
+    assert lptoken_data['wrappedIndex'] is None
 
     lptoken_data = Balancer.get_lptoken_data(bbaUSD_ADDR, block, ETHEREUM)
     assert lptoken_data['poolId'] == b'\xa1:\x92G\xeaB\xd7C#\x80\x89\x905p\x12}\xdar\xfeD\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03]'
@@ -42,7 +44,8 @@ def test_get_lptoken_data():
     assert lptoken_data['totalSupply'] == 45626173875220118192194148
     assert lptoken_data['isBoosted']
     assert lptoken_data['bptIndex'] == 2
-
+    assert lptoken_data['scalingFactors'] == [1008896757769783573, 1003250365192438010, 1000000000000000000, 1002548558018035032]
+    assert lptoken_data['wrappedIndex'] is None
 
 def test_bal_rewards():
     block = 16978206
@@ -151,13 +154,13 @@ def test_unwrap():
 
     lptoken_amount = 1
     usdt, usdc, dai = Balancer.unwrap(lptoken_amount, bbaUSD_ADDR, block, ETHEREUM, web3=node)
-    assert usdt == [ETHTokenAddr.USDT, 0.25448552659871626]
-    assert usdc == [ETHTokenAddr.USDC, 0.3695278389467781]
-    assert dai == [ETHTokenAddr.DAI, 0.38047614709921385]
+    assert usdt == [ETHTokenAddr.USDT, 0.2544853984016551]
+    assert usdc == [ETHTokenAddr.USDC, 0.36952776509915247]
+    assert dai == [ETHTokenAddr.DAI, 0.3804754985865416]
 
     lptoken_amount = 0.010622337758482546
     dai, weth = Balancer.unwrap(lptoken_amount, B60WETH40DAI_ADDR, block, ETHEREUM, web3=node)
-    assert dai == [ETHTokenAddr.DAI, 0.39988023879013723]
+    assert dai == [ETHTokenAddr.DAI, 0.3998802387901373]
     assert weth == [ETHTokenAddr.WETH, 0.0003284487726480976]
 
 
