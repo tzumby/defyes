@@ -89,14 +89,14 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git
   ## Defined in functions.py
 
 
-  ### 1: get_node(blockchain, block='latest', index=0)
+  ### 1: get_node(blockchain, block='latest')
 
   > Description: function returns web3 object of the node
 
   - <details><summary><b>Example</b></summary>
 
     ```
-    a = get_node(ETHEREUM, 'latest', 0)
+    a = get_node(ETHEREUM, 'latest')
     print(a)
     ```
 
@@ -106,14 +106,14 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git
     ```
     </details>
 
-  ### 2: last_block(blockchain, web3=None, block='latest', index=0)
+  ### 2: last_block(blockchain, web3=None, block='latest')
 
   > Description: functoion returns last block of the blockchain
 
   - <details><summary><b>Example</b></summary>
 
     ```
-    a = last_block(ETHEREUM, None, 'latest', 0)
+    a = last_block(ETHEREUM, None, 'latest')
     print(a)
     ```
 
@@ -300,7 +300,7 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git
     ```
     </details>
 
-  ### 13: get_decimals(token_address, blockchain, execution=1, web3=None, block='latest', index=0)
+  ### 13: get_decimals(token_address, blockchain, execution=1, web3=None, block='latest')
 
   > Description: function returns decimals for given token address
 

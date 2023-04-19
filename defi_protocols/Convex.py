@@ -7,7 +7,7 @@ from decimal import Decimal
 from defi_protocols.functions import get_node, get_contract, get_decimals
 from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS, CVX_ETH, CVXCRV_ETH
 from defi_protocols import Curve
-
+from defi_protocols.misc import get_db_filename
 
 logger = logging.getLogger(__name__)
 
@@ -351,9 +351,14 @@ def pool_balances(lptoken_address, block, blockchain, web3=None,
     return balances
 
 
-def update_db():
+def update_db(db_path=None, save_to=None):
+    if db_path is None:
+        db_path = get_db_filename("Convex")
+    if save_to is None:
+        save_to = db_path
+
     try:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'r') as db_file:
+        with open(db_path, 'r') as db_file:
             # Reading from json file
             db_data = json.load(db_file)
     # FIXME: use specific exception
@@ -369,7 +374,6 @@ def update_db():
     pools_delta = booster.functions.poolLength().call() - db_pool_length
 
     if pools_delta > 0:
-
         for i in range(pools_delta):
             pool_info = booster.functions.poolInfo(db_pool_length + i).call()
             db_data['pools'][pool_info[0]] = {
@@ -381,5 +385,6 @@ def update_db():
                 'shutdown': pool_info[5]
             }
 
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'w') as db_file:
-            json.dump(db_data, db_file)
+    with open(save_to, 'w') as db_file:
+        json.dump(db_data, db_file)
+    return db_data

@@ -97,7 +97,6 @@ def test_pool_balances():
                  [USDT_ETH, Decimal('92743777795510')]]
 
 
-# FIXME: This test has unaceptable side effects!
 def test_update_db():
-    Convex.update_db()
-    assert True
+    data = Convex.update_db(save_to="/dev/null")
+    assert data
