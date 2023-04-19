@@ -11,7 +11,7 @@ _cache = None
 if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
     logger.debug(f"Cache enabled. Storage is at '{cache_dir}'.")
-    _cache = diskcache.Cache(directory=cache_dir, disk_pickle_protocol=5)
+    _cache = diskcache.Cache(directory=cache_dir)
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
 else:
@@ -34,7 +34,7 @@ class TemporaryCache:
 
     def __enter__(self):
         global _cache
-        _cache = diskcache.Cache(disk_pickle_protocol=5)
+        _cache = diskcache.Cache()
         return _cache
 
     def __exit__(self, *args, **kwargs):
