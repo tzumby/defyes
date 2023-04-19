@@ -25,7 +25,7 @@ def test_unwrap():
     node = get_node(ETHEREUM, block)
 
     asset = Lido.unwrap(100, block, web3=node)
-    assert asset == [ZERO_ADDRESS, 111]
+    assert asset == [ZERO_ADDRESS, 111.91298465479002]
 
-    asset = Lido.unwrap(100.0, block, web3=node, steth=True)
+    asset = Lido.unwrap(100, block, web3=node, steth=True)
     assert asset == [ETHTokenAddr.stETH, 111.91298465479002]
