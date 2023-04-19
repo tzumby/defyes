@@ -1,5 +1,5 @@
-from defi_protocols.functions import get_node, get_contract, block_to_timestamp, get_decimals, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, SNOTE_ETH
+from defi_protocols.functions import get_node, get_contract, block_to_timestamp, get_decimals
+from defi_protocols.constants import ETHEREUM, SNOTE_ETH
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # NPROXY
@@ -38,95 +38,78 @@ def get_snote_address(blockchain):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_markets_data
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # 'nproxy_contract' = nproxy_contract -> Improves performance
 # 'token_address' = token_address -> retrieves the data of an specific token
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_markets_data(block, blockchain, web3=None, decimals=True, execution=1, index=0, nproxy_contract=None,
-                     token_address=None):
+def get_markets_data(block, blockchain, web3=None, decimals=True, nproxy_contract=None, token_address=None):
     """
 
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        markets_data = []
+    markets_data = []
 
-        if nproxy_contract is None:
-            nproxy_address = get_nproxy_address(blockchain)
-            nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    if nproxy_contract is None:
+        nproxy_address = get_nproxy_address(blockchain)
+        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
 
-        for i in range(nproxy_contract.functions.getMaxCurrencyId().call(block_identifier=block)):
-            market_data = {}
+    for i in range(nproxy_contract.functions.getMaxCurrencyId().call(block_identifier=block)):
+        market_data = {}
 
-            currency_rates = nproxy_contract.functions.getCurrencyAndRates(i + 1).call(block_identifier=block)
+        currency_rates = nproxy_contract.functions.getCurrencyAndRates(i + 1).call(block_identifier=block)
 
-            if token_address != None and currency_rates[1][0] != token_address:
-                continue
+        if token_address != None and currency_rates[1][0] != token_address:
+            continue
 
-            market_data['currencyId'] = i + 1
-            market_data['underlyingToken'] = {
-                'address': currency_rates[1][0],
-                # in 10^decimals format
-                'decimals': currency_rates[1][2]
-            }
-            market_data['cToken'] = {
-                'address': currency_rates[0][0],
-                # in 10^decimals format
-                'decimals': currency_rates[0][2],
-                'rate': currency_rates[3][1] / (1000000000000000000 * currency_rates[1][2] / currency_rates[0][2])
-            }
+        market_data['currencyId'] = i + 1
+        market_data['underlyingToken'] = {
+            'address': currency_rates[1][0],
+            # in 10^decimals format
+            'decimals': currency_rates[1][2]
+        }
+        market_data['cToken'] = {
+            'address': currency_rates[0][0],
+            # in 10^decimals format
+            'decimals': currency_rates[0][2],
+            'rate': currency_rates[3][1] / (1000000000000000000 * currency_rates[1][2] / currency_rates[0][2])
+        }
 
-            ntoken_address = nproxy_contract.functions.nTokenAddress(i + 1).call()
-            ntoken_contract = get_contract(ntoken_address, blockchain, web3=web3, abi=ABI_NTOKEN, block=block)
-            market_data['nToken'] = {
-                'address': ntoken_address,
-                # in 10^decimals format
-                'decimals': 10 ** ntoken_contract.functions.decimals().call(),
-                'rate': ntoken_contract.functions.getPresentValueUnderlyingDenominated().call(
-                    block_identifier=block) / ntoken_contract.functions.totalSupply().call(block_identifier=block)
-            }
+        ntoken_address = nproxy_contract.functions.nTokenAddress(i + 1).call()
+        ntoken_contract = get_contract(ntoken_address, blockchain, web3=web3, abi=ABI_NTOKEN, block=block)
+        market_data['nToken'] = {
+            'address': ntoken_address,
+            # in 10^decimals format
+            'decimals': 10 ** ntoken_contract.functions.decimals().call(),
+            'rate': ntoken_contract.functions.getPresentValueUnderlyingDenominated().call(
+                block_identifier=block) / ntoken_contract.functions.totalSupply().call(block_identifier=block)
+        }
 
-            markets_data.append(market_data)
+        markets_data.append(market_data)
 
-            if token_address != None:
-                break
+        if token_address is not None:
+            break
 
-        return markets_data
-
-    except GetNodeIndexError:
-        return get_markets_data(block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_markets_data(block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+    return markets_data
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # all_note_rewards
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # 'nproxy_contract' = nproxy_contract -> Improves performance
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def all_note_rewards(wallet, block, blockchain, web3=None, execution=1, index=0, decimals=True, nproxy_contract=None):
-    '''
+def all_note_rewards(wallet, block, blockchain, web3=None, decimals=True, nproxy_contract=None):
+    """
     :param wallet:
     :param block:
     :param blockchain:
@@ -135,41 +118,31 @@ def all_note_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
     :param index:
     :param decimals:
     :return:
-    '''
-    if execution > MAX_EXECUTIONS:
-        return None
-
+    """
     all_rewards = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        if nproxy_contract is None:
-            nproxy_address = get_nproxy_address(blockchain)
-            nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    if nproxy_contract is None:
+        nproxy_address = get_nproxy_address(blockchain)
+        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
 
-        note_token_address = nproxy_contract.functions.getNoteToken().call()
+    note_token_address = nproxy_contract.functions.getNoteToken().call()
 
-        if decimals == True:
-            note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(wallet, block_to_timestamp(block,
-                                                                                                             blockchain)).call(block_identifier=block) / (
-                                       10 ** (get_decimals(note_token_address, blockchain, web3=web3)))
-        else:
-            note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(wallet, block_to_timestamp(block,
-                                                                                                             blockchain)).call(block_identifier=block)
-            
-        all_rewards.append([note_token_address, note_rewards])
+    if decimals == True:
+        note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(wallet, block_to_timestamp(block,
+                                                                                                         blockchain)).call(block_identifier=block) / (
+                                   10 ** (get_decimals(note_token_address, blockchain, web3=web3)))
+    else:
+        note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(wallet, block_to_timestamp(block,
+                                                                                                         blockchain)).call(block_identifier=block)
 
-        return all_rewards
+    all_rewards.append([note_token_address, note_rewards])
 
-    except GetNodeIndexError:
-        return all_note_rewards(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return all_note_rewards(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+    return all_rewards
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -183,75 +156,58 @@ def all_note_rewards(wallet, block, blockchain, web3=None, execution=1, index=0,
 # 1 - List of Tuples: [token_address, balance]
 # 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_staked(wallet, block, blockchain, web3=None, decimals=True, execution=1, index=0, reward=False):
+def get_staked(wallet, block, blockchain, web3=None, decimals=True, reward=False):
     """
-
     :param wallet:
     :param block:
     :param blockchain:
     :param web3:
     :param decimals:
-    :param execution:
-    :param index:
     :param reward:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     balances = []
     result = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        nproxy_address = get_nproxy_address(blockchain)
-        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    nproxy_address = get_nproxy_address(blockchain)
+    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
 
-        snote_token_address = get_snote_address(blockchain)
-        snote_contract = get_contract(snote_token_address, blockchain, web3=web3, abi=ABI_SNOTE, block=block)
+    snote_token_address = get_snote_address(blockchain)
+    snote_contract = get_contract(snote_token_address, blockchain, web3=web3, abi=ABI_SNOTE, block=block)
 
-        staked_tokens_amounts = snote_contract.functions.tokenClaimOf(wallet).call(block_identifier=block)
+    staked_tokens_amounts = snote_contract.functions.tokenClaimOf(wallet).call(block_identifier=block)
 
-        weth_address = snote_contract.functions.WETH().call()
-        note_address = snote_contract.functions.NOTE().call()
+    weth_address = snote_contract.functions.WETH().call()
+    note_address = snote_contract.functions.NOTE().call()
 
-        if decimals == True:
-            staked_tokens_amounts[0] = staked_tokens_amounts[0] / (
-                        10 ** get_decimals(weth_address, blockchain, web3=web3))
-            staked_tokens_amounts[1] = staked_tokens_amounts[1] / (
-                        10 ** get_decimals(note_address, blockchain, web3=web3))
+    if decimals == True:
+        staked_tokens_amounts[0] = staked_tokens_amounts[0] / (
+                    10 ** get_decimals(weth_address, blockchain, web3=web3))
+        staked_tokens_amounts[1] = staked_tokens_amounts[1] / (
+                    10 ** get_decimals(note_address, blockchain, web3=web3))
 
-        balances.append([weth_address, staked_tokens_amounts[0]])
-        balances.append([note_address, staked_tokens_amounts[1]])
+    balances.append([weth_address, staked_tokens_amounts[0]])
+    balances.append([note_address, staked_tokens_amounts[1]])
 
-        if reward is True:
-            all_rewards = all_note_rewards(wallet, block, blockchain, web3=web3, decimals=decimals,
-                                           nproxy_contract=nproxy_contract)
-            result.append(balances)
-            result.append(all_rewards)
+    if reward is True:
+        all_rewards = all_note_rewards(wallet, block, blockchain, web3=web3, decimals=decimals,
+                                       nproxy_contract=nproxy_contract)
+        result.append(balances)
+        result.append(all_rewards)
 
-        else:
-            result = balances
+    else:
+        result = balances
 
-        return result
-
-    except GetNodeIndexError:
-        return get_staked(wallet, block, blockchain, decimals=decimals, reward=reward, index=0, execution=execution + 1)
-
-    except:
-        return get_staked(wallet, block, blockchain, decimals=decimals, reward=reward, index=index + 1,
-                          execution=execution)
+    return result
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying_all
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
@@ -259,91 +215,73 @@ def get_staked(wallet, block, blockchain, web3=None, decimals=True, execution=1,
 # 1 - List of Tuples: [token_address, balance]
 # 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying_all(wallet, block, blockchain, web3=None, decimals=True, execution=1, index=0, reward=False):
+def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=False):
     """
-
     :param wallet:
     :para token_address:
     :param block:
     :param blockchain:
     :param web3:
     :param decimals:
-    :param execution:
-    :param index:
     :param reward:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     balances = []
     result = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        nproxy_address = get_nproxy_address(blockchain)
-        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    nproxy_address = get_nproxy_address(blockchain)
+    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
 
-        markets_data = get_markets_data(block, blockchain, web3=web3, nproxy_contract=nproxy_contract)
+    markets_data = get_markets_data(block, blockchain, web3=web3, nproxy_contract=nproxy_contract)
 
-        account_data = nproxy_contract.functions.getAccount(wallet).call(block_identifier=block)
+    account_data = nproxy_contract.functions.getAccount(wallet).call(block_identifier=block)
 
-        for market_data in markets_data:
-            underlying_balance = 0
-            for account_balance in account_data[1]:
-                if account_balance[0] == market_data['currencyId']:
-                    underlying_balance = underlying_balance + account_balance[1] * market_data['cToken']['rate'] * \
-                                         market_data['underlyingToken']['decimals'] / market_data['cToken']['decimals']
-                    underlying_balance = underlying_balance + account_balance[2] * market_data['nToken']['rate'] * \
-                                         market_data['underlyingToken']['decimals'] / market_data['nToken']['decimals']
+    for market_data in markets_data:
+        underlying_balance = 0
+        for account_balance in account_data[1]:
+            if account_balance[0] == market_data['currencyId']:
+                underlying_balance = underlying_balance + account_balance[1] * market_data['cToken']['rate'] * \
+                                     market_data['underlyingToken']['decimals'] / market_data['cToken']['decimals']
+                underlying_balance = underlying_balance + account_balance[2] * market_data['nToken']['rate'] * \
+                                     market_data['underlyingToken']['decimals'] / market_data['nToken']['decimals']
 
-            for portfolio_item in account_data[2]:
-                if portfolio_item[0] == market_data['currencyId']:
-                    underlying_balance = underlying_balance + portfolio_item[3] * market_data['underlyingToken'][
-                        'decimals'] / (10 ** 8)
+        for portfolio_item in account_data[2]:
+            if portfolio_item[0] == market_data['currencyId']:
+                underlying_balance = underlying_balance + portfolio_item[3] * market_data['underlyingToken'][
+                    'decimals'] / (10 ** 8)
 
-            if underlying_balance != 0:
-                if decimals == True:
-                    underlying_balance = underlying_balance / market_data['underlyingToken']['decimals']
+        if underlying_balance != 0:
+            if decimals == True:
+                underlying_balance = underlying_balance / market_data['underlyingToken']['decimals']
 
-                balances.append([market_data['underlyingToken']['address'], underlying_balance])
+            balances.append([market_data['underlyingToken']['address'], underlying_balance])
 
-        if reward is True:
-            all_rewards = all_note_rewards(wallet, block, blockchain, web3=web3, decimals=decimals,
-                                           nproxy_contract=nproxy_contract)
-            result.append(balances)
-            result.append(all_rewards)
+    if reward is True:
+        all_rewards = all_note_rewards(wallet, block, blockchain, web3=web3, decimals=decimals,
+                                       nproxy_contract=nproxy_contract)
+        result.append(balances)
+        result.append(all_rewards)
 
-        else:
-            result = balances
+    else:
+        result = balances
 
-        return result
-
-    except GetNodeIndexError:
-        return underlying_all(wallet, block, blockchain, decimals=decimals, reward=reward, index=0,
-                              execution=execution + 1)
-
-    except:
-        return underlying_all(wallet, block, blockchain, decimals=decimals, reward=reward, index=index + 1,
-                              execution=execution)
+    return result
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output: a list with 1 elements:
 # 1 - List of Tuples: [token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying(wallet, token_address, block, blockchain, web3=None, decimals=True, execution=1, index=0):
+def underlying(wallet, token_address, block, blockchain, web3=None, decimals=True):
     """
 
     :param wallet:
@@ -352,59 +290,45 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     :param blockchain:
     :param web3:
     :param decimals:
-    :param execution:
-    :param index:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     balances = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
-        token_address = web3.to_checksum_address(token_address)
+    wallet = web3.to_checksum_address(wallet)
+    token_address = web3.to_checksum_address(token_address)
 
-        nproxy_address = get_nproxy_address(blockchain)
-        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    nproxy_address = get_nproxy_address(blockchain)
+    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
 
-        markets_data = get_markets_data(block, blockchain, web3=web3, nproxy_contract=nproxy_contract,
-                                        token_address=token_address)
+    markets_data = get_markets_data(block, blockchain, web3=web3, nproxy_contract=nproxy_contract,
+                                    token_address=token_address)
 
-        account_data = nproxy_contract.functions.getAccount(wallet).call(block_identifier=block)
+    account_data = nproxy_contract.functions.getAccount(wallet).call(block_identifier=block)
 
-        for market_data in markets_data:
-            underlying_balance = 0
-            for account_balance in account_data[1]:
-                if account_balance[0] == market_data['currencyId']:
-                    underlying_balance = underlying_balance + account_balance[1] * market_data['cToken']['rate'] * \
-                                         market_data['underlyingToken']['decimals'] / market_data['cToken']['decimals']
-                    underlying_balance = underlying_balance + account_balance[2] * market_data['nToken']['rate'] * \
-                                         market_data['underlyingToken']['decimals'] / market_data['nToken']['decimals']
+    for market_data in markets_data:
+        underlying_balance = 0
+        for account_balance in account_data[1]:
+            if account_balance[0] == market_data['currencyId']:
+                underlying_balance = underlying_balance + account_balance[1] * market_data['cToken']['rate'] * \
+                                     market_data['underlyingToken']['decimals'] / market_data['cToken']['decimals']
+                underlying_balance = underlying_balance + account_balance[2] * market_data['nToken']['rate'] * \
+                                     market_data['underlyingToken']['decimals'] / market_data['nToken']['decimals']
 
-            for portfolio_item in account_data[2]:
-                if portfolio_item[0] == market_data['currencyId']:
-                    underlying_balance = underlying_balance + portfolio_item[3] * market_data['underlyingToken'][
-                        'decimals'] / (10 ** 8)
+        for portfolio_item in account_data[2]:
+            if portfolio_item[0] == market_data['currencyId']:
+                underlying_balance = underlying_balance + portfolio_item[3] * market_data['underlyingToken'][
+                    'decimals'] / (10 ** 8)
 
-            if underlying_balance != 0:
-                if decimals == True:
-                    underlying_balance = underlying_balance / market_data['underlyingToken']['decimals']
+        if underlying_balance != 0:
+            if decimals == True:
+                underlying_balance = underlying_balance / market_data['underlyingToken']['decimals']
 
-                balances.append([market_data['underlyingToken']['address'], underlying_balance])
+            balances.append([market_data['underlyingToken']['address'], underlying_balance])
 
-        return balances
-
-    except GetNodeIndexError:
-        return underlying(wallet, token_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return underlying(wallet, token_address, block, blockchain, decimals=decimals, index=index + 1,
-                          execution=execution)
+    return balances
 
 # print(underlying_all('0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 'latest', ETHEREUM, reward=True))
 # print(get_market_data('latest', ETHEREUM))
