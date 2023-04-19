@@ -8,6 +8,7 @@ from defi_protocols.functions import get_node, get_contract, get_decimals
 from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS, CVX_ETH, CVXCRV_ETH
 from defi_protocols import Curve
 from defi_protocols.misc import get_db_filename
+from defi_protocols.cache import const_call
 
 logger = logging.getLogger(__name__)
 
@@ -371,11 +372,12 @@ def update_db(db_path=None, save_to=None):
 
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
     db_pool_length = len(db_data['pools'])
+
     pools_delta = booster.functions.poolLength().call() - db_pool_length
 
     if pools_delta > 0:
         for i in range(pools_delta):
-            pool_info = booster.functions.poolInfo(db_pool_length + i).call()
+            pool_info = const_call(booster.functions.poolInfo(db_pool_length + i))
             db_data['pools'][pool_info[0]] = {
                 'poolId': db_pool_length + i,
                 'token': pool_info[1],
