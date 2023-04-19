@@ -45,43 +45,32 @@ def underlying(wallet: str, block: Union[int, str], steth: bool= False, decimals
     other errors
         Set index +1 to try next RPC endpoint in the list to fetch data from blockchain
     """
-    if execution > MAX_EXECUTIONS:
-        return None
     balances = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(ETHEREUM, block=block, index=index)
+    if web3 is None:
+        web3 = get_node(ETHEREUM, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        steth_contract = get_contract(STETH_ADDRESS, ETHEREUM, abi=STETH_ABI, block=block, web3=web3)
-        steth_balance = steth_contract.functions.balanceOf(wallet).call(block_identifier=block)
+    steth_contract = get_contract(STETH_ADDRESS, ETHEREUM, abi=STETH_ABI, block=block, web3=web3)
+    steth_balance = steth_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
-        wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, abi=WSTETH_ABI, block=block, web3=web3)
-        wsteth_balance = wsteth_contract.functions.balanceOf(wallet).call(block_identifier=block)
-        stEthPerToken = Decimal(wsteth_contract.functions.stEthPerToken().call(block_identifier=block))/(Decimal(10**18))
+    wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, abi=WSTETH_ABI, block=block, web3=web3)
+    wsteth_balance = wsteth_contract.functions.balanceOf(wallet).call(block_identifier=block)
+    stEthPerToken = Decimal(wsteth_contract.functions.stEthPerToken().call(block_identifier=block))/(Decimal(10**18))
 
-        steth_equivalent = steth_balance + wsteth_balance * stEthPerToken
+    steth_equivalent = steth_balance + wsteth_balance * stEthPerToken
 
-        if decimals:
-            steth_equivalent = float(steth_equivalent/Decimal(10**STETH_DECIMALS))
-        else:
-            steth_equivalent = int(steth_equivalent)
+    if decimals:
+        steth_equivalent = float(steth_equivalent/Decimal(10**STETH_DECIMALS))
+    else:
+        steth_equivalent = int(steth_equivalent)
 
-        if steth is True:
-            balances.append([STETH_ADDRESS, steth_equivalent])
-        else:
-            balances.append([ZERO_ADDRESS, steth_equivalent])
-        return balances
-
-
-    except GetNodeIndexError:
-        return underlying(wallet, block, steth=steth, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return underlying(wallet, block, steth=steth, decimals=decimals, index=index + 1, execution=execution)
-
+    if steth is True:
+        balances.append([STETH_ADDRESS, steth_equivalent])
+    else:
+        balances.append([ZERO_ADDRESS, steth_equivalent])
+    return balances
 
 
 def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False, web3:object=None, execution:int =1, index:int =0)->list:
@@ -113,32 +102,18 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool= False
         If NODE_BLOKCHAIN list is iterated and all connections failed, execution is set +1 to try again the list again
     other errors
         Set index +1 to try next RPC endpoint in the list to fetch data from blockchain    """
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(ETHEREUM, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(ETHEREUM, block=block, index=index)
+    wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, block=block, web3=web3)
+    wsteth_balance = Decimal(amount)
+    stEthPerToken = Decimal(wsteth_contract.functions.stEthPerToken().call(block_identifier=block)) / (
+        Decimal(10 ** 18))
 
-        wsteth_contract = get_contract(WSTETH_ADDRESS, ETHEREUM, block=block, web3=web3)
-        wsteth_balance = Decimal(amount)
-        stEthPerToken = Decimal(wsteth_contract.functions.stEthPerToken().call(block_identifier=block)) / (
-            Decimal(10 ** 18))
+    #FIXME: return Decimal type
+    steth_equivalent = float(wsteth_balance * stEthPerToken)
 
-        steth_equivalent = wsteth_balance * stEthPerToken
-
-        if isinstance(amount, int):
-            steth_equivalent = int(steth_equivalent)
-        else:
-            steth_equivalent = float(steth_equivalent)
-
-        if steth is True:
-            return [STETH_ADDRESS, steth_equivalent]
-        else:
-            return [ZERO_ADDRESS, steth_equivalent]
-
-    except GetNodeIndexError:
-        return unwrap(amount, block, steth=steth, index=0, execution=execution + 1)
-
-    except:
-        return unwrap(amount, block, steth=steth, index=index + 1, execution=execution)
+    if steth is True:
+        return [STETH_ADDRESS, steth_equivalent]
+    else:
+        return [ZERO_ADDRESS, steth_equivalent]
