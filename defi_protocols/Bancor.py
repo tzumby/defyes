@@ -1,5 +1,5 @@
-from defi_protocols.functions import get_node, get_contract, get_decimals, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS
+from defi_protocols.functions import get_node, get_contract, get_decimals
+from defi_protocols.constants import E_ADDRESS
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # LITERALS
@@ -23,101 +23,68 @@ ABI_NETWORK_INFO = '[{"inputs":[{"internalType":"contract Token","name":"pool","
 # ABI of the pools - balanceOf, reserveToken
 ABI_POOL = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"reserveToken","outputs":[{"internalType":"contract Token","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
-# Addresses for ETH
-ETH_ADDR = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+# Bancor address for ETH
 bnETH_ADDR = '0x256Ed1d83E3e4EfDda977389A5389C3433137DDA'
 
 
-def underlying(token_address: str, wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0,
-               decimals=True, reward=False) -> list:
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
+def underlying(token_address: str, wallet: str, block: int, blockchain: str, web3=None, decimals=True, reward=True) -> list:
     balances = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
-        bn_token = token_address if token_address != ETH_ADDR else bnETH_ADDR
-        bancor_poolcontract = get_contract(bn_token, blockchain, web3=web3, abi=ABI_POOL, block=block)
-        balance = bancor_poolcontract.functions.balanceOf(wallet).call(block_identifier=block)
+    wallet = web3.to_checksum_address(wallet)
+    bn_token = token_address if token_address != E_ADDRESS else bnETH_ADDR
+    bancor_poolcontract = get_contract(bn_token, blockchain, web3=web3, abi=ABI_POOL, block=block)
+    balance = bancor_poolcontract.functions.balanceOf(wallet).call(block_identifier=block)
+
+    if balance != 0:
         reserve_token = bancor_poolcontract.functions.reserveToken().call()
-        pooltokens_contract = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
-                                           block=block)
+        pooltokens_contract = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO, block=block)
         bancor_pool = pooltokens_contract.functions.withdrawalAmounts(reserve_token, balance).call()
-        if balance != 0:
-            if decimals is True:
-                decimals0 = get_decimals(reserve_token, blockchain, web3=web3)
-                decimals1 = get_decimals(BNT_TOKEN, blockchain, web3=web3)
-                amount0 = bancor_pool[1] / 10 ** decimals0
-                amount1 = bancor_pool[2] / 10 ** decimals1
-            else:
-                amount0 = bancor_pool[0]
-                amount1 = bancor_pool[2]
+        if decimals is True:
+            decimals0 = get_decimals(reserve_token, blockchain, web3=web3)
+            decimals1 = get_decimals(BNT_TOKEN, blockchain, web3=web3)
+            amount0 = bancor_pool[1] / 10 ** decimals0
+            amount1 = bancor_pool[2] / 10 ** decimals1
+        else:
+            amount0 = bancor_pool[0]
+            amount1 = bancor_pool[2]
 
-            balances.append([reserve_token, amount0])
+        balances.append([reserve_token, amount0])
+        if reward:
             balances.append([BNT_TOKEN, amount1])
-        return balances
-
-    except GetNodeIndexError:
-        return underlying(token_address, wallet, block, blockchain, reward=reward, decimals=decimals, index=0,
-                          execution=execution + 1)
-
-    except:
-        return underlying(token_address, wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                          execution=execution)
+    return balances
 
 
-def underlying_all(wallet: str, block: int, blockchain: str, web3=None, execution=1, index=0, decimals=True,
-                   reward=False) -> list:
+def underlying_all(wallet: str, block: int, blockchain: str, web3=None, decimals=True, reward=True) -> list:
     """
-
     :param wallet:
-    :param lptoken_address:
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param decimals:
     :param reward:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     balances = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        liquiditypools_contract = get_contract(BANCOR_NETWORK_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK,
-                                               block=block)
-        liquidity_pools = liquiditypools_contract.functions.liquidityPools().call()
-        network_info_address = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
-                                            block=block)
+    liquiditypools_contract = get_contract(BANCOR_NETWORK_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK,
+                                           block=block)
+    liquidity_pools = liquiditypools_contract.functions.liquidityPools().call()
+    network_info_address = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
+                                        block=block)
 
-        for pool in liquidity_pools:
-            bn_token = network_info_address.functions.poolToken(pool).call()
-            balance = underlying(bn_token, wallet, block, blockchain, web3, execution, index, decimals, reward)
-            balances.append(balance)
-        return balances
-
-
-    except GetNodeIndexError:
-        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=0,
-                              execution=execution + 1)
-
-    except:
-        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                              execution=execution)
+    for pool in liquidity_pools:
+        bn_token = network_info_address.functions.poolToken(pool).call()
+        balance = underlying(bn_token, wallet, block, blockchain, web3, decimals, reward)
+        balances.append(balance)
+    return balances
 
 # to test
 # wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d'
