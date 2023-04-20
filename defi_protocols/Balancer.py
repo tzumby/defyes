@@ -4,7 +4,7 @@ from operator import itemgetter
 from typing import Union
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, BAL_ETH, BB_A_USD_OLD_ETH, BB_A_USD_ETH, POLYGON, ARBITRUM, BAL_POL, ZERO_ADDRESS
+from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, XDAI, BAL_ETH, BAL_ARB, BAL_XDAI, BB_A_USD_OLD_ETH, BB_A_USD_ETH, POLYGON, ARBITRUM, BAL_POL, ZERO_ADDRESS
 from defi_protocols.prices.prices import get_price
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -25,6 +25,9 @@ LIQUIDITY_GAUGE_FACTORY_POLYGON = '0x3b8cA519122CdD8efb272b0D3085453404B25bD0'
 # Arbitrum Liquidity Gauge Factory Contract Address
 LIQUIDITY_GAUGE_FACTORY_ARBITRUM = '0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2'
 
+# GC Liquidity Gauge Factory Contract Address
+LIQUIDITY_GAUGE_FACTORY_XDAI = "0x809B79b53F18E9bc08A961ED4678B901aC93213a"
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # veBAL
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -37,6 +40,18 @@ VEBAL_FEE_DISTRIBUTOR = '0xD3cf852898b21fc233251427c2DC93d3d604F3BB'
 
 # veBAL Reward Tokens - BAL, bb-a-USD old deployment, bb-a-USD
 VEBAL_REWARD_TOKENS = [BAL_ETH, BB_A_USD_OLD_ETH, BB_A_USD_ETH]
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# CHILD CHAIN GAUGE REWARD HELPER
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# GC Child Gauge Reward Helper
+CHILD_CHAIN_GAUGE_REWARD_HELPER_XDAI = '0xf7D5DcE55E6D47852F054697BAB6A1B48A00ddbd'
+
+# Polygon Child Gauge Reward Helper
+CHILD_CHAIN_GAUGE_REWARD_HELPER_POLYGON = '0xaEb406b0E430BF5Ea2Dc0B9Fe62E4E53f74B3a33'
+
+# Arbitrum Child Gauge Reward Helper
+CHILD_CHAIN_GAUGE_REWARD_HELPER_ARBITRUM = '0xA0DAbEBAAd1b243BBb243f933013d560819eB66f'
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -56,11 +71,17 @@ ABI_VEBAL_FEE_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"user"
 # LP Token ABI - getPoolId, decimals, getActualSupply, getVirtualSupply, totalSupply, getBptIndex, balanceOf, getSwapFeePercentage, getRate, getScalingFactors, getWrappedIndex
 ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getActualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getVirtualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getBptIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getSwapFeePercentage","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getScalingFactors","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getWrappedIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-# Gauge ABI - claimable_tokens, claimable_reward, reward_count, reward_tokens
-ABI_GAUGE = '[{"stateMutability":"nonpayable","type":"function","name":"claimable_tokens","inputs":[{"name":"addr","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"claimable_reward","inputs":[{"name":"_user","type":"address"},{"name":"_reward_token","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_tokens","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}]}]'
+# Gauge ABI - claimable_tokens, claimable_reward, reward_count, reward_tokens, reward_contract
+ABI_GAUGE = '[{"stateMutability":"nonpayable","type":"function","name":"claimable_tokens","inputs":[{"name":"addr","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"claimable_reward","inputs":[{"name":"_user","type":"address"},{"name":"_reward_token","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_tokens","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}]}, {"stateMutability":"view","type":"function","name":"reward_contract","inputs":[],"outputs":[{"name":"","type":"address"}]}]'
 
-# ABI - Pool Tokens - decimals, getRate, UNDERLYING_ASSET_ADDRESS, rate
+# ABI Pool Tokens - decimals, getRate, UNDERLYING_ASSET_ADDRESS, rate
 ABI_POOL_TOKENS_BALANCER = '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getMainToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"UNDERLYING_ASSET_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+
+# ABI Child Gauge Reward Helper - getPendingRewards
+ABI_CHILD_CHAIN_GAUGE_REWARD_HELPER = '[{"inputs":[{"internalType":"contract IRewardsOnlyGauge","name":"gauge","type":"address"},{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"token","type":"address"}],"name":"getPendingRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]'
+
+# ABI Child Chain Streamer - reward_count
+ABI_CHILD_CHAIN_STREAMER = '[{"stateMutability":"view","type":"function","name":"reward_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}]'
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # EVENT SIGNATURES
@@ -82,13 +103,20 @@ def get_gauge_factory_address(blockchain):
     elif blockchain == ARBITRUM:
         return LIQUIDITY_GAUGE_FACTORY_ARBITRUM
 
+    elif blockchain == XDAI:
+        return LIQUIDITY_GAUGE_FACTORY_XDAI
 
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_gauge_address
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_gauge_address(blockchain, block, web3, lptoken_addr):
     gauge_factory_address = get_gauge_factory_address(blockchain)
     gauge_factory_contract = get_contract(gauge_factory_address, blockchain, web3=web3,
                                           abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block)
 
     return gauge_factory_contract.functions.getPoolGauge(lptoken_addr).call()
+
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_lptoken_data
@@ -162,7 +190,23 @@ def get_bal_address(blockchain):
         return BAL_ETH
     elif blockchain == POLYGON:
         return BAL_POL
+    elif blockchain == ARBITRUM:
+        return BAL_ARB
+    elif blockchain == XDAI:
+        return BAL_XDAI
 
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_child_chain_reward_helper_address
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_child_chain_reward_helper_address(blockchain):
+    if blockchain == XDAI:
+        return CHILD_CHAIN_GAUGE_REWARD_HELPER_XDAI
+    elif blockchain == POLYGON: 
+        return CHILD_CHAIN_GAUGE_REWARD_HELPER_POLYGON
+    elif blockchain == ARBITRUM:
+        return CHILD_CHAIN_GAUGE_REWARD_HELPER_ARBITRUM
+    
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_bal_rewards
@@ -188,12 +232,11 @@ def get_bal_rewards(web3, gauge_contract, wallet, block, blockchain, decimals=Tr
     else:
         bal_decimals = 0
 
-    if blockchain == ETHEREUM:
-        bal_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block) / (
-                    10 ** bal_decimals)
-    else:
-        bal_rewards = gauge_contract.functions.claimable_reward(wallet, bal_address).call(block_identifier=block) / (
-                    10 ** bal_decimals)
+    # if blockchain == ETHEREUM:
+    bal_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block) / (10 ** bal_decimals)
+    # else:
+    #     bal_rewards = gauge_contract.functions.claimable_reward(wallet, bal_address).call(block_identifier=block) / (
+    #                 10 ** bal_decimals)
 
     return [bal_address, bal_rewards]
 
@@ -217,10 +260,24 @@ def get_rewards(web3, gauge_contract, wallet, block, blockchain, decimals=True):
     """
     rewards = []
 
-    for i in range(gauge_contract.functions.reward_count().call()):
+    if blockchain == ETHEREUM:
+        reward_count = gauge_contract.functions.reward_count().call(block_identifier=block)
+    else:
+        child_chain_streamer_contract = get_contract(gauge_contract.functions.reward_contract().call(), blockchain, 
+                                                     web3=web3, abi=ABI_CHILD_CHAIN_STREAMER, block=block)
+        reward_count = child_chain_streamer_contract.functions.reward_count().call(block_identifier=block)
+
+    for i in range(reward_count):
 
         token_address = gauge_contract.functions.reward_tokens(i).call()
-        token_rewards = gauge_contract.functions.claimable_reward(wallet, token_address).call(block_identifier=block)
+
+        if blockchain == ETHEREUM:
+            token_rewards = gauge_contract.functions.claimable_reward(wallet, token_address).call(block_identifier=block)
+        else:
+            child_chain_reward_helper_contract = get_contract(get_child_chain_reward_helper_address(blockchain), blockchain, 
+                                                 web3=web3, abi=ABI_CHILD_CHAIN_GAUGE_REWARD_HELPER, block=block)
+            token_rewards = child_chain_reward_helper_contract.functions.getPendingRewards(gauge_contract.address, 
+                                                                        wallet, token_address).call(block_identifier=block)
 
         if decimals == True:
             token_decimals = get_decimals(token_address, blockchain, web3=web3)
@@ -320,9 +377,11 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
         if gauge_address != ZERO_ADDRESS:
             gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
 
-            bal_rewards = get_bal_rewards(web3, gauge_contract, wallet, block, blockchain)
-            all_rewards.append(bal_rewards)
+            if blockchain == ETHEREUM:
+                bal_rewards = get_bal_rewards(web3, gauge_contract, wallet, block, blockchain)
+                all_rewards.append(bal_rewards)
 
+            # In side-chains, BAL rewards are retrieved with the get_rewards function too
             rewards = get_rewards(web3, gauge_contract, wallet, block, blockchain)
 
             if len(rewards) > 0:
@@ -440,10 +499,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                     main_token = token_address
 
                 if lptoken_data['scalingFactors'] is not None:
-                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10**18)
-                    
-                    if token_decimals != 18:
-                        token_balance = token_balance / (10**(2*token_decimals))
+                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
                     
                     if i == lptoken_data['wrappedIndex']:
                         token_balance = token_balance / (token_contract.functions.rate().call(block_identifier=block) / (10**27))
@@ -556,10 +612,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
                     main_token = token_address
 
                 if lptoken_data['scalingFactors'] is not None:
-                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10**18)
-                    
-                    if token_decimals != 18:
-                        token_balance = token_balance / (10**(2*token_decimals))
+                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
                 
                     if i == lptoken_data['wrappedIndex']:
                         token_balance = token_balance / (token_contract.functions.rate().call(block_identifier=block) / (10**27))
@@ -642,10 +695,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, execut
             token_decimals = token_contract.functions.decimals().call()
             
             if lptoken_data['scalingFactors'] is not None:
-                token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10**18)
-                
-                if token_decimals != 18:
-                    token_balance = token_balance / (10**(2*token_decimals))
+                token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
                 
                 if i == lptoken_data['wrappedIndex']:
                     token_balance = token_balance / (token_contract.functions.rate().call(block_identifier=block) / (10**27))
@@ -825,6 +875,8 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
 # feess = get_swap_fees_APR(lptoken,blockchain,blockend)
 # print(feess)
 
+# print(underlying('0x849d52316331967b6ff1198e5e32a0eb168d039d','0x92762b42a06dcdddc5b7362cfb01e631c4d44b40', 'latest', ETHEREUM, reward=True))
+
 # print(underlying("0x64aE36eeaC5BF9c1F4b7Cc6F0Fa32bBa19aaF9Bc","0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
 # print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
 # print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
@@ -855,3 +907,15 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
 # 1.002617750892566000
 # 17828767.929022883593590206
 # 17,875,439
+
+
+    # blockchain = XDAI
+#print(underlying("0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f", "0xf48f01dcb2cbb3ee1f6aab0e742c2d3941039d56", 'latest', XDAI, reward=True))
+#print(underlying("0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f", "0xfedb19ec000d38d92af4b21436870f115db22725", 'latest', XDAI, reward=True))
+# print(pool_balances("0x66f33ae36dd80327744207a48122f874634b3ada", 'latest', XDAI))
+
+#helper = get_contract('0xf7D5DcE55E6D47852F054697BAB6A1B48A00ddbd', XDAI)
+
+#print(helper.functions.getPendingRewards('0x2165b84b2Ae1Fc01F481fA8c9c762B695c57bB21', '0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f', '0x7eF541E2a22058048904fE5744f9c7E4C57AF717').call())
+
+
