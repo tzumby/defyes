@@ -21,7 +21,6 @@ def test_underlying():
     assert underlying == [[E_ADDRESS, 0.15020393685029101], [ETHTokenAddr.BNT, 0.0]]
 
 
-@pytest.mark.skip(reason="Takes too long. Needs refactor")
 def test_underlying_all():
     block = 17067718
     node = get_node(ETHEREUM, block)

@@ -23,9 +23,6 @@ ABI_NETWORK_INFO = '[{"inputs":[{"internalType":"contract Token","name":"pool","
 # ABI of the pools - balanceOf, reserveToken
 ABI_POOL = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"reserveToken","outputs":[{"internalType":"contract Token","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
-# Bancor address for ETH
-bnETH_ADDR = '0x256Ed1d83E3e4EfDda977389A5389C3433137DDA'
-
 
 def underlying(token_address: str, wallet: str, block: int, blockchain: str, web3=None, decimals=True, reward=True) -> list:
     balances = []
@@ -34,8 +31,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
         web3 = get_node(blockchain, block=block)
 
     wallet = web3.to_checksum_address(wallet)
-    bn_token = token_address if token_address != E_ADDRESS else bnETH_ADDR
-    bancor_poolcontract = get_contract(bn_token, blockchain, web3=web3, abi=ABI_POOL, block=block)
+    bancor_poolcontract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
     balance = bancor_poolcontract.functions.balanceOf(wallet).call(block_identifier=block)
 
     if balance != 0:
