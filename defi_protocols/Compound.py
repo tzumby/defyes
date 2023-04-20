@@ -1,5 +1,5 @@
-from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, GetNodeIndexError
-from defi_protocols.constants import ETHEREUM, COMP_ETH, MAX_EXECUTIONS, ZERO_ADDRESS
+from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of
+from defi_protocols.constants import ETHEREUM, COMP_ETH, ZERO_ADDRESS
 from defi_protocols.prices import prices
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -71,23 +71,20 @@ def get_comptroller_contract(blockchain, web3, block):
     comptroller_address = get_comptoller_address(blockchain)
     return get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER, block=block)
 
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_ctoken_data
 # 'web3' = web3 (Node) -> Improves performance
 # 'ctoken_contract' = ctoken_contract -> Improves performance
 # 'underlying_token' = underlying_token -> Improves performance
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken_contract=None,
-                    underlying_token=None):
+def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken_contract=None, underlying_token=None):
     """
-
     :param ctoken_address:
     :param wallet:
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :return:
     """
     if web3 is None:
@@ -135,8 +132,6 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     :param blockchain:
     :param web3:
     :param decimals:
-    :param execution:
-    :param index:
     :return:
     """
     balances = []
@@ -200,9 +195,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     :param wallet:
     :param block:
     :param blockchain:
-    :param execution:
     :param web3:
-    :param index:
     :param decimals:
     :param reward:
     :return:
@@ -275,8 +268,6 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, decimals=True):
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param decimals:
     :return:
     """
@@ -329,8 +320,6 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param decimals:
     :return:
     """
@@ -375,8 +364,6 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param ctoken_address:
     :param apy:
     :return:
@@ -459,8 +446,6 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param ctoken_address:
     :param apy:
     :return:
@@ -546,4 +531,3 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
 
         return [{'metric': 'apr', 'type': 'supply', 'value': comp_supply_apr},
                 {'metric': 'apr', 'type': 'borrow', 'value': comp_borrow_apr}]
-
