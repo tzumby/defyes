@@ -85,9 +85,3 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, decimals
         balance = underlying(bn_token, wallet, block, blockchain, web3, decimals, reward)
         balances.append(balance)
     return balances
-
-# to test
-# wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d'
-# token_address = '0x36FAbE4cAeF8c190550b6f93c306A5644E7dCef6'
-# bancor = underlying(token_address, wallet,'latest',ETHEREUM)
-# print(bancor)
