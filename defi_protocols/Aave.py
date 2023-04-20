@@ -1,6 +1,11 @@
-from defi_protocols.functions import *
-
+import logging
 from typing import Union, Optional
+
+from defi_protocols.constants import ETHEREUM, STKAAVE_ETH, AAVE_ETH
+from defi_protocols.functions import get_contract, get_node, get_decimals, balance_of
+
+
+logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROTOCOL DATA PROVIDER
@@ -142,7 +147,7 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
+def get_data(wallet, block, blockchain, web3=None, decimals=True):
     """
 
     :param wallet:
@@ -154,82 +159,71 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimal
     :param decimals:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     aave_data = {}
     collaterals = []
     debts = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
 
-        lpapr_address = get_lpapr_address(blockchain)
-        lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+    lpapr_address = get_lpapr_address(blockchain)
+    lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
-        lending_pool_address = lpapr_contract.functions.getLendingPool().call()
-        lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
+    lending_pool_address = lpapr_contract.functions.getLendingPool().call()
+    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
+                                         block=block)
+
+    chainlink_eth_usd_contract = get_contract(CHAINLINK_ETH_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD,
+                                              block=block)
+    chainlink_eth_usd_decimals = chainlink_eth_usd_contract.functions.decimals().call()
+    eth_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / (
+                10 ** chainlink_eth_usd_decimals)
+
+    balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
+    if balances is None:
+        return None
+
+    if len(balances) > 0:
+
+        price_oracle_address = lpapr_contract.functions.getPriceOracle().call()
+        price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE,
                                              block=block)
 
-        chainlink_eth_usd_contract = get_contract(CHAINLINK_ETH_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD,
-                                                  block=block)
-        chainlink_eth_usd_decimals = chainlink_eth_usd_contract.functions.decimals().call()
-        eth_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / (
-                    10 ** chainlink_eth_usd_decimals)
+        for balance in balances:
+            asset = {}
 
-        balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
-        if balances is None:
-            return None
+            asset['token_address'] = balance[0]
+            asset['token_amount'] = abs(balance[1])
+            asset['token_price_usd'] = price_oracle_contract.functions.getAssetPrice(asset['token_address']).call(
+                block_identifier=block) / (10 ** 18) * eth_usd_price
 
-        if len(balances) > 0:
+            if balance[1] < 0:
+                debts.append(asset)
+            else:
+                collaterals.append(asset)
 
-            price_oracle_address = lpapr_contract.functions.getPriceOracle().call()
-            price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE,
-                                                 block=block)
+    # getUserAccountData return a list with the following data:
+    # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor
+    user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
 
-            for balance in balances:
-                asset = {}
+    # Collateral Ratio
+    aave_data['collateral_ratio'] = (user_account_data[0] / user_account_data[1]) * 100
 
-                asset['token_address'] = balance[0]
-                asset['token_amount'] = abs(balance[1])
-                asset['token_price_usd'] = price_oracle_contract.functions.getAssetPrice(asset['token_address']).call(
-                    block_identifier=block) / (10 ** 18) * eth_usd_price
+    # Liquidation Ratio
+    aave_data['liquidation_ratio'] = (1 / user_account_data[3]) * 1000000
 
-                if balance[1] < 0:
-                    debts.append(asset)
-                else:
-                    collaterals.append(asset)
+    # Ether price in USD
+    aave_data['eth_price_usd'] = eth_usd_price
 
-        # getUserAccountData return a list with the following data:
-        # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor 
-        user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
+    # Collaterals Data
+    aave_data['collaterals'] = collaterals
 
-        # Collateral Ratio
-        aave_data['collateral_ratio'] = (user_account_data[0] / user_account_data[1]) * 100
+    # Debts Data
+    aave_data['debts'] = debts
 
-        # Liquidation Ratio
-        aave_data['liquidation_ratio'] = (1 / user_account_data[3]) * 1000000
-
-        # Ether price in USD
-        aave_data['eth_price_usd'] = eth_usd_price
-
-        # Collaterals Data
-        aave_data['collaterals'] = collaterals
-
-        # Debts Data
-        aave_data['debts'] = debts
-
-        return aave_data
-
-    except GetNodeIndexError:
-        return get_data(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_data(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+    return aave_data
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -241,7 +235,7 @@ def get_data(wallet, block, blockchain, execution=1, web3=None, index=0, decimal
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True):
+def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     """
 
     :param wallet:
@@ -253,43 +247,33 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
     :param decimals:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
-    if execution > MAX_EXECUTIONS:
-        return None
-
     all_rewards = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
 
-        wallet = web3.to_checksum_address(wallet)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        stkaave_address = get_stkaave_address(blockchain)
-        if stkaave_address is None:
-            return None
+    wallet = web3.to_checksum_address(wallet)
 
-        stkaave_contract = get_contract(stkaave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+    stkaave_address = get_stkaave_address(blockchain)
+    if stkaave_address is None:
+        return None
 
-        reward_token = stkaave_contract.functions.REWARD_TOKEN().call()
+    stkaave_contract = get_contract(stkaave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
 
-        if decimals is True:
-            reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3)
-        else:
-            reward_token_decimals = 0
+    reward_token = stkaave_contract.functions.REWARD_TOKEN().call()
 
-        reward_balance = stkaave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (
-                    10 ** reward_token_decimals)
+    if decimals is True:
+        reward_token_decimals = get_decimals(reward_token, blockchain, web3=web3)
+    else:
+        reward_token_decimals = 0
 
-        all_rewards.append([reward_token, reward_balance])
+    reward_balance = stkaave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block) / (
+                10 ** reward_token_decimals)
 
-        return all_rewards
+    all_rewards.append([reward_token, reward_balance])
 
-    except GetNodeIndexError:
-        return get_all_rewards(wallet, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_all_rewards(wallet, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
+    return all_rewards
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -302,7 +286,7 @@ def get_all_rewards(wallet, block, blockchain, execution=1, web3=None, index=0, 
 # 1 - List of Tuples: [token_address, balance], where balance = currentATokenBalance - currentStableDebt - currentStableDebt
 # 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, decimals=True, reward=False):
+def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=False):
     """
 
     :param wallet:
@@ -315,40 +299,26 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
     :param reward:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
+    result = []
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    wallet = web3.to_checksum_address(wallet)
+
+    balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
+    if balances is None:
         return None
 
-    result = []
+    if reward is True:
+        all_rewards = get_all_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+        result.append(balances)
+        result.append(all_rewards)
 
-        wallet = web3.to_checksum_address(wallet)
+    else:
+        result = balances
 
-        balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
-        if balances is None:
-            return None
-
-        if reward is True:
-            all_rewards = get_all_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
-
-            result.append(balances)
-            result.append(all_rewards)
-
-        else:
-            result = balances
-
-        return result
-
-    except GetNodeIndexError:
-        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=0,
-                              execution=execution + 1)
-
-    except:
-        return underlying_all(wallet, block, blockchain, reward=reward, decimals=decimals, index=index + 1,
-                              execution=execution)
+    return result
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -362,7 +332,7 @@ def underlying_all(wallet, block, blockchain, execution=1, web3=None, index=0, d
 #             {'metric': 'apr'/'apy', 'type': 'variable_borrow', 'value': borrow_apr/borrow_apy},
 #             {'metric': 'apr'/'apy', 'type': 'stable_borrow', 'value': borrow_apr/borrow_apy}]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, apy=False):
+def get_apr(token_address, block, blockchain, web3=None, apy=False):
     """
 
     :para token_address:
@@ -375,48 +345,41 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, a
     :return:
     """
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        lpapr_address = get_lpapr_address(blockchain)
-        lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+    lpapr_address = get_lpapr_address(blockchain)
+    lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
-        lending_pool_address = lpapr_contract.functions.getLendingPool().call()
-        lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
-                                             block=block)
+    lending_pool_address = lpapr_contract.functions.getLendingPool().call()
+    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
+                                         block=block)
 
-        reserve_data = lending_pool_contract.functions.getReserveData(token_address).call(block_identifier=block)
+    reserve_data = lending_pool_contract.functions.getReserveData(token_address).call(block_identifier=block)
 
-        liquidity_rate = reserve_data[3]
-        variable_borrow_rate = reserve_data[4]
-        stable_borrow_rate = reserve_data[5]
+    liquidity_rate = reserve_data[3]
+    variable_borrow_rate = reserve_data[4]
+    stable_borrow_rate = reserve_data[5]
 
-        ray = 10 ** 27
-        seconds_per_year = 31536000
+    ray = 10 ** 27
+    seconds_per_year = 31536000
 
-        deposit_apr = liquidity_rate / ray
-        variable_borrow_apr = variable_borrow_rate / ray
-        stable_borrow_apr = stable_borrow_rate / ray
+    deposit_apr = liquidity_rate / ray
+    variable_borrow_apr = variable_borrow_rate / ray
+    stable_borrow_apr = stable_borrow_rate / ray
 
-        if apy is False:
-            return [{'metric': 'apr', 'type': 'supply', 'value': deposit_apr},
-                    {'metric': 'apr', 'type': 'variable_borrow', 'value': variable_borrow_apr},
-                    {'metric': 'apr', 'type': 'stable_borrow', 'value': stable_borrow_apr}]
-        else:
-            deposit_apy = ((1 + (deposit_apr / seconds_per_year)) ** seconds_per_year) - 1
-            variable_borrow_apy = ((1 + (variable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
-            stable_borrow_apy = ((1 + (stable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
+    if apy is False:
+        return [{'metric': 'apr', 'type': 'supply', 'value': deposit_apr},
+                {'metric': 'apr', 'type': 'variable_borrow', 'value': variable_borrow_apr},
+                {'metric': 'apr', 'type': 'stable_borrow', 'value': stable_borrow_apr}]
+    else:
+        deposit_apy = ((1 + (deposit_apr / seconds_per_year)) ** seconds_per_year) - 1
+        variable_borrow_apy = ((1 + (variable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
+        stable_borrow_apy = ((1 + (stable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
 
-            return [{'metric': 'apy', 'type': 'supply', 'value': deposit_apy},
-                    {'metric': 'apy', 'type': 'variable_borrow', 'value': variable_borrow_apy},
-                    {'metric': 'apy', 'type': 'stable_borrow', 'value': stable_borrow_apy}]
-
-    except GetNodeIndexError:
-        return get_apr(token_address, block, blockchain, apy=apy, index=0, execution=execution + 1)
-
-    except:
-        return get_apr(token_address, block, blockchain, apy=apy, index=index + 1, execution=execution)
+        return [{'metric': 'apy', 'type': 'supply', 'value': deposit_apy},
+                {'metric': 'apy', 'type': 'variable_borrow', 'value': variable_borrow_apy},
+                {'metric': 'apy', 'type': 'stable_borrow', 'value': stable_borrow_apy}]
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -428,7 +391,7 @@ def get_apr(token_address, block, blockchain, web3=None, execution=1, index=0, a
 # Output: Tuple:
 # 1 - Tuple: [{'metric': 'apr'/'apy', 'type': 'staking', 'value': staking_apr/staking_apy}]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=False):
+def get_staking_apr(block, blockchain, web3=None, apy=False):
     """
 
     :param block:
@@ -438,34 +401,27 @@ def get_staking_apr(block, blockchain, web3=None, execution=1, index=0, apy=Fals
     :param index:
     :return:
     """
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    seconds_per_year = 31536000
+    stk_aave_address = get_stkaave_address(blockchain)
+    stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+    emission_per_second = stkaave_contract.functions.assets(stk_aave_address).call(block_identifier=block)[0]
+    aave_token_address = stkaave_contract.functions.REWARD_TOKEN().call()
+    current_stakes = balance_of(stk_aave_address, aave_token_address, block, blockchain, web3=web3, decimals=False)
 
-        seconds_per_year = 31536000
-        stk_aave_address = get_stkaave_address(blockchain)
-        stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
-        emission_per_second = stkaave_contract.functions.assets(stk_aave_address).call(block_identifier=block)[0]
-        aave_token_address = stkaave_contract.functions.REWARD_TOKEN().call()
-        current_stakes = balance_of(stk_aave_address, aave_token_address, block, blockchain, web3=web3, decimals=False)
+    staking_apr = emission_per_second * seconds_per_year / current_stakes
 
-        staking_apr = emission_per_second * seconds_per_year / current_stakes
+    if apy is False:
+        return [{'metric': 'apr', 'type': 'staking', 'value': staking_apr}]
+    else:
+        staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1
 
-        if apy is False:
-            return [{'metric': 'apr', 'type': 'staking', 'value': staking_apr}]
-        else:
-            staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1
+        return [{'metric': 'apy', 'type': 'staking', 'value': staking_apy}]
 
-            return [{'metric': 'apy', 'type': 'staking', 'value': staking_apy}]
 
-    except GetNodeIndexError:
-        return get_staking_apr(block, blockchain, apy=apy, index=0, execution=execution + 1)
-
-    except:
-        return get_staking_apr(block, blockchain, apy=apy, index=index + 1, execution=execution)
-
-def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, execution: int = 1, index: int = 0, decimals: bool = True) -> list:
+def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, decimals: bool = True) -> list:
     """
 
     :param block:
@@ -478,37 +434,30 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bo
 
     balances = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        aave_wallet = web3.to_checksum_address(wallet)
+    aave_wallet = web3.to_checksum_address(wallet)
 
-        stk_aave_address = get_stkaave_address(blockchain)
-        stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
-        stkaave_balance = stkaave_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
-        stkaave_decimals = stkaave_contract.functions.decimals().call()
+    stk_aave_address = get_stkaave_address(blockchain)
+    stkaave_contract = get_contract(stk_aave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+    stkaave_balance = stkaave_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
+    stkaave_decimals = stkaave_contract.functions.decimals().call()
 
-        stkabpt_contract = get_contract(STAKED_ABPT_TOKEN, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
-        stkabpt_balance = stkabpt_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
-        stkabpt_decimals = stkabpt_contract.functions.decimals().call()
+    stkabpt_contract = get_contract(STAKED_ABPT_TOKEN, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+    stkabpt_balance = stkabpt_contract.functions.balanceOf(aave_wallet).call(block_identifier=block)
+    stkabpt_decimals = stkabpt_contract.functions.decimals().call()
 
-        if decimals:
-            stkabpt_balance = stkabpt_balance / 10 ** stkabpt_decimals
-            stkaave_balance = stkaave_balance / 10 ** stkaave_decimals
-        
-        if stkaave:
-            balances.append([STKAAVE_ETH,stkaave_balance])
-            balances.append([STAKED_ABPT_TOKEN,stkabpt_balance])            
-        else:
-            balances.append([AAVE_ETH,stkaave_balance])
-            balances.append([AAVE_ETH,stkabpt_balance])
+    if decimals:
+        stkabpt_balance = stkabpt_balance / 10 ** stkabpt_decimals
+        stkaave_balance = stkaave_balance / 10 ** stkaave_decimals
 
-        return balances
+    if stkaave:
+        balances.append([STKAAVE_ETH, stkaave_balance])
+        balances.append([STAKED_ABPT_TOKEN, stkabpt_balance])
+    else:
+        balances.append([AAVE_ETH, stkaave_balance])
+        balances.append([AAVE_ETH, stkabpt_balance])
 
+    return balances
 
-    except GetNodeIndexError:
-        return get_staked(wallet, block, blockchain, stkaave, web3=web3, index=0, execution=execution + 1)
-
-    except:
-        return get_staked(wallet, block, blockchain, stkaave, web3=web3, index=index + 1, execution=execution)

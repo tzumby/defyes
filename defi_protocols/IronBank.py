@@ -1,5 +1,5 @@
-from defi_protocols.functions import *
-from defi_protocols.constants import *
+from defi_protocols.functions import get_node, get_contract, get_decimals, last_block, GetNodeIndexError
+from defi_protocols.constants import MAX_EXECUTIONS, OPTIMISM, ZERO_ADDRESS
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # UNITROLLER
@@ -125,7 +125,7 @@ def get_itoken_data(itoken_address, wallet, block, blockchain, web3=None, execut
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         itoken_data = {}
 
@@ -187,7 +187,7 @@ def get_all_rewards(wallet, itoken, block, blockchain, web3=None, execution=1, i
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -248,7 +248,7 @@ def all_rewards(wallet, block, blockchain, web3=None, execution=1, index=0, deci
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -323,7 +323,7 @@ def get_locked(wallet, block, blockchain, nft_id=302, execution=1, web3=None, in
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -417,7 +417,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         token_address = web3.to_checksum_address(token_address)
@@ -523,7 +523,7 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
 
@@ -634,7 +634,7 @@ def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, executio
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         itoken_contract = get_contract(itoken_address, blockchain, abi=ABI_ITOKEN, web3=web3, block=block)
         itoken_decimals = itoken_contract.functions.decimals().call()

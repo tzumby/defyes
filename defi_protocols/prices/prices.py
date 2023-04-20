@@ -1,13 +1,14 @@
-from defi_protocols.functions import *
-from defi_protocols.prices import Chainlink
-from defi_protocols.prices import CoinGecko
-from defi_protocols.prices import _1inch
-from defi_protocols.prices import Zapper
-from pathlib import Path
 import os
-from tqdm import tqdm
+import json
+import requests
 import pandas as pd
+from tqdm import tqdm
+from pathlib import Path
+from datetime import datetime
 
+from defi_protocols.functions import get_node, timestamp_to_block, block_to_timestamp, GetNodeIndexError
+from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, ZERO_ADDRESS, API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN
+from defi_protocols.prices import Chainlink, CoinGecko, _1inch, Zapper
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_price
@@ -25,7 +26,7 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         token_address = web3.to_checksum_address(token_address)
 

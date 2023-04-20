@@ -3,14 +3,14 @@
 ## Defined in functions.py
 
 
-### 1: get_node(blockchain, block='latest', index=0)
+### 1: get_node(blockchain, block='latest')
 
 > Description: function returns web3 object of the node
 
 - <details><summary><b>Example</b></summary>
 
   ```
-  a = get_node(ETHEREUM, 'latest', 0)
+  a = get_node(ETHEREUM, 'latest')
   print(a)
   ```
 
@@ -20,14 +20,14 @@
   ```
   </details>
 
-### 2: last_block(blockchain, web3=None, block='latest', index=0)
+### 2: last_block(blockchain, web3=None, block='latest')
 
 > Description: functoion returns last block of the blockchain
 
 - <details><summary><b>Example</b></summary>
 
   ```
-  a = last_block(ETHEREUM, None, 'latest', 0)
+  a = last_block(ETHEREUM, None, 'latest')
   print(a)
   ```
 
@@ -178,7 +178,7 @@
   ```
   </details>
 
-### 11: balance_of(address, contract_address, block, blockchain, execution=1, web3=None, index=0, decimals=True)
+### 11: balance_of(address, contract_address, block, blockchain, web3=None, decimals=True)
 
 > Description: function returns ballance of given wallet for given contract
 
@@ -196,7 +196,7 @@
   ```
   </details>
 
-### 12: total_supply(token_address, block, blockchain, execution=1, web3=None, index=0, decimals=True)
+### 12: total_supply(token_address, block, blockchain, web3=None, decimals=True)
 
 > Description: fucntion returns total suppy for a given token contract address
 
@@ -214,12 +214,12 @@
   ```
   </details>
 
-### 13: get_decimals(token_address, blockchain, execution=1, web3=None, block='latest', index=0)
+### 13: get_decimals(token_address, blockchain, web3=None, block='latest')
 
 > Description: function returns decimals for given token address
 
 
-### 14: get_symbol(token_address, blockchain, execution=1, web3=None, block='latest', index=0) -> str
+### 14: get_symbol(token_address, blockchain, web3=None, block='latest') -> str
 
 > Description: function returns symbol for given toke contract address
 
@@ -227,7 +227,7 @@
 
 > fucntion returns abi for given contract address
 
-### 16: get_contract(contract_address, blockchain, web3=None, abi=None, block='latest', index=0)
+### 16: get_contract(contract_address, blockchain, web3=None, abi=None, block='latest')
 
 > Description: function returns web3 contract object for given contract object
 

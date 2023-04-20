@@ -1,4 +1,5 @@
-from defi_protocols.functions import *
+from defi_protocols.functions import get_node, get_contract, balance_of, GetNodeIndexError
+from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, DAI_ETH
 from typing import Union
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ def get_vault_data(vault_id, block, web3=None, execution=1, index=0):
 
     try:
         if web3 is None:
-            web3 = get_node(ETHEREUM, block=block, index=index)
+            web3 = get_node(ETHEREUM, block=block)
 
         cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
         ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY,
@@ -131,7 +132,7 @@ def underlying(vault_id, block, web3=None, execution=1, index=0):
 
     try:
         if web3 is None:
-            web3 = get_node(ETHEREUM, block=block, index=index)
+            web3 = get_node(ETHEREUM, block=block)
 
         vault_data = get_vault_data(vault_id, block, web3=web3)
 
@@ -159,7 +160,7 @@ def get_delegated_MKR(wallet: str, block: Union[int, str], web3=None, decimals=T
 
     try:
         if web3 is None:
-            web3 = get_node(ETHEREUM, block=block, index=index)
+            web3 = get_node(ETHEREUM, block=block)
 
         MKR_address = '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'
         IOU_token_address = '0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7'

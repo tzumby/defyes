@@ -1,4 +1,5 @@
-from defi_protocols.functions import *
+from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs_web3, GetNodeIndexError
+from defi_protocols.constants import MAX_EXECUTIONS
 from typing import Union
 from defi_protocols.util.topic import TopicCreator, AddressHexor
 
@@ -37,7 +38,7 @@ def get_deposit(wallet: str, nftid: str, contract_address: str, block: Union[int
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         azuro = web3.to_checksum_address(contract_address)
@@ -86,7 +87,7 @@ def get_amount(wallet: str, contract_1: str, contract_2: str, nftid: int, block:
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
         try:
             owner_1 = contract_1.functions.ownerOf(nftid).call()
         except:
@@ -139,7 +140,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         pool_address_v1 = get_contract(AZURO_POOL_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
@@ -166,7 +167,7 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=No
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         wallet = web3.to_checksum_address(wallet)
         pool_address_v1 = get_contract(AZURO_POOL_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)

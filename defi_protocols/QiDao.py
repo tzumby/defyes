@@ -1,4 +1,5 @@
-from defi_protocols.functions import *
+from defi_protocols.functions import get_node, get_contract, get_decimals, timestamp_to_block, block_to_timestamp, GetNodeIndexError
+from defi_protocols.constants import XDAI, GNO_XDAI, WETH_XDAI, POLYGON, MAX_EXECUTIONS, MAI_POL
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # QIDAO_VAULTS
@@ -99,7 +100,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, e
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         collateral_address = web3.to_checksum_address(collateral_address)
 
@@ -235,7 +236,7 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, execu
 
     try:
         if web3 is None:
-            web3 = get_node(blockchain, block=block, index=index)
+            web3 = get_node(blockchain, block=block)
 
         collateral_address = web3.to_checksum_address(collateral_address)
 
