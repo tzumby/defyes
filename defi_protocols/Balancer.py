@@ -74,8 +74,8 @@ ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"byte
 # Gauge ABI - claimable_tokens, claimable_reward, reward_count, reward_tokens, reward_contract
 ABI_GAUGE = '[{"stateMutability":"nonpayable","type":"function","name":"claimable_tokens","inputs":[{"name":"addr","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"claimable_reward","inputs":[{"name":"_user","type":"address"},{"name":"_reward_token","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_tokens","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}]}, {"stateMutability":"view","type":"function","name":"reward_contract","inputs":[],"outputs":[{"name":"","type":"address"}]}]'
 
-# ABI Pool Tokens - decimals, getRate, UNDERLYING_ASSET_ADDRESS, rate
-ABI_POOL_TOKENS_BALANCER = '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getMainToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"UNDERLYING_ASSET_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+# ABI Pool Tokens - decimals, getRate, UNDERLYING_ASSET_ADDRESS, rate, stETH
+ABI_POOL_TOKENS_BALANCER = '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getMainToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"UNDERLYING_ASSET_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"stETH","outputs":[{"internalType":"contract IStETH","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
 # ABI Child Gauge Reward Helper - getPendingRewards
 ABI_CHILD_CHAIN_GAUGE_REWARD_HELPER = '[{"inputs":[{"internalType":"contract IRewardsOnlyGauge","name":"gauge","type":"address"},{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"token","type":"address"}],"name":"getPendingRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]'
@@ -496,7 +496,10 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                 try:
                     main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
                 except:
-                    main_token = token_address
+                    try:
+                        main_token = token_contract.functions.stETH().call()
+                    except:
+                        main_token = token_address
 
                 if lptoken_data['scalingFactors'] is not None:
                     token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
@@ -609,7 +612,10 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
                 try:
                     main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
                 except:
-                    main_token = token_address
+                    try:
+                        main_token = token_contract.functions.stETH().call()
+                    except:
+                        main_token = token_address
 
                 if lptoken_data['scalingFactors'] is not None:
                     token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
@@ -715,7 +721,10 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, execut
                     try:
                         main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
                     except:
-                        main_token = token_address
+                        try:
+                            main_token = token_contract.functions.stETH().call()
+                        except:
+                            main_token = token_address
                 
                 balances.append([main_token, token_balance])
             else:
@@ -877,8 +886,8 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
 
 # print(underlying('0x849d52316331967b6ff1198e5e32a0eb168d039d','0x92762b42a06dcdddc5b7362cfb01e631c4d44b40', 'latest', ETHEREUM, reward=True))
 
-# print(underlying("0x64aE36eeaC5BF9c1F4b7Cc6F0Fa32bBa19aaF9Bc","0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
-# print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
+#print(underlying("0x64aE36eeaC5BF9c1F4b7Cc6F0Fa32bBa19aaF9Bc","0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
+#print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
 # print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
 
 # print(pool_balances("0x76fcf0e8c7ff37a47a799fa2cd4c13cde0d981c9", 'latest', ETHEREUM))
