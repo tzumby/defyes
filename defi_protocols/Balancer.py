@@ -497,7 +497,11 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
                     main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
                 except:
                     try:
-                        main_token = token_contract.functions.stETH().call()
+                        stETH = token_contract.functions.stETH().call()
+                        if lptoken_data['scalingFactors'] is None:
+                            main_token = stETH
+                        else:
+                            main_token = token_address
                     except:
                         main_token = token_address
 
@@ -613,7 +617,11 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
                     main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
                 except:
                     try:
-                        main_token = token_contract.functions.stETH().call()
+                        stETH = token_contract.functions.stETH().call()
+                        if lptoken_data['scalingFactors'] is None:
+                            main_token = stETH
+                        else:
+                            main_token = token_address
                     except:
                         main_token = token_address
 
@@ -722,7 +730,11 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, execut
                         main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
                     except:
                         try:
-                            main_token = token_contract.functions.stETH().call()
+                            stETH = token_contract.functions.stETH().call()
+                            if lptoken_data['scalingFactors'] is None:
+                                main_token = stETH
+                            else:
+                                main_token = token_address
                         except:
                             main_token = token_address
                 
@@ -889,6 +901,8 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
 #print(underlying("0x64aE36eeaC5BF9c1F4b7Cc6F0Fa32bBa19aaF9Bc","0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
 #print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM, decimals=False))
 # print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
+#print(pool_balances("0xd4f79CA0Ac83192693bce4699d0c10C66Aa6Cf0F", 'latest', ETHEREUM))
+#print(underlying("0xce88686553686DA562CE7Cea497CE749DA109f9F","0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5", 'latest', ETHEREUM))
 
 # print(pool_balances("0x76fcf0e8c7ff37a47a799fa2cd4c13cde0d981c9", 'latest', ETHEREUM))
 
