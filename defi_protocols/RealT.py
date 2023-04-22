@@ -1,4 +1,5 @@
 from typing import Union
+from decimal import Decimal
 
 from defi_protocols.functions import get_node, get_contract
 
@@ -15,20 +16,16 @@ TOKEN_CONTRACT_ABI = '[{"type":"function","stateMutability":"view","outputs":[{"
 def underlying(wallet: str, block: Union[int,str], blockchain: str,
                web3=None, decimals=True) -> list:
 
-    balances = []
-
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
     wallet = web3.to_checksum_address(wallet)
-    token_contract = get_contract(TOKEN_CONTRACT_XDAI,blockchain,web3,abi=TOKEN_CONTRACT_ABI)
-    balance_of = token_contract.functions.balanceOf(wallet).call(block_identifier=block)
+    token_contract = get_contract(TOKEN_CONTRACT_XDAI, blockchain,
+                                  web3, abi=TOKEN_CONTRACT_ABI)
+    balance_of = Decimal(token_contract.functions.balanceOf(wallet).call(block_identifier=block))
     token_decimals = token_contract.functions.decimals().call()
     underlying_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
 
-    if decimals == True:
-        balances.append([underlying_token,balance_of/(10**token_decimals)])
-    else:
-        balances.append([underlying_token,balance_of])
+    balance = balance_of / Decimal(10**(token_decimals if decimals else 0))
 
-    return balances
+    return [[underlying_token, balance]]
