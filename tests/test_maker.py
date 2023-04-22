@@ -1,7 +1,7 @@
 
 from defi_protocols import Maker
 from defi_protocols.functions import get_node
-from defi_protocols.constants import ETHEREUM, DAI_ETH, WETH_ETH, ETHTokenAddr
+from defi_protocols.constants import ETHEREUM, DAI_ETH, ETHTokenAddr
 
 
 TEST_BLOCK = 17070386
@@ -15,7 +15,7 @@ VAULT_ID = 27353
 def test_get_vault_data():
     x = Maker.get_vault_data(VAULT_ID, TEST_BLOCK, WEB3)
     assert x == {'mat': 1.6,
-                 'gem': ETHTokenAddr.stETH,
+                 'gem': ETHTokenAddr.wstETH,
                  'dai': DAI_ETH, 
                  'ink': 57328.918780519,
                  'art': 21811755.174275193,
@@ -28,7 +28,7 @@ def test_get_vault_data():
 
 def test_underlying():
     x = Maker.underlying(VAULT_ID, TEST_BLOCK, WEB3)
-    assert x == [[ETHTokenAddr.stETH, 57328.918780519],
+    assert x == [[ETHTokenAddr.wstETH, 57328.918780519],
                  [DAI_ETH, -22548608.444234513]]
 
 def test_get_delegated_MKR():
