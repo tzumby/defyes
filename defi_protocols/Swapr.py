@@ -33,20 +33,11 @@ ABI_LPTOKEN = '[{"type":"function","stateMutability":"view","payable":false,"out
 # EVENT SIGNATURES
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Swap Event Signature
+
 SWAP_EVENT_SIGNATURE = 'Swap(address,uint256,uint256,uint256,uint256,address)'
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_staking_rewards_contract
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staking_rewards_contract(web3, block, blockchain):
-    """
-
-    :param web3:
-    :param block:
-    :param blockchain:
-    :return:
-    """
     if blockchain == ETHEREUM:
         staking_rewards_contract = get_contract(SRC_ETHEREUM, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
@@ -56,21 +47,9 @@ def get_staking_rewards_contract(web3, block, blockchain):
     return staking_rewards_contract
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_distribution_contracts
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, campaigns, block, blockchain, db):
-    """
-
-    :param web3:
-    :param lptoken_address:
-    :param staking_rewards_contract:
-    :param campaigns:
-    :param block:
-    :param blockchain:
-    :return:
-    """
     distribution_contracts = []
+    # FIXME: campaigns can be an int and a string
 
     if campaigns != 0:
         if db is True:
@@ -95,6 +74,7 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
                 block_identifier=block)
 
             for i in range(distributions_amount):
+                #FIXME: this takes forever
                 distribution_address = staking_rewards_contract.functions.distributions(
                     distributions_amount - (i + 1)).call(block_identifier=block)
                 distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION,
@@ -105,6 +85,7 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
                     distribution_contracts.append(distribution_contract)
                     campaign_counter += 1
 
+                    # FIXME: it's unclear when this loop finishes
                     if campaigns == 'all' or campaign_counter < campaigns:
                         continue
                     else:
@@ -113,23 +94,7 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
     return distribution_contracts
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_lptoken_data
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1, index=0):
-    """
-
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -162,39 +127,18 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1,
     except GetNodeIndexError:
         return get_lptoken_data(lptoken_address, block, blockchain, index=0, execution=execution + 1)
 
-    except:
+    except Exception as e:
+        print(e)
         return get_lptoken_data(lptoken_address, block, blockchain, index=index + 1, execution=execution)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_all_rewards
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# 'distribution_contracts' -> Improves performance
 # 'campaigns' = number of campaigns from which the data is retrieved /
 # 'campaigns' = 0 it does not search for any campaign nor distribution contract
 # 'campaigns' = 'all' retrieves the data from all campaigns
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True,
                     campaigns=1, distribution_contracts=None, db=True):
-    """
-
-    :param wallet:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param decimals:
-    :param campaigns:
-    :param distribution_contracts:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -239,46 +183,28 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execu
 
             return all_rewards
 
-    except GetNodeIndexError:
+    except GetNodeIndexError as e:
+        sleep(0.5)
+        print(e)
         return get_all_rewards(wallet, lptoken_address, block, blockchain, campaigns=campaigns,
                                distribution_contracts=distribution_contracts, db=db, index=0, execution=execution + 1)
 
-    except:
+    except Exception as e:
+        sleep(0.5)
+        print(e)
         return get_all_rewards(wallet, lptoken_address, block, blockchain, campaigns=campaigns,
                                distribution_contracts=distribution_contracts, db=db, index=index + 1,
                                execution=execution)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# underlying
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # 'campaigns' = number of campaigns from which the data is retrieved /
 # 'campaigns' = 0 it does not search for any campaign nor distribution contract
 # 'campaigns' = 'all' retrieves the data from all campaigns
 # Output: a list with 2 elements:
 # 1 - List of Tuples: [liquidity_token_address, balance, staked_balance]
 # 2 - List of Tuples: [reward_token_address, balance]
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, reward=False,
                campaigns=1, db=True):
-    """
-
-    :param wallet:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param decimals:
-    :param reward:
-    :param campaigns:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -345,32 +271,15 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=
         return underlying(wallet, lptoken_address, block, blockchain, campaigns=campaigns, reward=reward, db=db,
                           decimals=decimals, index=0, execution=execution + 1)
 
-    except:
+    except Exception as e:
+        print(e)
         return underlying(wallet, lptoken_address, block, blockchain, campaigns=campaigns, reward=reward, db=db,
                           decimals=decimals, index=index + 1, execution=execution)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# pool_balances
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # Output: a list with 1 element:
 # 1 - List of Tuples: [liquidity_token_address, balance]
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True):
-    """
-
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param decimals:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -409,31 +318,14 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, execution=1, in
     except GetNodeIndexError:
         return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
 
-    except:
+    except Exception as e:
+        print(e)
         return pool_balances(lptoken_address, block, blockchain, decimals=decimals, index=index + 1,
                              execution=execution)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# swap_fees
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True):
-    """
 
-    :param lptoken_address:
-    :param block_start:
-    :param block_end:
-    :param blockchain:
-    :param web3:
-    :param execution:
-    :param index:
-    :param decimals:
-    :return:
-    """
     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if execution > MAX_EXECUTIONS:
         return None
@@ -518,14 +410,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, ex
                          execution=execution)
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# update_db
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db():
-    """
 
-    :return:
-    """
     try:
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Swapr_db.json', 'r') as db_file:
             db_data = json.load(db_file)
