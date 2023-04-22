@@ -176,7 +176,6 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, reward=False,
                campaigns=1, db=True):
 
-    result = []
     balances = []
     distribution_contracts = []
 
@@ -218,15 +217,12 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
 
         balances.append([token_address, token_balance, token_staked])
 
+    result = balances
     if reward:
         all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
                                       distribution_contracts=distribution_contracts, db=db)
 
-        result.append(balances)
-        result.append(all_rewards)
-
-    else:
-        result = balances
+        result.extend(all_rewards)
 
     return result
 

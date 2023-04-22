@@ -54,11 +54,11 @@ def test_get_all_rewards(campaigns, db):
 @pytest.mark.parametrize('campaigns', [0, 1, 'all'])
 @pytest.mark.parametrize('db', [True])
 @pytest.mark.parametrize('decimals', [True, False])
-def test_underlying(campaigns, db, decimals):
+@pytest.mark.parametrize('reward', [True, False])
+def test_underlying(campaigns, db, decimals, reward):
     x = Swapr.underlying(TEST_WALLET, DXS, TEST_BLOCK, XDAI, WEB3,
-                         decimals=decimals, reward=False, campaigns=campaigns, db=db)
+                         decimals=decimals, reward=reward, campaigns=campaigns, db=db)
     y = Decimal(10 ** (18 if decimals else 0))
-    print(x)
     assert x == [[BER_XDAI, Decimal('1071807153499413047954.911589') / y, 0.0],
                  [GNO_XDAI, Decimal('8286291538240578806.716100750') / y, 0.0]]
 
