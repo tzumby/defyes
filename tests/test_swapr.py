@@ -1,4 +1,6 @@
 import pytest
+from decimal import Decimal
+
 from defi_protocols import Swapr
 from defi_protocols.functions import get_node, get_contract
 from defi_protocols.constants import XDAI, ETHEREUM, GNO_XDAI, WETH_XDAI
@@ -44,34 +46,42 @@ def test_get_lptoken_data():
 def test_get_all_rewards(campaigns, db):
     x = Swapr.get_all_rewards(TEST_WALLET, DXS, TEST_BLOCK, XDAI, WEB3,
                               decimals=True, campaigns=campaigns, distribution_contracts=None, db=db)
+    # FIXME: find a better wallet
     assert x == []
 
 
 #FIXME: this function can't be tested for db=False because it takes forever
 @pytest.mark.parametrize('campaigns', [0, 1, 'all'])
 @pytest.mark.parametrize('db', [True])
-def test_underlying(campaigns, db):
+@pytest.mark.parametrize('decimals', [True, False])
+def test_underlying(campaigns, db, decimals):
     x = Swapr.underlying(TEST_WALLET, DXS, TEST_BLOCK, XDAI, WEB3,
-                         decimals=True, reward=False, campaigns=campaigns, db=db)
-    assert x == [[BER_XDAI, 1071.807153499413, 0.0],
-                 [GNO_XDAI, 8.28629153824058, 0.0]]
+                         decimals=decimals, reward=False, campaigns=campaigns, db=db)
+    y = Decimal(10 ** (18 if decimals else 0))
+    print(x)
+    assert x == [[BER_XDAI, Decimal('1071807153499413047954.911589') / y, 0.0],
+                 [GNO_XDAI, Decimal('8286291538240578806.716100750') / y, 0.0]]
 
 
-def test_pool_balances():
-    x = Swapr.pool_balances(DXS, TEST_BLOCK, XDAI, WEB3, decimals=True)
-    assert x == [[BER_XDAI, 1071.8229216475354],
-                 [GNO_XDAI, 8.286413444006866]]
+@pytest.mark.parametrize('decimals', [True, False])
+def test_pool_balances(decimals):
+    x = Swapr.pool_balances(DXS, TEST_BLOCK, XDAI, WEB3, decimals=decimals)
+    y = Decimal(10 ** (18 if decimals else 0))
+    assert x == [[BER_XDAI, Decimal(1071822921647535396369) / y],
+                 [GNO_XDAI, Decimal(8286413444006866465) / y]]
 
 
-def test_swap_fees():
-    x = Swapr.swap_fees(DXS, TEST_BLOCK - 100, 27568826, XDAI, WEB3, decimals=True)
-    assert x['swaps'] == [{'block': 27494581, 'token': BER_XDAI, 'amount': 0.25},
-                          {'block': 27494618, 'token': BER_XDAI, 'amount': 1.5625},
-                          {'block': 27494972, 'token': GNO_XDAI, 'amount': 0.002537125747349638},
-                          {'block': 27507943, 'token': GNO_XDAI, 'amount': 1.0825598350382856e-05},
-                          {'block': 27508016, 'token': BER_XDAI, 'amount': 0.0024973853361934853},
-                          {'block': 27508197, 'token': GNO_XDAI, 'amount': 1.075289768548977e-05},
-                          {'block': 27510159, 'token': BER_XDAI, 'amount': 0.1041406249942838}]
+@pytest.mark.parametrize('decimals', [True, False])
+def test_swap_fees(decimals):
+    x = Swapr.swap_fees(DXS, TEST_BLOCK - 100, 27568826, XDAI, WEB3, decimals=decimals)
+    y = Decimal(10 ** (18 if decimals else 0))
+    assert x['swaps'] == [{'block': 27494581, 'token': BER_XDAI, 'amount': Decimal('249999999999999999.8900') / y},
+                          {'block': 27494618, 'token': BER_XDAI, 'amount': Decimal('1562499999999999999.3975') / y},
+                          {'block': 27494972, 'token': GNO_XDAI, 'amount': Decimal('2537125747349638.0950') / y},
+                          {'block': 27507943, 'token': GNO_XDAI, 'amount': Decimal('10825598350382.8550') / y},
+                          {'block': 27508016, 'token': BER_XDAI, 'amount': Decimal('2497385336193485.3650') / y},
+                          {'block': 27508197, 'token': GNO_XDAI, 'amount': Decimal('10752897685489.7700') / y},
+                          {'block': 27510159, 'token': BER_XDAI, 'amount': Decimal('104140624994283793.4525') / y}]
 
 
 @pytest.mark.skip('This takes forever')

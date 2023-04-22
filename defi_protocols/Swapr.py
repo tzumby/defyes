@@ -2,7 +2,7 @@ import os
 import json
 import math
 from pathlib import Path
-from time import sleep
+from decimal import Decimal
 
 from tqdm import tqdm
 
@@ -152,12 +152,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
             for i in range(len(reward_tokens)):
 
-                if decimals is True:
-                    reward_token_decimals = get_decimals(reward_tokens[i], blockchain, web3=web3)
-                else:
-                    reward_token_decimals = 0
+                reward_token_decimals = get_decimals(reward_tokens[i], blockchain, web3=web3) if decimals else 0
 
-                reward_token_amount = claimable_rewards[i] / (10 ** reward_token_decimals)
+                reward_token_amount = Decimal(claimable_rewards[i]) / Decimal(10 ** reward_token_decimals)
 
                 try:
                     rewards[reward_tokens[i]] += reward_token_amount
@@ -214,17 +211,14 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
 
         token_address = lptoken_data['token' + str(i)]
 
-        if decimals is True:
-            token_decimals = get_decimals(token_address, blockchain, web3=web3)
-        else:
-            token_decimals = 0
+        token_decimals = get_decimals(token_address, blockchain, web3=web3) if decimals else 0
 
-        token_balance = lptoken_data['reserves'][i] / (10 ** token_decimals) * (pool_balance_fraction)
-        token_staked = lptoken_data['reserves'][i] / (10 ** token_decimals) * (pool_staked_fraction)
+        token_balance = Decimal(lptoken_data['reserves'][i]) / Decimal(10 ** token_decimals) * Decimal(pool_balance_fraction)
+        token_staked = Decimal(lptoken_data['reserves'][i]) / Decimal(10 ** token_decimals) * Decimal(pool_staked_fraction)
 
         balances.append([token_address, token_balance, token_staked])
 
-    if reward is True:
+    if reward:
         all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
                                       distribution_contracts=distribution_contracts, db=db)
 
@@ -260,12 +254,9 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
         token_address = func().call()
 
-        if decimals is True:
-            token_decimals = get_decimals(token_address, blockchain, web3=web3)
-        else:
-            token_balance = 0
+        token_decimals = get_decimals(token_address, blockchain, web3=web3) if decimals else 0
 
-        token_balance = reserves[i] / (10 ** token_decimals)
+        token_balance = Decimal(reserves[i]) / Decimal(10 ** token_decimals)
 
         balances.append([token_address, token_balance])
 
@@ -289,12 +280,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     token1 = lptoken_contract.functions.token1().call()
     result['swaps'] = []
 
-    if decimals is True:
-        decimals0 = get_decimals(token0, blockchain, web3=web3)
-        decimals1 = get_decimals(token1, blockchain, web3=web3)
-    else:
-        decimals0 = 0
-        decimals1 = 0
+    decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0
+    decimals1 = get_decimals(token1, blockchain, web3=web3) if decimals else 0
 
     get_logs_bool = True
     block_from = block_start
@@ -326,13 +313,13 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
                     swap_data = {
                         'block': block_number,
                         'token': token1,
-                        'amount': fee / 10000 * int(swap_log['data'][67:130], 16) / (10 ** decimals1)
+                        'amount': (Decimal(fee) / Decimal(10000)) * Decimal(int(swap_log['data'][67:130], 16)) / Decimal(10 ** decimals1)
                     }
                 else:
                     swap_data = {
                         'block': block_number,
                         'token': token0,
-                        'amount': fee / 10000 * int(swap_log['data'][2:66], 16) / (10 ** decimals0)
+                        'amount': (Decimal(fee) / Decimal(10000)) * Decimal(int(swap_log['data'][2:66], 16)) / Decimal(10 ** decimals0)
                     }
 
                 result['swaps'].append(swap_data)
@@ -346,6 +333,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     return result
 
 
+# FIXME: path should be a parameter
 def update_db():
 
     try:
