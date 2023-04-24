@@ -8,11 +8,19 @@ from defi_protocols.functions import get_contract, get_node, date_to_block
 WALLET_N1 = '0x31cD267D34EC6368eac930Be4f412dfAcc71A844'
 WALLET_N2 = '0x4b0429F3db75dbA6B82c32a200C9C298ffC05839'
 WALLET_N3 = '0xe8fAF95AD24A467ddDc4e100a68398B31D3dCdd6'
+WALLET_N4 = '0x64aE36eeaC5BF9c1F4b7Cc6F0Fa32bBa19aaF9Bc'
+WALLET_N5 = '0xce88686553686DA562CE7Cea497CE749DA109f9F'
+WALLET_N6 = '0x43b650399F2E4D6f03503f44042fabA8F7D73470'
+WALLET_39d = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
 B60WETH40DAI_ADDR = '0x0b09deA16768f0799065C475bE02919503cB2a35'
 B50USDC50WETH_ADDR = '0x96646936b91d6B9D7D0c47C496AfBF3D6ec7B6f8'
 B80BAL20WETH_ADDR = '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56'
 BstETHSTABLE_ADDR = '0x32296969Ef14EB0c6d29669C550D4a0449130230'
+B50wstETH50LDO_ADDR = '0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5'
 bbaUSD_ADDR = '0xA13a9247ea42D743238089903570127DdA72fE44'
+bbaUSDT_ADDR = '0x2f4eb100552ef93840d5adc30560e5513dfffacb'
+bbaUSDC_ADDR = '0x82698aecc9e28e9bb27608bd52cf57f704bd1b83'
+bbaDAI_ADDR = '0xae37d54ae477268b9997d4161b96b8200755935c'
 
 
 def test_get_gauge_factory_address():
@@ -138,6 +146,32 @@ def test_underlying():
     assert bb_a_usd_old == [ETHTokenAddr.BB_A_USD_OLD, 0.0]
     assert bb_a_usd == [ETHTokenAddr.BB_A_USD, 0.000210261212072964]
 
+def test_underlying2():
+    block = 17117344
+    node = get_node(ETHEREUM, block)
+
+    steth, weth = Balancer.underlying(WALLET_N4, BstETHSTABLE_ADDR, block, ETHEREUM, web3=node)
+    # [token, balance, staked, locked]
+    assert steth == [ETHTokenAddr.stETH, 11.372321151072452, 0, 0]
+    assert weth == [ETHTokenAddr.WETH, 10.939145284307902, 0, 0]
+
+    ldo, wsteth = Balancer.underlying(WALLET_N5, B50wstETH50LDO_ADDR, block, ETHEREUM, web3=node)
+    # [token, balance, staked, locked]
+    assert ldo == [ETHTokenAddr.LDO, 576.5066246253847, 0, 0]
+    assert wsteth == [ETHTokenAddr.wstETH, 0.5871242486850999, 0, 0]
+
+    usdt, usdc, dai = Balancer.underlying(WALLET_N6, bbaUSD_ADDR, block, ETHEREUM, web3=node, reward=True)
+    # [token, balance, staked, locked]
+    assert usdt == [ETHTokenAddr.USDT, 34481.50498155418, 0, 0]
+    assert usdc == [ETHTokenAddr.USDC, 40407.38426818376, 0, 0]
+    assert dai == [ETHTokenAddr.USDC, 39386.25356751313, 0, 0]
+
+    usdt, usdc, dai = Balancer.underlying(WALLET_39d, bbaUSD_ADDR, block, ETHEREUM, web3=node, reward=True)
+    # [token, balance, staked, locked]
+    assert usdt == [ETHTokenAddr.USDT, 8507.3242092116, 0, 0]
+    assert usdc == [ETHTokenAddr.USDC, 9969.365275660934, 0, 0]
+    assert dai == [ETHTokenAddr.USDC, 9717.430508450754, 0, 0]
+   
 
 def test_pool_balances():
     block = 16978206
@@ -147,6 +181,23 @@ def test_pool_balances():
     assert usdc == [ETHTokenAddr.USDC, 1129072.214823]
     assert weth == [ETHTokenAddr.WETH, 601.5359543423447]
 
+def test_pool_balances2():
+    block = 17117344
+    node = get_node(ETHEREUM, block)
+
+    usdt, usdc, dai = Balancer.pool_balances(bbaUSD_ADDR, block, ETHEREUM, web3=node)
+    assert usdt == [ETHTokenAddr.USDT, 11390997.351595458]
+    assert usdc == [ETHTokenAddr.USDC, 13348617.104445048]
+    assert dai == [ETHTokenAddr.DAI, 13011285.624476457]
+
+    usdt = Balancer.pool_balances(bbaUSDT_ADDR, block, ETHEREUM, web3=node)
+    assert usdt == [ETHTokenAddr.USDT, 11391113.139048]
+
+    usdc = Balancer.pool_balances(bbaUSDC_ADDR, block, ETHEREUM, web3=node)
+    assert usdc == [ETHTokenAddr.USDC, 13348911.876651]
+
+    dai = Balancer.pool_balances(bbaDAI_ADDR, block, ETHEREUM, web3=node)
+    assert dai == [ETHTokenAddr.DAI, 13011503.946034884]
 
 def test_unwrap():
     block = 16950590
@@ -177,3 +228,6 @@ def test_swap_fees_apr():
     blockend = date_to_block('2023-02-20 18:30:00', ETHEREUM)
     swaps_apr = Balancer.get_swap_fees_APR(B80BAL20WETH_ADDR, ETHEREUM, blockend)
     assert swaps_apr == 0.5961250860104128
+
+test_underlying2()
+test_pool_balances2()
