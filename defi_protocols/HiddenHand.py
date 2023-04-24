@@ -1,5 +1,5 @@
 import requests
-from typing import List, Union
+from typing import List, Union, Optional
 
 def get_api_results(wallet: str, blockchain: str) -> Union[List[dict], str]:
     if blockchain == 'ethereum':
@@ -34,6 +34,3 @@ def underlying_all(wallet: str, blockchain: str, decimals: bool = True) -> List[
             token_claimable[token] = claimable
 
     return [[k, str(v)] for k, v in token_claimable.items()]
-
-
-
