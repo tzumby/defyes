@@ -81,7 +81,7 @@ class ProviderManager(JSONBaseProvider):
                 try:
                     response = provider.make_request(method, params)
                     return response
-                except Exception as e:
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                     errors.append(e)
                     logger.exception("Exception when making request.")
         raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
