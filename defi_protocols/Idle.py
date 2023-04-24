@@ -168,9 +168,6 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
         return get_all_rewards(wallet, gauge_address, block, blockchain, web3=None, index=index + 1,
                                execution=execution, decimals=decimals)
 
-    # function for getting the amounts of certain tranche
-
-
 def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_address: str, gauge_address: str,
                 wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
                 decimals: bool = True) -> list:
