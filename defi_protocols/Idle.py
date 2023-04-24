@@ -55,7 +55,6 @@ ABI_GAUGE: str = '[{"stateMutability":"view","type":"function","name":"decimals"
 
 ABI_CDO_PROXY: str = '[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"proxy","type":"address"}],"name":"CDODeployed","type":"event"},{"inputs":[{"internalType":"address","name":"implementation","type":"address"},{"internalType":"address","name":"admin","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"deployCDO","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
-
 # function for getting all addresses you need to get underlying
 def get_addresses(block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
                   decimals: bool = True) -> list:
@@ -168,9 +167,6 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
         return get_all_rewards(wallet, gauge_address, block, blockchain, web3=None, index=index + 1,
                                execution=execution, decimals=decimals)
 
-    # function for getting the amounts of certain tranche
-
-
 def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_address: str, gauge_address: str,
                 wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
                 decimals: bool = True) -> list:
@@ -197,7 +193,7 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
                     cdo_contract.functions.virtualPrice(aa_address).call() / Decimal(10 ** 18))
         bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
                     cdo_contract.functions.virtualPrice(bb_address).call() / Decimal(10 ** 18))
-        decimals_underlying = gauge_contract.functions.decimals().call()
+        decimals_underlying = aa_contract.functions.decimals().call()
 
         if decimals is True:
             [balances.append([underlying_address, float(i / Decimal(10 ** decimals_underlying))]) for i in
