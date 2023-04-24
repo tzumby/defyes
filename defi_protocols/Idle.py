@@ -55,7 +55,6 @@ ABI_GAUGE: str = '[{"stateMutability":"view","type":"function","name":"decimals"
 
 ABI_CDO_PROXY: str = '[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"proxy","type":"address"}],"name":"CDODeployed","type":"event"},{"inputs":[{"internalType":"address","name":"implementation","type":"address"},{"internalType":"address","name":"admin","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"deployCDO","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
-
 # function for getting all addresses you need to get underlying
 def get_addresses(block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
                   decimals: bool = True) -> list:
