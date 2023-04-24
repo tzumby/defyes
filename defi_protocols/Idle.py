@@ -197,7 +197,7 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
                     cdo_contract.functions.virtualPrice(aa_address).call() / Decimal(10 ** 18))
         bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
                     cdo_contract.functions.virtualPrice(bb_address).call() / Decimal(10 ** 18))
-        decimals_underlying = gauge_contract.functions.decimals().call()
+        decimals_underlying = aa_contract.functions.decimals().call()
 
         if decimals is True:
             [balances.append([underlying_address, float(i / Decimal(10 ** decimals_underlying))]) for i in
