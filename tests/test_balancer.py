@@ -1,7 +1,7 @@
 import pytest
 
 from defi_protocols import Balancer
-from defi_protocols.constants import ETHEREUM, POLYGON, BAL_POL, ETHTokenAddr
+from defi_protocols.constants import ETHEREUM, XDAI, POLYGON, BAL_POL, ETHTokenAddr, GnosisTokenAddr
 from defi_protocols.functions import get_contract, get_node, date_to_block
 
 
@@ -22,6 +22,13 @@ bbaUSDT_ADDR = '0x2f4eb100552ef93840d5adc30560e5513dfffacb'
 bbaUSDC_ADDR = '0x82698aecc9e28e9bb27608bd52cf57f704bd1b83'
 bbaDAI_ADDR = '0xae37d54ae477268b9997d4161b96b8200755935c'
 
+# Gnosis Chain
+WALLET_e6f = '0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f'
+bb_ag_USD_ADDR = '0xfedb19ec000d38d92af4b21436870f115db22725'
+B50bbagGNO50bbagUSD_ADDR = '0xB973Ca96a3f0D61045f53255E319AEDb6ED49240'
+bb_ag_WXDAI_ADDR = '0x41211bba6d37f5a74b22e667533f080c7c7f3f13'
+bb_ag_GNO_ADDR = '0xffff76a3280e95dc855696111c2562da09db2ac0'
+
 
 def test_get_gauge_factory_address():
     gauge_address = Balancer.get_gauge_factory_address(ETHEREUM)
@@ -37,14 +44,13 @@ def test_get_lptoken_data():
     block = 16950590
 
     lptoken_data = Balancer.get_lptoken_data(B60WETH40DAI_ADDR, block, ETHEREUM)
-    assert list(lptoken_data.keys()) == ['contract', 'poolId', 'decimals', 'totalSupply', 'isBoosted', 'bptIndex', 'scalingFactors', 'wrappedIndex']
+    assert list(lptoken_data.keys()) == ['contract', 'poolId', 'decimals', 'totalSupply', 'isBoosted', 'bptIndex', 'scalingFactors']
     assert lptoken_data['poolId'] == b'\x0b\t\xde\xa1gh\xf0y\x90e\xc4u\xbe\x02\x91\x95\x03\xcb*5\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a'
     assert lptoken_data['decimals'] == 18
     assert lptoken_data['totalSupply'] == 12835022143788475405205
     assert not lptoken_data['isBoosted']
     assert lptoken_data['bptIndex'] is None
     assert lptoken_data['scalingFactors'] is None
-    assert lptoken_data['wrappedIndex'] is None
 
     lptoken_data = Balancer.get_lptoken_data(bbaUSD_ADDR, block, ETHEREUM)
     assert lptoken_data['poolId'] == b'\xa1:\x92G\xeaB\xd7C#\x80\x89\x905p\x12}\xdar\xfeD\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03]'
@@ -53,7 +59,6 @@ def test_get_lptoken_data():
     assert lptoken_data['isBoosted']
     assert lptoken_data['bptIndex'] == 2
     assert lptoken_data['scalingFactors'] == [1008896757769783573, 1003250365192438010, 1000000000000000000, 1002548558018035032]
-    assert lptoken_data['wrappedIndex'] is None
 
 def test_bal_rewards():
     block = 16978206
@@ -160,19 +165,37 @@ def test_underlying2():
     assert ldo == [ETHTokenAddr.LDO, 576.5066246253847, 0, 0]
     assert wsteth == [ETHTokenAddr.wstETH, 0.5871242486850999, 0, 0]
 
-    usdt, usdc, dai = Balancer.underlying(WALLET_N6, bbaUSD_ADDR, block, ETHEREUM, web3=node, reward=True)
+    usdt, usdc, dai = Balancer.underlying(WALLET_N6, bbaUSD_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert usdt == [ETHTokenAddr.USDT, 34481.50498155418, 0, 0]
-    assert usdc == [ETHTokenAddr.USDC, 40407.38426818376, 0, 0]
-    assert dai == [ETHTokenAddr.USDC, 39386.25356751313, 0, 0]
+    assert usdt == [ETHTokenAddr.USDT, 34610.413241413036, 0, 0]
+    assert usdc == [ETHTokenAddr.USDC, 40468.569762235806, 0, 0]
+    assert dai == [ETHTokenAddr.DAI, 40612.73283657301, 0, 0]
 
-    usdt, usdc, dai = Balancer.underlying(WALLET_39d, bbaUSD_ADDR, block, ETHEREUM, web3=node, reward=True)
+    usdt, usdc, dai = Balancer.underlying(WALLET_39d, bbaUSD_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert usdt == [ETHTokenAddr.USDT, 8507.3242092116, 0, 0]
-    assert usdc == [ETHTokenAddr.USDC, 9969.365275660934, 0, 0]
-    assert dai == [ETHTokenAddr.USDC, 9717.430508450754, 0, 0]
+    assert usdt == [ETHTokenAddr.USDT, 8539.128631914475, 0, 0]
+    assert usdc == [ETHTokenAddr.USDC, 9984.461044684935, 0, 0]
+    assert dai == [ETHTokenAddr.DAI, 10020.029156141769, 0, 0]
+
+def test_underlying3():
+    block = 27628264
+    node = get_node(XDAI, block)
+
+    [[wxdai, usdt, usdc], [bal_rewards]] = Balancer.underlying(WALLET_e6f, bb_ag_USD_ADDR, block, XDAI, web3=node, reward=True)
+    # [token, balance, staked, locked]
+    assert wxdai == [GnosisTokenAddr.WXDAI, 0, 231630.4520708765, 0]
+    assert usdt == [GnosisTokenAddr.USDT, 0, 129389.96467418894, 0]
+    assert usdc == [GnosisTokenAddr.USDC, 0, 215323.4406333985, 0]
+    assert bal_rewards == [GnosisTokenAddr.BAL, 912.7668116947867]
+
+    [[wxdai, usdt, usdc, gno], [bal_rewards]] = Balancer.underlying(WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, XDAI, web3=node, reward=True)
+    # [token, balance, staked, locked]
+    assert wxdai == [GnosisTokenAddr.WXDAI, 0, 326481.10811913596, 0]
+    assert usdt == [GnosisTokenAddr.USDT, 0, 182374.03013572254, 0]
+    assert usdc == [GnosisTokenAddr.USDC, 0, 303496.5172908533, 0]
+    assert gno == [GnosisTokenAddr.GNO, 0, 7683.297282539919, 0]
+    assert bal_rewards == [GnosisTokenAddr.BAL, 1598.223979578614]
    
-
 def test_pool_balances():
     block = 16978206
     node = get_node(ETHEREUM, block)
@@ -186,18 +209,34 @@ def test_pool_balances2():
     node = get_node(ETHEREUM, block)
 
     usdt, usdc, dai = Balancer.pool_balances(bbaUSD_ADDR, block, ETHEREUM, web3=node)
-    assert usdt == [ETHTokenAddr.USDT, 11390997.351595458]
-    assert usdc == [ETHTokenAddr.USDC, 13348617.104445048]
-    assert dai == [ETHTokenAddr.DAI, 13011285.624476457]
+    assert usdt == [ETHTokenAddr.USDT, 11433582.315547483]
+    assert usdc == [ETHTokenAddr.USDC, 13368829.789508408]
+    assert dai == [ETHTokenAddr.DAI, 13416454.195660386]
 
-    usdt = Balancer.pool_balances(bbaUSDT_ADDR, block, ETHEREUM, web3=node)
-    assert usdt == [ETHTokenAddr.USDT, 11391113.139048]
+    usdt = Balancer.pool_balances(bbaUSDT_ADDR, block, ETHEREUM, web3=node)[0]
+    assert usdt == [ETHTokenAddr.USDT, 11433698.535868576]
 
-    usdc = Balancer.pool_balances(bbaUSDC_ADDR, block, ETHEREUM, web3=node)
-    assert usdc == [ETHTokenAddr.USDC, 13348911.876651]
+    usdc = Balancer.pool_balances(bbaUSDC_ADDR, block, ETHEREUM, web3=node)[0]
+    assert usdc == [ETHTokenAddr.USDC, 13369125.00806305]
 
-    dai = Balancer.pool_balances(bbaDAI_ADDR, block, ETHEREUM, web3=node)
-    assert dai == [ETHTokenAddr.DAI, 13011503.946034884]
+    dai = Balancer.pool_balances(bbaDAI_ADDR, block, ETHEREUM, web3=node)[0]
+    assert dai == [ETHTokenAddr.DAI, 13416679.315704102]
+
+def test_pool_balances3():
+    block = 27628264
+    node = get_node(XDAI, block)
+
+    wxdai = Balancer.pool_balances(bb_ag_WXDAI_ADDR, block, XDAI, web3=node)[0]
+    assert wxdai == [GnosisTokenAddr.WXDAI, 1295439.9817313375]
+
+    wxdai, usdt, usdc, gno = Balancer.pool_balances(B50bbagGNO50bbagUSD_ADDR, block, XDAI, web3=node)
+    assert wxdai == [GnosisTokenAddr.WXDAI, 327217.32850110147]
+    assert usdt == [GnosisTokenAddr.USDT, 182785.2866365983]
+    assert usdc == [GnosisTokenAddr.USDC, 304180.9070344814]
+    assert gno == [GnosisTokenAddr.GNO, 7700.623246950828]
+
+    gno = Balancer.pool_balances(bb_ag_GNO_ADDR, block, XDAI, web3=node)[0]
+    assert gno == [GnosisTokenAddr.GNO, 26159.71190211541]
 
 def test_unwrap():
     block = 16950590
@@ -205,13 +244,13 @@ def test_unwrap():
 
     lptoken_amount = 1
     usdt, usdc, dai = Balancer.unwrap(lptoken_amount, bbaUSD_ADDR, block, ETHEREUM, web3=node)
-    assert usdt == [ETHTokenAddr.USDT, 0.2544853984016551]
-    assert usdc == [ETHTokenAddr.USDC, 0.36952776509915247]
-    assert dai == [ETHTokenAddr.DAI, 0.3804754985865416]
+    assert usdt == [ETHTokenAddr.USDT, 0.25448552659871626]
+    assert usdc == [ETHTokenAddr.USDC, 0.3695278389467781]
+    assert dai == [ETHTokenAddr.DAI, 0.3804761470992138]
 
     lptoken_amount = 0.010622337758482546
     dai, weth = Balancer.unwrap(lptoken_amount, B60WETH40DAI_ADDR, block, ETHEREUM, web3=node)
-    assert dai == [ETHTokenAddr.DAI, 0.3998802387901373]
+    assert dai == [ETHTokenAddr.DAI, 0.39988023879013723]
     assert weth == [ETHTokenAddr.WETH, 0.0003284487726480976]
 
 
@@ -228,6 +267,3 @@ def test_swap_fees_apr():
     blockend = date_to_block('2023-02-20 18:30:00', ETHEREUM)
     swaps_apr = Balancer.get_swap_fees_APR(B80BAL20WETH_ADDR, ETHEREUM, blockend)
     assert swaps_apr == 0.5961250860104128
-
-test_underlying2()
-test_pool_balances2()

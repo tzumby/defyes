@@ -4,7 +4,7 @@ from operator import itemgetter
 from typing import Union
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs, last_block
+from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs
 from defi_protocols.constants import ETHEREUM, XDAI, BAL_ETH, BAL_ARB, BAL_XDAI, BB_A_USD_OLD_ETH, BB_A_USD_ETH, POLYGON, ARBITRUM, BAL_POL, ZERO_ADDRESS
 from defi_protocols.prices.prices import get_price
 
@@ -69,8 +69,8 @@ ABI_VEBAL = '[{"stateMutability":"view","type":"function","name":"token","inputs
 # veBAL Fee Distributor ABI - claimTokens
 ABI_VEBAL_FEE_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"contract IERC20[]","name":"tokens","type":"address[]"}],"name":"claimTokens","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"nonpayable","type":"function"}]'
 
-# LP Token ABI - getPoolId, decimals, getActualSupply, getVirtualSupply, totalSupply, getBptIndex, balanceOf, getSwapFeePercentage, getRate, getScalingFactors, getWrappedIndex
-ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getActualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getVirtualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getBptIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getSwapFeePercentage","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getScalingFactors","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getWrappedIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+# LP Token ABI - getPoolId, decimals, getActualSupply, getVirtualSupply, totalSupply, getBptIndex, balanceOf, getSwapFeePercentage, getRate, getScalingFactors
+ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getActualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getVirtualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getBptIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getSwapFeePercentage","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getScalingFactors","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
 
 # Gauge ABI - claimable_tokens, claimable_reward, reward_count, reward_tokens, reward_contract
 ABI_GAUGE = '[{"stateMutability":"nonpayable","type":"function","name":"claimable_tokens","inputs":[{"name":"addr","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"claimable_reward","inputs":[{"name":"_user","type":"address"},{"name":"_reward_token","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_tokens","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}]}, {"stateMutability":"view","type":"function","name":"reward_contract","inputs":[],"outputs":[{"name":"","type":"address"}]}]'
@@ -160,12 +160,6 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
         lptoken_data['scalingFactors'] = lptoken_data['contract'].functions.getScalingFactors().call(block_identifier=block)
     except:
         lptoken_data['scalingFactors'] = None
-
-    # If the pool has the wrappedIndex function is a Linear Pools (we consider them Boosted for practical reasons)
-    try:
-        lptoken_data['wrappedIndex'] = lptoken_data['contract'].functions.getWrappedIndex().call()
-    except:
-        lptoken_data['wrappedIndex'] = None
 
     return lptoken_data
 
@@ -416,7 +410,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                     raise E
                 try:
                     stETH = token_contract.functions.stETH().call()
-                    if lptoken_data['scalingFactors'][i] != (10**18):
+                    if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
                         main_token = stETH
                     else:
                         main_token = token_address
@@ -427,10 +421,6 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
             if lptoken_data['scalingFactors'] is not None:
                 token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
-                
-                if i == lptoken_data['wrappedIndex']:
-                    token_balance = token_balance / (token_contract.functions.rate().call(block_identifier=block) / (10**27))
-
             else:
                 token_balance = pool_balances[i]
         
@@ -440,7 +430,6 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
             unwrapped_balances.append([main_token, token_balance])
 
         for unwrapped_balance in unwrapped_balances:
-            
             main_token, token_balance = unwrapped_balance
             
             if aura_staked is None:
@@ -450,7 +439,6 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                 token_staked = token_balance * aura_pool_fraction
 
             token_locked = token_balance * pool_locked_fraction
-
             token_balance = token_balance * pool_balance_fraction
 
             balances.append([main_token, token_balance, token_staked, token_locked])
@@ -499,10 +487,10 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
         token_decimals = token_contract.functions.decimals().call()
 
+        unwrapped_balances = []
         try:
             token_contract.functions.getRate().call()
-            unwrapping = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)[0]
-            balances.append([unwrapping[0], unwrapping[1]])
+            unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
         except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
             if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
                 raise E
@@ -513,7 +501,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
                     raise E
                 try:
                     stETH = token_contract.functions.stETH().call()
-                    if lptoken_data['scalingFactors'][i] != (10**18):
+                    if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
                         main_token = stETH
                     else:
                         main_token = token_address
@@ -524,10 +512,6 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
             if lptoken_data['scalingFactors'] is not None:
                 token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
-            
-                if i == lptoken_data['wrappedIndex']:
-                    token_balance = token_balance / (token_contract.functions.rate().call(block_identifier=block) / (10**27))
-
             else:
                 main_token = pool_tokens[i]
                 token_balance = pool_balances[i]
@@ -535,6 +519,11 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
             if decimals is True:
                 token_balance = token_balance / (10**token_decimals)
             
+            unwrapped_balances.append([main_token, token_balance])
+        
+        for unwrapped_balance in unwrapped_balances:
+            main_token, token_balance = unwrapped_balance
+
             balances.append([main_token, token_balance])
     
     first = itemgetter(0)
@@ -575,46 +564,45 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
                                         block=block)
 
         token_decimals = token_contract.functions.decimals().call()
-        
-        if lptoken_data['scalingFactors'] is not None:
-            token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
-            
-            if i == lptoken_data['wrappedIndex']:
-                token_balance = token_balance / (token_contract.functions.rate().call(block_identifier=block) / (10**27))
 
-        else:
-            token_balance = pool_balances[i]
-        
-        token_balance = token_balance * pool_balance_fraction
-
-        if decimals is True:
-            token_balance = token_balance / (10**token_decimals)
-
-        if lptoken_data['isBoosted'] is True:
+        unwrapped_balances = []
+        try:
+            token_contract.functions.getRate().call()
+            unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
+        except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
+            if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
+                raise E
             try:
-                main_token = token_contract.functions.getMainToken().call()
+                main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
             except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
                 if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
                     raise E
                 try:
-                    main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
+                    stETH = token_contract.functions.stETH().call()
+                    if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
+                        main_token = stETH
+                    else:
+                        main_token = token_address
                 except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
                     if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
                         raise E
-                    try:
-                        stETH = token_contract.functions.stETH().call()
-                        if lptoken_data['scalingFactors'][i] != (10**18):
-                            main_token = stETH
-                        else:
-                            main_token = token_address
-                    except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-                        if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                            raise E
-                        main_token = token_address
-            
+                    main_token = token_address
+        
+            if lptoken_data['scalingFactors'] is not None:
+                token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
+            else:
+                token_balance = pool_balances[i]
+
+            if decimals is True:
+                token_balance = token_balance / (10**token_decimals)
+
+            unwrapped_balances.append([main_token, token_balance])
+
+        for unwrapped_balance in unwrapped_balances:
+            main_token, token_balance = unwrapped_balance
+            token_balance = token_balance * pool_balance_fraction
+
             balances.append([main_token, token_balance])
-        else:
-            balances.append([pool_tokens[i], token_balance])
     
     first = itemgetter(0)
     balances = [[k, sum(item[1] for item in tups_to_sum)] for k, tups_to_sum in groupby(balances, key=first)]
@@ -730,64 +718,4 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
         return apy
     else:
         return apr
-
-
-    # blockchain = ETHEREUM
-# lptoken = '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56'
-# blockstart = date_to_block('2023-02-20 18:24:00',blockchain)
-# blockend = date_to_block('2023-03-03 00:00:00',blockchain)
-
-# # balances = pool_balances(lptoken,blockend,blockchain)
-# # print(balances)
-# feess = get_swap_fees_APR(lptoken,blockchain,blockend)
-# print(feess)
-
-# print(underlying('0x849d52316331967b6ff1198e5e32a0eb168d039d','0x92762b42a06dcdddc5b7362cfb01e631c4d44b40', 'latest', ETHEREUM, reward=True))
-
-# block = 17117344
-# print(underlying("0x64aE36eeaC5BF9c1F4b7Cc6F0Fa32bBa19aaF9Bc","0x32296969ef14eb0c6d29669c550d4a0449130230", block, ETHEREUM, reward=True))
-# print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", block, ETHEREUM))
-# #print(pool_balances("0x32296969ef14eb0c6d29669c550d4a0449130230", 'latest', ETHEREUM))
-# #print(pool_balances("0xd4f79CA0Ac83192693bce4699d0c10C66Aa6Cf0F", 'latest', ETHEREUM))
-# print(underlying("0xce88686553686DA562CE7Cea497CE749DA109f9F","0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5", block, ETHEREUM, reward=True))
-
-# print(pool_balances("0x76fcf0e8c7ff37a47a799fa2cd4c13cde0d981c9", block, ETHEREUM))
-
-# # print(pool_balances("0xa13a9247ea42d743238089903570127dda72fe44", 'latest', ETHEREUM, decimals=False))
-# print(pool_balances("0xa13a9247ea42d743238089903570127dda72fe44", block, ETHEREUM))
-
-# print(pool_balances("0xae37d54ae477268b9997d4161b96b8200755935c", block, ETHEREUM))
-# print(pool_balances("0x82698aecc9e28e9bb27608bd52cf57f704bd1b83", block, ETHEREUM))
-# print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", block, ETHEREUM))
-# # print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", 'latest', ETHEREUM, decimals=False))
-
-# #print(underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", 17117244, ETHEREUM, decimals=False))
-# print('este', underlying("0x43b650399F2E4D6f03503f44042fabA8F7D73470", "0xA13a9247ea42D743238089903570127DdA72fE44", block, ETHEREUM, reward=True))
-
-# print(underlying("0x849D52316331967b6fF1198e5E32A0eB168D039d", "0xA13a9247ea42D743238089903570127DdA72fE44", block, ETHEREUM, reward=True))
-
-# print(underlying("0x2c96586aCd25C974804Ab15D4A19A163F527135A", "0xbD482fFb3E6E50dC1c437557C3Bea2B68f3683Ee", block, ETHEREUM, reward=True))
-
-
-
-#print(pool_balances("0x2f4eb100552ef93840d5adc30560e5513dfffacb", 17117244, ETHEREUM))
-#print(unwrap(17785638.135896144152263360, '0xae37d54ae477268b9997d4161b96b8200755935c', 'latest', ETHEREUM))
-
-
-# 1.002617750892566000
-# 17828767.929022883593590206
-# 17,875,439
-
-
-    # blockchain = XDAI
-block = last_block(XDAI)
-print(block)
-print(underlying("0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f", "0xB973Ca96a3f0D61045f53255E319AEDb6ED49240", 'latest', XDAI, reward=True))
-print(underlying("0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f", "0xfedb19ec000d38d92af4b21436870f115db22725", 'latest', XDAI, reward=True))
-# print(pool_balances("0x66f33ae36dd80327744207a48122f874634b3ada", 'latest', XDAI))
-
-#helper = get_contract('0xf7D5DcE55E6D47852F054697BAB6A1B48A00ddbd', XDAI)
-
-#print(helper.functions.getPendingRewards('0x2165b84b2Ae1Fc01F481fA8c9c762B695c57bB21', '0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f', '0x7eF541E2a22058048904fE5744f9c7E4C57AF717').call())
-
-
+    
