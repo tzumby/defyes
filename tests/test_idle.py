@@ -25,7 +25,7 @@ def test_get_underlying():
                                  blockchain=ETHEREUM, rewards=True)
 
     assert underlying == [
-        [LIDO_STAKED_TOKEN_ETH, 928.5237570363422],
+        [LIDO_STAKED_TOKEN_ETH, 924.3773587200106],
         [
             [ETHTokenAddr.IDLE, 0.0],
             [ETHTokenAddr.LDO, 31065.052700304645]

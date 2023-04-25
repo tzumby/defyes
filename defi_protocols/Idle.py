@@ -144,13 +144,13 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
     if gauge_address:
         gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
         gauge_balance = gauge_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-                    cdo_contract.functions.virtualPrice(aa_address).call() / Decimal(10 ** 18))
+                    cdo_contract.functions.virtualPrice(aa_address).call(block_identifier=block) / Decimal(10 ** 18))
     else:
         gauge_balance = 0
     aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-                cdo_contract.functions.virtualPrice(aa_address).call() / Decimal(10 ** 18))
+                cdo_contract.functions.virtualPrice(aa_address).call(block_identifier=block) / Decimal(10 ** 18))
     bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-                cdo_contract.functions.virtualPrice(bb_address).call() / Decimal(10 ** 18))
+                cdo_contract.functions.virtualPrice(bb_address).call(block_identifier=block) / Decimal(10 ** 18))
 
     if decimals:
         decimals_underlying = const_call(aa_contract.functions.decimals())
