@@ -55,7 +55,6 @@ ABI_GAUGE: str = '[{"stateMutability":"view","type":"function","name":"decimals"
 
 ABI_CDO_PROXY: str = '[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"proxy","type":"address"}],"name":"CDODeployed","type":"event"},{"inputs":[{"internalType":"address","name":"implementation","type":"address"},{"internalType":"address","name":"admin","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"deployCDO","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
-
 # function for getting all addresses you need to get underlying
 def get_addresses(block: Union[int, str], blockchain: str, web3=None,
                   decimals: bool = True) -> dict:
@@ -110,7 +109,7 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
     wallet = web3.to_checksum_address(wallet)
     gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
     idle_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
-    if decimals == True:
+    if decimals:
         token_decimals = get_decimals(IDLE_TOKEN, blockchain, web3=web3)
         rewards.append([IDLE_TOKEN, idle_rewards / (10 ** token_decimals)])
     else:
@@ -124,13 +123,12 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
             block_identifier=block)
         claimed_rewards = gauge_contract.functions.claimed_reward(wallet, reward_tokens).call(
             block_identifier=block)
-        if decimals == True:
+        if decimals:
             token_decimals = get_decimals(reward_tokens, blockchain, web3=web3)
             rewards.append([reward_tokens, (claimable_rewards + claimed_rewards) / 10 ** token_decimals])
         else:
             rewards.append([reward_tokens, claimable_rewards + claimed_rewards])
     return rewards
-
 
 def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_address: str, gauge_address: str,
                 wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True) -> list:
@@ -154,8 +152,8 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
     bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
                 cdo_contract.functions.virtualPrice(bb_address).call() / Decimal(10 ** 18))
 
-    if decimals is True:
-        decimals_underlying = const_call(gauge_contract.functions.decimals())
+    if decimals:
+        decimals_underlying = const_call(aa_contract.functions.decimals())
         [balances.append([underlying_address, float(i / Decimal(10 ** decimals_underlying))]) for i in
          [aa_balance, bb_balance, gauge_balance] if i != 0]
         return balances
@@ -166,7 +164,11 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
 
 def underlying(token_address: str, wallet: str, block: Union[int, str], blockchain: str, web3=None,
                decimals: bool = True, db: bool = True, rewards: bool = False) -> list:
-    if db == True:
+    if web3 is None:
+        web3 = get_node(blockchain, block)
+    token_address = web3.to_checksum_address(token_address)
+
+    if db:
         file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Idle_db.json')
         data = json.load(file)
         tranches_list = data['tranches']
@@ -177,7 +179,7 @@ def underlying(token_address: str, wallet: str, block: Union[int, str], blockcha
     amounts = get_amounts(addresses['underlying_token'], addresses['CDO address'], addresses['AA tranche']['aa_token'],
                           addresses['bb token'], addresses['AA tranche']['aa_gauge'],
                           wallet, block, blockchain, web3, decimals)
-    if rewards == True:
+    if rewards:
         rewards = get_all_rewards(wallet, addresses['AA tranche']['aa_gauge'], block, blockchain, web3,
                                   decimals=decimals)
         amounts.append(rewards)
@@ -187,7 +189,7 @@ def underlying(token_address: str, wallet: str, block: Union[int, str], blockcha
 def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=None,
                    decimals: bool = True, db: bool = True, rewards: bool = False) -> list:
     balances_all = []
-    if db == True:
+    if db:
         file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Idle_db.json')
         data = json.load(file)
         addresses = data['tranches']
@@ -199,7 +201,7 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=No
                               address['bb token'], address['AA tranche']['aa_gauge'],
                               wallet, block, blockchain, web3, decimals)
         if amounts:
-            if rewards == True and address['AA tranche']['aa_gauge'] != None:
+            if rewards and address['AA tranche']['aa_gauge'] != None:
                 rewards = get_all_rewards(wallet, address['AA tranche']['aa_gauge'], block, blockchain, web3,
                                           decimals=decimals)
                 amounts.append(rewards)
@@ -220,15 +222,15 @@ def update_db() -> dict:
         json.dump(addresses, db_file, indent=4)
 
 
-# wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
+# wallet = '0x849d52316331967b6ff1198e5e32a0eb168d039d'
 # gauge = '0x675eC042325535F6e176638Dd2d4994F645502B9'
 # rewors = get_all_rewards(wallet, gauge, 'latest', ETHEREUM)
 # print(rewors)
 
-# CDO_address = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
+# CDO_address = '0xae7ab96520de3a18e5e111b5eaab095312d7fe84'
 # wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
 
-# haha = underlying_all(wallet,'latest',ETHEREUM,rewards=True)
+# haha = underlying(token_address=CDO_address, wallet=wallet,block='latest',blockchain=ETHEREUM,rewards=True)
 # print(haha)
 
 # yo = get_gauges('latest',ETHEREUM)
