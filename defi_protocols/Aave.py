@@ -100,7 +100,6 @@ def get_reserves_tokens(pdp_contract, block):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True):
     """
-
     :param web3:
     :param wallet:
     :param block:
@@ -149,7 +148,6 @@ def get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=True)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_data(wallet, block, blockchain, web3=None, decimals=True):
     """
-
     :param wallet:
     :param block:
     :param blockchain:
@@ -474,4 +472,3 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bo
         balances.append([AAVE_ETH, stkabpt_balance])
 
     return balances
-
