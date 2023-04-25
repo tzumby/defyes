@@ -198,6 +198,8 @@ class ETHTokenAddr:
     NOTE = '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5'
     GNO = '0x6810e776880C02933D47DB1b9fc05908e5386b96'
     sETH2 = '0xFe2e637202056d30016725477c5da089Ab0A043A'
+    BNT = '0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C'
+    ICHI = '0x903bEF1736CDdf2A537176cf3C64579C3867A881'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # XDAI - Token Addresses
@@ -210,6 +212,21 @@ GNO_XDAI = '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb'
 STKAGAVE_XDAI = '0x610525b415c1BFAeAB1a3fc3d85D87b92f048221'
 WETH_XDAI = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
 X3CRV_XDAI = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
+WXDAI = '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
+
+class GnosisTokenAddr:
+    AGVE = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
+    BAL = '0x7eF541E2a22058048904fE5744f9c7E4C57AF717'
+    COW = '0x177127622c4A00F3d409B75571e12cB3c8973d3c'
+    CRV = '0x712b3d230F3C1c19db860d80619288b1F0BDd0Bd'
+    GNO = '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb'
+    STKAGAVE = '0x610525b415c1BFAeAB1a3fc3d85D87b92f048221'
+    USDC = '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'
+    USDT = '0x4ECaBa5870353805a9F068101A40E0f32ed605C6'
+    WETH = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
+    WXDAI = '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
+    X3CRV = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # POLYGON - Token Addresses
