@@ -42,7 +42,7 @@ def test_get_rate():
     block = 17094489
     node = get_node(ETHEREUM, block)
 
-    position_nft = UniswapV3.PositionNFT(WALLET_N1, NFT_ID, ETHEREUM, block, node, decimals=True)
+    position_nft = UniswapV3.NFTPosition(WALLET_N1, NFT_ID, ETHEREUM, block, node, decimals=True)
     assert UniswapV3.get_rate_uniswap_v3(position_nft.token0,
                                          position_nft.token1,
                                          block,

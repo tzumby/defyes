@@ -63,33 +63,70 @@ ABI_POSITIONS_NFT: str = '[{"inputs":[{"internalType":"address","name":"owner","
 ABI_QUOTER_V3: str = '[{"inputs":[{"internalType":"address","name":"tokenIn","type":"address"},{"internalType":"address","name":"tokenOut","type":"address"},{"internalType":"uint24","name":"fee","type":"uint24"},{"internalType":"uint256","name":"amountIn","type":"uint256"},{"internalType":"uint160","name":"sqrtPriceLimitX96","type":"uint160"}],"name":"quoteExactInputSingle","outputs":[{"internalType":"uint256","name":"amountOut","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]'
 
 
+# Based on Uniswap V3 whitepaper:
+# https://uniswap.org/whitepaper-v3.pdf
+# Glossary:
+# token0
+# token1
+# fee
+# Lower tick: il
+# Upper tick iu
+# Current tick: ic
+# feeGrowthInside0LastX128: fr0
+# feeGrowthInside1LastX128: fr1
+# feeGrowthGlobal0: fg0
+# feeGrowthGlobal1: fg1
+# feeGrowthOutside0X128low: fo0low
+# feeGrowthOutside1X128low: fo1low
+# feeGrowthOutside0X128up: fo0up
+# feeGrowthOutside1X128up: fo1up
+# seconds spent above: sa
+# seconds spent below: sb
+# fees earned per unit of liquidity in token 0: fa
+# fees earned per unit of liquidity in token 1: fb
+
+@dataclass
+class Pool:
+    blockchain: str
+    block: Union[int|str]
+    web3: object
+    tokenA: str
+    tokenB: str
+    fee: int
+    pool_contract: object = field(init=False)
+    addr: object = field(init=False)
+    ic: int = field(init=False)
+    sqrt_price_x96: int = field(init=False)
+    sqrt_price: Decimal = field(init=False)
+    price: Decimal = field(init=False)
+    token0: str = field(init=False)
+    token1: str = field(init=False)
+
+    def __post_init__(self):
+        factory_address = get_contract(FACTORY, self.blockchain, self.web3, ABI_FACTORY, self.block)
+        self.addr = factory_address.functions.getPool(self.tokenA, self.tokenB, self.fee).call(block_identifier=self.block)
+        self.pool_contract = get_contract(self.addr, self.blockchain, self.web3, ABI_POOL, self.block)
+        self.sqrt_price_x96, self.ic = self.pool_contract.functions.slot0().call(block_identifier=self.block)[0:2]
+        self.sqrt_price = Decimal(self.sqrt_price_x96) / Decimal(2 ** 96)
+        self.price = self.sqrt_price ** 2
+        self.token0 = self.pool_contract.functions.token0().call(block_identifier=self.block)
+        self.token1 = self.pool_contract.functions.token1().call(block_identifier=self.block)
+
+    def get_fee_growth_indexes(self, il, iu):
+        fg0 = self.pool_contract.functions.feeGrowthGlobal0X128().call(block_identifier=self.block)
+        fg1 = self.pool_contract.functions.feeGrowthGlobal1X128().call(block_identifier=self.block)
+        fo0low, fo1low = self.pool_contract.functions.ticks(il).call(block_identifier=self.block)[2:4]
+        fo0up, fo1up = self.pool_contract.functions.ticks(iu).call(block_identifier=self.block)[2:4]
+
+        return fg0, fg1, fo0low, fo1low, fo0up, fo1up
+
+
 class NFTOwnerError(Exception):
     logger.warning('Wallet is not owner of this NFT')
 
 
 @dataclass
-class PositionNFT:
-    # Based on Uniswap V3 whitepaper:
-    # https://uniswap.org/whitepaper-v3.pdf
-    # Glossary:
-    # token0
-    # token1
-    # fee
-    # Lower tick: il
-    # Upper tick iu
-    # Current tick: ic
-    # feeGrowthInside0LastX128: fr0
-    # feeGrowthInside1LastX128: fr1
-    # feeGrowthGlobal0: fg0
-    # feeGrowthGlobal1: fg1
-    # feeGrowthOutside0X128low: fo0l
-    # feeGrowthOutside1X128low: fo1l
-    # feeGrowthOutside0X128up: fo0u
-    # feeGrowthOutside1X128up: fo0l
-    # seconds spent above: sa
-    # seconds spent below: sb
-    # fees earned per unit of liquidity in token 0: fa
-    # fees earned per unit of liquidity in token 1: fb
+class NFTPosition:
     BASETICK: ClassVar[int] = 1.0001
 
     wallet: str
@@ -100,6 +137,7 @@ class PositionNFT:
     decimals: bool
     token0: str = field(init=False)
     token1: str = field(init=False)
+    fee: int = field(init=False)
     il: int = field(init=False)
     iu: int = field(init=False)
     fr0: int = field(init=False)
@@ -215,34 +253,18 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
 
     wallet = web3.to_checksum_address(wallet)
     try:
-        position_nft = PositionNFT(wallet, nftid, blockchain, block, web3, decimals)
+        nft_position = NFTPosition(wallet, nftid, blockchain, block, web3, decimals)
     except NFTOwnerError:
         return []
 
-    factory_address = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
-    pool_address = factory_address.functions.getPool(position_nft.token0, position_nft.token1, position_nft.fee).call(block_identifier=block)
-    pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
-
-    current_tick = pool_contract.functions.slot0().call(block_identifier=block)[1]
-    sqrt_price_x96 = pool_contract.functions.slot0().call(block_identifier=block)[0]
-    current_square_price = Decimal(sqrt_price_x96) / Decimal(2 ** 96)
-
-    feeGrowthGlobal0 = pool_contract.functions.feeGrowthGlobal0X128().call(block_identifier=block)
-    feeGrowthGlobal1 = pool_contract.functions.feeGrowthGlobal1X128().call(block_identifier=block)
-    feeGrowthOutside0X128low, feeGrowthOutside1X128low = pool_contract.functions.ticks(position_nft.il).call(block_identifier=block)[2:4]
-    feeGrowthOutside0X128up, feeGrowthOutside1X128up = pool_contract.functions.ticks(position_nft.iu).call(block_identifier=block)[2:4]
+    pool = Pool(blockchain, block, web3, nft_position.token0, nft_position.token1, nft_position.fee)
 
     fees = None
     if fee:
-        fees = position_nft.get_fees(current_tick,
-                                     feeGrowthGlobal0,
-                                     feeGrowthGlobal1,
-                                     feeGrowthOutside0X128low,
-                                     feeGrowthOutside1X128low,
-                                     feeGrowthOutside0X128up,
-                                     feeGrowthOutside1X128up)
+        growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
+        fees = nft_position.get_fees(pool.ic, *growth_indexes)
 
-    balances = position_nft.get_balance(current_tick, current_square_price, fees)
+    balances = nft_position.get_balance(pool.ic, pool.sqrt_price, fees)
 
     return balances
 
@@ -274,23 +296,15 @@ def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], 
 
     token_src = web3.to_checksum_address(token_src)
     token_dst = web3.to_checksum_address(token_dst)
-
-    factory_contract = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
-    pool_address = factory_contract.functions.getPool(token_src, token_dst, fee).call(block_identifier=block)
-    pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
-
-    sqrt_price_x96 = pool_contract.functions.slot0().call(block_identifier=block)[0]
-    current_price = (Decimal(sqrt_price_x96) / Decimal(2 ** 96)) ** 2
-
-    token0 = pool_contract.functions.token0().call(block_identifier=block)
-
     token_src_decimals = get_decimals(token_src, blockchain, web3=web3)
     token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
 
-    if token_src == token0:
-        factor = current_price
+    pool = Pool(blockchain, block, web3, token_src, token_dst, fee)
+
+    if token_src == pool.token0:
+        factor = pool.price
     else:
-        factor = 1 / current_price
+        factor = 1 / pool.price
 
     return float(factor / Decimal(10 ** (token_dst_decimals - token_src_decimals)))
 
