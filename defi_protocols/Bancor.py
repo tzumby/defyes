@@ -37,7 +37,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
     if balance != 0:
         reserve_token = bancor_poolcontract.functions.reserveToken().call()
         pooltokens_contract = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO, block=block)
-        bancor_pool = pooltokens_contract.functions.withdrawalAmounts(reserve_token, balance).call()
+        bancor_pool = pooltokens_contract.functions.withdrawalAmounts(reserve_token, balance).call(block_identifier=block)
         if decimals is True:
             decimals0 = get_decimals(reserve_token, blockchain, web3=web3)
             decimals1 = get_decimals(BNT_TOKEN, blockchain, web3=web3)

@@ -16,9 +16,9 @@ def test_underlying():
     node = get_node(ETHEREUM, block)
 
     underlying = Bancor.underlying(bnICHI_ADDR, WALLET_N1, block, ETHEREUM, web3=node)
-    assert underlying == [[ETHTokenAddr.ICHI, 44275.113556933], [ETHTokenAddr.BNT, 0.0]]
+    assert underlying == [[ETHTokenAddr.ICHI, 44351.005182315], [ETHTokenAddr.BNT, 0.0]]
     underlying = Bancor.underlying(bnETH_ADDR, WALLET_N2, block, ETHEREUM, web3=node)
-    assert underlying == [[E_ADDRESS, 0.15020393685029101], [ETHTokenAddr.BNT, 0.0]]
+    assert underlying == [[E_ADDRESS, 0.14970330422829936], [ETHTokenAddr.BNT, 0.0]]
 
 
 def test_underlying_all():
@@ -26,7 +26,7 @@ def test_underlying_all():
     node = get_node(ETHEREUM, block)
 
     underlying = Bancor.underlying_all(WALLET_N2, block, ETHEREUM, web3=node)
-    assert underlying == [[[E_ADDRESS, 0.15020393685029101], [ETHTokenAddr.BNT, 0.0]], [], [], [], [], [], [], [], [],
+    assert underlying == [[[E_ADDRESS, 0.14970330422829936], [ETHTokenAddr.BNT, 0.0]], [], [], [], [], [], [], [], [],
                           [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [],
                           [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [],
                           [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [],
