@@ -89,16 +89,16 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
     reward = 0
     for contract in [pool_v1_contract, pool_v2_contract]:
         try:
-            owner = contract.functions.ownerOf(nftid).call()
+            owner = contract.functions.ownerOf(nftid).call(block_identifier=block)
         except:
             owner = None
         if owner == wallet:
-            node_withdraw = contract.functions.nodeWithdrawView(nftid).call()
+            node_withdraw = contract.functions.nodeWithdrawView(nftid).call(block_identifier=block)
             deposit = get_deposit(wallet, nftid, contract.address, block, blockchain, web3)
             balance += node_withdraw
             reward += node_withdraw - deposit
 
-    token = pool_v1_contract.functions.token().call()
+    token = pool_v1_contract.functions.token().call(block_identifier=block)
     token_decimals = get_decimals(token, blockchain, block=block)
     if decimals:
         balance = balance / (10 ** token_decimals)
@@ -120,15 +120,15 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=No
 
     wallet = web3.to_checksum_address(wallet)
     pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
-    assets_pool1 = pool_v1_contract.functions.balanceOf(wallet).call()
+    assets_pool1 = pool_v1_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
     pool_v2_contract = get_contract(POOL_ADDR_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
-    assets_pool2 = pool_v2_contract.functions.balanceOf(wallet).call()
+    assets_pool2 = pool_v2_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
     results = []
     for assets_in_pool in [assets_pool1, assets_pool2]:
         for asset in range(assets_in_pool):
-            nftid = pool_v1_contract.functions.tokenOfOwnerByIndex(wallet, asset).call()
+            nftid = pool_v1_contract.functions.tokenOfOwnerByIndex(wallet, asset).call(block_identifier=block)
             results.append([underlying(wallet, nftid, block, blockchain, web3, decimals=decimals, rewards=rewards)][0])
 
     return results
