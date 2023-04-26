@@ -102,7 +102,7 @@ class Pool:
     token0: str = field(init=False)
     token1: str = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         factory_address = get_contract(FACTORY, self.blockchain, self.web3, ABI_FACTORY, self.block)
         self.addr = factory_address.functions.getPool(self.tokenA, self.tokenB, self.fee).call(block_identifier=self.block)
         self.pool_contract = get_contract(self.addr, self.blockchain, self.web3, ABI_POOL, self.block)
@@ -112,7 +112,7 @@ class Pool:
         self.token0 = self.pool_contract.functions.token0().call(block_identifier=self.block)
         self.token1 = self.pool_contract.functions.token1().call(block_identifier=self.block)
 
-    def get_fee_growth_indexes(self, il, iu):
+    def get_fee_growth_indexes(self, il: int, iu: int) -> tuple:
         fg0 = self.pool_contract.functions.feeGrowthGlobal0X128().call(block_identifier=self.block)
         fg1 = self.pool_contract.functions.feeGrowthGlobal1X128().call(block_identifier=self.block)
         fo0low, fo1low = self.pool_contract.functions.ticks(il).call(block_identifier=self.block)[2:4]
@@ -121,15 +121,10 @@ class Pool:
         return fg0, fg1, fo0low, fo1low, fo0up, fo1up
 
 
-class NFTOwnerError(Exception):
-    logger.warning('Wallet is not owner of this NFT')
-
-
 @dataclass
 class NFTPosition:
     BASETICK: ClassVar[int] = 1.0001
 
-    wallet: str
     nftid: int
     blockchain: str
     block: Union[int|str]
@@ -146,19 +141,20 @@ class NFTPosition:
     decimals0: int = field(init=False)
     decimals1: int = field(init=False)
 
-    def __post_init__(self):
-        nft_contract = get_contract(POSITIONS_NFT, self.blockchain, web3=self.web3, abi=ABI_POSITIONS_NFT, block=self.block)
-        nft_owner = nft_contract.functions.ownerOf(self.nftid).call(block_identifier=self.block)
-        if nft_owner != self.wallet:
-            raise NFTOwnerError(f"{self.nftid=} does not belong to {self.wallet}")
-
-        self.token0, self.token1, self.fee, self.il, self.iu, liquidity, self.fr0, self.fr1 = nft_contract.functions.positions(self.nftid).call(block_identifier=self.block)[2:10]
+    def __post_init__(self) -> None:
+        self._nft_contract = get_contract(POSITIONS_NFT, self.blockchain, web3=self.web3, abi=ABI_POSITIONS_NFT, block=self.block)
+        self.token0, self.token1, self.fee, self.il, self.iu, liquidity, self.fr0, self.fr1 = self._nft_contract.functions.positions(self.nftid).call(block_identifier=self.block)[2:10]
         self.liquidity = Decimal(liquidity)
         if self.decimals:
             self.decimals0 = get_decimals(self.token0, self.blockchain, self.web3)
             self.decimals1 = get_decimals(self.token1, self.blockchain, self.web3)
 
-    def get_fees(self, ic, fg0, fg1, fo0low, fo1low, fo0up, fo1up):
+    def owned_by(self, wallet: str) -> bool:
+        wallet = self.web3.to_checksum_address(wallet)
+        nft_owner = self._nft_contract.functions.ownerOf(self.nftid).call(block_identifier=self.block)
+        return nft_owner == wallet
+
+    def get_fees(self, ic: int, fg0: int, fg1: int, fo0low: int, fo1low: int, fo0up: int, fo1up: int) -> list:
         if ic >= self.il:
             fee_lower_token0 = fo0low
             fee_lower_token1 = fo1low
@@ -175,15 +171,12 @@ class NFTPosition:
         fa = int(Decimal((fg0 - fee_lower_token0 - fee_upper_token0 - self.fr0) * self.liquidity) / Decimal(2 ** 128))
         fb = int(Decimal((fg1 - fee_lower_token1 - fee_upper_token1 - self.fr1) * self.liquidity) / Decimal(2 ** 128))
 
-        return fa, fb
+        return [fa, fb]
 
-    def get_balance(self, ic, current_square_price, fees):
+    def get_balance(self, ic: int, current_square_price: Decimal, fa: int = 0, fb: int = 0) -> list:
+        # TODO: get_balance output sould not be variable
         balances = []
         if self.liquidity != 0:
-            if not fees:
-                fa, fb = [0, 0]
-            else:
-                fa, fb = fees
 
             sa = Decimal(self.BASETICK) ** Decimal(int(self.il) / 2)
             sb = Decimal(self.BASETICK) ** Decimal(int(self.iu) / 2)
@@ -248,25 +241,51 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
     list
         a list where each element is a list with two elements, the underlying token address and its corresponding amount
     """
+    balances = []
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
-    try:
-        nft_position = NFTPosition(wallet, nftid, blockchain, block, web3, decimals)
-    except NFTOwnerError:
-        return []
+    nft_position = NFTPosition(nftid, blockchain, block, web3, decimals)
+    if nft_position.owned_by(wallet):
+        pool = Pool(blockchain, block, web3, nft_position.token0, nft_position.token1, nft_position.fee)
 
-    pool = Pool(blockchain, block, web3, nft_position.token0, nft_position.token1, nft_position.fee)
-
-    fees = None
-    if fee:
-        growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
-        fees = nft_position.get_fees(pool.ic, *growth_indexes)
-
-    balances = nft_position.get_balance(pool.ic, pool.sqrt_price, fees)
+        if fee:
+            growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
+            fa, fb = nft_position.get_fees(pool.ic, *growth_indexes)
+            balances = nft_position.get_balance(pool.ic, pool.sqrt_price, fa, fb)
+        else:
+            balances = nft_position.get_balance(pool.ic, pool.sqrt_price)
 
     return balances
+
+
+def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True) -> list:
+    """Returns the unclaimed fees corresponding to a nft id.
+    Parameters
+    ----------
+    nftid : int
+        number corresponding to a nftid
+    block : int or 'latest'
+        block number at which the data is queried
+    blockchain : str
+        blockchain in which the position is held
+    web3: obj
+        optional, already instantiated web3 object
+    decimals: bool
+        specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True
+    Returns
+    ----------
+    list
+        a list where each element is a list with two elements, the underlying token address and its corresponding unclaimed fee
+    """
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    nft_position = NFTPosition(nftid, blockchain, block, web3, decimals)
+    pool = Pool(blockchain, block, web3, nft_position.token0, nft_position.token1, nft_position.fee)
+
+    growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
+    return nft_position.get_fees(pool.ic, *growth_indexes)
 
 
 def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], blockchain: str, web3=None, fee: int = FeeAmount.LOWEST) -> float:
