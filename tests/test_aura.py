@@ -22,6 +22,7 @@ WALLET_N2 = "0x6d707F73f621722fEc0E6A260F43f24cCC8d4997"
 WALLET_N3 = "0x76d3a0F4Cdc9E75E0A4F898A7bCB1Fb517c9da88"
 WALLET_N4 = "0xB1f881f47baB744E7283851bC090bAA626df931d"
 WALLET_N5 = "0x36cc7B13029B5DEe4034745FB4F24034f3F2ffc6"
+WALLET_39d = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 
 @pytest.mark.xfail(reason="Aura db is outdated")
 def test_db_uptodate():
@@ -130,3 +131,11 @@ def test_pool_balances():
     assert ohm == [ETHTokenAddr.OHM, 23962.880591594]
     assert steth == [ETHTokenAddr.wstETH, 117.90382286905813]
 
+
+def test_get_compounded():
+    block = 17131068
+    node = get_node(ETHEREUM, block)
+
+    aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, ETHEREUM, web3=node, reward=True)
+    assert aurabal == [ETHTokenAddr.auraBAL, 173638.9509001933]
+    assert aura_rewards == [ETHTokenAddr.AURA, 518.423812233737]
