@@ -17,7 +17,7 @@ veIB = '0x707648dfbF9dF6b0898F78EdF191B85e327e0e05'
 
 
 def test_get_itoken_data():
-    data = IronBank.get_itoken_data(iUSDC, TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, 1, 0, None)
+    data = IronBank.get_itoken_data(iUSDC, TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, None)
     expected = {'underlying': USDC,
                 'decimals': 8,
                 'borrowBalanceStored': 0,
@@ -27,32 +27,32 @@ def test_get_itoken_data():
 
 
 def test_get_all_rewards():
-    x = IronBank.get_all_rewards(TEST_WALLET, iUSDC, TEST_BLOCK, OPTIMISM, WEB3, 1, 0, True, None)
+    x = IronBank.get_all_rewards(TEST_WALLET, iUSDC, TEST_BLOCK, OPTIMISM, WEB3, True, None)
     assert x == [[IB, 0.0]]
 
 
 def test_all_rewards():
-    x = IronBank.all_rewards(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, 1, 0, True)
+    x = IronBank.all_rewards(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, True)
     assert x == [[IB, 0.0]]
 
 
 # FIXME: fluctuating balances
 def test_get_locked():
-    x = IronBank.get_locked(TEST_WALLET, TEST_BLOCK, OPTIMISM, 302, 1, WEB3, 0, False, decimals=False)
+    x = IronBank.get_locked(TEST_WALLET, TEST_BLOCK, OPTIMISM, 302, WEB3, False, decimals=False)
     assert x == [[veIB, pytest.approx(5.4181e22, rel=1e-3)],
                  [IB, pytest.approx(6.98e22, rel=1e-3)]]
 
 
 def test_underlying():
-    x = IronBank.underlying(TEST_WALLET, USDC, TEST_BLOCK, OPTIMISM, WEB3, True, 1, 0, False)
+    x = IronBank.underlying(TEST_WALLET, USDC, TEST_BLOCK, OPTIMISM, WEB3, True, False)
     assert x == [[USDC, 3807.3473116249047, 0]]
 
 
 def test_underlying_all():
-    x = IronBank.underlying_all(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, 1, 0, True, False)
+    x = IronBank.underlying_all(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, True, False)
     assert x == [[USDC, 3807.3473116249047, 0]]
 
 
 def test_unwrap():
-    x = IronBank.unwrap(198489.26169641, iUSDC, TEST_BLOCK, OPTIMISM, WEB3, 1, 0, True)
+    x = IronBank.unwrap(198489.26169641, iUSDC, TEST_BLOCK, OPTIMISM, WEB3, True)
     assert x == [USDC, 2016.8491223726407]
