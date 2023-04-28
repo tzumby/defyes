@@ -188,7 +188,6 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
 def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, decimals=True):
 
     balances = []
-    result = []
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -212,7 +211,8 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
 
     balances = [[veib_address, veib_balance], [ib_token, locked_balance]]
 
-    if reward is True:
+    result = balances
+    if reward:
         ve_dist_contract = get_contract(get_ve_dist_address(blockchain), blockchain, web3=web3, abi=ABI_VE_DIST,
                                         block=block)
         ve_dist_reward_token = ve_dist_contract.functions.token().call()
@@ -226,11 +226,8 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
         ve_dist_reward_token_decimals = get_decimals(ve_dist_reward_token, blockchain, web3=web3) if decimals else 0
         fee_dist_reward_token_decimals = get_decimals(fee_dist_reward_token, blockchain, web3=web3) if decimals else 0
 
-        result.append(balances)
-        result.append([[ve_dist_reward_token, Decimal(ve_dist_claimable_reward) / Decimal(10 ** ve_dist_reward_token_decimals)],
+        result.extend([[ve_dist_reward_token, Decimal(ve_dist_claimable_reward) / Decimal(10 ** ve_dist_reward_token_decimals)],
                        [fee_dist_reward_token, Decimal(fee_dist_claimable_reward) / Decimal(10 ** fee_dist_reward_token_decimals)]])
-    else:
-        result = balances
 
     return result
 
@@ -238,7 +235,6 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
 # 2 - List of Tuples: [reward_token_address, balance]
 def underlying(wallet, token_address, block, blockchain, web3=None, decimals=True, reward=False):
 
-    result = []
     balances = []
 
     if web3 is None:
@@ -293,15 +289,12 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
     balances.append([token_address, underlying_token_balance, underlying_staked_balance])
 
-    if reward is True:
+    result = balances
+    if reward:
         all_rewards = get_all_rewards(wallet, itoken, block, blockchain, web3=web3, decimals=decimals,
                                       staking_rewards_contract=staking_rewards_contract)
 
-        result.append(balances)
-        result.append(all_rewards)
-
-    else:
-        result = balances
+        result.extend(all_rewards)
 
     return result
 
@@ -310,7 +303,6 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 # 2 - List of Tuples: [reward_token_address, balance]
 def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=False):
     balances = []
-    result = []
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -376,14 +368,11 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
         if underlying_token_balance > 0 or underlying_staked_balance > 0:
             balances.append([underlying_token, underlying_token_balance, underlying_staked_balance])
 
-    if reward is True:
+    result = balances
+    if reward:
         rewards = all_rewards(wallet, block, blockchain, web3=web3, decimals=decimals)
 
-        result.append(balances)
-        result.append(rewards)
-
-    else:
-        result = balances
+        result.extend(rewards)
 
     return result
 
