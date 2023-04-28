@@ -1,4 +1,5 @@
 import pytest
+from decimal import Decimal
 
 from defi_protocols import IronBank
 from defi_protocols.constants import OPTIMISM
@@ -26,33 +27,44 @@ def test_get_itoken_data():
     assert {k: data[k] for k in expected} == expected
 
 
-def test_get_all_rewards():
-    x = IronBank.get_all_rewards(TEST_WALLET, iUSDC, TEST_BLOCK, OPTIMISM, WEB3, True, None)
+@pytest.mark.parametrize('decimals', [True, False])
+def test_get_all_rewards(decimals):
+    x = IronBank.get_all_rewards(TEST_WALLET, iUSDC, TEST_BLOCK, OPTIMISM, WEB3, decimals=decimals)
     assert x == [[IB, 0.0]]
 
 
-def test_all_rewards():
-    x = IronBank.all_rewards(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, True)
+@pytest.mark.parametrize('decimals', [True, False])
+def test_all_rewards(decimals):
+    x = IronBank.all_rewards(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, decimals=decimals)
     assert x == [[IB, 0.0]]
 
 
 # FIXME: fluctuating balances
-def test_get_locked():
-    x = IronBank.get_locked(TEST_WALLET, TEST_BLOCK, OPTIMISM, 302, WEB3, False, decimals=False)
-    assert x == [[veIB, pytest.approx(5.4181e22, rel=1e-3)],
-                 [IB, pytest.approx(6.98e22, rel=1e-3)]]
+@pytest.mark.parametrize('decimals', [True, False])
+def test_get_locked(decimals):
+    x = IronBank.get_locked(TEST_WALLET, TEST_BLOCK, OPTIMISM, 302, WEB3, False, decimals=decimals)
+    print(x)
+    y = Decimal(10**(18 if decimals else 0))
+    assert x == [[veIB, pytest.approx(Decimal('54181897005598451410657') / y, rel=Decimal(1e-5))],
+                 [IB, pytest.approx(Decimal('69825279969409816077552') / y, rel=Decimal(1e-5))]]
 
 
-def test_underlying():
-    x = IronBank.underlying(TEST_WALLET, USDC, TEST_BLOCK, OPTIMISM, WEB3, True, False)
-    assert x == [[USDC, 3807.3473116249047, 0]]
+@pytest.mark.parametrize('decimals', [True, False])
+def test_underlying(decimals):
+    x = IronBank.underlying(TEST_WALLET, USDC, TEST_BLOCK, OPTIMISM, WEB3, decimals=decimals, reward=False)
+    y = Decimal(10**(6 if decimals else 0))
+    assert x == [[USDC, Decimal('3807347311.624904820141022815') / y, 0]]
 
 
-def test_underlying_all():
-    x = IronBank.underlying_all(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, True, False)
-    assert x == [[USDC, 3807.3473116249047, 0]]
+@pytest.mark.parametrize('decimals', [True, False])
+def test_underlying_all(decimals):
+    x = IronBank.underlying_all(TEST_WALLET, TEST_BLOCK, OPTIMISM, WEB3, decimals=decimals, reward=False)
+    y = Decimal(10**(6 if decimals else 0))
+    assert x == [[USDC, Decimal('3807347311.624904820141022815') / y, 0]]
 
 
-def test_unwrap():
-    x = IronBank.unwrap(198489.26169641, iUSDC, TEST_BLOCK, OPTIMISM, WEB3, True)
-    assert x == [USDC, 2016.8491223726407]
+@pytest.mark.parametrize('decimals', [True, False])
+def test_unwrap(decimals):
+    x = IronBank.unwrap(Decimal(198489), iUSDC, TEST_BLOCK, OPTIMISM, WEB3, decimals=decimals)
+    y = Decimal(10**(6 if decimals else 0))
+    assert x == [USDC, Decimal('2016846463.2757690383') / y]
