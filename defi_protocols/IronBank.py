@@ -432,8 +432,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
         itoken_data = get_itoken_data(itoken, wallet, block, blockchain, web3=web3, underlying_token=token_address)
 
-        underlying_token_decimals = get_decimals(token_address, block=block, blockchain=blockchain, web3=web3,
-                                                 index=index)
+        underlying_token_decimals = get_decimals(token_address, block=block, blockchain=blockchain, web3=web3)
 
         mantissa = 18 - (itoken_data['decimals']) + underlying_token_decimals
 
@@ -546,7 +545,7 @@ def underlying_all(wallet, block, blockchain, web3=None, execution=1, index=0, d
                 if underlying_token is not ZERO_ADDRESS:
 
                     underlying_token_decimals = get_decimals(underlying_token, block=block, blockchain=blockchain,
-                                                             web3=web3, index=index)
+                                                             web3=web3)
 
                     mantissa = 18 - (itoken_data['decimals']) + underlying_token_decimals
 
