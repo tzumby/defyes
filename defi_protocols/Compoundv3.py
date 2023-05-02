@@ -1,21 +1,22 @@
 from typing import Union, List
 from decimal import Decimal
 
-from defi_protocols.functions import get_node, get_contract
-from defi_protocols.constants import ETHEREUM, COMP_ETH, ZERO_ADDRESS
+from defi_protocols.functions import get_node, get_contract, get_decimals
+from defi_protocols.constants import ETHTokenAddr, ABI_TOKEN_SIMPLIFIED
 
 CUSDCV3_ADDRESS = '0xc3d688B66703497DAA19211EEdff47f25384cdc3'
-
 CWETHV3_ADDRESS = '0xA17581A9E3356d9A858b789D68B4d866e593aE94'
+
+REWARDS_ADDRESS = '0x1B0e765F6224C21223AeA2af16c1C46E38885a40'
 
 CTOKEN_ABI = '[{"inputs":[],"name":"baseToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},\
             {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
             {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userBasic","outputs":[{"internalType":"int104","name":"principal","type":"int104"},{"internalType":"uint64","name":"baseTrackingIndex","type":"uint64"},{"internalType":"uint64","name":"baseTrackingAccrued","type":"uint64"},{"internalType":"uint16","name":"assetsIn","type":"uint16"},{"internalType":"uint8","name":"_reserved","type":"uint8"}],"stateMutability":"view","type":"function"},\
             {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}]'
 
-def get_token_addresses(blockchain: str, web3: object =None):
-    pass
-    #TODO: till 29-4-2023 only cUSDC and cWETH exists, there will be more and then a token list would be nice to fetch from blockchain. 
+CTOKEN_REWARDS_ABI = '[{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"rewardsClaimed","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+
+#TODO: till 29-4-2023 only cUSDC and cWETH exists, there will be more and then a token list would be nice to fetch from blockchain. 
 
 def underlying(wallet: str, token_address: str , block: Union[str,int], blockchain: str, web3: object =None, decimals: bool=True) -> List[List]:
     """give the underlying token and amounts of this protocol
@@ -65,13 +66,13 @@ def get_all_rewards(wallet: str, token_address: str, block: Union[int, str], blo
     wallet = web3.to_checksum_address(wallet)
     token_address = web3.to_checksum_address(token_address)
 
-    cToken_instance = get_contract(token_address, blockchain, abi=CTOKEN_ABI, web3=web3, block=block)
-    cToken_decimals = cToken_instance.functions.decimals().call() if decimals else 0
-    cToken_balance = cToken_instance.functions.balanceOf(wallet).call(block_identifier=block)
-    cToken_principal = cToken_instance.functions.userBasic(wallet).call(block_identifier=block)[0]
-    cToken_rewards = Decimal(cToken_balance - cToken_principal) / Decimal(10 ** cToken_decimals)
-    
-    rewards.append([token_address, float(cToken_rewards)])
+    cToken_instance = get_contract(REWARDS_ADDRESS, blockchain, abi=CTOKEN_REWARDS_ABI, web3=web3, block=block)
+    cToken_rewards = cToken_instance.functions.rewardsClaimed(token_address,wallet).call(block_identifier=block)
+
+    comp_decimals = get_decimals(ETHTokenAddr.COMP,blockchain,web3=web3,block=block) if decimals else 0
+    cToken_rewards = Decimal(cToken_rewards) / Decimal(10 ** comp_decimals)
+        
+    rewards.append([ETHTokenAddr.COMP, float(cToken_rewards)])
 
     return rewards
 

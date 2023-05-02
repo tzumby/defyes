@@ -1,5 +1,5 @@
 from defi_protocols import Compoundv3
-from defi_protocols.constants import ETHEREUM, USDC_ETH
+from defi_protocols.constants import ETHEREUM, ETHTokenAddr
 from defi_protocols.functions import get_node
 
 WALLET_N1 = '0x616dE58c011F8736fa20c7Ae5352F7f6FB9F0669'
@@ -11,11 +11,11 @@ def test_underlying():
     node = get_node(ETHEREUM, block)
 
     underlying = Compoundv3.underlying(WALLET_N1,TOKEN_ADDRESS,block,ETHEREUM,web3=node)
-    assert underlying == [[USDC_ETH, 2208438.458228 ]]
+    assert underlying == [[ETHTokenAddr.USDC, 2208438.458228 ]]
 
 def test_get_all_rewards():
     block = 17151264
     node = get_node(ETHEREUM, block)
 
     all_rewards = Compoundv3.get_all_rewards(WALLET_N1,TOKEN_ADDRESS,block,ETHEREUM,web3=node)
-    assert all_rewards == [[TOKEN_ADDRESS, 31215.102457]]
+    assert all_rewards == [[ETHTokenAddr.COMP, 0]]
