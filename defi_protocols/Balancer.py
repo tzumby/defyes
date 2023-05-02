@@ -92,6 +92,20 @@ SWAP_EVENT_SIGNATURE = 'Swap(bytes32,address,address,uint256,uint256)'
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# call_contract_method
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def call_contract_method(method, block):
+    try:
+        return method.call(block_identifier = block)
+    except Exception as e:
+        if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput or \
+                (type(e) == ValueError and (e.args[0]['code'] == -32000 or e.args[0]['code'] == -32015)):
+            return None
+        else:
+            raise e
+        
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_gauge_factory_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_gauge_factory_address(blockchain):
@@ -397,26 +411,19 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
         token_decimals = token_contract.functions.decimals().call()
         
         unwrapped_balances = []
-        try:
-            token_contract.functions.getRate().call()
+
+        if call_contract_method(token_contract.functions.getRate(), block) is not None:
             unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
-        except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-            if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                raise E
-            try:
-                main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
-            except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-                if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                    raise E
-                try:
-                    stETH = token_contract.functions.stETH().call()
+        else:
+            main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
+            if main_token is None:
+                stETH = call_contract_method(token_contract.functions.stETH(), block)
+                if stETH is not None:
                     if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
                         main_token = stETH
                     else:
                         main_token = token_address
-                except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-                    if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                        raise E
+                else:
                     main_token = token_address
 
             if lptoken_data['scalingFactors'] is not None:
@@ -488,26 +495,18 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
         token_decimals = token_contract.functions.decimals().call()
 
         unwrapped_balances = []
-        try:
-            token_contract.functions.getRate().call()
+        if call_contract_method(token_contract.functions.getRate(), block) is not None:
             unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
-        except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-            if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                raise E
-            try:
-                main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
-            except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-                if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                    raise E
-                try:
-                    stETH = token_contract.functions.stETH().call()
+        else:
+            main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
+            if main_token is None:
+                stETH = call_contract_method(token_contract.functions.stETH(), block)
+                if stETH is not None:
                     if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
                         main_token = stETH
                     else:
                         main_token = token_address
-                except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-                    if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                        raise E
+                else:
                     main_token = token_address
 
             if lptoken_data['scalingFactors'] is not None:
@@ -566,26 +565,18 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
         token_decimals = token_contract.functions.decimals().call()
 
         unwrapped_balances = []
-        try:
-            token_contract.functions.getRate().call()
+        if call_contract_method(token_contract.functions.getRate(), block) is not None:
             unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
-        except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-            if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                raise E
-            try:
-                main_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
-            except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-                if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                    raise E
-                try:
-                    stETH = token_contract.functions.stETH().call()
+        else:
+            main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
+            if main_token is None:
+                stETH = call_contract_method(token_contract.functions.stETH(), block)
+                if stETH is not None:
                     if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
                         main_token = stETH
                     else:
                         main_token = token_address
-                except (ContractLogicError, BadFunctionCallOutput, ValueError) as E:
-                    if type(E).__name__ == 'ValueError' and E.args[0]['data'] != 'revert':
-                        raise E
+                else:
                     main_token = token_address
         
             if lptoken_data['scalingFactors'] is not None:
@@ -718,4 +709,3 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
         return apy
     else:
         return apr
-    
