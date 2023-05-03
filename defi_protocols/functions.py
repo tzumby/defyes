@@ -81,9 +81,12 @@ class ProviderManager(JSONBaseProvider):
                 try:
                     response = provider.make_request(method, params)
                     return response
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                    errors.append(e)
+                    logger.error("Error when making request: %s", e)
                 except Exception as e:
                     errors.append(e)
-                    logger.exception("Exception when making request.")
+                    logger.exception("Unexpected exception when making request.")
         raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
 
 def get_web3_provider(provider):

@@ -14,6 +14,11 @@ from defi_protocols import Balancer
 BOOSTER = '0xA57b8d98dAE62B26Ec3bcC4a365338157060B234'
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# STAKED Aura BAL
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+stkauraBAL = '0xfAA2eD111B4F580fCb85C48E6DC6782Dc5FCD7a6'
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # AURA LOCKER TOKEN ADDRESS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # AURA locker token address
@@ -48,6 +53,9 @@ ABI_BOOSTER = '[{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}
 # REWARDER ABI - balanceOf, earned, extraRewards, extraRewardsLength, rewardToken, rewards, stakingToken, totalSupply
 ABI_REWARDER = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"earned","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"extraRewards","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"extraRewardsLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rewardToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"rewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"stakingToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
+# stkauraBAL ABI - balanceOfUnderlying, underlying, extraRewards, extraRewardsLength
+ABI_STKAURABAL = '[{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOfUnderlying","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"underlying","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"extraRewards","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"extraRewardsLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+
 # AURA ABI - EMISSIONS_MAX_SUPPLY, INIT_MINT_AMOUNT, decimals, reductionPerCliff, totalCliffs, totalSupply
 ABI_AURA = '[{"inputs":[],"name":"EMISSIONS_MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"INIT_MINT_AMOUNT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"reductionPerCliff","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalCliffs","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
@@ -74,17 +82,10 @@ DB_FILE = Path(__file__).parent / "db" / "Aura_db.json"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_info - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
-# Output: pool_info method return a list with the following data:
 # [0] lptoken address, [1] token address, [2] gauge address, [3] crvRewards address, [4] stash adress, [5] shutdown bool
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_info(booster_contract, lptoken_address, block):
-    """
 
-    :param booster_contract:
-    :param lptoken_address:
-    :param block:
-    :return:
-    """
     with open(DB_FILE, 'r') as db_file:
         db_data = json.load(db_file)
 
@@ -118,20 +119,9 @@ def get_pool_info(booster_contract, lptoken_address, block):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_rewards
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - Tuples: [token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
-    """
-    :param web3:
-    :param rewarder_contract:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
+
     reward_token_address = rewarder_contract.functions.rewardToken().call()
 
     if decimals is True:
@@ -147,20 +137,9 @@ def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=Tru
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_extra_rewards
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
-    """
-    :param web3:
-    :param rewarder_contract:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
+
     extra_rewards = []
 
     extra_rewards_length = rewarder_contract.functions.extraRewardsLength().call(block_identifier=block)
@@ -188,20 +167,9 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_extra_rewards_airdrop
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=True):
-    """
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :return:
-    """
+
     extra_rewards_airdrop = []
 
     if web3 is None:
@@ -230,21 +198,10 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_aura_mint_amount
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - Tuple: [aura_token_address, minted_amount]
 # WARNING: Check the amount of AURA retrieved
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
-    """
 
-    :param web3:
-    :param bal_earned:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
     aura_amount = 0
 
     aura_contract = get_contract(AURA_ETH, blockchain, web3=web3, abi=ABI_AURA, block=block)
@@ -278,23 +235,9 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# 'bal_rewards_contract' = bal_rewards_contract -> Improves performance
-# Output:
-# 1 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, bal_rewards_contract=None):
-    """
-    :param wallet:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :param bal_rewards_contract:
-    :return:
-    """
+
     all_rewards = []
 
     if web3 is None:
@@ -341,24 +284,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_locked
-# 'web3' = web3 (Node) -> Improves performance
-# 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - List of Tuples: [aura_token_address, locked_balance]
-# 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True):
-    """
-
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param reward:
-    :param decimals:
-    :return:
-    """
+ 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -398,23 +326,9 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_staked_aurabal
-# 'web3' = web3 (Node) -> Improves performance
-# 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - List of Tuples: [aurabal_token_address, staked_balance]
-# 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True):
-    """
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param reward:
-    :param decimals:
-    :return:
-    """
+
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -455,28 +369,47 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_compounded_aurabal
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_compounded(wallet, block, blockchain, web3=None, reward=False, decimals=True):
+
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    wallet = web3.to_checksum_address(wallet)
+
+    stk_aurabal_contract = get_contract(stkauraBAL, blockchain, web3=web3, abi=ABI_STKAURABAL, block=block)
+
+    if decimals is True:
+        aurabal_address = stk_aurabal_contract.functions.underlying().call()
+        aurabal_decimals = get_decimals(aurabal_address, blockchain, web3=web3)
+    else:
+        aurabal_decimals = 0
+
+    aurabal_staked = stk_aurabal_contract.functions.balanceOfUnderlying(wallet).call(block_identifier=block) / (
+                10 ** aurabal_decimals)
+
+    result = [[aurabal_address, aurabal_staked]]
+
+    if reward is True:
+        rewards = []
+
+        # Extra Rewards
+        extra_rewards = get_extra_rewards(web3, stk_aurabal_contract, wallet, block, blockchain,
+                                            decimals=decimals)
+        for n in range(0, len(extra_rewards)):
+            rewards.append(extra_rewards[n])
+        
+        result += rewards
+
+    return result
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # underlying
-# 'web3' = web3 (Node) -> Improves performance
-# 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
-# 'no_balancer_underlying' = True -> retrieves the LP Token balance /
-# 'no_balancer_underlying' = False or not passed onto the function -> retrieves the balance of the underlying Balancer tokens
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output: a list with 2 elements:
-# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance] | [liquidity_token_address, staked_balance] -> depending on 'no_balancer_underlying' value
-# 2 - List of Tuples: [reward_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=False, no_balancer_underlying=False, decimals=True):
-    """
-    :param wallet:
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param reward:
-    :param no_balancer_underlying:
-    :param decimals:
-    :return:
-    """
+
     result = []
     balances = []
 
@@ -529,20 +462,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # pool_balances
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output: a list with 2 elements:
-# 1 - List of Tuples: [liquidity_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
-    """
-    :param lptoken_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :return:
-    """
+
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -557,10 +479,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 # update_db
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db(output_file=DB_FILE):
-    """
 
-    :return:
-    """
     try:
         with open(DB_FILE, 'r') as db_file:
             db_data = json.load(db_file)
@@ -593,3 +512,6 @@ def update_db(output_file=DB_FILE):
             json.dump(db_data, db_file)
 
     return updated
+
+
+ 

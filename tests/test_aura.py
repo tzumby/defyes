@@ -17,11 +17,17 @@ balancer_auraBALSTABLEgauge_ADDR = "0x0312AA8D0BA4a1969Fddb382235870bF55f7f242"
 aura_auraBALSTABLEvault_ADDR = "0xACAdA51C320947E7ed1a0D0F6b939b0FF465E4c2"
 aura_auraBALSTABLEstash_ADDR = "0x7b3307af981F55C8D6cd22350b08C39Ec7Ec481B"
 
+balancer_50COW_50GNO = "0x92762b42a06dcdddc5b7362cfb01e631c4d44b40"
+
+balancer_80GNO_20WETH = "0xF4C0DD9B82DA36C07605df83c8a416F11724d88b"
+
 WALLET_N1 = "0xb74e5e06f50fa9e4eF645eFDAD9d996D33cc2d9D"
 WALLET_N2 = "0x6d707F73f621722fEc0E6A260F43f24cCC8d4997"
 WALLET_N3 = "0x76d3a0F4Cdc9E75E0A4F898A7bCB1Fb517c9da88"
 WALLET_N4 = "0xB1f881f47baB744E7283851bC090bAA626df931d"
 WALLET_N5 = "0x36cc7B13029B5DEe4034745FB4F24034f3F2ffc6"
+WALLET_39d = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
+WALLET_e1c = "0x58e6c7ab55aa9012eacca16d1ed4c15795669e1c"
 
 @pytest.mark.xfail(reason="Aura db is outdated")
 def test_db_uptodate():
@@ -113,13 +119,21 @@ def test_underlying():
     node = get_node(ETHEREUM, block)
 
     bal, eth, aurabal = Aura.underlying(WALLET_N5, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
-    assert bal == [ETHTokenAddr.BAL, 116433.71368955923]
+    assert bal == [ETHTokenAddr.BAL, 116433.71368955926]
     assert eth == [ETHTokenAddr.WETH, 108.28071123323124]
     assert aurabal == [ETHTokenAddr.auraBAL,63020.44124792097]
 
     ohm, steth = Aura.underlying(WALLET_N1, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
     assert ohm == [ETHTokenAddr.OHM, 1231058673158.3909]
     assert steth == [ETHTokenAddr.wstETH, 6.05714004986533e+18]
+
+    gno, cow = Aura.underlying(WALLET_e1c, balancer_50COW_50GNO, block, ETHEREUM, web3=node)
+    assert gno == [ETHTokenAddr.GNO, 345.1743699207633]
+    assert cow == [ETHTokenAddr.COW, 470374.1748462563]
+
+    gno, weth = Aura.underlying(WALLET_e1c, balancer_80GNO_20WETH, block, ETHEREUM, web3=node)
+    assert gno == [ETHTokenAddr.GNO, 2896.5289865606737]
+    assert weth == [ETHTokenAddr.WETH, 42.530301853586735]
 
 
 def test_pool_balances():
@@ -129,3 +143,12 @@ def test_pool_balances():
     ohm, steth = Aura.pool_balances(balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node)
     assert ohm == [ETHTokenAddr.OHM, 23962.880591594]
     assert steth == [ETHTokenAddr.wstETH, 117.90382286905813]
+
+
+def test_get_compounded():
+    block = 17131068
+    node = get_node(ETHEREUM, block)
+
+    aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, ETHEREUM, web3=node, reward=True)
+    assert aurabal == [ETHTokenAddr.auraBAL, 173638.9509001933]
+    assert aura_rewards == [ETHTokenAddr.AURA, 518.423812233737]
