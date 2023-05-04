@@ -138,6 +138,7 @@ ABI_TOKEN_SIMPLIFIED = '[{"constant":true,"inputs":[],"name":"name","outputs":[{
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 AURA_ETH = '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF'
 AAVE_ETH = '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9'
+ABPT_ETH = '0x41A08648C3766F9F9d85598fF102a08f4ef84F84'
 B_80BAL_20_WETH_ETH = '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56'
 BAL_ETH = '0xba100000625a3754423978a60c9317c58a424e3D'
 BB_A_USD_OLD_ETH = '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2'
@@ -168,6 +169,7 @@ X3CRV_ETH = '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490'
 
 class ETHTokenAddr:
     BAT = '0x0D8775F648430679A709E98d2b0Cb6250d2887EF'
+    COW = '0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB'
     DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
     REP = '0x1985365e9f78359a9B6AD760e32412f4a445E862'
     USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
@@ -200,6 +202,7 @@ class ETHTokenAddr:
     sETH2 = '0xFe2e637202056d30016725477c5da089Ab0A043A'
     BNT = '0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C'
     ICHI = '0x903bEF1736CDdf2A537176cf3C64579C3867A881'
+    ABPT = '0x41A08648C3766F9F9d85598fF102a08f4ef84F84'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # XDAI - Token Addresses

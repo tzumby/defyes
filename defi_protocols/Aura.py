@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 
-from defi_protocols.functions import get_node, get_decimals, get_contract, last_block
+from defi_protocols.functions import get_node, get_decimals, get_contract
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
 
@@ -512,3 +512,6 @@ def update_db(output_file=DB_FILE):
             json.dump(db_data, db_file)
 
     return updated
+
+
+ 

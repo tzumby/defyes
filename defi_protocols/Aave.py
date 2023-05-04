@@ -1,7 +1,7 @@
 import logging
 from typing import Union, Optional
 
-from defi_protocols.constants import ETHEREUM, STKAAVE_ETH, AAVE_ETH
+from defi_protocols.constants import ETHEREUM, STKAAVE_ETH, AAVE_ETH, ABPT_ETH
 from defi_protocols.functions import get_contract, get_node, get_decimals, balance_of
 
 
@@ -455,6 +455,6 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bo
         balances.append([STAKED_ABPT_TOKEN, stkabpt_balance])
     else:
         balances.append([AAVE_ETH, stkaave_balance])
-        balances.append([AAVE_ETH, stkabpt_balance])
+        balances.append([ABPT_ETH, stkabpt_balance])
 
     return balances
