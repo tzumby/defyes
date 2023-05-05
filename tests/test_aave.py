@@ -35,7 +35,7 @@ def test_get_data():
     data = Aave.get_data(TEST_ADDRESS, block=16870553, blockchain=ETHEREUM)
     assert data == {
         'collateral_ratio': 315.2041298065367,
-        'liquidation_ratio': 122.27928588897042,
+        'liquidation_ratio': 122.2792858889704,
         'eth_price_usd': 1756.2,
         'collaterals': [
             {'token_address': '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F',

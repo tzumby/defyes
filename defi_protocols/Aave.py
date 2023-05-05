@@ -203,14 +203,28 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
                 collaterals.append(asset)
 
     # getUserAccountData return a list with the following data:
-    # [0] = totalCollateralETH, [1] = totalDebtETH, [2] = availableBorrowsETH, [3] = currentLiquidationThreshold, [4] = ltv, [5] = healthFactor
+    # [0] = totalCollateralETH,
+    # [1] = totalDebtETH,
+    # [2] = availableBorrowsETH,
+    # [3] = currentLiquidationThreshold,
+    # [4] = ltv,
+    # [5] = healthFactor
     user_account_data = lending_pool_contract.functions.getUserAccountData(wallet).call(block_identifier=block)
 
-    # Collateral Ratio
-    aave_data['collateral_ratio'] = (user_account_data[0] / user_account_data[1]) * 100
+    total_collateral_ETH, total_debt_ETH, _, current_liquidation_th, *_ = user_account_data
 
-    # Liquidation Ratio
-    aave_data['liquidation_ratio'] = (1 / user_account_data[3]) * 1000000
+    if total_collateral_ETH > 0:
+        if total_debt_ETH > 0:
+            aave_data['collateral_ratio'] = 100 * total_collateral_ETH / total_debt_ETH
+        else:
+            aave_data['collateral_ratio'] = float('infinity')
+    else:
+        aave_data['collateral_ratio'] = float('nan')
+
+    if current_liquidation_th > 0:
+        aave_data['liquidation_ratio'] = 1000000 / current_liquidation_th
+    else:
+        aave_data['liquidation_ratio'] = float('infinity')
 
     # Ether price in USD
     aave_data['eth_price_usd'] = eth_usd_price

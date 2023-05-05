@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from defi_protocols import Element
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, E_ADDRESS
 
@@ -31,7 +33,7 @@ def test_underlying():
     block = 16627530
     name = 'LP Element Principal Token yvCurve-stETH-24FEB23'
     underlying = Element.underlying(name, WALLET, block, blockchain=ETHEREUM)
-    assert underlying == [[E_ADDRESS, 744.5556663118057], [ETHTokenAddr.stETH, 766.3546455242682]]
+    assert underlying == [[E_ADDRESS, Decimal('744.5556663118056371427981122')], [ETHTokenAddr.stETH, Decimal('766.3546455242681575794980893')]]
 
 
 def test_underlying_all():
@@ -39,15 +41,15 @@ def test_underlying_all():
     underlying = Element.underlying_all(WALLET, block, blockchain=ETHEREUM)
     assert underlying == [{'protocol': 'Element',
                            'tranche': 'LP Element Principal Token yvCurve-stETH-24FEB23',
-                           'amounts': [[E_ADDRESS, 744.5556663118057], [ETHTokenAddr.stETH, 766.3546455242682]],
+                           'amounts': [[E_ADDRESS, Decimal('744.5556663118056371427981122')], [ETHTokenAddr.stETH, Decimal('766.3546455242681575794980893')]],
                            'lptoken_address': '0x06325440D014e39736583c165C2963BA99fAf14E',
                            'wallet': '0x849D52316331967b6fF1198e5E32A0eB168D039d'},
                           {'protocol': 'Element',
                            'tranche': 'LP Element Principal Token yvcrvSTETH-28JAN22',
-                           'amounts': [[E_ADDRESS, 5.176494310919113e-05], [ETHTokenAddr.stETH, 5.3280508660335564e-05]],
+                           'amounts': [[E_ADDRESS, Decimal('0.00005176494310919112503054923609')], [ETHTokenAddr.stETH, Decimal('0.00005328050866033555812181817323')]],
                            'lptoken_address': '0x06325440D014e39736583c165C2963BA99fAf14E',
                            'wallet': '0x849D52316331967b6fF1198e5E32A0eB168D039d'},
                           {'protocol': 'Element', 'tranche': 'LP Element Principal Token yvcrvSTETH-15APR22',
-                           'amounts': [[E_ADDRESS, 0.00026526689347508467], [ETHTokenAddr.stETH, 0.0002730333342642093]],
+                           'amounts': [[E_ADDRESS, Decimal('0.0002652668934750846743153635040')], [ETHTokenAddr.stETH, Decimal('0.0002730333342642093125746709260')]],
                            'lptoken_address': '0x06325440D014e39736583c165C2963BA99fAf14E',
                            'wallet': '0x849D52316331967b6fF1198e5E32A0eB168D039d'}]
