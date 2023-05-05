@@ -1,19 +1,17 @@
+import logging
 import requests
+from decimal import Decimal
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, ABI_TOKEN_SIMPLIFIED, GetNodeIndexError
 from defi_protocols.constants import MAX_EXECUTIONS, POLYGON, ZERO_ADDRESS
+
+logger = logging.getLogger(__name__)
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # LITERALS
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # API Call - List of the latest pools
 API_ELK_POOLS = 'https://api.elk.finance/v2/info/latest_pools'
-
-# Wrapped
-WRAPPED = 'wrapped'
-
-# Matic
-MATIC = 'matic'
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -37,54 +35,40 @@ SWAP_EVENT_SIGNATURE = 'Swap(address,uint256,uint256,uint256,uint256,address)'
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_lptoken_data(lptoken_address, block, blockchain, web3=None, execution=1, index=0):
+def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
     """
-
     :param lptoken_address:
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    lptoken_data = {}
 
-        lptoken_data = {}
+    lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-        lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+    lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
+    lptoken_data['token0'] = lptoken_data['contract'].functions.token0().call()
+    lptoken_data['token1'] = lptoken_data['contract'].functions.token1().call()
+    lptoken_data['reserves'] = lptoken_data['contract'].functions.getReserves().call(block_identifier=block)
+    lptoken_data['kLast'] = lptoken_data['contract'].functions.kLast().call(block_identifier=block)
 
-        lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
-        lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
-        lptoken_data['token0'] = lptoken_data['contract'].functions.token0().call()
-        lptoken_data['token1'] = lptoken_data['contract'].functions.token1().call()
-        lptoken_data['reserves'] = lptoken_data['contract'].functions.getReserves().call(block_identifier=block)
-        lptoken_data['kLast'] = lptoken_data['contract'].functions.kLast().call(block_identifier=block)
+    # WARNING: Fees are deactivated in Elk
+    lptoken_data['virtualTotalSupply'] = lptoken_data['totalSupply']
 
-        # WARNING: Fees are deactivated in Elk
-        lptoken_data['virtualTotalSupply'] = lptoken_data['totalSupply']
-
-        return lptoken_data
-
-    except GetNodeIndexError:
-        return get_lptoken_data(lptoken_address, block, blockchain, index=0, execution=execution + 1)
-
-    except:
-        return get_lptoken_data(lptoken_address, block, blockchain, index=index + 1, execution=execution)
+    return lptoken_data
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_address
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_address(web3, token0, token1, block, blockchain):
+    # FIXME: no need to use block. Latest can be hardcoded for this function.
     """
-
     :param web3:
     :param token0:
     :param token1:
@@ -92,48 +76,29 @@ def get_pool_address(web3, token0, token1, block, blockchain):
     :param blockchain:
     :return:
     """
-    token0_contract = get_contract(token0, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
-    token1_contract = get_contract(token1, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
-
-    symbol0 = token0_contract.functions.symbol().call()
-    symbol1 = token1_contract.functions.symbol().call()
-
-    if WRAPPED in token0_contract.functions.name().call().lower():
-        symbol0 = symbol0[1:len(symbol0)]
-
-    if WRAPPED in token1_contract.functions.name().call().lower():
-        symbol1 = symbol1[1:len(symbol1)]
-
-    if blockchain == POLYGON:
-        blockchain = MATIC
-
-    # Special Case: symbol = 'XGT' -> XGTV2
-    if symbol0 == 'XGT':
-        symbol0 += 'V2'
-
-    if symbol1 == 'XGT':
-        symbol1 += 'V2'
-
-    # # Special Case: symbol = 'XCOMB' -> 'xCOMB
-    # if symbol0 == 'XCOMB':
-    #     symbol0 += 'xCOMB'
-
-    # if symbol1 == 'XCOMB':
-    #     symbol1 += 'xCOMB'
-
     pools = requests.get(API_ELK_POOLS).json()
 
-    try:
-        pool_id = symbol0 + '-' + symbol1
-        pool_address = pools[blockchain][pool_id]['address']
+    symbols = []
+    for token in [token0, token1]:
+        token_contract = get_contract(token, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
+        symbol = token_contract.functions.symbol().call()
 
-    except:
+        if 'wrapped' in token_contract.functions.name().call().lower():
+            symbol = symbol[1:len(symbol)]
+
+        symbol = 'XGTV2' if symbol == 'XGT' else symbol  # Special Case: symbol = 'XGT' -> XGTV2
+
+        symbols.append(symbol)
+
+    pool_blockchain = 'matic' if blockchain == POLYGON else blockchain
+    pool_ids = ['-'.join(symbols), '-'.join(symbols[::-1])]
+    pool_address = None
+    for pool_id in pool_ids:
         try:
-            pool_id = symbol1 + '-' + symbol0
-            pool_address = pools[blockchain][pool_id]['address']
-
-        except:
-            pool_address = None
+            pool_address = pools[pool_blockchain][pool_id]['address']
+            break
+        except KeyError:
+            pass
 
     return pool_address
 
@@ -146,7 +111,6 @@ def get_pool_address(web3, token0, token1, block, blockchain):
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=True):
     """
-
     :param web3:
     :param pool_contract:
     :param wallet:
@@ -156,13 +120,9 @@ def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=Tru
     :return:
     """
     elk_token_address = pool_contract.functions.rewardsToken().call()
+    elk_token_decimals = get_decimals(elk_token_address, blockchain, web3=web3) if decimals else 0
 
-    if decimals is True:
-        elk_token_decimals = get_decimals(elk_token_address, blockchain, web3=web3)
-    else:
-        elk_token_decimals = 0
-
-    elk_rewards = pool_contract.functions.earned(wallet).call(block_identifier=block) / (10**elk_token_decimals)
+    elk_rewards = Decimal(pool_contract.functions.earned(wallet).call(block_identifier=block)) / Decimal(10 ** elk_token_decimals)
 
     return [elk_token_address, elk_rewards]
 
@@ -174,18 +134,14 @@ def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=Tru
 # 1 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals=True):
-
     booster_token_address = pool_contract.functions.boosterToken().call()
 
     if booster_token_address != ZERO_ADDRESS:
-        if decimals is True:
-            booster_token_decimals = get_decimals(booster_token_address, blockchain, web3=web3)
-        else:
-            booster_token_decimals = 0
-
-        booster_rewards = pool_contract.functions.boosterEarned(wallet).call(block_identifier=block) / (10**booster_token_decimals)
-
+        booster_rewards = Decimal(pool_contract.functions.boosterEarned(wallet).call(block_identifier=block))
+        booster_token_decimals = get_decimals(booster_token_address, blockchain, web3=web3) if decimals else 0
+        booster_rewards /= Decimal(10 ** booster_token_decimals)
     else:
+        # FIXME: This should return at least something like [None, None]
         return None
 
     return [booster_token_address, booster_rewards]
@@ -201,56 +157,38 @@ def get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals
 # Output:
 # 1 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, pool_contract=None):
+def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, pool_contract=None):
     """
-
     :param wallet:
     :param lptoken_address:
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param decimals:
     :param pool_contract:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts   
-    if execution > MAX_EXECUTIONS:
-        return None
-
     all_rewards = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        wallet = web3.to_checksum_address(wallet)
+    wallet = web3.to_checksum_address(wallet)
+    lptoken_address = web3.to_checksum_address(lptoken_address)
 
-        lptoken_address = web3.to_checksum_address(lptoken_address)
+    if pool_contract is None:
+        lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
+        pool_address = get_pool_address(web3, lptoken_data['token0'], lptoken_data['token1'], block, blockchain)
+        pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
 
-        if pool_contract is None:
-            lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
+    elk_rewards = get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=decimals)
+    all_rewards.append(elk_rewards)
 
-            pool_address = get_pool_address(web3, lptoken_data['token0'], lptoken_data['token1'], block, blockchain)
-            #if pool_address != None:
-            pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
+    booster_rewards = get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals=decimals)
+    if booster_rewards is not None:
+        all_rewards.append(booster_rewards)
 
-        if pool_contract is not None:
-            elk_rewards = get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=decimals)
-            all_rewards.append(elk_rewards)
-
-            booster_rewards = get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals=decimals)
-            if booster_rewards is not None:
-                all_rewards.append(booster_rewards)
-
-        return all_rewards
-
-    except GetNodeIndexError:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, pool_contract=pool_contract, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return get_all_rewards(wallet, lptoken_address, block, blockchain, pool_contract=pool_contract, decimals=decimals, index=index + 1, execution=execution)
+    return all_rewards
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

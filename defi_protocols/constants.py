@@ -203,6 +203,7 @@ class ETHTokenAddr:
     BNT = '0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C'
     ICHI = '0x903bEF1736CDdf2A537176cf3C64579C3867A881'
     ABPT = '0x41A08648C3766F9F9d85598fF102a08f4ef84F84'
+    ELK = '0xd8BaB53373B732Da40A7239359F141935dC00BfD'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # XDAI - Token Addresses
@@ -217,6 +218,7 @@ WETH_XDAI = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
 X3CRV_XDAI = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
 WXDAI = '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
 
+
 class GnosisTokenAddr:
     AGVE = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
     BAL = '0x7eF541E2a22058048904fE5744f9c7E4C57AF717'
@@ -229,7 +231,8 @@ class GnosisTokenAddr:
     WETH = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
     WXDAI = '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
     X3CRV = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
-
+    XGT = '0xC25AF3123d2420054c8fcd144c21113aa2853F39'
+    ELK = '0xE1C110E1B1b4A1deD0cAf3E42BfBdbB7b5d7cE1C'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # POLYGON - Token Addresses
@@ -237,6 +240,15 @@ class GnosisTokenAddr:
 BAL_POL = '0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3'
 MAI_POL = '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1'
 X3CRV_POL = '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171'
+
+
+class PolygonTokenAddr:
+    BAL = '0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3'
+    MAI = '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1'
+    X3CRV = '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171'
+    USDC = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
+    WETH = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
+    ELK = '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ARBITRUM - Token Addresses
