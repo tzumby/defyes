@@ -67,3 +67,34 @@ def test_get_all_rewards():
                                       decimals=True,
                                       pool_contract=None)
     assert all_rewards == [[PolygonTokenAddr.ELK, Decimal('132.497466741066924339')]]
+
+
+def test_underlying():
+    block = 41902330
+    node = get_node(POLYGON, block)
+    lptoken_address = '0xf99c496C4bc62D4ce47f79bc7D367Af4FFab105B'
+    underlying = Elk.underlying(WALLET_N1, lptoken_address, block, POLYGON, node, reward=True)
+    assert underlying == [[[PolygonTokenAddr.USDC, Decimal('0.000000'), Decimal('6842.636923250133597020104181')],
+                           [PolygonTokenAddr.ELK, Decimal('0E-18'), Decimal('45806.10835723145688926330223')]],
+                          [[PolygonTokenAddr.ELK, Decimal('132.497466741066924339')]]]
+
+
+def test_pool_balances():
+    block = 41902330
+    node = get_node(POLYGON, block)
+    lptoken_address = '0xf99c496C4bc62D4ce47f79bc7D367Af4FFab105B'
+    balances = Elk.pool_balances(lptoken_address, block, POLYGON, node)
+    assert balances == [[PolygonTokenAddr.USDC, Decimal('38375.067612')],
+                        [PolygonTokenAddr.ELK, Decimal('256891.096951031127088188')]]
+
+
+def test_swap_fees():
+    block_start = 42102839
+    block_end = 42116600
+    lptoken_address = '0xf99c496C4bc62D4ce47f79bc7D367Af4FFab105B'
+    fees = Elk.swap_fees(lptoken_address, block_start, block_end, POLYGON)
+    assert fees == {'swaps': [{'block': 42102839, 'token': PolygonTokenAddr.USDC, 'amount': Decimal('0.1470259439999999885912984610')},
+                              {'block': 42110314, 'token': PolygonTokenAddr.USDC, 'amount': Decimal('0.09')},
+                              {'block': 42110997, 'token': PolygonTokenAddr.ELK, 'amount': Decimal('0.574093083498075328')},
+                              {'block': 42112549, 'token': PolygonTokenAddr.ELK, 'amount': Decimal('0.007968556424428902')},
+                              {'block': 42116600, 'token': PolygonTokenAddr.ELK, 'amount': Decimal('0.988986089582322688')}]}
