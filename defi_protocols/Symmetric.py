@@ -45,7 +45,7 @@ ABI_LPTOKENV1 = '[{"constant": true,"inputs": [],"name": "getCurrentTokens","out
             {"constant": true,"inputs": [{"internalType": "address","name": "token","type": "address"}],"name": "getBalance","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"}]'
 
 # Is BPool?
-ABI_BPOOL = '{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"isBPool","inputs":[{"type":"address","name":"b","internalType":"address"}],"constant":true}'
+ABI_BPOOL = '[{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"isBPool","inputs":[{"type":"address","name":"b","internalType":"address"}],"constant":true}]'
 
 SWAP_EVENT_SIGNATURE = 'LOG_SWAP(address,address,address,uint256,uint256)'
 
