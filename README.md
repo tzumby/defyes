@@ -547,6 +547,30 @@ To wipe the cache use the env var `DEFI_PROTO_CLEAN_CACHE` or call `defi_protoco
 
 - <details><summary><b>Aave</b></summary>
 
+  # Running in a Docker container
+
+  ## Build
+
+  In the repository root path run:
+  ```console
+  docker build -t <container_name>:<container_tag> .
+  ```
+  ## Develope with the container
+
+  The following example runs the azuro portocol tests with the already built image:
+  ```console
+  docker run --rm \
+             -v $PWD/defi_protocols:/usr/local/lib/python3.9/dist-packages/defi_protocols \
+             -v $PWD/mi_config.json:/data/config.json \
+             -v $PWD/tests:/data/tests \
+             <container_name>:<container_tag> \
+             bash -c "CONFIG_PATH=/data/config.json pytest -vvs /data/tests/test_azuro.py"
+  ```
+  Notice that three volumes are mounted:
+   - A local defi_protocols repo. This is needed to develop and reflects the changes inside the docker container.
+   - A personal configuration with api keys.
+   - The tests folder.
+
   # Aave
 
   ## Defined in Aave.py
