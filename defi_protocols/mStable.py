@@ -16,7 +16,6 @@ BASIC_META_VAULT_ABI = '[{"inputs":[],"name":"asset","outputs":[{"internalType":
                         {"inputs":[{"internalType":"uint256","name":"shares","type":"uint256"}],"name":"convertToAssets","outputs":[{"internalType":"uint256","name":"assets","type":"uint256"}],"stateMutability":"view","type":"function"},\
                         {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"decimals_","type":"uint8"}],"stateMutability":"view","type":"function"}]'
 
-
 def underlying(token_address: str, wallet: str, block: int, blockchain: str, web3=None, decimals=True) -> list:
     balances = []
 
@@ -29,7 +28,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
     balance_of_vault = meta_vault_contract.functions.balanceOf(wallet).call(block_identifier=block)
     underlying_asset = meta_vault_contract.functions.asset().call()
     asset_scale = meta_vault_contract.functions.assetScale().call() if decimals else 1
-    balance_of_assets = meta_vault_contract.functions.convertToAssets(balance_of_vault).call()
+    balance_of_assets = meta_vault_contract.functions.convertToAssets(balance_of_vault).call(block_identifier=block)
 
     balances.append([underlying_asset, Decimal(balance_of_assets) / Decimal(asset_scale)])
     return balances
