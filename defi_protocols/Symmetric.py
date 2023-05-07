@@ -1,12 +1,11 @@
 import logging
-import os
 import json
 from decimal import Decimal
 from pathlib import Path
 from web3.exceptions import ContractLogicError
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, BlockchainError, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS, XDAI, ZERO_ADDRESS
+from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, BlockchainError
+from defi_protocols.constants import XDAI, ZERO_ADDRESS
 
 
 logger = logging.getLogger(__name__)
@@ -421,80 +420,62 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, index=0, block='latest'):
+def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest'):
     """
-
     :param lptoken_address:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param block:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     result = []
 
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    lptoken_address = web3.to_checksum_address(lptoken_address)
+    pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
+
+    if pool_info is None:
+        logger.error('Incorrect Symmetric LPToken Address: ', lptoken_address)
+        # FIXME: Function returns different type values
+        return None
+
+    chef_contract = pool_info['chef_contract']
+    pool_id = pool_info['pool_info']['poolId']
+
+    symm_reward_data = {
+        'symm_address': chef_contract.functions.SYMM().call(),
+        'symmPerSecond': Decimal(chef_contract.functions.symmPerSecond().call(block_identifier=block)) * pool_info['pool_info']['allocPoint'] / pool_info['totalAllocPoint']
+    }
+    result.append(symm_reward_data)
+
     try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+        reward_data = {}
 
-        lptoken_address = web3.to_checksum_address(lptoken_address)
+        rewarder_contract = get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id)
+        rewarder_pool_info = rewarder_contract.functions.poolInfo(pool_id).call(block_identifier=block)
+        rewarder_alloc_point = rewarder_pool_info[2]
 
-        pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
+        # Rewarder Total Allocation Point Calculation
+        rewarder_total_alloc_point = 0
+        for i in range(chef_contract.functions.poolLength().call()):
+            rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier=block)[2]
 
-        if pool_info is None:
-            print('Error: Incorrect Symmetric LPToken Address: ', lptoken_address)
-            return None
-
-        chef_contract = pool_info['chef_contract']
-        pool_id = pool_info['pool_info']['poolId']
-
-        symm_reward_data = {}
-
-        symm_reward_data['symm_address'] = chef_contract.functions.SYMM().call()
-
-        symm_reward_data['symmPerSecond'] = chef_contract.functions.symmPerSecond().call(block_identifier=block) * (
-                    pool_info['pool_info']['allocPoint'] / pool_info['totalAllocPoint'])
-
-        result.append(symm_reward_data)
+        reward_data['reward_address'] = rewarder_contract.functions.pendingTokens(pool_id, ZERO_ADDRESS, 1).call(block_identifier=block)[0][0]
 
         try:
-            reward_data = {}
+            reward_data['rewardPerSecond'] = Decimal(rewarder_contract.functions.rewardPerSecond().call(block_identifier=block))
+            reward_data['rewardPerSecond'] *= Decimal(rewarder_alloc_point) / Decimal(rewarder_total_alloc_point)
+        except ContractLogicError:
+            reward_data['rewardPerSecond'] = Decimal(0)
 
-            rewarder_contract = get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id)
-            rewarder_pool_info = rewarder_contract.functions.poolInfo(pool_id).call(block_identifier=block)
-            rewarder_alloc_point = rewarder_pool_info[2]
+        result.append(reward_data)
 
-            # Rewarder Total Allocation Point Calculation
-            rewarder_total_alloc_point = 0
-            for i in range(chef_contract.functions.poolLength().call()):
-                rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier=block)[2]
+    except ContractLogicError:
+        pass
 
-            reward_data['reward_address'] = \
-            rewarder_contract.functions.pendingTokens(pool_id, ZERO_ADDRESS, 1).call(block_identifier=block)[0][0]
-
-            try:
-                reward_data['rewardPerSecond'] = rewarder_contract.functions.rewardPerSecond().call(
-                    block_identifier=block) * (rewarder_alloc_point / rewarder_total_alloc_point)
-            except:
-                reward_data['rewardPerSecond'] = 0
-
-            result.append(reward_data)
-
-        except:
-            pass
-
-        return result
-
-    except GetNodeIndexError:
-        return get_rewards_per_unit(lptoken_address, blockchain, block=block, index=0, execution=execution + 1)
-
-    except:
-        return get_rewards_per_unit(lptoken_address, blockchain, block=block, index=index + 1, execution=execution)
+    return result
 
 
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -558,15 +539,9 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, execution=1, in
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # update_db
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def update_db():
-    """
-
-    :return:
-    """
-    update = False
-
+def update_db(output_file=DB_FILE):
     try:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Symmetric_db.json', 'r') as db_file:
+        with open(DB_FILE, 'r') as db_file:
             db_data = json.load(db_file)
     except:
         db_data = {XDAI: {
@@ -579,108 +554,89 @@ def update_db():
     db_pool_length = len(db_data[XDAI]['pools'])
     pools_delta = symm_chef.functions.poolLength().call() - db_pool_length
 
+    updated = False
     if pools_delta > 0:
-
-        update = True
-
+        updated = True
         for i in range(pools_delta):
             lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call()
             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
-    if update == True:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Symmetric_db.json', 'w') as db_file:
+        with open(output_file, 'w') as db_file:
             json.dump(db_data, db_file)
 
+    return updated
 
-def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True):
+
+def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, decimals=True):
     """
-
     :param lptoken_address:
     :param block_start:
     :param block_end:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param decimals:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
     result = {}
     hash_overlap = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block_start)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block_start)
 
-        lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = web3.to_checksum_address(lptoken_address)
 
-        lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1, block=block_start)
-        token0 = lptoken_contract.functions.getCurrentTokens().call()[0]
-        token1 = lptoken_contract.functions.getCurrentTokens().call()[1]
-        result['swaps'] = []
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1, block=block_start)
+    from IPython import embed; embed()
+    token0 = lptoken_contract.functions.getCurrentTokens().call()[0]
+    token1 = lptoken_contract.functions.getCurrentTokens().call()[1]
+    result['swaps'] = []
 
-        if decimals is True:
-            decimals0 = get_decimals(token0, blockchain, web3=web3)
-            decimals1 = get_decimals(token1, blockchain, web3=web3)
+    decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0
+    decimals1 = get_decimals(token1, blockchain, web3=web3) if decimals else 0
+
+    get_logs_bool = True
+    block_from = block_start
+    block_to = block_end
+
+    swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
+
+    while get_logs_bool:
+        swap_logs = get_logs(block_from, block_to, lptoken_address, swap_event, blockchain)
+
+        log_count = len(swap_logs)
+
+        if log_count != 0:
+            last_block = int(
+                swap_logs[log_count - 1]['blockNumber'][2:len(swap_logs[log_count - 1]['blockNumber'])], 16)
+
+            for swap_log in swap_logs:
+                block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
+
+                if swap_log['transactionHash'] in swap_log:
+                    continue
+
+                if block_number == last_block:
+                    hash_overlap.append(swap_log['transactionHash'])
+
+                if int(swap_log['data'][2:66], 16) == 0:
+                    swap_data = {
+                        'block': block_number,
+                        'token': token1,
+                        'amount': Decimal(int(swap_log['data'][67:130], 16)) / Decimal(10 ** decimals1) * Decimal(0.003)
+                    }
+                else:
+                    swap_data = {
+                        'block': block_number,
+                        'token': token0,
+                        'amount': Decimal(int(swap_log['data'][2:66], 16)) / Decimal(10 ** decimals0) * Decimal(0.003)
+                    }
+
+                result['swaps'].append(swap_data)
+
+        if log_count < 1000:
+            get_logs_bool = False
+
         else:
-            decimals0 = 0
-            decimals1 = 0
+            block_from = block_number
 
-        get_logs_bool = True
-        block_from = block_start
-        block_to = block_end
-
-        swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
-
-        while get_logs_bool:
-            swap_logs = get_logs(block_from, block_to, lptoken_address, swap_event, blockchain)
-
-            log_count = len(swap_logs)
-
-            if log_count != 0:
-                last_block = int(
-                    swap_logs[log_count - 1]['blockNumber'][2:len(swap_logs[log_count - 1]['blockNumber'])], 16)
-
-                for swap_log in swap_logs:
-                    block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
-
-                    if swap_log['transactionHash'] in swap_log:
-                        continue
-
-                    if block_number == last_block:
-                        hash_overlap.append(swap_log['transactionHash'])
-
-                    if int(swap_log['data'][2:66], 16) == 0:
-                        swap_data = {
-                            'block': block_number,
-                            'token': token1,
-                            'amount': 0.003 * int(swap_log['data'][67:130], 16) / (10 ** decimals1)
-                        }
-                    else:
-                        swap_data = {
-                            'block': block_number,
-                            'token': token0,
-                            'amount': 0.003 * int(swap_log['data'][2:66], 16) / (10 ** decimals0)
-                        }
-
-                    result['swaps'].append(swap_data)
-
-            if log_count < 1000:
-                get_logs_bool = False
-
-            else:
-                block_from = block_number
-
-        return result
-
-    except GetNodeIndexError:
-        return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=0,
-                         execution=execution + 1)
-
-    except:
-        return swap_fees(lptoken_address, block_start, block_end, blockchain, decimals=decimals, index=index + 1,
-                         execution=execution)
+    return result

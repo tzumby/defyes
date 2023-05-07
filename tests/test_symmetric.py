@@ -1,12 +1,13 @@
+import pytest
 from decimal import Decimal
+from tempfile import NamedTemporaryFile
 
 from defi_protocols import Symmetric
 from defi_protocols.functions import get_node
-from defi_protocols.constants import ETHEREUM, XDAI, POLYGON, BAL_POL, ETHTokenAddr, GnosisTokenAddr
+from defi_protocols.constants import XDAI, GnosisTokenAddr
 
 WALLET = '0xa3E1282ac6116A698A49b2084c5c30fE1947b4A5'
 LPTOKEN_ADDR = '0x650f5d96E83d3437bf5382558cB31F0ac5536684'
-
 
 def test_get_vault_contract():
     block = 24502952
@@ -90,3 +91,26 @@ def test_pool_balances():
     balances = Symmetric.pool_balances(LPTOKEN_ADDR, block, XDAI, node)
     assert balances == [[GnosisTokenAddr.GNO, Decimal('49.02805906564116928')],
                        [GnosisTokenAddr.WXDAI, Decimal('1039.212392796716432123')]]
+
+
+def test_get_rewards_per_unit():
+    block = 25502427
+    node = get_node(XDAI, block)
+    rewards = Symmetric.get_rewards_per_unit(LPTOKEN_ADDR, XDAI, node, block)
+    assert rewards == [{'symm_address': GnosisTokenAddr.SYMM, 'symmPerSecond': Decimal('63269355361192.04081632653061')},
+                       {'reward_address': GnosisTokenAddr.GNO, 'rewardPerSecond': 0.0}]
+
+
+@pytest.mark.xfail(reason="Checking if db needs update")
+def test_db_uptodate():
+    with NamedTemporaryFile() as tmpfile:
+        uptodate = Symmetric.update_db(tmpfile.name)
+        assert uptodate is False, "DB is outdated"
+
+
+@pytest.mark.skip(reason="Bgub in: lptoken_contract.functions.getCurrentTokens")
+def test_swap_fees():
+    block_start = 24323921
+    block_end = 24502952
+    fees = Symmetric.swap_fees(LPTOKEN_ADDR, block_start, block_end, XDAI)
+    print(fees)
