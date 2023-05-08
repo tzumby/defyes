@@ -16,7 +16,7 @@ def test_get_vault_data():
                     'collateral_token_usd_value': Decimal('115.44042'),
                     'debt_address': GnosisTokenAddr.MAI, 'debt_amount': Decimal('0'),
                     'debt_token_usd_value': Decimal('0.99446664920316931668708736'), 'debt_usd_value': Decimal('0'),
-                    'collateral_ratio': None, 'available_debt_amount': Decimal('3259.913205994382808393'),
+                    'collateral_ratio': float('infinity'), 'available_debt_amount': Decimal('3259.913205994382808393'),
                     'liquidation_ratio': 130, 'liquidation_price': None}
 
 

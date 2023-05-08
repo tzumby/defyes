@@ -127,7 +127,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
                 vault_data['collateral_ratio'] = vault_collateral_dec * vault_data['collateral_token_usd_value']
                 vault_data['collateral_ratio'] /= vault_data['debt_usd_value'] * 100
             else:
-                vault_data['collateral_ratio'] = None
+                vault_data['collateral_ratio'] = float('infinity')
 
             # Available Debt Amount to Borrow
             vault_data['available_debt_amount'] = Decimal(vault_contract.functions.getDebtCeiling().call(block_identifier=block))
