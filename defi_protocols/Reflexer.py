@@ -25,7 +25,8 @@ class LiquidityPool:
     blockchain: str = field(init=False)
 
     def __post_init__(self):
-        assert self.addr.lower() in ' '.join(LPTOKENS_DB.keys()).lower(), "LP token address not in DB."
+        if not self.addr.lower() in ' '.join(LPTOKENS_DB.keys()).lower():
+            raise ValueError("LP token address not in DB.")
         self.blockchain = LPTOKENS_DB[self.addr]['blockchain']
         if self.web3 is None:
             self.web3 = get_node(self.blockchain, block=self.block)
