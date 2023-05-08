@@ -285,7 +285,11 @@ def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, deci
     pool = Pool(blockchain, block, web3, nft_position.token0, nft_position.token1, nft_position.fee)
 
     growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
-    return nft_position.get_fees(pool.ic, *growth_indexes)
+    fa, fb = nft_position.get_fees(pool.ic, *growth_indexes)
+    if decimals:
+        fa = fa / Decimal(10 ** nft_position.decimals0)
+        fb = fb / Decimal(10 ** nft_position.decimals1)
+    return [[nft_position.token0, fa], [nft_position.token1, fb]]
 
 
 def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], blockchain: str, web3=None, fee: int = FeeAmount.LOWEST) -> float:
