@@ -57,6 +57,7 @@ def query_assets(subgraph_api_endpoint: str, web3: object) -> list:
     assets = []
     skip = 0
     first = 1000
+    status = 'true'
 
     # Initialize subgraph
     connext_transport=RequestsHTTPTransport(
@@ -67,14 +68,16 @@ def query_assets(subgraph_api_endpoint: str, web3: object) -> list:
     client = Client(transport=connext_transport)
     
     response_length = 1001
+    
     while not response_length < 1000:
         query_string = f'''
         query {{
-        assets(first: {first}, skip: {skip}) {{
+        assets(first: {first}, skip: {skip}, where: {{status_:{{status: {status}}}}}) {{
             id
             key
             adoptedAsset
             decimal
+            status {{status}}
         }}
         }}
         '''
