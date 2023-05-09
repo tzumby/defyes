@@ -161,7 +161,7 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
         if (cvx_amount > amount_till_max):
             cvx_amount = amount_till_max
 
-    cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3) if decimals else 0
+    cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3) if not decimals else 0
     cvx_amount = Decimal(cvx_amount) * Decimal(10 ** cvx_decimals)
 
     return [CVX_ETH, cvx_amount]
