@@ -254,7 +254,7 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
     if veib_balance == None:
         veib_balance = 0
     else:
-        veib_balance / (10 ** veib_decimals)
+        veib_balance = veib_balance / (10 ** veib_decimals)
 
     locked = call_contract_method(veib_contract.functions.locked(nft_id), block)
     if locked == None:
