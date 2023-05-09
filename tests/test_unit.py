@@ -12,7 +12,7 @@ WEB3 = get_node(blockchain=ETHEREUM, block=TEST_BLOCK)
 
 
 def test_get_cdp_viewer_data():
-    x = Unit.get_cdp_viewer_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, 1, 0, True)
+    x = Unit.get_cdp_viewer_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, True)
     assert x == {'icr': 69,
                  'liquidation_ratio': 70,
                  'collateral_address': WOOFY,
@@ -24,7 +24,7 @@ def test_get_cdp_viewer_data():
 
 
 def test_get_cdp_data():
-    x = Unit.get_cdp_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, 1, 0, True)
+    x = Unit.get_cdp_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, True)
     assert x == {'icr': 69,
                  'liquidation_ratio': 70,
                  'stability_fee': 0.9,
@@ -43,7 +43,7 @@ def test_get_cdp_data():
 
 
 def test_underlying():
-    x = Unit.underlying(TEST_WALLET, TEST_BLOCK, ETHEREUM, WEB3, 1, 0, True)
+    x = Unit.underlying(TEST_WALLET, TEST_BLOCK, ETHEREUM, WEB3, True)
     assert x == [[[WOOFY, 1.0],
                   [USDP, -1.6200187482697077]],
                  [['0xD0660cD418a64a1d44E9214ad8e459324D8157f1', 559.232649388782],
@@ -60,3 +60,4 @@ def test_underlying():
                   [USDP, -19.645142679366515]],
                  [['0x0770E27F92F0D0e716dc531037B8b87FEFEbE561', 1.0],
                   [USDP, -1.0]]]
+
