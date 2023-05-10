@@ -1,5 +1,6 @@
+from decimal import Decimal
 from defi_protocols.functions import get_node, get_contract, get_decimals
-from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, FANTOM, BINANCE
+from defi_protocols.constants import ETHEREUM, FANTOM, BINANCE
 
 # VAULT
 # Vault Address - Ethereum
@@ -62,11 +63,6 @@ ABI_CDP_VIEWER = '[{"inputs":[{"internalType":"address","name":"asset","type":"a
 
 
 def get_vault_address(blockchain):
-    """
-
-    :param blockchain:
-    :return:
-    """
     if blockchain == ETHEREUM:
         return VAULT_ETHEREUM
 
@@ -78,11 +74,6 @@ def get_vault_address(blockchain):
 
 
 def get_cdp_registry_address(blockchain):
-    """
-
-    :param blockchain:
-    :return:
-    """
     if blockchain == ETHEREUM:
         return CDP_REGISTRY_ETHEREUM
 
@@ -94,11 +85,6 @@ def get_cdp_registry_address(blockchain):
 
 
 def get_cdp_manager_address(blockchain):
-    """
-
-    :param blockchain:
-    :return:
-    """
     if blockchain == ETHEREUM:
         return CDP_MANAGER_ETHEREUM
 
@@ -110,11 +96,6 @@ def get_cdp_manager_address(blockchain):
 
 
 def get_cdp_viewer_address(blockchain):
-    """
-
-    :param blockchain:
-    :return:
-    """
     if blockchain == ETHEREUM:
         return CDP_VIEWER_ETHEREUM
 
@@ -153,7 +134,7 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
         cdp_manager_address = get_cdp_manager_address(blockchain)
         cdp_manager_contract = get_contract(cdp_manager_address, blockchain, web3=web3, abi=ABI_CDP_MANAGER,
                                             block=block)
-        q112 = cdp_manager_contract.functions.Q112().call(block_identifier=block)
+        q112 = Decimal(cdp_manager_contract.functions.Q112().call(block_identifier=block))
         usdp_address = cdp_manager_contract.functions.usdp().call()
         usdp_decimals = get_decimals(usdp_address, blockchain, web3=web3)
 
@@ -176,33 +157,27 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
         cdp_data['collateral_address'] = collateral_address
 
         # Collateral Amount
-        if decimals is True:
-            cdp_data['collateral_amount'] = cdp_viewer_data[10][0] / (10 ** collateral_decimals)
-        else:
-            cdp_data['collateral_amount'] = cdp_viewer_data[10][0]
+        cdp_data['collateral_amount'] = Decimal(cdp_viewer_data[10][0]) / Decimal(10 ** (collateral_decimals if decimals else 0))
 
         # Debt Address
         # cdp_data['debt_address'] = usdp_address
 
         # Debt Amount
-        if decimals is True:
-            cdp_data['debt_amount'] = cdp_viewer_data[10][2] / (10 ** usdp_decimals)
-        else:
-            cdp_data['debt_amount'] = cdp_viewer_data[10][2]
+        cdp_data['debt_amount'] = Decimal(cdp_viewer_data[10][2]) / Decimal(10 ** (usdp_decimals if decimals else 0))
 
         # Liquidation Price
-        cdp_data['liquidation_price'] = cdp_manager_contract.functions.liquidationPrice_q112(collateral_address,
+        cdp_data['liquidation_price'] = Decimal(cdp_manager_contract.functions.liquidationPrice_q112(collateral_address,
                                                                                              wallet).call(
-            block_identifier=block) / q112
+            block_identifier=block)) / q112
 
         # Collateral USD Value
-        cdp_data['collateral_usd_value'] = cdp_manager_contract.functions.getCollateralUsdValue_q112(
-            collateral_address, wallet).call(block_identifier=block) / (q112 * (10 ** collateral_decimals))
+        cdp_data['collateral_usd_value'] = Decimal(cdp_manager_contract.functions.getCollateralUsdValue_q112(
+            collateral_address, wallet).call(block_identifier=block)) / (q112 * Decimal(10 ** collateral_decimals))
 
         # Utilization Ratio
         # cdp_manager_contract.functions.utilizationRatio -> returns an the integer part of the Utilization Ratio
         # cdp_data['utilization_ratio'] = cdp_manager_contract.functions.utilizationRatio(collateral_address, wallet).call(block_identifier=block)
-        cdp_data['utilization_ratio'] = (cdp_viewer_data[10][2] / (10 ** usdp_decimals)) * 100 / cdp_data[
+        cdp_data['utilization_ratio'] = (Decimal(cdp_viewer_data[10][2]) / Decimal(10 ** usdp_decimals)) * Decimal(100) / cdp_data[
             'collateral_usd_value']
 
         # Utilization
@@ -301,69 +276,53 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, decim
         cdp_data['collateral_address'] = collateral_address
 
         # Collateral Amount
-        if decimals is True:
-            cdp_data['collateral_amount'] = collateral_amount / (10 ** collateral_decimals)
-        else:
-            cdp_data['collateral_amount'] = collateral_amount
+        cdp_data['collateral_amount'] = Decimal(collateral_amount) / Decimal(10 ** (collateral_decimals if decimals else 0))
 
             # Debt Address
         cdp_data['debt_address'] = usdp_address
 
         # Debt Amount
-        if decimals is True:
-            cdp_data['debt_amount'] = debt_amount / (10 ** usdp_decimals)
-        else:
-            cdp_data['debt_amount'] = debt_amount
+        cdp_data['debt_amount'] = Decimal(debt_amount) / Decimal(10 ** (usdp_decimals if decimals else 0))
 
         # Liquidation Price
-        cdp_data['liquidation_price'] = cdp_manager_contract.functions.liquidationPrice_q112(collateral_address,
+        cdp_data['liquidation_price'] = Decimal(cdp_manager_contract.functions.liquidationPrice_q112(collateral_address,
                                                                                              wallet).call(
-            block_identifier=block) / q112
+            block_identifier=block)) / Decimal(q112)
 
         # Collateral USD Value
-        cdp_data['collateral_usd_value'] = cdp_manager_contract.functions.getCollateralUsdValue_q112(
-            collateral_address, wallet).call(block_identifier=block) / (q112 * 10 ** collateral_decimals)
+        cdp_data['collateral_usd_value'] = Decimal(cdp_manager_contract.functions.getCollateralUsdValue_q112(
+            collateral_address, wallet).call(block_identifier=block)) / (Decimal(q112) * Decimal(10 ** collateral_decimals))
 
         # Utilization Ratio
         # cdp_manager_contract.functions.utilizationRatio -> returns an the integer part of the Utilization Ratio
         # cdp_data['utilization_ratio'] = cdp_manager_contract.functions.utilizationRatio(collateral_address, wallet).call(block_identifier=block)
-        cdp_data['utilization_ratio'] = (debt_amount / (10 ** usdp_decimals)) * 100 / cdp_data[
-            'collateral_usd_value']
+        cdp_data['utilization_ratio'] = Decimal(100) * (Decimal(debt_amount) / Decimal(10 ** usdp_decimals)) / cdp_data['collateral_usd_value']
 
         # Utilization
-        cdp_data['utilization'] = ((debt_amount / (10 ** usdp_decimals)) * 100) / (
-                    cdp_data['collateral_usd_value'] * cdp_data['icr'] / 100)
+        cdp_data['utilization'] = ((Decimal(debt_amount) / Decimal(10 ** usdp_decimals)) * Decimal(100)) / (
+                    cdp_data['collateral_usd_value'] * Decimal(cdp_data['icr']) / Decimal(100))
 
         # Debt Limit
         debt_limit = vault_parameters_contract.functions.tokenDebtLimit(collateral_address).call(
             block_identifier=block)
-        if decimals is True:
-            cdp_data['debt_limit'] = debt_limit / (10 ** usdp_decimals)
-        else:
-            cdp_data['debt_limit'] = debt_limit
+        cdp_data['debt_limit'] = Decimal(debt_limit) / Decimal(10 ** (usdp_decimals if decimals else 0))
 
         # Borrowable Debt = MIN(cdp_data['collateral_usd_value']*cdp_data['icr'], cdp_data['debt_limit'] - debt of ALL cdps for a the collateral)
         cdps = cdp_registry_contract.functions.getCdpsByCollateral(collateral_address).call(block_identifier=block)
 
-        debt_amount_all_cdps = 0
+        debt_amount_all_cdps = Decimal(0)
         for cdp in cdps:
             if cdp_registry_contract.functions.isAlive(cdp[0], cdp[1]).call(block_identifier=block):
-                debt_amount_all_cdps += vault_contract.functions.getTotalDebt(cdp[0], cdp[1]).call(
-                    block_identifier=block) / (10 ** usdp_decimals)
+                debt_amount_all_cdps += Decimal(vault_contract.functions.getTotalDebt(cdp[0], cdp[1]).call(
+                    block_identifier=block)) / Decimal(10 ** usdp_decimals)
 
-        if (cdp_data['collateral_usd_value'] * cdp_data['icr']) <= (
-                (debt_limit / (10 ** usdp_decimals)) - debt_amount_all_cdps):
-            if decimals is True:
-                cdp_data['borrowable_debt'] = cdp_data['collateral_usd_value'] * cdp_data['icr']
-            else:
-                cdp_data['borrowable_debt'] = cdp_data['collateral_usd_value'] * cdp_data['icr'] * (
-                            10 ** usdp_decimals)
+        if (cdp_data['collateral_usd_value'] * Decimal(cdp_data['icr'])) <= (
+                (Decimal(debt_limit) / Decimal(10 ** usdp_decimals)) - debt_amount_all_cdps):
+            cdp_data['borrowable_debt'] = cdp_data['collateral_usd_value'] * Decimal(cdp_data['icr']) * Decimal(
+                            10 ** (0 if decimals else usdp_decimals))
         else:
-            if decimals is True:
-                cdp_data['borrowable_debt'] = (debt_limit / (10 ** usdp_decimals)) - debt_amount_all_cdps
-            else:
-                cdp_data['borrowable_debt'] = ((debt_limit / (10 ** usdp_decimals)) - debt_amount_all_cdps) * (
-                            10 ** usdp_decimals)
+            cdp_data['borrowable_debt'] = ((Decimal(debt_limit) / Decimal(10 ** usdp_decimals)) - debt_amount_all_cdps) * Decimal(
+                            10 ** (0 if decimals else usdp_decimals))
 
     return cdp_data
 
@@ -393,25 +352,19 @@ def underlying(wallet, block, blockchain, web3=None, decimals=True):
 
         usdp_address = vault_contract.functions.usdp().call()
 
-        if decimals is True:
-            usdp_decimals = get_decimals(usdp_address, blockchain, web3=web3)
-        else:
-            usdp_decimals = 0
+        usdp_decimals = get_decimals(usdp_address, blockchain, web3=web3) if decimals else 0
 
         for cdp in cdps:
 
             if cdp_registry_contract.functions.isAlive(cdp[0], wallet).call(block_identifier=block):
 
-                if decimals is True:
-                    collateral_decimals = get_decimals(cdp[0], blockchain, web3=web3)
-                else:
-                    collateral_decimals = 0
+                collateral_decimals = get_decimals(cdp[0], blockchain, web3=web3) if decimals else 0
 
-                collateral_amount = vault_contract.functions.collaterals(cdp[0], wallet).call(
-                    block_identifier=block) / (10 ** collateral_decimals)
+                collateral_amount = Decimal(vault_contract.functions.collaterals(cdp[0], wallet).call(
+                    block_identifier=block)) / Decimal(10 ** collateral_decimals)
 
-                debt_amount = -1 * vault_contract.functions.getTotalDebt(cdp[0], wallet).call(
-                    block_identifier=block) / (10 ** usdp_decimals)
+                debt_amount = Decimal(-1) * Decimal(vault_contract.functions.getTotalDebt(cdp[0], wallet).call(
+                    block_identifier=block)) / Decimal(10 ** usdp_decimals)
 
                 result.append([[cdp[0], collateral_amount], [usdp_address, debt_amount]])
 
