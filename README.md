@@ -79,6 +79,64 @@ pip3 install git+https://github.com/KarpatkeyDAO/defi-protocols.git
 | Unit Protocol | ✔          | ✔       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/main/docs/Unit.md)   |
 | Uniswap V3    | ✔          | ?       |  -   |  [link](https://github.com/KarpatkeyDAO/defi-protocols/blob/main/docs/UniswapV3.md)   |
 
+## Cache
+
+To reduce the number of calls to RPC endpoints, and thus significantly speed up the functions, defi-protocols implements a cache where the result of some web3 calls are stored.
+If the same web3 function is called, with the very same arguments, its result will be retrieved from the cache.
+
+By default the cache is enabled and caches all calls to web3 'eth_call' when a block other than 'latest' is specified.
+In practice this means that the following example calls will be cached:
+
+    ```python
+    chef_contract.functions.totalAllocPoint().call(block_identifier=1560000)
+
+    chef_contract.functions.poolLength().call(block_identifier=block)
+
+    token_contract.functions.decimals().call(block_identifier=block)
+    ```
+
+The following calls will not be cached:
+
+    ```python
+    chef_contract.functions.poolLength().call(block_identifier='latest')
+
+    token_contract.functions.decimals().call()
+
+    web3.eth.get_balance()
+
+    contract.functions.updateValue(43).transact()
+
+    ```
+
+This functionality of the cache is very useful as long as the same block can be used, even if only for a while, since successive calls will bring the responses from the cache. This is very useful for example in tests or when developing.
+
+There are some calls that are expected to always return the same value from the blockchain.
+For example, `token.contract.decimals.call(block_identifier=block)`, will return the same value if the block is equal or greater than the block the contract was deployed.
+For this type of calls, which return something constant in time, the automatic cache is  not useful because if a block is specified, the value will only be used for that block. And if 'latest' is specified, it is automatically excluded from the cache.
+For these cases the const_call() helper function is used.
+
+### `const_call()` helper
+
+The `const_call()` function forces the caching of a `.call()` without defining a block. Thus subsequent calls to `const_call()` will return the same result even if the block is different from the block in which the result was cached.
+Warning: if a call is made after caching using a block prior to the contract creation, `const_call()` will reuse the locally stored value instead of returning an error.
+
+Example usage:
+
+    ```
+    const_call(token_contract.functions.decimals())
+
+    const_call(pool_contract.functions.token0())
+    ```
+
+### Cache config
+
+By default the cache is stored in a non persistent directory `/tmp/defi_protocols/`.
+To change the directory use the environment variable `DEFI_PROTO_CACHE_DIR=/path/to/dir`.
+
+To disable the cache define the `DEFI_PROTO_CACHE_DISABLE` environment variable.
+
+To wipe the cache use the env var `DEFI_PROTO_CLEAN_CACHE` or call `defi_protocols.cache.clean()`.
+
 
 ## Docs
 

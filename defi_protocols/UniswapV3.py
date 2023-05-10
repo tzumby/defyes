@@ -1,38 +1,46 @@
+import logging
 from decimal import Decimal
-from typing import Union
+from enum import IntEnum
+from typing import Union, ClassVar
+from dataclasses import dataclass, field
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS
+from defi_protocols.functions import get_node, get_contract, get_decimals
+
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # UNISWAP V3 FACTORY
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Uniswap v3 Factory Address
 FACTORY: str = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # UNISWAP V3 POSITIONS NFT
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Uniswap v3 Positions NFT
 POSITIONS_NFT: str = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # UNISWAP V3 ROUTER 2
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Uniswap v3 Router 2
 UNISWAPV3_ROUTER2: str = '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # UNISWAP V3 QUOTER
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Uniswap v3 Quoter
 UNISWAPV3_QUOTER: str = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # FEES
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Possible Fees for Uniwsap v3 Pools
-FEES: list = [100, 500, 3000, 10000]
+# https://docs.uniswap.org/sdk/v3/reference/enums/FeeAmount
+class FeeAmount(IntEnum):
+    LOWEST = 100
+    LOW = 500
+    MEDIUM = 3000
+    HIGH = 10000
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -54,414 +62,326 @@ ABI_POSITIONS_NFT: str = '[{"inputs":[{"internalType":"address","name":"owner","
 # Uniswap v3 Quoter ABI
 ABI_QUOTER_V3: str = '[{"inputs":[{"internalType":"address","name":"tokenIn","type":"address"},{"internalType":"address","name":"tokenOut","type":"address"},{"internalType":"uint24","name":"fee","type":"uint24"},{"internalType":"uint256","name":"amountIn","type":"uint256"},{"internalType":"uint160","name":"sqrtPriceLimitX96","type":"uint160"}],"name":"quoteExactInputSingle","outputs":[{"internalType":"uint256","name":"amountOut","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]'
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# BASETICK
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Basetick calculations
-BASETICK: int = 1.0001
+
+# Based on Uniswap V3 whitepaper:
+# https://uniswap.org/whitepaper-v3.pdf
+# Glossary:
+# token0
+# token1
+# fee
+# Lower tick: il
+# Upper tick iu
+# Current tick: ic
+# feeGrowthInside0LastX128: fr0
+# feeGrowthInside1LastX128: fr1
+# feeGrowthGlobal0: fg0
+# feeGrowthGlobal1: fg1
+# feeGrowthOutside0X128low: fo0low
+# feeGrowthOutside1X128low: fo1low
+# feeGrowthOutside0X128up: fo0up
+# feeGrowthOutside1X128up: fo1up
+# seconds spent above: sa
+# seconds spent below: sb
+# fees earned per unit of liquidity in token 0: fa
+# fees earned per unit of liquidity in token 1: fb
+
+@dataclass
+class Pool:
+    blockchain: str
+    block: Union[int|str]
+    web3: object
+    tokenA: str
+    tokenB: str
+    fee: int
+    pool_contract: object = field(init=False)
+    addr: object = field(init=False)
+    ic: int = field(init=False)
+    sqrt_price_x96: int = field(init=False)
+    sqrt_price: Decimal = field(init=False)
+    price: Decimal = field(init=False)
+    token0: str = field(init=False)
+    token1: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        factory_address = get_contract(FACTORY, self.blockchain, self.web3, ABI_FACTORY, self.block)
+        self.addr = factory_address.functions.getPool(self.tokenA, self.tokenB, self.fee).call(block_identifier=self.block)
+        self.pool_contract = get_contract(self.addr, self.blockchain, self.web3, ABI_POOL, self.block)
+        self.sqrt_price_x96, self.ic = self.pool_contract.functions.slot0().call(block_identifier=self.block)[0:2]
+        self.sqrt_price = Decimal(self.sqrt_price_x96) / Decimal(2 ** 96)
+        self.price = self.sqrt_price ** 2
+        self.token0 = self.pool_contract.functions.token0().call(block_identifier=self.block)
+        self.token1 = self.pool_contract.functions.token1().call(block_identifier=self.block)
+
+    def get_fee_growth_indexes(self, il: int, iu: int) -> tuple:
+        fg0 = self.pool_contract.functions.feeGrowthGlobal0X128().call(block_identifier=self.block)
+        fg1 = self.pool_contract.functions.feeGrowthGlobal1X128().call(block_identifier=self.block)
+        fo0low, fo1low = self.pool_contract.functions.ticks(il).call(block_identifier=self.block)[2:4]
+        fo0up, fo1up = self.pool_contract.functions.ticks(iu).call(block_identifier=self.block)[2:4]
+
+        return fg0, fg1, fo0low, fo1low, fo0up, fo1up
 
 
-def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], blockchain: str, web3=None,
-                        execution: int = 1, index: int = 0, fee: int = 100) -> float:
+@dataclass
+class NFTPosition:
+    BASETICK: ClassVar[int] = 1.0001
+
+    nftid: int
+    blockchain: str
+    block: Union[int|str]
+    web3: object
+    decimals: bool
+    token0: str = field(init=False)
+    token1: str = field(init=False)
+    fee: int = field(init=False)
+    il: int = field(init=False)
+    iu: int = field(init=False)
+    fr0: int = field(init=False)
+    fr1: int = field(init=False)
+    liquidity: Decimal = field(init=False)
+    decimals0: int = field(init=False)
+    decimals1: int = field(init=False)
+
+    def __post_init__(self) -> None:
+        self._nft_contract = get_contract(POSITIONS_NFT, self.blockchain, web3=self.web3, abi=ABI_POSITIONS_NFT, block=self.block)
+        self.token0, self.token1, self.fee, self.il, self.iu, liquidity, self.fr0, self.fr1 = self._nft_contract.functions.positions(self.nftid).call(block_identifier=self.block)[2:10]
+        self.liquidity = Decimal(liquidity)
+        if self.decimals:
+            self.decimals0 = get_decimals(self.token0, self.blockchain, self.web3)
+            self.decimals1 = get_decimals(self.token1, self.blockchain, self.web3)
+
+    def owned_by(self, wallet: str) -> bool:
+        wallet = self.web3.to_checksum_address(wallet)
+        nft_owner = self._nft_contract.functions.ownerOf(self.nftid).call(block_identifier=self.block)
+        return nft_owner == wallet
+
+    def get_fees(self, ic: int, fg0: int, fg1: int, fo0low: int, fo1low: int, fo0up: int, fo1up: int) -> list:
+        if ic >= self.il:
+            fee_lower_token0 = fo0low
+            fee_lower_token1 = fo1low
+        else:
+            fee_lower_token0 = fg0 - fo0low
+            fee_lower_token1 = fg1 - fo1low
+        if ic >= self.iu:
+            fee_upper_token0 = fg0 - fo0up
+            fee_upper_token1 = fg1 - fo1up
+        else:
+            fee_upper_token0 = fo0up
+            fee_upper_token1 = fo1up
+
+        fa = int(Decimal((fg0 - fee_lower_token0 - fee_upper_token0 - self.fr0) * self.liquidity) / Decimal(2 ** 128))
+        fb = int(Decimal((fg1 - fee_lower_token1 - fee_upper_token1 - self.fr1) * self.liquidity) / Decimal(2 ** 128))
+
+        return [fa, fb]
+
+    def get_balance(self, ic: int, current_square_price: Decimal, fa: int = 0, fb: int = 0) -> list:
+        # TODO: get_balance output sould not be variable
+        balances = []
+        if self.liquidity != 0:
+
+            sa = Decimal(self.BASETICK) ** Decimal(int(self.il) / 2)
+            sb = Decimal(self.BASETICK) ** Decimal(int(self.iu) / 2)
+
+            if self.iu <= ic:
+                amount0 = 0
+                amount0fee = fa if fa > 0 else 0
+                amount1 = self.liquidity * (sb - sa)
+                amount1fee = fb
+            elif self.il < ic < self.iu:
+                amount0 = self.liquidity * (sb - current_square_price) / (current_square_price * sb)
+                amount0fee = fa
+                amount1 = self.liquidity * (current_square_price - sa)
+                amount1fee = fb
+            else:
+                amount0 = self.liquidity * (sb - sa) / (sa * sb)
+                amount0fee = fa
+                amount1 = 0
+                amount1fee = fb if fb > 0 else 0
+
+            amount0 = Decimal(amount0) + Decimal(amount0fee)
+            amount1 = Decimal(amount1) + Decimal(amount1fee)
+
+            if self.decimals:
+                amount0 = float(amount0 / Decimal(10 ** self.decimals0))
+                amount1 = float(amount1 / Decimal(10 ** self.decimals1))
+            else:
+                amount0 = int(amount0)
+                amount1 = int(amount1)
+
+            if amount0 > 0:
+                balances.append([self.token0, amount0])
+
+            if amount1 > 0:
+                balances.append([self.token1, amount1])
+        return balances
+
+
+def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True, fee: bool = False) -> list:
+    """Returns the balances of the underlying assets corresponding to a position held by a wallet.
+    Parameters
+    ----------
+    wallet : str
+        address of the wallet holding the position
+    nftid : int
+        address of the token identifying the position in the protocol
+    block : int or 'latest'
+        block number at which the data is queried
+    blockchain : str
+        blockchain in which the position is held
+    web3: obj
+        optional, already instantiated web3 object
+    decimals: bool
+        specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set
+        to True
+    fee: bool
+        ¿f set to True, the balances of the unclaimed fees corresponding to the position are appended to the returned
+        list
+
+    Returns
+    ----------
+    list
+        a list where each element is a list with two elements, the underlying token address and its corresponding amount
+    """
+    balances = []
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    nft_position = NFTPosition(nftid, blockchain, block, web3, decimals)
+    if nft_position.owned_by(wallet):
+        pool = Pool(blockchain, block, web3, nft_position.token0, nft_position.token1, nft_position.fee)
+
+        if fee:
+            growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
+            fa, fb = nft_position.get_fees(pool.ic, *growth_indexes)
+            balances = nft_position.get_balance(pool.ic, pool.sqrt_price, fa, fb)
+        else:
+            balances = nft_position.get_balance(pool.ic, pool.sqrt_price)
+
+    return balances
+
+
+def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True) -> list:
+    """Returns the unclaimed fees corresponding to a nft id.
+    Parameters
+    ----------
+    nftid : int
+        number corresponding to a nftid
+    block : int or 'latest'
+        block number at which the data is queried
+    blockchain : str
+        blockchain in which the position is held
+    web3: obj
+        optional, already instantiated web3 object
+    decimals: bool
+        specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True
+    Returns
+    ----------
+    list
+        a list where each element is a list with two elements, the underlying token address and its corresponding unclaimed fee
+    """
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    nft_position = NFTPosition(nftid, blockchain, block, web3, decimals)
+    pool = Pool(blockchain, block, web3, nft_position.token0, nft_position.token1, nft_position.fee)
+
+    growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
+    return nft_position.get_fees(pool.ic, *growth_indexes)
+
+
+def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], blockchain: str, web3=None, fee: int = FeeAmount.LOWEST) -> float:
     """Returns the price of a token .
-	Parameters
+    Parameters
     ----------
     token_src : str
-		address of the source token of the pool
+        address of the source token of the pool
     token_dst : str
-		address of the destination token of the pool
+        address of the destination token of the pool
     block : int or 'latest'
-		block number at which the data is queried
+        block number at which the data is queried
     blockchain : str
-		blockchain in which the position is held
+        blockchain in which the position is held
     web3: obj
-		optional, already instantiated web3 object
-    execution: int
-		times the NODE_BLOCKCHAIN list is iterated (first of second)
-    index: int
-		positional index of the RPC endpoint to be used in the NODE_BLOCKCHAIN endpoints list
+        optional, already instantiated web3 object
     fee: int
-		fee which is set for this pool
+        fee which is set for this pool
 
     Returns
-	----------
-	float
-		the token price of the source token (token_src) quoted in destination token
-
-	Raises
     ----------
-    GetNodeIndexError
-        If NODE_BLOKCHAIN list is iterated and all connections failed, execution is set +1 to try again the list again
-    other errors
-        Set index +1 to try next RPC endpoint in the list to fetch data from blockchain
+    float
+        the token price of the source token (token_src) quoted in destination token
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    token_src = web3.to_checksum_address(token_src)
+    token_dst = web3.to_checksum_address(token_dst)
+    token_src_decimals = get_decimals(token_src, blockchain, web3=web3)
+    token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
 
-        token_src = web3.to_checksum_address(token_src)
+    pool = Pool(blockchain, block, web3, token_src, token_dst, fee)
 
-        token_dst = web3.to_checksum_address(token_dst)
+    if token_src == pool.token0:
+        factor = pool.price
+    else:
+        factor = 1 / pool.price
 
-        factory_contract = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
-
-        pool_address = factory_contract.functions.getPool(token_src, token_dst, fee).call(block_identifier=block)
-
-        pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
-
-        sqrt_price_x96 = pool_contract.functions.slot0().call(block_identifier=block)[0]
-        token0 = pool_contract.functions.token0().call(block_identifier=block)
-        token1 = pool_contract.functions.token1().call(block_identifier=block)
-
-        token_src_decimals = get_decimals(token_src, blockchain, web3=web3)
-        token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
-
-        if token_src == token0:
-            rate = float(Decimal(sqrt_price_x96 ** 2) / Decimal(2 ** 192) / Decimal(
-                10 ** (token_dst_decimals - token_src_decimals)))
-        elif token_src == token1:
-            rate = float(Decimal(2 ** 192) / Decimal(sqrt_price_x96 ** 2) / Decimal(
-                10 ** (token_dst_decimals - token_src_decimals)))
-
-        return rate
-
-    except GetNodeIndexError:
-        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, fee=fee, index=0, execution=execution + 1)
-
-    except:
-        return get_rate_uniswap_v3(token_src, token_dst, block, blockchain, fee=fee, index=index + 1,
-                                   execution=execution)
+    return float(factor / Decimal(10 ** (token_dst_decimals - token_src_decimals)))
 
 
-def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str, web3=None, execution: int = 1,
-               index: int = 0, decimals: bool = True, fee: bool = False) -> list:
-    """Returns the balances of the underlying assets corresponding to a position held by a wallet.
-	Parameters
-    ----------
-    token_address : str
-		address of the token identifying the position in the protocol
-    wallet : str
-		address of the wallet holding the position
-    block : int or 'latest'
-		block number at which the data is queried
-    blockchain : str
-		blockchain in which the position is held
-    web3: obj
-		optional, already instantiated web3 object
-    execution: int
-		times the NODE_BLOCKCHAIN list is iterated (first of second)
-    index: int
-		positional index of the RPC endpoint to be used in the NODE_BLOCKCHAIN endpoints list
-    decimals: bool
-		specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True
-    fee: bool
-		if set to True, the balances of the unclaimed fees corresponding to the position are appended to the returned list
-
-    Returns
-	----------
-	list
-		a list where each element is a list with two elements, the underlying token address and its corresponding amount
-
-	Raises
-    ----------
-    GetNodeIndexError
-        If NODE_BLOKCHAIN list is iterated and all connections failed, execution is set +1 to try again the list again
-    other errors
-        Set index +1 to try next RPC endpoint in the list to fetch data from blockchain
-    """
-
-    if execution > MAX_EXECUTIONS:
-        return None
-
-    balances = []
-
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
-
-        wallet = web3.to_checksum_address(wallet)
-        factory_address = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
-        nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)
-        nft_owner = nft_contract.functions.ownerOf(nftid).call(block_identifier=block)
-        if nft_owner == wallet:
-            nft_positions = nft_contract.functions.positions(nftid).call(block_identifier=block)
-            upper_tick = int(nft_positions[6])
-            lower_tick = int(nft_positions[5])
-            token0 = nft_positions[2]
-            token1 = nft_positions[3]
-            fee_taken = nft_positions[4]
-            liquidity = Decimal(nft_positions[7])
-
-            if liquidity != 0:
-                if decimals is True:
-                    decimals0 = get_decimals(token0, blockchain, web3=web3)
-                    decimals1 = get_decimals(token1, blockchain, web3=web3)
-
-                pool_address = factory_address.functions.getPool(token0, token1, fee_taken).call(block_identifier=block)
-                pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
-                current_tick = pool_contract.functions.slot0().call(block_identifier=block)[1]
-                sqrt_price_X96 = pool_contract.functions.slot0().call(block_identifier=block)[0]
-                sa = Decimal(BASETICK) ** Decimal(lower_tick / 2)
-                sb = Decimal(BASETICK) ** Decimal(upper_tick / 2)
-                current_square_price = Decimal(sqrt_price_X96) / Decimal(2 ** 96)
-
-                if upper_tick <= current_tick:
-                    amount1 = (liquidity * (sb - sa))
-                    if decimals is True:
-                        amount1 = float(amount1 / Decimal(10 ** decimals1))
-                    else:
-                        amount1 = int(amount1)
-                    if fee == True:
-                        fees = get_fee(nftid, block, blockchain, web3)
-                        if fees[0][1] > 0:
-                            balances.append([token0, fees[0][1]])
-                            balances.append([token1, amount1 + fees[1][1]])
-                        else:
-                            balances.append([token1, amount1 + fees[1][1]])
-                    else:
-                        balances.append([token1, amount1])
-
-                elif lower_tick < current_tick < upper_tick:
-                    amount0 = (liquidity * (sb - current_square_price) / (current_square_price * sb))
-                    amount1 = (liquidity * (current_square_price - sa))
-
-                    if decimals is True:
-                        amount0 = float(amount0 / Decimal(10 ** decimals0))
-                        amount1 = float(amount1 / Decimal(10 ** decimals1))
-                    else:
-                        amount0 = int(amount0)
-                        amount1 = int(amount1)
-                    if fee == True:
-                        fees = get_fee(nftid, block, blockchain, web3)
-                        balances.append([token0, amount0 + fees[0][1]])
-                        balances.append([token1, amount1 + fees[1][1]])
-                    else:
-                        balances.append([token0, amount0])
-                        balances.append([token1, amount1])
-
-                else:
-                    amount0 = (liquidity * (sb - sa) / (sa * sb))
-                    if decimals is True:
-                        amount0 = float(amount0 / Decimal(10 ** decimals0))
-                    else:
-                        amount0 = int(amount0)
-                    if fee == True:
-                        fees = get_fee(nftid, block, blockchain, web3)
-                        if fees[1][1] > 0:
-                            balances.append([token0, amount0 + fees[0][1]])
-                            balances.append([token1, amount1 + fees[1][1]])
-                        else:
-                            balances.append([token0, amount0 + fees[0][1]])
-                    else:
-                        balances.append([token0, amount0])
-
-            else:
-                balances.append([token0, 0])
-                balances.append([token1, 0])
-            return balances
-        else:
-            return 'wallet is not owner of this NFT'
-
-    except GetNodeIndexError:
-        return underlying(wallet, nftid, block, blockchain, decimals=decimals, index=0, execution=execution + 1)
-
-    except:
-        return underlying(wallet, nftid, block, blockchain, decimals=decimals, index=index + 1, execution=execution)
-
-
-def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1,
-            index: int = 0) -> list:
+def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None) -> list:
     """Returns all nft ids owned by a wallet.
-	Parameters
+    Parameters
     ----------
     wallet : str
-		address of the wallet holding the position
+        address of the wallet holding the position
     block : int or 'latest'
-		block number at which the data is queried
+        block number at which the data is queried
     blockchain : str
-		blockchain in which the position is held
+        blockchain in which the position is held
     web3: obj
-		optional, already instantiated web3 object
-    execution: int
-		times the NODE_BLOCKCHAIN list is iterated (first of second)
-    index: int
-		positional index of the RPC endpoint to be used in the NODE_BLOCKCHAIN endpoints list
+        optional, already instantiated web3 object
 
     Returns
-	----------
-	list
-		a list where each element is the nft id that is owned by the wallet (open and closed nfts)
-
-	Raises
     ----------
-    GetNodeIndexError
-        If NODE_BLOKCHAIN list is iterated and all connections failed, execution is set +1 to try again the list again
-    other errors
-        Set index +1 to try next RPC endpoint in the list to fetch data from blockchain
+    list
+        a list where each element is the nft id that is owned by the wallet (open and closed nfts)
     """
-    if execution > MAX_EXECUTIONS:
-        return None
-
     nftids = []
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)
-        nft_balance = nft_contract.functions.balanceOf(wallet).call(block_identifier=block)
-        for i in range(0, nft_balance):
-            nft_id = nft_contract.functions.tokenOfOwnerByIndex(wallet, i).call(block_identifier=block)
-            nftids.append(nft_id)
-        return nftids
-
-    except GetNodeIndexError:
-        return allnfts(wallet, block, blockchain, index=0, execution=execution + 1)
-
-    except:
-        return allnfts(wallet, block, blockchain, index=index + 1, execution=execution)
+    nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)
+    nfts = nft_contract.functions.balanceOf(wallet).call(block_identifier=block)
+    for nft_index in range(nfts):
+        nft_id = nft_contract.functions.tokenOfOwnerByIndex(wallet, nft_index).call(block_identifier=block)
+        nftids.append(nft_id)
+    return nftids
 
 
 def underlying_all(wallet: str, block: Union[int, str], blockchain: str, decimals: bool = True, fee: bool = False):
     """Returns the balances of the underlying assets corresponding to all positions held by a wallet.
-	Parameters
+    Parameters
     ----------
     wallet : str
-		address of the wallet holding the position
+        address of the wallet holding the position
     block : int or 'latest'
-		block number at which the data is queried
+        block number at which the data is queried
     blockchain : str
-		blockchain in which the position is held
-    web3: obj
-		optional, already instantiated web3 object
-    execution: int
-		times the NODE_BLOCKCHAIN list is iterated (first of second)
-    index: int
-		positional index of the RPC endpoint to be used in the NODE_BLOCKCHAIN endpoints list
+        blockchain in which the position is held
     decimals: bool
-		specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True
+        specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set
+        to True
+    fee: bool
 
     Returns
-	----------
-	list
-		a list where each element is a list with two elements, the underlying token address and its corresponding amount (with optional unclaimed fee)"""
+    ----------
+    list
+        a list where each element is a list with two elements, the underlying token address and its corresponding amount
+        (with optional unclaimed fee)
+    """
 
     balances = []
     for nft in allnfts(wallet, block, blockchain):
         balances.append(underlying(wallet, nft, block, blockchain, decimals=decimals, fee=fee))
     return list(filter(None, balances))
-
-
-def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0,
-            decimals: bool = True) -> list:
-    """Returns the unclaimed fees corresponding to a nft id.
-	Parameters
-    ----------
-    nftid : int
-		number corresponding to a nftid
-    block : int or 'latest'
-		block number at which the data is queried
-    blockchain : str
-		blockchain in which the position is held
-    web3: obj
-		optional, already instantiated web3 object
-    execution: int
-		times the NODE_BLOCKCHAIN list is iterated (first of second)
-    index: int
-		positional index of the RPC endpoint to be used in the NODE_BLOCKCHAIN endpoints list
-    decimals: bool
-		specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True
-
-    Returns
-	----------
-	list
-		a list where each element is a list with two elements, the underlying token address and its corresponding unclaimed fee
-
-	Raises
-    ----------
-    GetNodeIndexError
-        If NODE_BLOKCHAIN list is iterated and all connections failed, execution is set +1 to try again the list again
-    other errors
-        Set index +1 to try next RPC endpoint in the list to fetch data from blockchain
-    """
-    if execution > MAX_EXECUTIONS:
-        return None
-
-    fees = []
-
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
-
-        factory_address = get_contract(FACTORY, blockchain, web3=web3, abi=ABI_FACTORY, block=block)
-        nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)
-        nft_positions = nft_contract.functions.positions(nftid).call(block_identifier=block)
-        upper_tick = nft_positions[6]
-        lower_tick = nft_positions[5]
-        token0 = nft_positions[2]
-        token1 = nft_positions[3]
-        fee = nft_positions[4]
-        liquidity = nft_positions[7]
-        pool_address = factory_address.functions.getPool(token0, token1, fee).call(block_identifier=block)
-        pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
-        current_tick = pool_contract.functions.slot0().call(block_identifier=block)[1]
-        feeGrowthGlobal0 = pool_contract.functions.feeGrowthGlobal0X128().call(block_identifier=block)
-        feeGrowthGlobal1 = pool_contract.functions.feeGrowthGlobal1X128().call(block_identifier=block)
-        feeGrowthOutside0X128low = pool_contract.functions.ticks(lower_tick).call(block_identifier=block)[2]
-        feeGrowthOutside1X128low = pool_contract.functions.ticks(lower_tick).call(block_identifier=block)[3]
-        feeGrowthOutside0X128up = pool_contract.functions.ticks(upper_tick).call(block_identifier=block)[2]
-        feeGrowthOutside1X128up = pool_contract.functions.ticks(upper_tick).call(block_identifier=block)[3]
-        if current_tick >= lower_tick:
-            fee_lower_token0 = feeGrowthOutside0X128low
-            fee_lower_token1 = feeGrowthOutside1X128low
-        else:
-            fee_lower_token0 = feeGrowthGlobal0 - feeGrowthOutside0X128low
-            fee_lower_token1 = feeGrowthGlobal1 - feeGrowthOutside1X128low
-        if current_tick >= upper_tick:
-            fee_upper_token0 = feeGrowthGlobal0 - feeGrowthOutside0X128up
-            fee_upper_token1 = feeGrowthGlobal1 - feeGrowthOutside1X128up
-        else:
-            fee_upper_token0 = feeGrowthOutside0X128up
-            fee_upper_token1 = feeGrowthOutside1X128up
-        fee_growth_inside_last_0 = nft_positions[8]
-        fee_growth_inside_last_1 = nft_positions[9]
-        unclaimed_fees0 = int(Decimal(
-            (feeGrowthGlobal0 - fee_lower_token0 - fee_upper_token0 - fee_growth_inside_last_0) * liquidity) / Decimal(
-            2 ** 128))
-        unclaimed_fees1 = int(Decimal(
-            (feeGrowthGlobal1 - fee_lower_token1 - fee_upper_token1 - fee_growth_inside_last_1) * liquidity) / Decimal(
-            2 ** 128))
-
-        if decimals is True:
-            decimals0 = get_decimals(token0, blockchain, web3=web3)
-            decimals1 = get_decimals(token1, blockchain, web3=web3)
-            unclaimed_fees0 = float(Decimal(unclaimed_fees0) / Decimal(10 ** decimals0))
-            unclaimed_fees1 = float(Decimal(unclaimed_fees1) / Decimal(10 ** decimals1))
-
-        fees.append([token0, unclaimed_fees0])
-        fees.append([token1, unclaimed_fees1])
-        return fees
-
-    except GetNodeIndexError:
-        return get_fee(nftid, block, blockchain, index=0, execution=execution + 1)
-
-    except:
-        return get_fee(nftid, block, blockchain, index=index + 1, execution=execution)
-
-# #to test
-# wallet='0x849D52316331967b6fF1198e5E32A0eB168D039d'
-# id = 358770
-# uniswapv3 = underlying(wallet,id,'latest',ETHEREUM,fee=True)
-# print(uniswapv3)
-# nfts_list = allnfts(wallet, 'latest', ETHEREUM)
-# print(nfts_list)
-# nfts = underlying_all(wallet,'latest',ETHEREUM)
-# print(nfts)
-# feesunclaimed = get_fee(wallet,id,'latest',ETHEREUM)
-# print(feesunclaimed)
-# ratess = get_rate_uniswap_v3('0x6810e776880C02933D47DB1b9fc05908e5386b96','0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2','latest', ETHEREUM, fee=3000)
-# print(ratess)

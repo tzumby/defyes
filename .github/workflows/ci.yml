@@ -29,13 +29,7 @@ jobs:
       - name: Run tests
         run: |
           pip install -r requirements-dev.txt
-          cat defi_protocols/config.json |\
-            jq --arg node_eth ${{ secrets.NODE_ETH }} \
-               --arg node_xdai ${{ secrets.NODE_XDAI }} \
-               --arg node_optimism ${{ secrets.NODE_OPTIMISM }} \
-               --arg etherscan ${{ secrets.APIKEYS_ETHERSCAN }} \
-              '.nodes.ethereum.latest = [$node_eth] | .nodes.ethereum.archival = [$node_eth] | .nodes.xdai.archival = [$node_xdai] | .nodes.optimism.archival = [$node_optimism] | .apikeys.etherscan = $etherscan' \
-            > /tmp/tmp_config.json
+          sh ci_secrets_helper.sh
           PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs
       - name: Archive cache
         uses: actions/upload-artifact@v3

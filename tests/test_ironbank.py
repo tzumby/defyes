@@ -55,7 +55,6 @@ def test_get_locked(decimals, reward):
 @pytest.mark.parametrize('reward', [True, False])
 def test_underlying(decimals, reward):
     x = IronBank.underlying(TEST_WALLET, USDC, TEST_BLOCK, OPTIMISM, WEB3, decimals=decimals, reward=reward)
-    print(x)
     y = Decimal(10**(6 if decimals else 0))
     assert x == [[USDC, Decimal('3807347311.624904820141022815') / y, 0],
                  [IB, Decimal('0')]][:(2 if reward else 1)]

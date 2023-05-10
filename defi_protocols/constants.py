@@ -138,6 +138,7 @@ ABI_TOKEN_SIMPLIFIED = '[{"constant":true,"inputs":[],"name":"name","outputs":[{
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 AURA_ETH = '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF'
 AAVE_ETH = '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9'
+ABPT_ETH = '0x41A08648C3766F9F9d85598fF102a08f4ef84F84'
 B_80BAL_20_WETH_ETH = '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56'
 BAL_ETH = '0xba100000625a3754423978a60c9317c58a424e3D'
 BB_A_USD_OLD_ETH = '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2'
@@ -168,6 +169,7 @@ X3CRV_ETH = '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490'
 
 class ETHTokenAddr:
     BAT = '0x0D8775F648430679A709E98d2b0Cb6250d2887EF'
+    COW = '0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB'
     DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
     REP = '0x1985365e9f78359a9B6AD760e32412f4a445E862'
     USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
@@ -176,6 +178,7 @@ class ETHTokenAddr:
     SAI = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359'
     UNI = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
     COMP = '0xc00e94Cb662C3520282E6f5717214004A7f26888'
+    IDLE = '0x875773784Af8135eA0ef43b5a374AaD105c5D39e'
     WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
     TUSD = '0x0000000000085d4780B73119b644AE5ecd22b376'
     LINK = '0x514910771AF9Ca656af840dff83E8264EcF986CA'
@@ -196,8 +199,12 @@ class ETHTokenAddr:
     stETH = "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
     OHM = '0x64aa3364F17a4D01c6f1751Fd97C2BD3D7e7f1D5'
     NOTE = '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5'
+    GNO = '0x6810e776880C02933D47DB1b9fc05908e5386b96'
+    sETH2 = '0xFe2e637202056d30016725477c5da089Ab0A043A'
     BNT = '0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C'
     ICHI = '0x903bEF1736CDdf2A537176cf3C64579C3867A881'
+    ABPT = '0x41A08648C3766F9F9d85598fF102a08f4ef84F84'
+    ELK = '0xd8BaB53373B732Da40A7239359F141935dC00BfD'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # XDAI - Token Addresses
@@ -212,12 +219,37 @@ WETH_XDAI = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
 X3CRV_XDAI = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
 WXDAI = '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
 
+
+class GnosisTokenAddr:
+    AGVE = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
+    BAL = '0x7eF541E2a22058048904fE5744f9c7E4C57AF717'
+    COW = '0x177127622c4A00F3d409B75571e12cB3c8973d3c'
+    CRV = '0x712b3d230F3C1c19db860d80619288b1F0BDd0Bd'
+    GNO = '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb'
+    STKAGAVE = '0x610525b415c1BFAeAB1a3fc3d85D87b92f048221'
+    USDC = '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'
+    USDT = '0x4ECaBa5870353805a9F068101A40E0f32ed605C6'
+    WETH = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
+    WXDAI = '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
+    X3CRV = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
+    XGT = '0xC25AF3123d2420054c8fcd144c21113aa2853F39'
+    ELK = '0xE1C110E1B1b4A1deD0cAf3E42BfBdbB7b5d7cE1C'
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # POLYGON - Token Addresses
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAL_POL = '0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3'
 MAI_POL = '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1'
 X3CRV_POL = '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171'
+
+
+class PolygonTokenAddr:
+    BAL = '0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3'
+    MAI = '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1'
+    X3CRV = '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171'
+    USDC = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
+    WETH = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
+    ELK = '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ARBITRUM - Token Addresses

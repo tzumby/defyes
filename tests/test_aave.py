@@ -10,7 +10,7 @@ TEST_ADDRESS = '0xf929122994e177079c924631ba13fb280f5cd1f9'
 
 def test_get_staking_balance():
     data = Aave.get_staked(TEST_ADDRESS,block=16870553,blockchain=ETHEREUM)
-    assert data == [[ETHTokenAddr.AAVE, 11538.124991799179], [ETHTokenAddr.AAVE, 0.0]]
+    assert data == [[ETHTokenAddr.AAVE, 11538.124991799179], [ETHTokenAddr.ABPT, 0.0]]
 
 def test_get_apr():
     data = Aave.get_apr(ETHTokenAddr.DAI, block=16870553, blockchain=ETHEREUM)
@@ -59,4 +59,3 @@ def test_get_data():
 def test_get_all_rewards():
     data = Aave.get_all_rewards(TEST_ADDRESS, block=16870553, blockchain=ETHEREUM)
     assert data == [['0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9', 83.88802308439021]]
-

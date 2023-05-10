@@ -107,9 +107,10 @@ def cache_call(exclude_args=None):
 def const_call(f):
     """Utility to do .call() on web3 contracts that are known to be cacheable"""
     cache_key = generate_cache_key((f.web3._network_name, f.address, f.function_identifier, f.args, f.kwargs))
-    if cache_key not in _cache:
+    if not is_enabled() or cache_key not in _cache:
         result = f.call()
-        _cache[cache_key] = result
+        if is_enabled():
+            _cache[cache_key] = result
     else:
         result = _cache[cache_key]
     return result
