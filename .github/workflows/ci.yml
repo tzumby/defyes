@@ -20,6 +20,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
       - name: Run tests
+        env:
+          NODE_ETH: ${{ secrets.NODE_ETH }}
+          NODE_XDAI: ${{ secrets.NODE_XDAI }}
+          NODE_POLYGON: ${{ secrets.NODE_POLYGON }}
+          NODE_OPTIMISM: ${{ secrets.NODE_OPTIMISM }}
+          APIKEYS_ETHERSCAN: ${{ secrets.APIKEYS_ETHERSCAN }}
+          APIKEYS_POLSCAN: ${{ secrets.APIKEYS_POLSCAN }}
         run: |
           pip install -r requirements-dev.txt
           sh ci_secrets_helper.sh
