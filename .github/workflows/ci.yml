@@ -1,5 +1,7 @@
 name: Defi Protocols
 
+on: [push]
+
 jobs:
   Test:
 
