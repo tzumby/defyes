@@ -385,7 +385,7 @@ def total_supply(token_address, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    if not web3.isChecksumAddress(token_address):
+    if not web3.is_checksum_address(token_address):
         token_address = web3.to_checksum_address(token_address)
 
     token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))

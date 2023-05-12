@@ -5,7 +5,7 @@ from pathlib import Path
 from decimal import Decimal
 
 from defi_protocols.functions import get_node, get_contract, get_decimals
-from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS, CVX_ETH, CVXCRV_ETH
+from defi_protocols.constants import ETHEREUM, CVX_ETH, CVXCRV_ETH
 from defi_protocols import Curve
 from defi_protocols.misc import get_db_filename
 from defi_protocols.cache import const_call
@@ -160,9 +160,6 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
 
         if (cvx_amount > amount_till_max):
             cvx_amount = amount_till_max
-
-    cvx_decimals = get_decimals(CVX_ETH, blockchain, web3=web3) if decimals else 0
-    cvx_amount = Decimal(cvx_amount) * Decimal(10 ** cvx_decimals)
 
     return [CVX_ETH, cvx_amount]
 

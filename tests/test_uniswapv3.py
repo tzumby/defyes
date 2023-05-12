@@ -2,6 +2,7 @@ from defi_protocols import UniswapV3
 from defi_protocols.uniswapv3helper import LiquidityPosition
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node
+from decimal import Decimal
 
 
 WALLET_N1 = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
@@ -49,3 +50,16 @@ def test_get_rate():
                                          ETHEREUM,
                                          node,
                                          UniswapV3.FeeAmount.MEDIUM) == 0.05737047195982491
+
+def test_get_fee():
+    block = 17094489
+    node = get_node(ETHEREUM, block)
+
+    position_nft = UniswapV3.NFTPosition(NFT_ID, ETHEREUM, block, node, decimals=True)
+
+    fees = UniswapV3.get_fee(NFT_ID, block, web3=node, blockchain=ETHEREUM, decimals=True)
+    assert fees == [['0x6810e776880C02933D47DB1b9fc05908e5386b96', Decimal('474.998434375840983379')], ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', Decimal('25.927112063507954904')]]
+
+    fees = UniswapV3.get_fee(NFT_ID, block, web3=node, blockchain=ETHEREUM, decimals=False)
+    assert fees == [['0x6810e776880C02933D47DB1b9fc05908e5386b96', 474998434375840983379], ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 25927112063507954904]]
+
