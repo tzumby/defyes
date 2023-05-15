@@ -7,7 +7,6 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Union, Optional, List
 
-import eth_abi
 from web3 import Web3
 from web3.providers import HTTPProvider, JSONBaseProvider
 from defi_protocols import cache
