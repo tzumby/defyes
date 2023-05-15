@@ -27,14 +27,7 @@ class LiquidityPool:
     blockchain: str = field(init=False)
 
     def __post_init__(self):
-        addresses = [db_addr.lower() for db_addr in LPTOKENS_DB.keys()]
-        try:
-            addr_idx = addresses.index(self.addr.lower())
-        except ValueError:
-            logger.error("LP token address not in DB.")
-            raise
-        self.addr = list(LPTOKENS_DB.keys())[addr_idx]
-
+        self.addr = Web3.to_checksum_address(self.addr)
         self.blockchain = LPTOKENS_DB[self.addr]['blockchain']
         if self.web3 is None:
             self.web3 = get_node(self.blockchain, block=self.block)
