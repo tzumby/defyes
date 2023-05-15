@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from defi_protocols.functions import get_node, get_contract, get_decimals
 
-from defi_protocols.util.topic import DecodeAddressHexor
+from defi_protocols.util.topic import decode_address_hexor
 from defi_protocols.util.api import RequestFromScan
 from defi_protocols.Curve import unwrap
 
@@ -80,7 +80,7 @@ def get_tranche(input_data: str, hash: str, underlying_address: str, underlying_
 
     tx = web3.eth.get_transaction_receipt(hash)
     pool_id = tx['logs'][0]['topics'][1].hex()
-    pool_address = str(DecodeAddressHexor(tx['logs'][0]['topics'][2].hex()))
+    pool_address = decode_address_hexor(tx['logs'][0]['topics'][2])
 
     return Tranche(function_output[1]['_name'],
                    function_output[1]['_bond'],
