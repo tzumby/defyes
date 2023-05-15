@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Union
@@ -6,6 +7,7 @@ from web3 import Web3
 from defi_protocols.functions import get_node, balance_of, total_supply
 from defi_protocols.constants import ETHTokenAddr
 
+logger = logging.getLogger(__name__)
 
 LPTOKENS_DB = {
     '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9': {
@@ -25,14 +27,12 @@ class LiquidityPool:
     blockchain: str = field(init=False)
 
     def __post_init__(self):
-        if not self.addr.lower() in ' '.join(LPTOKENS_DB.keys()).lower():
-            raise ValueError("LP token address not in DB.")
+        self.addr = Web3.to_checksum_address(self.addr)
         self.blockchain = LPTOKENS_DB[self.addr]['blockchain']
         if self.web3 is None:
             self.web3 = get_node(self.blockchain, block=self.block)
         else:
             assert self.web3.isinstance(Web3), "web3 is not a Web3 instance"
-        self.addr = self.web3.to_checksum_address(self.addr)
 
     def _underlying(self, amount):
         fraction = Decimal(amount) / Decimal(total_supply(self.addr, self.block, self.blockchain))
