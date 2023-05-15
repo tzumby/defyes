@@ -26,7 +26,7 @@ def encode_address_hexor(address: str):
     return '0x000000000000000000000000' + address[2:]
 
 def decode_address_hexor(address: HexBytes):
-    return address.hex().replace('0x000000000000000000000000', '')
+    return address.hex().replace('0x000000000000000000000000', '0x')
 
 #wallet = AddressHexor('0x849d52316331967b6ff1198e5e32a0eb168d039d')
 #print(wallet)
