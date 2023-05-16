@@ -13,7 +13,7 @@ RUN apt-get update \
 
 RUN eatmydata apt-get update \
  && eatmydata apt-get install -y --no-install-recommends \
-                              vim 
+                              vim \
  && rm -rf /var/lib/apt/lists/*
 RUN pip install --upgrade pip \
  && pip install --no-cache-dir ipython
