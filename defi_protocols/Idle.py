@@ -7,7 +7,7 @@ from typing import Union
 
 from defi_protocols.functions import get_node, get_contract, get_decimals
 from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
-from defi_protocols.util.topic import DecodeAddressHexor
+from defi_protocols.util.topic import decode_address_hexor
 from defi_protocols.cache import const_call
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # IDLE Deployer
@@ -66,7 +66,7 @@ def get_addresses(block: Union[int, str], blockchain: str, web3=None,
     cdo_events = web3.eth.get_logs({'fromBlock': 0, 'toBlock': block, 'address': CDO_PROXY})
     gauges = get_gauges(block, blockchain, web3=web3)
     for event in cdo_events:
-        cdo_address = str(DecodeAddressHexor(event['data']))
+        cdo_address = decode_address_hexor(event['data'])
         cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
         aa_token = const_call(cdo_contract.functions.AATranche())
         bb_token = const_call(cdo_contract.functions.BBTranche())
