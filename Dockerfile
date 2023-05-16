@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM python:3.10
 ARG DEBIAN_FRONTEND=noninteractive
 
 ###############################################################################
@@ -13,9 +13,7 @@ RUN apt-get update \
 
 RUN eatmydata apt-get update \
  && eatmydata apt-get install -y --no-install-recommends \
-                              python3-dev \
                               python3-pip \
-                              python3-pytest \
                               python3-ipython \
                               git \
                               vim \
@@ -28,5 +26,5 @@ RUN pip install --upgrade pip
 COPY . /src/defeyes
 
 RUN cd /src/defeyes \
- && pip install -r requirements-dev.txt \
- && pip install .
+ && pip install --no-cache-dir -r requirements-dev.txt \
+ && pip install --no-cache-dir .

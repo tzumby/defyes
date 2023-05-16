@@ -560,7 +560,7 @@ To wipe the cache use the env var `DEFI_PROTO_CLEAN_CACHE` or call `defi_protoco
   The following example runs the azuro portocol tests with the already built image:
   ```console
   docker run --rm \
-             -v $PWD/defi_protocols:/usr/local/lib/python3.9/dist-packages/defi_protocols \
+             -v $PWD/defi_protocols:/usr/local/lib/python3.10/dist-packages/defi_protocols \
              -v $PWD/mi_config.json:/data/config.json \
              -v $PWD/tests:/data/tests \
              <container_name>:<container_tag> \
