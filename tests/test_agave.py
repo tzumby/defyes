@@ -129,8 +129,8 @@ def test_get_apr(apy):
 def test_get_staking_apr(apy):
     TOKEN_ADDRESS = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
     stk_apr = Agave.get_staking_apr(TEST_BLOCK, XDAI, web3=WEB3, apy=apy)
-    assert stk_apr == {True: [{'metric': 'apy', 'type': 'staking', 'value': 0.12741271642245144}],
-                       False: [{'metric': 'apr', 'type': 'staking', 'value': 0.1199253794401285}]}[apy]
+    assert stk_apr == {True: [{'metric': 'apy', 'type': 'staking', 'value': Decimal('0.127412720014978996749268306')}],
+                       False: [{'metric': 'apr', 'type': 'staking', 'value': Decimal('0.1199253794401285060793250841')}]}[apy]
 
 
 @pytest.mark.parametrize('wallet_address', [TEST_WALLET_ADDRESS, UNUSED_ADDRESS])
@@ -142,4 +142,3 @@ def test_get_staked(wallet_address, decimals):
 
     data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3, decimals=decimals)
     assert data == [[AGVE_XDAI, expected]]
-

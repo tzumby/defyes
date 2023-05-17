@@ -10,6 +10,7 @@ WALLET_e6f = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"
 CUSDCLP = "0xA639FB3f8C52e10E10a8623616484d41765d5F82"
 CWETHLP = "0x7aC5bBefAE0459F007891f9Bd245F6beaa91076c"
 
+
 def test_underlying():
     block = 27795362
     node = get_node(XDAI, block)
@@ -22,6 +23,7 @@ def test_underlying():
     assert next_weth == [GnosisTokenAddr.nextWETH, 234.5241174340622]
     assert weth == [GnosisTokenAddr.WETH, 301.6659895421681]
 
+
 def test_underlying_all():
     block = 27795362
     node = get_node(XDAI, block)
@@ -33,6 +35,7 @@ def test_underlying_all():
     assert usdc == [GnosisTokenAddr.USDC, 1439222.771596]
     assert next_usdt == [GnosisTokenAddr.nextUSDT, 679990.427185]
     assert usdt == [GnosisTokenAddr.USDT, 680007.569573]
+
 
 def test_unwrap():
     block = 27795362

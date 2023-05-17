@@ -8,6 +8,7 @@ from decimal import Decimal
 from typing import Union, Optional, List
 
 from web3 import Web3
+from web3.exceptions import ContractLogicError
 from web3.providers import HTTPProvider, JSONBaseProvider
 from defi_protocols import cache
 from defi_protocols.cache import const_call
@@ -58,6 +59,11 @@ class abiNotVerified(Exception):
 
 class AllProvidersDownError(Exception):
     pass
+
+def to_token_amount(token_address: str, amount: int | Decimal, blockchain: str, web3: Web3, decimals: bool=True) -> Decimal:
+    # This function provides support for correctly rounded decimal floating point arithmetic.
+    decimals = get_decimals(token_address, blockchain=blockchain, web3=web3) if decimals else 0
+    return amount / Decimal(10 ** decimals)
 
 
 class ProviderManager(JSONBaseProvider):
@@ -344,35 +350,24 @@ def token_info(token_address, blockchain):  # NO ESTÁ POLYGON
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def balance_of(address, contract_address, block, blockchain, web3=None, decimals=True) -> Union[
-    int, float]:
-
+def balance_of(address, contract_address, block, blockchain, web3=None, decimals=True) -> Decimal:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
     address = web3.to_checksum_address(address)
-
     contract_address = web3.to_checksum_address(contract_address)
 
+    balance = 0
     if contract_address == ZERO_ADDRESS:
-        if decimals is True:
-            return web3.eth.get_balance(address, block) / (10 ** 18)
-        else:
-            return web3.eth.get_balance(address, block)
-
+        balance = web3.eth.get_balance(address, block)
     else:
         token_contract = web3.eth.contract(address=contract_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
-
         try:
             balance = token_contract.functions.balanceOf(address).call(block_identifier=block)
-        except:
-            balance = 0
+        except ContractLogicError:
+            pass
 
-        if decimals is True:
-            token_decimals = token_contract.functions.decimals().call()
-            return float(Decimal(balance) / Decimal(10 ** token_decimals))
-        else:
-            return balance
+    return to_token_amount(contract_address, balance, blockchain, web3, decimals)
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -380,22 +375,16 @@ def balance_of(address, contract_address, block, blockchain, web3=None, decimals
 # 'web3' = web3 (Node) -> Improves performance
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def total_supply(token_address, block, blockchain, web3=None, decimals=True):
+def total_supply(token_address: str, block: int | str, blockchain: str, web3: Web3=None, decimals: bool = True) -> Decimal:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    if not web3.is_checksum_address(token_address):
-        token_address = web3.to_checksum_address(token_address)
+    token_address = web3.to_checksum_address(token_address)
 
     token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
     total_supply_v = token_contract.functions.totalSupply().call(block_identifier=block)
 
-    if decimals is True:
-        token_decimals = token_contract.functions.decimals().call(block_identifier=block)
-    else:
-        token_decimals = 0
-
-    return float(Decimal(total_supply_v) / Decimal(10 ** token_decimals))
+    return to_token_amount(token_address, total_supply_v, blockchain, web3, decimals)
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_decimals

@@ -1,6 +1,7 @@
 from defi_protocols.functions import get_contract, balance_of, get_node, get_decimals, last_block
 from defi_protocols.constants import ETHEREUM, XDAI
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
+from web3 import Web3
 from dataclasses import dataclass, field
 from typing import Union
 # thegraph queries
@@ -99,7 +100,8 @@ def query_assets(subgraph_api_endpoint: str, web3: object) -> list:
 @dataclass
 class Connext():
     blockchain: str
-    block: int|str
+    block: int | str
+    web3: Web3 = None
     diamond_adrr: str = field(init=False)
     diamond_contract: object = field(init=False)
     subgraph_api_endpoint: str = field(init=False)
@@ -114,8 +116,12 @@ class Connext():
             self.subgraph_api_endpoint = SUBGRAPH_API_ENDPOINT_GC
         else:
             raise ValueError(f"{self.blockchain} not supported yet")
-        
-        self.web3 = get_node(self.blockchain, self.block)
+
+        if self.web3 is None:
+            self.web3 = get_node(self.blockchain, block=self.block)
+        else:
+            assert isinstance(self.web3, Web3), "web3 is not a Web3 instance"
+
         self.diamond_contract = get_contract(self.diamond_adrr, self.blockchain, web3=self.web3, abi=ABI_CONNEXT_DIAMOND, block=self.block)
         self.assets = query_assets(self.subgraph_api_endpoint, self.web3)
 
@@ -131,8 +137,8 @@ class Connext():
         lptoken_address = self.web3.to_checksum_address(lptoken_address)
 
         for asset in self.assets:
-            if  lptoken_address == self.diamond_contract.functions.getSwapLPToken(asset['key']).call():
-                lptoken_balance = balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False)
+            if lptoken_address == self.diamond_contract.functions.getSwapLPToken(asset['key']).call():
+                lptoken_balance = int(balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False))
                 amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], lptoken_balance), self.block)
 
                 if not amounts:
@@ -157,7 +163,7 @@ class Connext():
 
         for asset in self.assets:
             lptoken_address = self.diamond_contract.functions.getSwapLPToken(asset['key']).call()
-            lptoken_balance = balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False)
+            lptoken_balance = int(balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False))
             amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], lptoken_balance), self.block)
             
             if (not amounts) or amounts == [0,0]:
@@ -180,7 +186,7 @@ class Connext():
         lptoken_address = self.web3.to_checksum_address(lptoken_address)
 
         for asset in self.assets:
-            if  lptoken_address == self.diamond_contract.functions.getSwapLPToken(asset['key']).call():
+            if lptoken_address == self.diamond_contract.functions.getSwapLPToken(asset['key']).call():
                 lptoken_decimals = get_decimals(lptoken_address, self.blockchain, web3=self.web3)
                 amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], int(lptoken_amount*(10**lptoken_decimals))), self.block)
 
@@ -196,17 +202,17 @@ class Connext():
 
 
 # Transitional wrapper of underlying method
-def underlying(wallet: str, lptoken_address: str, block: int|str, blockchain: str, web3=None, decimals: bool = True) -> list:
-    connext = Connext(blockchain, block)
+def underlying(wallet: str, lptoken_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> list:
+    connext = Connext(blockchain, block, web3)
 
     return connext.underlying(wallet, lptoken_address, decimals)
 
-def underlying_all(wallet: str, block: int|str, blockchain: str, web3=None, decimals: bool = True) -> list:
-    connext = Connext(blockchain, block)
 
+def underlying_all(wallet: str, block: int|str, blockchain: str, web3=None, decimals: bool = True) -> list:
+    connext = Connext(blockchain, block, web3)
     return connext.underlying_all(wallet, decimals)
 
-def unwrap(lptoken_amount: float, lptoken_address: str, block: int|str, blockchain: str, web3=None, decimals: bool = True) -> list:
-    connext = Connext(blockchain, block)
 
+def unwrap(lptoken_amount: float, lptoken_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> list:
+    connext = Connext(blockchain, block, web3)
     return connext.unwrap(lptoken_amount, lptoken_address, decimals)

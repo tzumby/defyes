@@ -1,3 +1,4 @@
+from decimal import Decimal
 from defi_protocols import Aave
 
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr
@@ -21,7 +22,7 @@ def test_get_apr():
 
 def test_get_staking_apr():
     data = Aave.get_staking_apr(block=16870553, blockchain=ETHEREUM)
-    assert data == [{'metric': 'apr', 'type': 'staking', 'value': 0.06083395929558314}]
+    assert data == [{'metric': 'apr', 'type': 'staking', 'value': Decimal('0.06083395929558314368366087980')}]
 
 def test_underlying_all():
     data = Aave.underlying_all(TEST_ADDRESS, block=16870553, blockchain=ETHEREUM)

@@ -108,7 +108,7 @@ def test_db_uptodate():
         assert uptodate is False, "DB is outdated"
 
 
-@pytest.mark.skip(reason="Bgub in: lptoken_contract.functions.getCurrentTokens")
+@pytest.mark.skip(reason="Bug in: lptoken_contract.functions.getCurrentTokens")
 def test_swap_fees():
     block_start = 24323921
     block_end = 24502952
