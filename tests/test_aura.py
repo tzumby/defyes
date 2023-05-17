@@ -1,4 +1,5 @@
 import pytest
+from decimal import Decimal
 from tempfile import NamedTemporaryFile
 from defi_protocols import Aura
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
@@ -28,6 +29,7 @@ WALLET_N4 = "0xB1f881f47baB744E7283851bC090bAA626df931d"
 WALLET_N5 = "0x36cc7B13029B5DEe4034745FB4F24034f3F2ffc6"
 WALLET_39d = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 WALLET_e1c = "0x58e6c7ab55aa9012eacca16d1ed4c15795669e1c"
+
 
 @pytest.mark.xfail(reason="Checking if db needs update")
 def test_db_uptodate():
@@ -119,21 +121,21 @@ def test_underlying():
     node = get_node(ETHEREUM, block)
 
     bal, eth, aurabal = Aura.underlying(WALLET_N5, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
-    assert bal == [ETHTokenAddr.BAL, 116433.71368955926]
-    assert eth == [ETHTokenAddr.WETH, 108.28071123323124]
-    assert aurabal == [ETHTokenAddr.auraBAL,63020.44124792097]
+    assert bal == [ETHTokenAddr.BAL, Decimal('116433.7136895592470998702397')]
+    assert eth == [ETHTokenAddr.WETH, Decimal('108.2807112332312627897739854')]
+    assert aurabal == [ETHTokenAddr.auraBAL, Decimal('63020.44124792096385479026706')]
 
     ohm, steth = Aura.underlying(WALLET_N1, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
-    assert ohm == [ETHTokenAddr.OHM, 1231058673158.3909]
-    assert steth == [ETHTokenAddr.wstETH, 6.05714004986533e+18]
+    assert ohm == [ETHTokenAddr.OHM, Decimal('1231058673158.390859056243781')]
+    assert steth == [ETHTokenAddr.wstETH, Decimal('6057140049865330402.887964025')]
 
     gno, cow = Aura.underlying(WALLET_e1c, balancer_50COW_50GNO, block, ETHEREUM, web3=node)
-    assert gno == [ETHTokenAddr.GNO, 345.1743699207633]
-    assert cow == [ETHTokenAddr.COW, 470374.1748462563]
+    assert gno == [ETHTokenAddr.GNO, Decimal('345.1743699207633159106677341')]
+    assert cow == [ETHTokenAddr.COW, Decimal('470374.1748462563486273095973')]
 
     gno, weth = Aura.underlying(WALLET_e1c, balancer_80GNO_20WETH, block, ETHEREUM, web3=node)
-    assert gno == [ETHTokenAddr.GNO, 2896.5289865606737]
-    assert weth == [ETHTokenAddr.WETH, 42.530301853586735]
+    assert gno == [ETHTokenAddr.GNO, Decimal('2896.528986560673411023728067')]
+    assert weth == [ETHTokenAddr.WETH, Decimal('42.53030185358673865030664650')]
 
 
 def test_pool_balances():
@@ -141,8 +143,8 @@ def test_pool_balances():
     node = get_node(ETHEREUM, block)
 
     ohm, steth = Aura.pool_balances(balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node)
-    assert ohm == [ETHTokenAddr.OHM, 23962.880591594]
-    assert steth == [ETHTokenAddr.wstETH, 117.90382286905813]
+    assert ohm == [ETHTokenAddr.OHM, Decimal('23962.880591594')]
+    assert steth == [ETHTokenAddr.wstETH, Decimal('117.903822869058127723')]
 
 
 def test_get_compounded():

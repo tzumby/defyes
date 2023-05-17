@@ -422,7 +422,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
             if aura_staked is None:
                 token_staked = token_balance * pool_staked_fraction
             else:
-                aura_pool_fraction = aura_staked / lptoken_data['totalSupply']
+                aura_pool_fraction = Decimal(aura_staked) / lptoken_data['totalSupply']
                 token_staked = token_balance * aura_pool_fraction
 
             token_locked = token_balance * pool_locked_fraction
