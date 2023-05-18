@@ -58,7 +58,7 @@ def test_get_rewards():
     rewarder_contract = get_contract(aura_OHMwstETHvault_ADDR, ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block)
 
     rewards = Aura.get_rewards(node, rewarder_contract, WALLET_N1, block, ETHEREUM)
-    assert rewards == [ETHTokenAddr.BAL, 1.8716673573728932]
+    assert rewards == [ETHTokenAddr.BAL, Decimal('1.871667357372893151')]
 
 
 def test_get_extra_rewards():
@@ -67,7 +67,7 @@ def test_get_extra_rewards():
     rewarder_contract = get_contract(aura_auraBALSTABLEvault_ADDR, ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block)
 
     rewards = Aura.get_extra_rewards(node, rewarder_contract, WALLET_N2, block, ETHEREUM)
-    assert rewards[0] == [ETHTokenAddr.AURA, 0.198621417050926]
+    assert rewards[0] == [ETHTokenAddr.AURA, Decimal('0.198621417050926001')]
 
 
 def test_get_extra_rewards_airdrop():
@@ -75,7 +75,7 @@ def test_get_extra_rewards_airdrop():
     node = get_node(ETHEREUM, block)
 
     rewards = Aura.get_extra_rewards_airdrop(WALLET_N3, block, ETHEREUM, web3=node)
-    assert rewards == [ETHTokenAddr.AURA, 4.902499061089479]
+    assert rewards == [ETHTokenAddr.AURA, Decimal('4.902499061089478666')]
 
 
 def test_get_aura_mint_amount():
@@ -86,15 +86,15 @@ def test_get_aura_mint_amount():
     bal_token, bal_earned = Aura.get_rewards(node, rewarder_contract, WALLET_N1, block, ETHEREUM)
 
     aura_minted = Aura.get_aura_mint_amount(node, bal_earned, block, ETHEREUM)
-    assert aura_minted == [ETHTokenAddr.AURA, 6.428092448343376]
+    assert aura_minted == [ETHTokenAddr.AURA, Decimal('6.428092448343376000232498822')]
 
 
 def test_get_all_rewards():
     block = 17018536
     node = get_node(ETHEREUM, block)
     bal_rewards, aura_rewards = Aura.get_all_rewards(WALLET_N2, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
-    assert bal_rewards == [ETHTokenAddr.BAL, 0.06402473271805358]
-    assert aura_rewards == [ETHTokenAddr.AURA, 0.40622008081383604]
+    assert bal_rewards == [ETHTokenAddr.BAL,  Decimal('0.064024732718053571')]
+    assert aura_rewards == [ETHTokenAddr.AURA, Decimal('0.406220080813836023749526866')]
 
 
 def test_get_locked():
@@ -102,18 +102,18 @@ def test_get_locked():
     node = get_node(ETHEREUM, block)
 
     aura_locked, reward = Aura.get_locked(WALLET_N4, block, ETHEREUM, web3=node, reward=True)
-    assert aura_locked == [ETHTokenAddr.AURA, 1001043.3486000001]
-    assert reward == [ETHTokenAddr.auraBAL, 3.504020381401145]
+    assert aura_locked == [ETHTokenAddr.AURA, Decimal('1001043.348600000136133708')]
+    assert reward == [ETHTokenAddr.auraBAL, Decimal('3.504020381401144944')]
 
 
 def test_get_staked():
     block = 17030603
     node = get_node(ETHEREUM, block)
     aurabal, bal, bb_a_usd, aura = Aura.get_staked(WALLET_N5, block, ETHEREUM, web3=node, reward=True)
-    assert aurabal == [ETHTokenAddr.auraBAL, 76788.35575384754]
-    assert bal == [ETHTokenAddr.BAL, 5.959443245175148]
-    assert bb_a_usd == [ETHTokenAddr.BB_A_USD, 0.0]
-    assert aura == [ETHTokenAddr.AURA, 20.42193231463297]
+    assert aurabal == [ETHTokenAddr.auraBAL, Decimal('76788.355753847540232985')]
+    assert bal == [ETHTokenAddr.BAL, Decimal('5.959443245175147934')]
+    assert bb_a_usd == [ETHTokenAddr.BB_A_USD, Decimal('0')]
+    assert aura == [ETHTokenAddr.AURA, Decimal('20.42193231463296825575926092')]
 
 
 def test_underlying():
@@ -152,5 +152,5 @@ def test_get_compounded():
     node = get_node(ETHEREUM, block)
 
     aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, ETHEREUM, web3=node, reward=True)
-    assert aurabal == [ETHTokenAddr.auraBAL, 173638.9509001933]
-    assert aura_rewards == [ETHTokenAddr.AURA, 518.423812233737]
+    assert aurabal == [ETHTokenAddr.auraBAL, Decimal('173638.950900193303875756')]
+    assert aura_rewards == [ETHTokenAddr.AURA, Decimal('518.423812233736947225')]
