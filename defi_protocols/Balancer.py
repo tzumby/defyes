@@ -365,7 +365,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
     if blockchain == ETHEREUM:
         vebal_contract = get_contract(VEBAL, blockchain, web3=web3, abi=ABI_VEBAL, block=block)
 
-        if (lptoken_address == vebal_contract.functions.token().call()):
+        if lptoken_address == vebal_contract.functions.token().call():
             try:
                 lptoken_data['locked'] = Decimal(vebal_contract.functions.locked(wallet).call(block_identifier=block)[0])
             except:
@@ -645,7 +645,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 # get_swap_fees_APR
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[int, str] = 'latest', web3=None,
-                      days: int = 1, apy: bool = False) -> int:
+                      days: int = 1, apy: bool = False) -> Decimal:
     block_start = date_to_block(datetime.strftime(
         datetime.strptime(block_to_date(block_end, blockchain), '%Y-%m-%d %H:%M:%S') - timedelta(days=days),
         '%Y-%m-%d %H:%M:%S'), blockchain)
@@ -671,11 +671,10 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
     for l in pool_balance:
         tvl += l[1] * Decimal(get_price(l[0], block_end, blockchain, web3)[0])
 
-    rate = fee / tvl
+    rate = Decimal(fee / tvl)
     apr = (((1 + rate) ** Decimal(365 / days) - 1) * 100) / 2
     seconds_per_year = 365 * 24 * 60 * 60
     if apy:
-        apy = (1 + (apr / seconds_per_year)) ** (seconds_per_year) - 1
-        return apy
+        return (1 + (apr / seconds_per_year)) ** seconds_per_year - 1
     else:
         return apr
