@@ -42,9 +42,11 @@ GNOSIS_SAFE_UNDERLYING_ALL_WITH_REWARDS = \
  ['0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1', Decimal('552005140092550220243')],
  ['0x4ECaBa5870353805a9F068101A40E0f32ed605C6', Decimal('311298154329')],
  ['0x3a97704a1b25F08aa230ae53B352e2e72ef52843', Decimal('0')]]
-GNOSIS_SAFE_DATA = {'liquidation_ratio': 127.04865963664083,
+
+# TODO: use descriptive constants
+GNOSIS_SAFE_DATA = {'collateral_ratio': Decimal('Infinity'),
+                    'liquidation_ratio': Decimal('127.0486596366408334392072164'),
                     'xdai_price_usd': Decimal('0.99974566'),
-                    'collateral_ratio': float('infinity'),
                     'collaterals': [{'token_address': '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
                                      'token_amount': Decimal('861490.60953'),
                                      'token_price_usd': Decimal('0.99985874999999999944370486')},
@@ -61,9 +63,6 @@ GNOSIS_SAFE_DATA = {'liquidation_ratio': 127.04865963664083,
                                      'token_amount': Decimal('311298.154329'),
                                      'token_price_usd': Decimal('1.00050699999999999942231082')}],
                     'debts': []}
-    # TODO: use descriptive constants
-
-
 
 # https://gnosisscan.io/address/0x24dcbd376db23e4771375092344f5cbea3541fc0#readContract
 # getAllReservesTokens
