@@ -46,4 +46,13 @@ def underlying_all(
 
         balance = {"token": entry["token"], "balance": claimable}
         position["balances"].append(balance)
+    print(result)
+    print('')
+
+    #Replace 0x0 with 0x0000000000000000000000000000000000000000
+    for position in result['positions']:
+        position['balances'] = [
+            {**entry, 'token': '0x0000000000000000000000000000000000000000'} if entry['token'] == '0x0' else entry for
+            entry in position['balances']]
+
     return result
