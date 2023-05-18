@@ -5,7 +5,7 @@ from web3.exceptions import ContractLogicError
 from web3 import Web3
 
 from defi_protocols.constants import ETHEREUM, STKAAVE_ETH, AAVE_ETH, ABPT_ETH
-from defi_protocols.functions import get_contract, get_node, get_decimals, balance_of, to_token_amount
+from defi_protocols.functions import get_contract, get_node, balance_of, to_token_amount
 
 
 logger = logging.getLogger(__name__)

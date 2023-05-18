@@ -1,5 +1,8 @@
-from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs_web3
 from typing import Union
+from web3.exceptions import ContractLogicError
+from web3 import Web3
+
+from defi_protocols.functions import get_node, get_contract, get_logs_web3, to_token_amount
 from defi_protocols.util.topic import TopicCreator, AddressHexor
 from dataclasses import dataclass, field
 
@@ -42,7 +45,7 @@ AZURO_POOL_ABI: str = '[{"inputs":[{"internalType":"address","name":"owner","typ
                         {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"withdrawPayout","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
 
-def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int, str], blockchain: str, web3=None) -> list:
+def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int, str], blockchain: str, web3: Web3 = None) -> list:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -76,7 +79,7 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
     return amount
 
 
-def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True, rewards: bool = False) -> list:
+def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str, web3: Web3 = None, decimals: bool = True, rewards: bool = False) -> list:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
     
@@ -90,7 +93,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
     for contract in [pool_v1_contract, pool_v2_contract]:
         try:
             owner = contract.functions.ownerOf(nftid).call(block_identifier=block)
-        except:
+        except ContractLogicError:
             owner = None
         if owner == wallet:
             node_withdraw = contract.functions.nodeWithdrawView(nftid).call(block_identifier=block)
@@ -99,13 +102,8 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
             reward += node_withdraw - deposit
 
     token = pool_v1_contract.functions.token().call(block_identifier=block)
-    token_decimals = get_decimals(token, blockchain, block=block)
-    if decimals:
-        balance = balance / (10 ** token_decimals)
-        reward = reward / (10 ** token_decimals)
-
-    balance = [token, balance]
-    reward = [token, reward]
+    balance = [token, to_token_amount(token, balance, blockchain, web3, decimals)]
+    reward = [token, to_token_amount(token, reward, blockchain, web3, decimals)]
 
     balances = [balance]
     if rewards:
@@ -114,7 +112,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
     return balances
 
 
-def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True, rewards: bool = False) -> list:
+def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3: Web3 = None, decimals: bool = True, rewards: bool = False) -> list:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
