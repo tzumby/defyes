@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
-from defi_protocols.functions import get_node, get_contract, get_decimals
-
+from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.util.topic import decode_address_hexor
 from defi_protocols.util.api import RequestFromScan
 from defi_protocols.Curve import unwrap
@@ -135,29 +135,24 @@ def get_amount(wallet: str, name: str, pt_token: str, underlying_token: str, poo
 
     pool_token_contract = get_contract(pool_address, blockchain=blockchain, web3=web3, abi=LP_PYV_ABI, block=block)
     pool_total_supply = pool_token_contract.functions.totalSupply().call(block_identifier=block)
-    pool_share_wallet = pool_token_contract.functions.balanceOf(wallet).call(block_identifier=block) / pool_total_supply
+    pool_share_wallet = pool_token_contract.functions.balanceOf(wallet).call(block_identifier=block) / Decimal(pool_total_supply)
 
     pool_token_vault_address = pool_token_contract.functions.getVault().call()
     pool_token_vault = get_contract(pool_token_vault_address, blockchain, web3=web3, abi=BALANCER_VAULT_ABI, block=block)
     pool_totals = pool_token_vault.functions.getPoolTokens(pool_id).call(block_identifier=block)
 
     amount = pt_token_balanceOf + pool_totals[1][0] * pool_share_wallet + pool_totals[1][1] * pool_share_wallet
-
-    token_decimals = get_decimals(pool_address, blockchain, web3=web3)
-
     balance = []
     if amount != 0:
         if 'Curve' in name or 'crv' in name.lower():
-            if decimals:
-                balance = unwrap(amount / (10 ** token_decimals), underlying_token, block, blockchain, web3,
-                                 decimals=decimals)
-            else:
-                balance = unwrap(amount, underlying_token, block, blockchain, web3, decimals=decimals)
+            balance = unwrap(to_token_amount(pool_address, amount, blockchain, web3, decimals),
+                             underlying_token,
+                             block,
+                             blockchain,
+                             web3,
+                             decimals=decimals)
         else:
-            if decimals:
-                balance = [underlying_token, amount / (10 ** token_decimals)]
-            else:
-                balance = [underlying_token, amount]
+            balance = [underlying_token, to_token_amount(pool_address, amount, blockchain, web3, decimals)]
 
     return balance
 
