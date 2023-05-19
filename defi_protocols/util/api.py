@@ -3,9 +3,8 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from defi_protocols.util.explorers import Explorer
+from defi_protocols.util.impl_contract import ImplContractData
 
-
-# account = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
 
 @dataclass
 class RequestFromScan:
@@ -17,8 +16,16 @@ class RequestFromScan:
 
     def __post_init__(self):
         self.apikey = Explorer(self.blockchain).get_private_key()
+        self.get_impl_contract_if_account()
         self.blockchain = Explorer(self.blockchain).get_explorer()
         [setattr(self, k, v) for k, v in self.kwargs.items()]
+
+    def get_impl_contract_if_account(self):
+        if 'address' in self.kwargs:
+            address = self.kwargs['address']
+            impl_data = ImplContractData(proxy_address=address, blockchain=self.blockchain)
+            impl_contract = impl_data.get_impl_contract()
+            self.kwargs['address'] = impl_contract
 
     def make_request(self):
         params = {k: v for k, v in self.__dict__.items() if k != 'kwargs'}
