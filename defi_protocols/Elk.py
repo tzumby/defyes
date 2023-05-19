@@ -2,8 +2,8 @@ import logging
 import requests
 from decimal import Decimal
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, ABI_TOKEN_SIMPLIFIED, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS, POLYGON, ZERO_ADDRESS
+from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, to_token_amount, ABI_TOKEN_SIMPLIFIED
+from defi_protocols.constants import POLYGON, ZERO_ADDRESS
 
 logger = logging.getLogger(__name__)
 
@@ -120,11 +120,9 @@ def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=Tru
     :return:
     """
     elk_token_address = pool_contract.functions.rewardsToken().call()
-    elk_token_decimals = get_decimals(elk_token_address, blockchain, web3=web3) if decimals else 0
+    elk_rewards = pool_contract.functions.earned(wallet).call(block_identifier=block)
 
-    elk_rewards = Decimal(pool_contract.functions.earned(wallet).call(block_identifier=block)) / Decimal(10 ** elk_token_decimals)
-
-    return [elk_token_address, elk_rewards]
+    return [elk_token_address, to_token_amount(elk_token_address, elk_rewards, blockchain, web3, decimals)]
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -134,17 +132,13 @@ def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=Tru
 # 1 - List of Tuples: [reward_token_address, balance]
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals=True):
+    rewards = []
     booster_token_address = pool_contract.functions.boosterToken().call()
-
     if booster_token_address != ZERO_ADDRESS:
         booster_rewards = Decimal(pool_contract.functions.boosterEarned(wallet).call(block_identifier=block))
-        booster_token_decimals = get_decimals(booster_token_address, blockchain, web3=web3) if decimals else 0
-        booster_rewards /= Decimal(10 ** booster_token_decimals)
-    else:
-        # FIXME: This should return at least something like [None, None]
-        return None
+        rewards = [booster_token_address, to_token_amount(booster_token_address, booster_rewards, blockchain, web3, decimals)]
 
-    return [booster_token_address, booster_rewards]
+    return rewards
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -185,7 +179,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     all_rewards.append(elk_rewards)
 
     booster_rewards = get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals=decimals)
-    if booster_rewards is not None:
+    if booster_rewards:
         all_rewards.append(booster_rewards)
 
     return all_rewards
@@ -235,12 +229,8 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
     pool_staked_fraction = pool_contract.functions.balanceOf(wallet).call(block_identifier=block) / lptoken_data['totalSupply']
 
     for token, reserve in zip([lptoken_data['token0'], lptoken_data['token1']], lptoken_data['reserves']):
-        token_decimals = get_decimals(token, blockchain, web3=web3) if decimals else 0
-
-        token_balance = Decimal(reserve) / Decimal(10 ** token_decimals) * Decimal(pool_balance_fraction)
-        token_staked = Decimal(reserve) / Decimal(10 ** token_decimals) * Decimal(pool_staked_fraction)
-
-        result.append([token, token_balance, token_staked])
+        balance = to_token_amount(token, reserve, blockchain, web3, decimals)
+        result.append([token, balance * Decimal(pool_balance_fraction), balance * Decimal(pool_staked_fraction)])
     # FIXME: This exists only to keep compatibility with production
     result = [result]
 
@@ -281,11 +271,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     for token, reserve in zip(['token0', 'token1'], reserves):
         func = getattr(lptoken_contract.functions, token)
         token_address = func().call()
-
-        token_decimals = get_decimals(token_address, blockchain, web3=web3) if decimals else 0
-        token_balance = Decimal(reserve) / Decimal(10 ** token_decimals)
-
-        balances.append([token_address, token_balance])
+        balances.append([token_address, to_token_amount(token_address, reserve, blockchain, web3, decimals)])
 
     return balances
 
