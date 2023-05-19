@@ -25,4 +25,5 @@ test_cases = [
 def test_request(blockchain,module,action,kwargs,expected_data):
     data = RequestFromScan(blockchain=blockchain, module=module, action=action,
                         kwargs=kwargs).request()['result']
+    print()
     assert expected_data in data
