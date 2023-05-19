@@ -6,8 +6,6 @@ from defi_protocols.util.explorers import Explorer
 from defi_protocols.util.impl_contract import ImplContractData
 
 
-# account = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-
 @dataclass
 class RequestFromScan:
     module: str
