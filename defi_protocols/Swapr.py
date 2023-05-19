@@ -111,8 +111,8 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
     lptoken_data['reserves'] = lptoken_data['contract'].functions.getReserves().call(block_identifier=block)
     lptoken_data['kLast'] = lptoken_data['contract'].functions.kLast().call(block_identifier=block)
 
-    root_k = math.sqrt(lptoken_data['reserves'][0] * lptoken_data['reserves'][1])
-    root_k_last = math.sqrt(lptoken_data['kLast'])
+    root_k = (Decimal(lptoken_data['reserves'][0]) * Decimal(lptoken_data['reserves'][1])).sqrt()
+    root_k_last = Decimal(lptoken_data['kLast']).sqrt()
 
     if root_k > root_k_last:
         lptoken_data['virtualTotalSupply'] = lptoken_data['totalSupply'] * 6 * root_k / (5 * root_k + root_k_last)
