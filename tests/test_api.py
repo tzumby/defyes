@@ -1,8 +1,7 @@
 import pytest
 
 from defi_protocols.util.api import RequestFromScan
-from defi_protocols.constants import ETHEREUM, XDAI, POLYGON, BAL_POL, ETHTokenAddr, GnosisTokenAddr
-from defi_protocols.functions import get_contract, get_node, date_to_block
+from defi_protocols.constants import ETHEREUM, XDAI
 
 
 ADDRESS_N1='0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f'
@@ -23,7 +22,5 @@ test_cases = [
 
 @pytest.mark.parametrize("blockchain,module,action,kwargs,expected_data", test_cases)
 def test_request(blockchain,module,action,kwargs,expected_data):
-    data = RequestFromScan(blockchain=blockchain, module=module, action=action,
-                        kwargs=kwargs).request()['result']
-    print()
+    data = RequestFromScan(blockchain=blockchain, module=module, action=action, kwargs=kwargs).request()['result']
     assert expected_data in data
