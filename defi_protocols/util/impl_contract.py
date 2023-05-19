@@ -19,7 +19,7 @@ class ImplContractData:
             return '0x' + bytecode[22:62]
         hash_value = Web3.keccak(text='eip1967.proxy.implementation')
         impl_slot = (int.from_bytes(hash_value, byteorder='big') - 1).to_bytes(32, byteorder='big')
-        impl_contract = '0x' + Web3.toHex(self.web3.eth.get_storage_at(self.proxy_address, impl_slot.hex(),))[-40:]
+        impl_contract = '0x' + Web3.to_hex(self.web3.eth.get_storage_at(self.proxy_address, impl_slot.hex(),))[-40:]
         impl_function = Web3.keccak(text="implementation()")[:4].hex()[2:]
         if len(self.bytecode_contract) >= 1000:
             return self.proxy_address
@@ -31,7 +31,7 @@ class ImplContractData:
             impl_call = contract_instance.functions.implementation().call()
             return impl_call
         elif impl_contract == '0x0000000000000000000000000000000000000000':
-            safe_impl_contract = '0x' + Web3.toHex(self.web3.eth.get_storage_at(self.proxy_address,0))[-40:]
+            safe_impl_contract = '0x' + Web3.to_hex(self.web3.eth.get_storage_at(self.proxy_address,0))[-40:]
             return safe_impl_contract
         else:
             return impl_contract

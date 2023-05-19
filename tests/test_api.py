@@ -21,6 +21,6 @@ test_cases = [
             (ETHEREUM,'block','getblockreward',{'blockno':2165403},'blockReward')]
 
 @pytest.mark.parametrize("blockchain,module,action,kwargs,expected_data", test_cases)
-def test_request(blockchain,module,action,kwargs,expected_data):
+def test_request(blockchain, module, action, kwargs, expected_data):
     data = RequestFromScan(blockchain=blockchain, module=module, action=action, kwargs=kwargs).request()['result']
     assert expected_data in data
