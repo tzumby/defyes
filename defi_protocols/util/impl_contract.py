@@ -13,6 +13,10 @@ class ImplContractData:
         self.bytecode_contract = self.web3.eth.get_code(self.proxy_address).hex()
 
     def get_impl_contract(self):
+        bytecode=self.web3.eth.get_code(self.proxy_address).hex()
+        #Check for EIP-1167 proxy implementation
+        if bytecode[2:22] =='363d3d373d3d3d363d73' and bytecode[62:] =='5af43d82803e903d91602b57fd5bf3':
+            return '0x' + bytecode[22:62]
         hash_value = Web3.keccak(text='eip1967.proxy.implementation')
         impl_slot = (int.from_bytes(hash_value, byteorder='big') - 1).to_bytes(32, byteorder='big')
         impl_contract = '0x' + Web3.toHex(self.web3.eth.get_storage_at(self.proxy_address, impl_slot.hex(),))[-40:]

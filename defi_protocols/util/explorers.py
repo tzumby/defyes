@@ -8,6 +8,8 @@ from defi_protocols.constants import (API_KEY_ETHERSCAN, API_KEY_POLSCAN, API_KE
 blockexplorers= {Chain.ETHEREUM.value:[Explorer.ETHERSCAN.value, API_KEY_ETHERSCAN],
                 Chain.POLYGON.value:[Explorer.POLYSCAN.value, API_KEY_POLSCAN],
                 Chain.GNOSIS.value:[Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
+                #FIXME: XDAI should be eventually removed
+                Chain.XDAI.value: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
                 Chain.BINANCE.value:[Explorer.BSCSCAN.value, API_KEY_BINANCE],
                 Chain.AVALANCHE.value:[Explorer.AVAXSCAN.value, API_KEY_AVALANCHE],
                 Chain.FANTOM.value:[Explorer.FTMSCAN.value, API_KEY_FANTOM]}
