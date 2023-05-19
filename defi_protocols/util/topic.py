@@ -1,5 +1,6 @@
 from dataclasses import dataclass   
 from web3 import Web3
+from web3.types import HexBytes
 
 @dataclass
 class TopicCreator:
@@ -21,16 +22,11 @@ class AddressHexor:
     def __repr__(self) -> str:
        return str('{}000000000000000000000000{}'.format(self.address[:2],self.address[2:]))
 
-@dataclass
-class DecodeAddressHexor:
-    hexor: str
+def encode_address_hexor(address: str):
+    return '0x000000000000000000000000' + address[2:]
 
-    def __str__(self) -> str:
-        return self.hexor.replace('000000000000000000000000','')
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
+def decode_address_hexor(address: HexBytes):
+    return address.hex().replace('0x000000000000000000000000', '0x')
 
 #wallet = AddressHexor('0x849d52316331967b6ff1198e5e32a0eb168d039d')
 #print(wallet)

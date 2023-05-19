@@ -8,7 +8,7 @@ def build_web3_contract_mock():
     web3_contract_function.args = tuple()
     web3_contract_function.kwargs = dict()
     web3_contract_function.function_identifier = 'decimals'
-    web3_contract_function.web3._network_name = 'ethereum'
+    web3_contract_function.w3._network_name = 'ethereum'
 
     def _call():
         centinel()

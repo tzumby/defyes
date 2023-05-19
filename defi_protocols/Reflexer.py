@@ -1,63 +1,73 @@
-from defi_protocols.functions import get_node, balance_of, total_supply, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM
+import logging
+from dataclasses import dataclass, field
+from decimal import Decimal
+from typing import Union
+from web3 import Web3
+
+from defi_protocols.functions import get_node, balance_of, total_supply
+from defi_protocols.constants import ETHTokenAddr
+
+logger = logging.getLogger(__name__)
+
+LPTOKENS_DB = {
+    '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9': {
+        'name': "Reflexer-FLX/WETH",
+        'blockchain': 'ethereum',
+        'staked_token': '0x353EFAC5CaB823A41BC0d6228d7061e92Cf9Ccb0',
+        'tokens': [ETHTokenAddr.FLX, ETHTokenAddr.WETH]
+    },
+}
+
+
+@dataclass
+class LiquidityPool:
+    addr: str
+    block: Union[int, str] = 'latest'
+    web3: Web3 = None
+    blockchain: str = field(init=False)
+
+    def __post_init__(self):
+        self.addr = Web3.to_checksum_address(self.addr)
+        self.blockchain = LPTOKENS_DB[self.addr]['blockchain']
+        if self.web3 is None:
+            self.web3 = get_node(self.blockchain, block=self.block)
+        else:
+            assert self.web3.isinstance(Web3), "web3 is not a Web3 instance"
+
+    def _underlying(self, amount):
+        fraction = Decimal(amount) / Decimal(total_supply(self.addr, self.block, self.blockchain))
+        result = []
+        for token in LPTOKENS_DB[self.addr]['tokens']:
+            balance = balance_of(self.addr, token, self.block, self.blockchain)
+
+            result.append([token, Decimal(balance) * fraction])
+
+        return result
+
+    def underlying(self, wallet):
+        wallet = self.web3.to_checksum_address(wallet)
+        amount = balance_of(wallet, LPTOKENS_DB[self.addr]['staked_token'], self.block, self.blockchain)
+        return self._underlying(amount)
+
+    def lptoken_underlying(self, wallet):
+        wallet = self.web3.to_checksum_address(wallet)
+        amount = balance_of(wallet, self.addr, self.block, self.blockchain)
+        return self._underlying(amount)
+
+    def pool_balances(self):
+        amount = total_supply(self.addr, self.block, self.blockchain)
+        return self._underlying(amount)
 
 
 
-LPTOKENSDATABASE_ETH = [["Reflexer-FLX/WETH","0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9","0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9",["0x6243d8cea23066d098a15582d81a598b4e8391f4","0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]]]
-LPTOKENSDATABASE = LPTOKENSDATABASE_ETH
+def underlying(wallet, lptoken_address, block, web3=None):
+    lp = LiquidityPool(lptoken_address, block, web3)
+    return lp.underlying(wallet)
 
-def lptoken_underlying(lptoken_address, amount, block, blockchain):
-    web3 = get_node(blockchain, block=block)
-    index = [LPTOKENSDATABASE[i][1].lower() for i in range(len(LPTOKENSDATABASE))].index(lptoken_address.lower())
-    poolAddress = web3.to_checksum_address(LPTOKENSDATABASE[index][2])
-    tokens = LPTOKENSDATABASE[index][3]
-    fraction = amount / total_supply(web3.to_checksum_address(lptoken_address), block, blockchain)
+def balance_of_lptoken_underlying(address, lptoken_address, block):
+    lp = LiquidityPool(lptoken_address, block)
+    return lp.lptoken_underlying(address)
 
-    return [[tokens[i], fraction * balance_of(poolAddress, tokens[i], block, blockchain)] for i in range(len(tokens))]
-
-
-def pool_balance(lptoken_address, block, blockchain):
-    web3 = get_node(blockchain, block=block)
-    lptoken_address = web3.to_checksum_address(lptoken_address)
-
-    return lptoken_underlying(lptoken_address, total_supply(lptoken_address, block, blockchain), block, blockchain)
-
-
-def balance_of_lptoken_underlying(address, lptoken_address, block, blockchain):
-    web3 = get_node(blockchain, block=block)
-
-    return lptoken_underlying(web3.to_checksum_address(lptoken_address),
-                              balance_of(address, web3.to_checksum_address(lptoken_address), block, blockchain), block, blockchain)
-
-
-
-def underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0):
-
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
-
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
-
-        wallet = web3.to_checksum_address(wallet)
-
-        lptoken_address = web3.to_checksum_address(lptoken_address)
-        LPtoken = web3.to_checksum_address('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9')
-
-        stLPtoken = web3.to_checksum_address('0x353efac5cab823a41bc0d6228d7061e92cf9ccb0')
-        LPtoken = web3.to_checksum_address('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9')
-        balance = balance_of(wallet, stLPtoken, block, ETHEREUM)
-        tokens = lptoken_underlying(LPtoken, balance, block, ETHEREUM)
-
-        return tokens
-
-    except GetNodeIndexError:
-        return underlying(wallet, lptoken_address, block, blockchain, index=0, execution=execution+1)
-
-    except:
-        return underlying(wallet, lptoken_address, block, blockchain, index=index+1, execution=execution)
-
-
-#print(underlying('0x849d52316331967b6ff1198e5e32a0eb168d039d','0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9','latest', ETHEREUM))
+def pool_balance(lptoken_address, block):
+    lp = LiquidityPool(lptoken_address, block)
+    return lp.pool_balances()

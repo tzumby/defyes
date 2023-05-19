@@ -320,7 +320,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     try:
         lptoken_data['minter'] = lptoken_data['contract'].functions.minter().call()
-    except ContractLogicError:
+    except:
         lptoken_data['minter'] = None
 
     lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()

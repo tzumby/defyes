@@ -61,7 +61,7 @@ def call_contract_method(method, block):
         return method.call(block_identifier = block)
     except (ContractLogicError, BadFunctionCallOutput):
         return None
-        
+
 
 def get_comptoller_address(blockchain):
     if blockchain == OPTIMISM:
@@ -178,13 +178,13 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     if staking_rewards_helper_address is not ZERO_ADDRESS and rewards_tokens is not []:
         staking_rewards_helper_contract = get_contract(staking_rewards_helper_address, blockchain, web3=web3,
                                                        abi=ABI_STAKING_REWARDS_HELPER, block=block)
-        
+
         user_claimable_rewards = call_contract_method(staking_rewards_helper_contract.functions.getUserClaimableRewards(wallet,
                                                                     rewards_tokens), block)
         if user_claimable_rewards is None:
             for reward_token in rewards_tokens:
                 result.append([reward_token, 0])
-            
+
             return result
 
         for user_claimable_reward in user_claimable_rewards:
@@ -387,7 +387,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
 
 # 1 - List of Tuples: [liquidity_token_address, balance]
 def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals=True):
-   
+
     if not web3:
         web3 = get_node(blockchain, block=block)
 

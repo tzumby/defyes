@@ -205,6 +205,7 @@ class ETHTokenAddr:
     ICHI = '0x903bEF1736CDdf2A537176cf3C64579C3867A881'
     ABPT = '0x41A08648C3766F9F9d85598fF102a08f4ef84F84'
     ELK = '0xd8BaB53373B732Da40A7239359F141935dC00BfD'
+    FLX = '0x6243d8CEA23066d098a15582d81a598b4e8391F4'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # XDAI - Token Addresses
@@ -226,6 +227,10 @@ class GnosisTokenAddr:
     COW = '0x177127622c4A00F3d409B75571e12cB3c8973d3c'
     CRV = '0x712b3d230F3C1c19db860d80619288b1F0BDd0Bd'
     GNO = '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb'
+    nextDAI = '0x0e1D5Bcd2Ac5CF2f71841A9667afC1E995CaAf4F'
+    nextUSDC = '0x44CF74238d840a5fEBB0eAa089D05b763B73faB8'
+    nextUSDT = '0xF4d944883D6FddC56d3534986feF82105CaDbfA1'
+    nextWETH = '0x538E2dDbfDf476D24cCb1477A518A82C9EA81326'
     STKAGAVE = '0x610525b415c1BFAeAB1a3fc3d85D87b92f048221'
     USDC = '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'
     USDT = '0x4ECaBa5870353805a9F068101A40E0f32ed605C6'
@@ -234,6 +239,8 @@ class GnosisTokenAddr:
     X3CRV = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
     XGT = '0xC25AF3123d2420054c8fcd144c21113aa2853F39'
     ELK = '0xE1C110E1B1b4A1deD0cAf3E42BfBdbB7b5d7cE1C'
+    SYMM = '0xC45b3C1c24d5F54E7a2cF288ac668c74Dd507a84'
+    MAI = '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d'
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # POLYGON - Token Addresses
