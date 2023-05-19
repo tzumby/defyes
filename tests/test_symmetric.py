@@ -9,6 +9,7 @@ from defi_protocols.constants import XDAI, GnosisTokenAddr
 WALLET = '0xa3E1282ac6116A698A49b2084c5c30fE1947b4A5'
 LPTOKEN_ADDR = '0x650f5d96E83d3437bf5382558cB31F0ac5536684'
 
+
 def test_get_vault_contract():
     block = 24502952
     node = get_node(XDAI, block)
