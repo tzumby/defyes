@@ -1,13 +1,12 @@
-from defi_protocols.functions import get_contract, balance_of, get_node, get_decimals, last_block
-from defi_protocols.constants import ETHEREUM, XDAI
+from dataclasses import dataclass, field
+from decimal import Decimal
+from gql import gql, Client # thegraph queries
+from gql.transport.requests import RequestsHTTPTransport
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 from web3 import Web3
-from dataclasses import dataclass, field
-from typing import Union
-# thegraph queries
-from gql import gql, Client
-from gql.transport.requests import RequestsHTTPTransport
 
+from defi_protocols.functions import get_contract, balance_of, get_node, get_decimals
+from defi_protocols.constants import ETHEREUM, XDAI
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SUBGRAPH API ENDPOINTS
@@ -131,23 +130,22 @@ class Connext():
         Returns:
             list: list of tuples containing [underlying_token_address, balance]
         """
-        balances = []
-        
-        wallet = self.web3.to_checksum_address(wallet)
-        lptoken_address = self.web3.to_checksum_address(lptoken_address)
+        wallet = Web3.to_checksum_address(wallet)
+        lptoken_address = Web3.to_checksum_address(lptoken_address)
 
+        balances = []
         for asset in self.assets:
             if lptoken_address == self.diamond_contract.functions.getSwapLPToken(asset['key']).call():
                 lptoken_balance = int(balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False))
                 amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], lptoken_balance), self.block)
 
-                if not amounts:
-                    return [[asset['id'], 0], [asset['adoptedAsset'], 0]]
-                
-                if decimals:
-                    amounts = [amount/(10**asset['decimal']) for amount in amounts]
+                if amounts:
+                    amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
+                    if decimals:
+                        amounts = [amount / Decimal(10**asset['decimal']) for amount in amounts]
 
-                return [[asset['id'], amounts[0]], [asset['adoptedAsset'], amounts[1]]]
+                    balances = [[asset['id'], amounts[0]], [asset['adoptedAsset'], amounts[1]]]
+                break
         
         return balances
 
@@ -157,22 +155,22 @@ class Connext():
         Returns:
             list: list: list of tuples containing [underlying_token_address, balance]
         """
-        balances = []
-        
-        wallet = self.web3.to_checksum_address(wallet)
+        wallet = Web3.to_checksum_address(wallet)
 
+        balances = []
         for asset in self.assets:
             lptoken_address = self.diamond_contract.functions.getSwapLPToken(asset['key']).call()
             lptoken_balance = int(balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False))
             amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], lptoken_balance), self.block)
             
-            if (not amounts) or amounts == [0,0]:
+            if (not amounts) or amounts == [0, 0]:
                 continue
+            else:
+                amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
+                if decimals:
+                    amounts = [amount / Decimal(10**asset['decimal']) for amount in amounts]
 
-            if decimals:
-                amounts = [amount/(10**asset['decimal']) for amount in amounts]
-
-            balances.append([[asset['id'], amounts[0]], [asset['adoptedAsset'], amounts[1]]])
+                balances.append([[asset['id'], amounts[0]], [asset['adoptedAsset'], amounts[1]]])
         
         return balances
     
@@ -182,29 +180,28 @@ class Connext():
         Returns:
             list: underlying_token, unwrapped_amount
         """
-        
-        lptoken_address = self.web3.to_checksum_address(lptoken_address)
+        lptoken_address = Web3.to_checksum_address(lptoken_address)
 
+        balance = []
         for asset in self.assets:
             if lptoken_address == self.diamond_contract.functions.getSwapLPToken(asset['key']).call():
                 lptoken_decimals = get_decimals(lptoken_address, self.blockchain, web3=self.web3)
-                amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], int(lptoken_amount*(10**lptoken_decimals))), self.block)
+                token_amount = int(Decimal(lptoken_amount) * Decimal(10**lptoken_decimals))
+                amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], token_amount), self.block)
 
-                if not amounts:
-                    return 0
-                
-                if decimals:
-                    amounts = [amount/(10**asset['decimal']) for amount in amounts]
+                if amounts:
+                    amount = Decimal(amounts[0] + amounts[1])
+                    if decimals:
+                        amount = amount / Decimal(10**asset['decimal'])
 
-                return [asset['adoptedAsset'], amounts[0]+amounts[1]]
+                    balance = [asset['adoptedAsset'], amount]
         
-        return []
+        return balance
 
 
 # Transitional wrapper of underlying method
 def underlying(wallet: str, lptoken_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> list:
     connext = Connext(blockchain, block, web3)
-
     return connext.underlying(wallet, lptoken_address, decimals)
 
 
