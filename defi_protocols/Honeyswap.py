@@ -149,13 +149,13 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
                     swap_data = {
                         'block': block_number,
                         'token': token1,
-                        'amount': Decimal(0.003) * Decimal(int(swap_log['data'][67:130], 16)) / Decimal(10 ** decimals1)
+                        'amount': Decimal('0.003') * Decimal(int(swap_log['data'][67:130], 16)) / Decimal(10 ** decimals1)
                     }
                 else:
                     swap_data = {
                         'block': block_number,
                         'token': token0,
-                        'amount': Decimal(0.003) * Decimal(int(swap_log['data'][2:66], 16)) / Decimal(10 ** decimals0)
+                        'amount': Decimal('0.003') * Decimal(int(swap_log['data'][2:66], 16)) / Decimal(10 ** decimals0)
                     }
 
                 result['swaps'].append(swap_data)
