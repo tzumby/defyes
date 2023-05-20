@@ -133,7 +133,7 @@ class NFTPosition:
             self.decimals1 = get_decimals(self.token1, self.blockchain, self.web3)
 
     def owned_by(self, wallet: str) -> bool:
-        wallet = self.Web3.to_checksum_address(wallet)
+        wallet = Web3.to_checksum_address(wallet)
         nft_owner = self._nft_contract.functions.ownerOf(self.nftid).call(block_identifier=self.block)
         return nft_owner == wallet
 
