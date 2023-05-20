@@ -1,6 +1,7 @@
 import json
 from decimal import Decimal
 from pathlib import Path
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount
 from defi_protocols.constants import AURA_ETH, ETHEREUM
@@ -160,7 +161,7 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     extra_rewards_distributor = get_contract(EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3,
                                              abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block)
@@ -221,9 +222,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     if bal_rewards_contract is None:
         booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
@@ -268,7 +269,7 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     aura_locker_contract = get_contract(AURA_LOCKER, blockchain, web3=web3, abi=ABI_AURA_LOCKER, block=block)
 
@@ -296,7 +297,7 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     aurabal_rewarder_contract = get_contract(AURABAL_REWARDER, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
     aurabal_address = aurabal_rewarder_contract.functions.stakingToken().call()
@@ -330,7 +331,7 @@ def get_compounded(wallet, block, blockchain, web3=None, reward=False, decimals=
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     stk_aurabal_contract = get_contract(stkauraBAL, blockchain, web3=web3, abi=ABI_STKAURABAL, block=block)
     aurabal_address = stk_aurabal_contract.functions.underlying().call()
@@ -361,9 +362,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
 
@@ -402,7 +403,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     balances = Balancer.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
 

@@ -45,7 +45,7 @@ def call_contract_method(method, block):
             raise e
 
 
-def query_assets(subgraph_api_endpoint: str, web3: object) -> list:
+def query_assets(subgraph_api_endpoint: str) -> list:
     """Return a list of dict:assets with it's id, key, adoptedAsset and decimals
 
     Args:
@@ -89,8 +89,8 @@ def query_assets(subgraph_api_endpoint: str, web3: object) -> list:
         skip += response_length
         
     for a in assets:
-        a['id'] = web3.to_checksum_address(a['id'])
-        a['adoptedAsset'] = web3.to_checksum_address(a['adoptedAsset'])
+        a['id'] = Web3.to_checksum_address(a['id'])
+        a['adoptedAsset'] = Web3.to_checksum_address(a['adoptedAsset'])
         a['decimal'] = int(a['decimal']) if a.get('decimal', None) else 0
 
     return assets
@@ -122,7 +122,7 @@ class Connext():
             assert isinstance(self.web3, Web3), "web3 is not a Web3 instance"
 
         self.diamond_contract = get_contract(self.diamond_adrr, self.blockchain, web3=self.web3, abi=ABI_CONNEXT_DIAMOND, block=self.block)
-        self.assets = query_assets(self.subgraph_api_endpoint, self.web3)
+        self.assets = query_assets(self.subgraph_api_endpoint)
 
     def underlying(self, wallet: str, lptoken_address: str, decimals: bool = True) -> list:
         """Returns the underlying token balances for the given wallet, lp token address

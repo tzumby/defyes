@@ -2,6 +2,7 @@ import logging
 import json
 from decimal import Decimal
 from pathlib import Path
+from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, BlockchainError, to_token_amount
@@ -240,8 +241,8 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    wallet = Web3.to_checksum_address(wallet)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     if pool_info is None:
         pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
@@ -293,8 +294,8 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    wallet = Web3.to_checksum_address(wallet)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
     factory_contract = get_contract(SYMFACTORY_XDAI, blockchain, block=block, web3=web3, abi=ABI_BPOOL)
@@ -365,7 +366,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
     pool_id = lptoken_contract.functions.getPoolId().call()
 
@@ -399,7 +400,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
     pool_info = get_pool_info(web3, lptoken_address, block, blockchain)
 
     if pool_info is None:
@@ -549,7 +550,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     if web3 is None:
         web3 = get_node(blockchain, block=block_start)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1, block=block_start)
     from IPython import embed; embed()

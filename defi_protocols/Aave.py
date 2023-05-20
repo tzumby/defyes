@@ -156,7 +156,7 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     lpapr_address = get_lpapr_address(blockchain)
     lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
@@ -246,7 +246,7 @@ def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     stkaave_address = get_stkaave_address(blockchain)
     if stkaave_address:
@@ -282,7 +282,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
     if balances:
@@ -401,7 +401,7 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bo
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    aave_wallet = web3.to_checksum_address(wallet)
+    aave_wallet = Web3.to_checksum_address(wallet)
 
     stkabpt_balance = balance_of(aave_wallet, STAKED_ABPT_TOKEN, block, blockchain, web3, decimals)
 

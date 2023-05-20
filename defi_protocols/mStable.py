@@ -1,4 +1,6 @@
 from decimal import Decimal
+from web3 import Web3
+
 from defi_protocols.functions import get_node, get_contract
 
 BASIC_META_VAULT = '0x6d68f5b8c22a549334ca85960978f9de4deba2d3'
@@ -17,8 +19,8 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
-    token_address = web3.to_checksum_address(token_address)
+    wallet = Web3.to_checksum_address(wallet)
+    token_address = Web3.to_checksum_address(token_address)
     meta_vault_contract = get_contract(token_address,blockchain,web3=web3,abi=BASIC_META_VAULT_ABI,block=block)
     balance_of_vault = meta_vault_contract.functions.balanceOf(wallet).call(block_identifier=block)
     underlying_asset = meta_vault_contract.functions.asset().call()

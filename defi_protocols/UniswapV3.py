@@ -3,6 +3,7 @@ from decimal import Decimal
 from enum import IntEnum
 from typing import Union, ClassVar
 from dataclasses import dataclass, field
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, get_decimals
 
@@ -132,7 +133,7 @@ class NFTPosition:
             self.decimals1 = get_decimals(self.token1, self.blockchain, self.web3)
 
     def owned_by(self, wallet: str) -> bool:
-        wallet = self.web3.to_checksum_address(wallet)
+        wallet = self.Web3.to_checksum_address(wallet)
         nft_owner = self._nft_contract.functions.ownerOf(self.nftid).call(block_identifier=self.block)
         return nft_owner == wallet
 
@@ -297,8 +298,8 @@ def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    token_src = web3.to_checksum_address(token_src)
-    token_dst = web3.to_checksum_address(token_dst)
+    token_src = Web3.to_checksum_address(token_src)
+    token_dst = Web3.to_checksum_address(token_dst)
     token_src_decimals = get_decimals(token_src, blockchain, web3=web3)
     token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
 

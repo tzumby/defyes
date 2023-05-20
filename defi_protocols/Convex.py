@@ -3,6 +3,7 @@ import os
 import logging
 from pathlib import Path
 from decimal import Decimal
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.constants import ETHEREUM, CVX_ETH, CVXCRV_ETH
@@ -169,9 +170,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     if crv_rewards_contract is None:
         pool_info = get_pool_info(lptoken_address, block)
@@ -215,7 +216,7 @@ def get_locked(wallet, block, blockchain, web3=None,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     cvx_locker_contract = get_contract(CVX_LOCKER, blockchain, web3=web3, block=block)
     cvx_locker = cvx_locker_contract.functions.balances(wallet).call(block_identifier=block)[0]
@@ -245,7 +246,7 @@ def get_staked(wallet, block, blockchain, web3=None,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     cvx_staking_contract = get_contract(CVX_STAKER, blockchain, web3=web3, block=block)
     cvx_staked = cvx_staking_contract.functions.balanceOf(wallet).call(block_identifier=block)
@@ -279,9 +280,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     pool_info = get_pool_info(lptoken_address, block)
 
@@ -320,7 +321,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     balances = Curve.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
 

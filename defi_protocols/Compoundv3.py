@@ -1,5 +1,5 @@
 from typing import Union, List
-from decimal import Decimal
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.constants import ETHTokenAddr
@@ -32,8 +32,8 @@ def underlying(wallet: str, token_address: str , block: Union[str,int], blockcha
     balances = []
     web3 = get_node(blockchain, block=block) 
 
-    wallet = web3.to_checksum_address(wallet)
-    token_address = web3.to_checksum_address(token_address)
+    wallet = Web3.to_checksum_address(wallet)
+    token_address = Web3.to_checksum_address(token_address)
 
     cToken_instance = get_contract(token_address, blockchain, abi=CTOKEN_ABI, web3=web3, block=block)
     cToken_balance = cToken_instance.functions.balanceOf(wallet).call(block_identifier=block)
@@ -60,8 +60,8 @@ def get_all_rewards(wallet: str, token_address: str, block: Union[int, str], blo
     rewards = []
     web3 = get_node(blockchain, block=block) 
 
-    wallet = web3.to_checksum_address(wallet)
-    token_address = web3.to_checksum_address(token_address)
+    wallet = Web3.to_checksum_address(wallet)
+    token_address = Web3.to_checksum_address(token_address)
 
     cToken_instance = get_contract(REWARDS_ADDRESS, blockchain, abi=CTOKEN_REWARDS_ABI, web3=web3, block=block)
     cToken_rewards = cToken_instance.functions.rewardsClaimed(token_address,wallet).call(block_identifier=block)

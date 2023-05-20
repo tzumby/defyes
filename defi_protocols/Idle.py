@@ -4,8 +4,9 @@ import os
 from pathlib import Path
 from decimal import Decimal
 from typing import Union
+from web3 import Web3
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, to_token_amount
+from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
 from defi_protocols.util.topic import decode_address_hexor
 from defi_protocols.cache import const_call
@@ -107,7 +108,7 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
     gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
     idle_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
     rewards.append([IDLE_TOKEN, to_token_amount(IDLE_TOKEN, idle_rewards, blockchain, web3, decimals)])
@@ -131,7 +132,7 @@ def get_amounts(underlying_address: str, cdo_address: str, aa_address: str, bb_a
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
     cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
     aa_contract = get_contract(aa_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
     bb_contract = get_contract(bb_address, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
@@ -157,7 +158,7 @@ def underlying(token_address: str, wallet: str, block: Union[int, str], blockcha
                decimals: bool = True, db: bool = True, rewards: bool = False) -> list:
     if web3 is None:
         web3 = get_node(blockchain, block)
-    token_address = web3.to_checksum_address(token_address)
+    token_address = Web3.to_checksum_address(token_address)
 
     if db:
         file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Idle_db.json')

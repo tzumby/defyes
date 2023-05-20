@@ -45,12 +45,12 @@ class LiquidityPool:
         return result
 
     def underlying(self, wallet):
-        wallet = self.web3.to_checksum_address(wallet)
+        wallet = self.Web3.to_checksum_address(wallet)
         amount = balance_of(wallet, LPTOKENS_DB[self.addr]['staked_token'], self.block, self.blockchain)
         return self._underlying(amount)
 
     def lptoken_underlying(self, wallet):
-        wallet = self.web3.to_checksum_address(wallet)
+        wallet = self.Web3.to_checksum_address(wallet)
         amount = balance_of(wallet, self.addr, self.block, self.blockchain)
         return self._underlying(amount)
 

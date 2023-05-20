@@ -354,8 +354,8 @@ def balance_of(address, contract_address, block, blockchain, web3=None, decimals
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    address = web3.to_checksum_address(address)
-    contract_address = web3.to_checksum_address(contract_address)
+    address = Web3.to_checksum_address(address)
+    contract_address = Web3.to_checksum_address(contract_address)
 
     balance = 0
     if contract_address == ZERO_ADDRESS:
@@ -379,7 +379,7 @@ def total_supply(token_address: str, block: int | str, blockchain: str, web3: We
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    token_address = web3.to_checksum_address(token_address)
+    token_address = Web3.to_checksum_address(token_address)
 
     token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
     total_supply_v = token_contract.functions.totalSupply().call(block_identifier=block)
@@ -395,7 +395,7 @@ def get_decimals(token_address, blockchain, web3=None, block='latest'):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    token_address = web3.to_checksum_address(token_address)
+    token_address = Web3.to_checksum_address(token_address)
 
     if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
         decimals = 18
@@ -427,7 +427,7 @@ def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
     if not web3.isConnected():
         raise Exception
 
-    token_address = web3.to_checksum_address(token_address)
+    token_address = Web3.to_checksum_address(token_address)
 
     if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
         if blockchain == ETHEREUM:
@@ -541,7 +541,7 @@ def get_contract(contract_address, blockchain, web3=None, abi=None, block='lates
     if web3 == None:
         web3 = get_node(blockchain, block=block)
 
-    contract_address = web3.to_checksum_address(contract_address)
+    contract_address = Web3.to_checksum_address(contract_address)
 
     if abi == None:
         try:
@@ -563,7 +563,7 @@ def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, w
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    address = web3.to_checksum_address(contract_address)
+    address = Web3.to_checksum_address(contract_address)
 
     try:
         abi = get_contract_abi(abi_contract_address, blockchain)
@@ -581,7 +581,7 @@ def search_proxy_contract(contract_address, blockchain, web3=None):
     if web3 == None:
         web3 = get_node(blockchain)
 
-    contract_address = web3.to_checksum_address(contract_address)
+    contract_address = Web3.to_checksum_address(contract_address)
 
     contract = get_contract(contract_address, blockchain, web3=web3)
 
@@ -611,7 +611,7 @@ def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_add
     if web3 == None:
         web3 = get_node(blockchain)
 
-    contract_address = web3.to_checksum_address(contract_address)
+    contract_address = Web3.to_checksum_address(contract_address)
 
     if abi_address is None:
         contract = search_proxy_contract(contract_address, blockchain, web3=web3)
@@ -671,7 +671,7 @@ def get_data(contract_address, function_name, parameters, blockchain, web3=None,
     if web3 == None:
         web3 = get_node(blockchain)
 
-    contract_address = web3.to_checksum_address(contract_address)
+    contract_address = Web3.to_checksum_address(contract_address)
 
     if abi_address is None:
         contract = get_contract(contract_address, blockchain, web3=web3)
@@ -967,7 +967,7 @@ def get_logs_web3(address: str, blockchain: str, start_block: Optional[Union[int
     if web3 == None:
         web3 = get_node(blockchain, block=block)
 
-    address = web3.to_checksum_address(address)
+    address = Web3.to_checksum_address(address)
     return web3.eth.get_logs(
         {'address': address, 'fromBlock': start_block, 'toBlock': block, 'topics': topics, 'blockHash': block_hash})
 

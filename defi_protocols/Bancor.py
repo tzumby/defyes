@@ -1,3 +1,5 @@
+from web3 import Web3
+
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -29,7 +31,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
     bancor_poolcontract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
     balance = bancor_poolcontract.functions.balanceOf(wallet).call(block_identifier=block)
 
@@ -59,7 +61,7 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, decimals
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     liquiditypools_contract = get_contract(BANCOR_NETWORK_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK,
                                            block=block)

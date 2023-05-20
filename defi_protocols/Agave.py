@@ -12,6 +12,7 @@ Agave is a fork of Aave, built by the
 import logging
 from typing import Union, List, Dict
 from decimal import Decimal
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, balance_of, to_token_amount
 from defi_protocols.constants import AGVE_XDAI, STKAGAVE_XDAI
@@ -76,7 +77,7 @@ def get_reserves_tokens_balances(web3, wallet: str, block: Union[int, str], bloc
 
     pdp_contract = get_contract(PDP_XDAI, blockchain, web3=web3, abi=ABI_PDP, block=block)
     reserves_tokens = get_reserves_tokens(pdp_contract, block)
-    cs_wallet = web3.to_checksum_address(wallet)
+    cs_wallet = Web3.to_checksum_address(wallet)
 
     for token in reserves_tokens:
         user_reserve_data = pdp_contract.functions.getUserReserveData(token, cs_wallet).call(block_identifier=block)
@@ -99,7 +100,7 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
@@ -177,7 +178,7 @@ def get_all_rewards(wallet: str, block: Union[int, str], blockchain: str,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
 
@@ -199,7 +200,7 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
@@ -283,7 +284,7 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    agave_wallet = web3.to_checksum_address(wallet)
+    agave_wallet = Web3.to_checksum_address(wallet)
 
     stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
     stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)

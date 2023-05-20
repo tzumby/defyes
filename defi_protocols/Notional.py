@@ -1,6 +1,7 @@
 from decimal import Decimal
+from web3 import Web3
 
-from defi_protocols.functions import get_node, get_contract, block_to_timestamp, get_decimals, to_token_amount
+from defi_protocols.functions import get_node, get_contract, block_to_timestamp, to_token_amount
 from defi_protocols.constants import ETHEREUM, SNOTE_ETH
 
 NPROXY_ETHEREUM = '0x1344A36A1B56144C3Bc62E7757377D288fDE0369'
@@ -113,7 +114,7 @@ def all_note_rewards(wallet, block, blockchain, web3=None, decimals=True, nproxy
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     if nproxy_contract is None:
         nproxy_address = get_nproxy_address(blockchain)
@@ -155,7 +156,7 @@ def get_staked(wallet, block, blockchain, web3=None, decimals=True, reward=False
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     nproxy_address = get_nproxy_address(blockchain)
     nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
@@ -230,7 +231,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     nproxy_address = get_nproxy_address(blockchain)
     nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
@@ -269,8 +270,8 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
-    token_address = web3.to_checksum_address(token_address)
+    wallet = Web3.to_checksum_address(wallet)
+    token_address = Web3.to_checksum_address(token_address)
 
     nproxy_address = get_nproxy_address(blockchain)
     nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)

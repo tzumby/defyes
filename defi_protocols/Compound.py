@@ -1,5 +1,6 @@
 from decimal import Decimal
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, balance_of, get_decimals, to_token_amount
 from defi_protocols.constants import ETHEREUM, COMP_ETH, ZERO_ADDRESS
@@ -93,7 +94,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
     ctoken_data = {}
 
     if ctoken_contract:
@@ -155,8 +156,8 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
-    wallet = web3.to_checksum_address(wallet)
-    token_address = web3.to_checksum_address(token_address)
+    wallet = Web3.to_checksum_address(wallet)
+    token_address = Web3.to_checksum_address(token_address)
 
     ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
     for ctoken_address in ctoken_list:
@@ -201,7 +202,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
 
@@ -248,7 +249,7 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     compound_lens_address = get_compound_lens_address(blockchain)
     comp_token_address = get_compound_token_address(blockchain)
@@ -330,7 +331,7 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
         web3 = get_node(blockchain, block=block)
 
     result = []
-    token_address = web3.to_checksum_address(token_address)
+    token_address = Web3.to_checksum_address(token_address)
     if ctoken_address:
         ctoken_list = [ctoken_address]
     else:
@@ -394,7 +395,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
         web3 = get_node(blockchain, block=block)
 
     result = []
-    token_address = web3.to_checksum_address(token_address)
+    token_address = Web3.to_checksum_address(token_address)
     if ctoken_address:
         ctoken_list = [ctoken_address]
     else:

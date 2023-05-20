@@ -50,7 +50,7 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
         web3 = get_node(blockchain, block=block)
 
     azuro_pool = AzuroPools(contract_address)
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     wallethex = str(AddressHexor(wallet))
     nfthex = '0x00000000000000000000000000000000000000000000000000000' + hex(nftid)[2:]
@@ -83,7 +83,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
     
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
     pool_v2_contract = get_contract(POOL_ADDR_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
@@ -116,7 +116,7 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3: W
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
     pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
     assets_pool1 = pool_v1_contract.functions.balanceOf(wallet).call(block_identifier=block)
 

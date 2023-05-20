@@ -4,6 +4,7 @@ from itertools import groupby
 from operator import itemgetter
 from typing import Union
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs, to_token_amount
 from defi_protocols.constants import ETHEREUM, XDAI, BAL_ETH, BAL_ARB, BAL_XDAI, BB_A_USD_OLD_ETH, BB_A_USD_ETH, POLYGON, ARBITRUM, BAL_POL, ZERO_ADDRESS
@@ -295,9 +296,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     if gauge_address is None:
         gauge_address = get_gauge_address(blockchain, block, web3, lptoken_address)
@@ -341,9 +342,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
@@ -453,7 +454,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
@@ -516,7 +517,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
@@ -587,7 +588,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     if web3 is None:
         web3 = get_node(blockchain, block=block_start)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
@@ -618,7 +619,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
                 if block_number == last_block:
                     hash_overlap.append(swap_log['transactionHash'])
 
-                token_in = web3.to_checksum_address('0x' + swap_log['topics'][2][-40:])
+                token_in = Web3.to_checksum_address('0x' + swap_log['topics'][2][-40:])
                 lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
                 swap_fee = Decimal(lptoken_contract.functions.getSwapFeePercentage().call(block_identifier=block_number))
                 swap_fee /= Decimal(10 ** lptoken_decimals)

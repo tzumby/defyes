@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.util.topic import decode_address_hexor
@@ -94,7 +95,7 @@ def get_tranche(input_data: str, hash: str, underlying_address: str, underlying_
 def get_tranches(block: int, blockchain: str, web3) -> list:
     tranches = []
     for deployer in [ELEMENT_DEPLOYER, ELEMENT_DEPLOYER2]:
-        underlying_address = web3.to_checksum_address(deployer)
+        underlying_address = Web3.to_checksum_address(deployer)
         tx_list = RequestFromScan(blockchain=blockchain, module='account', action='txlist',
                                  kwargs={'address': underlying_address,
                                          'startblock': 0,
@@ -128,7 +129,7 @@ def get_amount(wallet: str, name: str, pt_token: str, underlying_token: str, poo
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     pt_token_contract = get_contract(pt_token, blockchain, web3=web3, abi=PT_ABI, block=block)
     pt_token_balanceOf = pt_token_contract.functions.balanceOf(wallet).call(block_identifier=block)

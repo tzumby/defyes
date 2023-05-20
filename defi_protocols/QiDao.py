@@ -1,4 +1,5 @@
 from decimal import Decimal
+from web3 import Web3
 
 from defi_protocols.functions import get_node, get_contract, get_decimals, timestamp_to_block, block_to_timestamp, to_token_amount
 from defi_protocols.constants import XDAI, GnosisTokenAddr, POLYGON, MAI_POL
@@ -80,7 +81,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    collateral_address = web3.to_checksum_address(collateral_address)
+    collateral_address = Web3.to_checksum_address(collateral_address)
 
     vault_address = get_vault_address(collateral_address, blockchain)
 
@@ -181,7 +182,7 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, decim
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    collateral_address = web3.to_checksum_address(collateral_address)
+    collateral_address = Web3.to_checksum_address(collateral_address)
     vault_address = get_vault_address(collateral_address, blockchain)
 
     if vault_address is not None:

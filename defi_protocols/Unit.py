@@ -1,4 +1,6 @@
 from decimal import Decimal
+from web3 import Web3
+
 from defi_protocols.functions import get_node, get_contract, get_decimals
 from defi_protocols.constants import ETHEREUM, FANTOM, BINANCE
 
@@ -110,9 +112,9 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    collateral_address = web3.to_checksum_address(collateral_address)
+    collateral_address = Web3.to_checksum_address(collateral_address)
 
     cdp_registry_address = get_cdp_registry_address(blockchain)
     cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY,
@@ -210,9 +212,9 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, decim
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    collateral_address = web3.to_checksum_address(collateral_address)
+    collateral_address = Web3.to_checksum_address(collateral_address)
 
     cdp_registry_address = get_cdp_registry_address(blockchain)
     cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY,
@@ -336,7 +338,7 @@ def underlying(wallet, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     cdp_registry_address = get_cdp_registry_address(blockchain)
     cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY,

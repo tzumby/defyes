@@ -1,8 +1,10 @@
 from decimal import Decimal
+from web3 import Web3
+from web3.exceptions import BadFunctionCallOutput, ContractLogicError
+
 from defi_protocols.functions import get_node, get_contract, get_decimals, last_block, to_token_amount
 from defi_protocols.constants import OPTIMISM, ZERO_ADDRESS
 from defi_protocols.cache import const_call
-from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # UNITROLLER
@@ -124,7 +126,7 @@ def get_all_rewards(wallet, itoken, block, blockchain, web3=None, decimals=True,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     if staking_rewards_contract is None:
         staking_rewards_factory_contract = get_contract(get_staking_rewards_factory_address(blockchain), blockchain,
@@ -150,7 +152,7 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     staking_rewards_factory_contract = get_contract(get_staking_rewards_factory_address(blockchain), blockchain,
                                                     web3=web3, abi=ABI_STAKING_REWARDS_FACTORY, block=block)
@@ -196,7 +198,7 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
     if not web3:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     veib_address = get_veib_address(blockchain)
     veib_contract = get_contract(veib_address, blockchain, web3=web3, abi=ABI_VEIB, block=block)
@@ -246,8 +248,8 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     if not web3:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
-    token_address = web3.to_checksum_address(token_address)
+    wallet = Web3.to_checksum_address(wallet)
+    token_address = Web3.to_checksum_address(token_address)
 
     staking_rewards_factory_contract = get_contract(get_staking_rewards_factory_address(blockchain), blockchain,
                                                     web3=web3, abi=ABI_STAKING_REWARDS_FACTORY, block=block)
@@ -309,7 +311,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     if not web3:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
     unitroller_contract = get_contract(get_comptoller_address(blockchain), blockchain, web3=web3,
                                        abi=ABI_UNITROLLER, block=block)

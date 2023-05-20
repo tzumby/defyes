@@ -1,13 +1,14 @@
 import logging
-from typing import Union
 from datetime import datetime, timedelta
 from decimal import Decimal
-
-from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, get_logs, date_to_block, block_to_date, get_contract_abi, to_token_amount
-from defi_protocols.constants import ETHEREUM, ZERO_ADDRESS, X3CRV_ETH, CRV_ETH, XDAI, CRV_XDAI, E_ADDRESS, X3CRV_XDAI
-
+from typing import Union
+from web3 import Web3
 from web3.exceptions import ContractLogicError
+
+from defi_protocols.constants import ETHEREUM, ZERO_ADDRESS, X3CRV_ETH, CRV_ETH, XDAI, CRV_XDAI, E_ADDRESS, X3CRV_XDAI
+from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, get_logs, date_to_block, block_to_date, get_contract_abi, to_token_amount
 from defi_protocols.prices.prices import get_price
+
 
 
 logger = logging.getLogger(__name__)
@@ -338,9 +339,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     if gauge_address is None:
         minter = get_pool_address(web3, lptoken_address, block, blockchain)
@@ -431,9 +432,9 @@ def underlying(wallet, lptoken_address, block, blockchain,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    wallet = web3.to_checksum_address(wallet)
+    wallet = Web3.to_checksum_address(wallet)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
@@ -516,7 +517,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
@@ -577,7 +578,7 @@ def pool_balances(lptoken_address, block, blockchain,
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
@@ -643,7 +644,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain,
     if web3 is None:
         web3 = get_node(blockchain, block=block_start)
 
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
@@ -728,7 +729,7 @@ def get_base_apr(lptoken_address: str, blockchain: str,
     block_start = date_to_block(datetime.strftime(
         datetime.strptime(block_to_date(block_end, blockchain), '%Y-%m-%d %H:%M:%S') - timedelta(days=days),
         '%Y-%m-%d %H:%M:%S'), blockchain)
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
     address_abi = get_contract_abi(lptoken_address, blockchain)
 
     lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
@@ -756,7 +757,7 @@ def swap_fees_v2(lptoken_address: str, blockchain: str,
     if web3 is None:
         web3 = get_node(blockchain, block=block_end)
     rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
-    lptoken_address = web3.to_checksum_address(lptoken_address)
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
     address_abi = get_contract_abi(lptoken_address, blockchain)
     lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
     balance = []
