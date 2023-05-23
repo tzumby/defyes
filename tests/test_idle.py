@@ -40,7 +40,7 @@ def test_underlying():
 
 def test_underlying_all():
     wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-    underlying = Idle.underlying_all(wallet, 'latest', ETHEREUM, rewards=True)
+    underlying = Idle.underlying_all(wallet, 17295010, ETHEREUM, rewards=True)
     assert underlying == [[[ETHTokenAddr.STETH, Decimal('931.756327134769968317289982')],
                            [[ETHTokenAddr.IDLE, Decimal('0')],
                             [ETHTokenAddr.LDO, Decimal('31065.052700304643473107')]]]]
