@@ -44,7 +44,7 @@ def test_all_rewards(decimals):
 @pytest.mark.parametrize('reward', [True, False])
 def test_get_locked(decimals, reward):
     x = IronBank.get_locked(TEST_WALLET, TEST_BLOCK, OPTIMISM, 302, WEB3, reward=reward, decimals=decimals)
-    y = Decimal(10**(18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1))
     assert x == [[veIB, pytest.approx(Decimal('54181897005598451410657') / y, rel=Decimal(1e-2))],
                  [IB, pytest.approx(Decimal('69825279969409816077552') / y, rel=Decimal(1e-2))],
                  [IB, Decimal('26357551702575691254852') / y],

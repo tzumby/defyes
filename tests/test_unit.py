@@ -23,7 +23,7 @@ WEB3 = get_node(blockchain=ETHEREUM, block=TEST_BLOCK)
 @pytest.mark.parametrize('decimals', [True, False])
 def test_get_cdp_viewer_data(decimals):
     x = Unit.get_cdp_viewer_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, decimals=decimals)
-    y = Decimal(10 **(18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1)
     assert x == {'icr': 69,
                  'liquidation_ratio': 70,
                  'collateral_address': FTM_ETH,
@@ -37,7 +37,7 @@ def test_get_cdp_viewer_data(decimals):
 @pytest.mark.parametrize('decimals', [True, False])
 def test_get_cdp_data(decimals):
     x = Unit.get_cdp_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, decimals=decimals)
-    y = Decimal(10 **(18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1)
     assert x == {'icr': 69,
                  'liquidation_ratio': 70,
                  'stability_fee': 0.9,
@@ -46,7 +46,7 @@ def test_get_cdp_data(decimals):
                  'collateral_address': FTM_ETH,
                  'collateral_amount': Decimal('1000000000000000000') / y,
                  'debt_address': USDP,
-                 'debt_amount': Decimal('1620018748269707798') / y, 
+                 'debt_amount': Decimal('1620018748269707798') / y,
                  'liquidation_price': Decimal('2.314312497528153997142857143'),
                  'collateral_usd_value': Decimal('0.3637421370000000000000000000'),
                  'utilization_ratio': Decimal('445.3756063652608380645215157'),
@@ -58,9 +58,9 @@ def test_get_cdp_data(decimals):
 @pytest.mark.parametrize('decimals', [True, False])
 def test_underlying(decimals):
     x = Unit.underlying(TEST_WALLET, TEST_BLOCK, ETHEREUM, WEB3, decimals=decimals)
-    y18 = Decimal(10 **(18 if decimals else 0))
-    y12 = Decimal(10 **(12 if decimals else 0))
-    y2 = Decimal(10 **(2 if decimals else 0))
+    y18 = Decimal(10**18 if decimals else 1)
+    y12 = Decimal(10**12 if decimals else 1)
+    y2 = Decimal(10**2 if decimals else 1)
     assert x == [[[FTM_ETH, Decimal('1000000000000000000') / y18],
                   [USDP, Decimal('-1620018748269707798') / y18]],
 

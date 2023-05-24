@@ -58,7 +58,7 @@ def test_get_all_rewards(campaigns, db):
 def test_underlying(campaigns, db, decimals, reward):
     x = Swapr.underlying(TEST_WALLET, DXS, TEST_BLOCK, XDAI, WEB3,
                          decimals=decimals, reward=reward, campaigns=campaigns, db=db)
-    y = Decimal(10 ** (18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1)
     assert x == [[BER_XDAI, Decimal('1071807153499412909748.616424') / y, Decimal('0')],
                  [GNO_XDAI, Decimal('8286291538240577738.223834754') / y, Decimal('0')]]
 
@@ -66,7 +66,7 @@ def test_underlying(campaigns, db, decimals, reward):
 @pytest.mark.parametrize('decimals', [True, False])
 def test_pool_balances(decimals):
     x = Swapr.pool_balances(DXS, TEST_BLOCK, XDAI, WEB3, decimals=decimals)
-    y = Decimal(10 ** (18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1)
     assert x == [[BER_XDAI, Decimal('1071822921647535396369') / y],
                  [GNO_XDAI, Decimal('8286413444006866465') / y]]
 
@@ -74,7 +74,7 @@ def test_pool_balances(decimals):
 @pytest.mark.parametrize('decimals', [False, True])
 def test_swap_fees(decimals):
     x = Swapr.swap_fees(DXS, TEST_BLOCK - 100, 27568826, XDAI, WEB3, decimals=decimals)
-    y = Decimal(10 ** (18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1)
     assert x['swaps'] == [{'block': 27494581, 'token': BER_XDAI, 'amount': Decimal('249999999999999999.8900') / y},
                           {'block': 27494618, 'token': BER_XDAI, 'amount': Decimal('1562499999999999999.3975') / y},
                           {'block': 27494972, 'token': GNO_XDAI, 'amount': Decimal('2537125747349638.0950') / y},

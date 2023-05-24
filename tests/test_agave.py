@@ -136,7 +136,7 @@ def test_get_staking_apr(apy):
 @pytest.mark.parametrize('decimals', [True, False])
 def test_get_staked(wallet_address, decimals):
 
-    expected = {TEST_WALLET_ADDRESS: Decimal('103630383543378402291') / Decimal(10 ** (18 if decimals else 0)),
+    expected = {TEST_WALLET_ADDRESS: Decimal('103630383543378402291') / Decimal(10**18 if decimals else 1)),
                 UNUSED_ADDRESS: 0}[wallet_address]
 
     data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3, decimals=decimals)

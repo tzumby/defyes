@@ -17,7 +17,7 @@ def test_underlying(decimals):
     node = get_node(ETHEREUM, block)
 
     x = UniswapV3.underlying(WALLET_N1, NFT_ID, block, ETHEREUM, web3=node, decimals=decimals, fee=True)
-    y = Decimal(10 ** (18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1)
     assert x == [[ETHTokenAddr.GNO, Decimal('98419156383881089964338.69948') / y],
                  [ETHTokenAddr.WETH, Decimal('2210998677615110963219.938648') / y]]
 
@@ -62,6 +62,6 @@ def test_get_fee(decimals):
     node = get_node(ETHEREUM, block)
 
     x = UniswapV3.get_fee(NFT_ID, block, web3=node, blockchain=ETHEREUM, decimals=decimals)
-    y = Decimal(10 ** (18 if decimals else 0))
+    y = Decimal(10**18 if decimals else 1)
     assert x == [['0x6810e776880C02933D47DB1b9fc05908e5386b96', Decimal('474998434375840983379.1298473') / y],
                  ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', Decimal('25927112063507954904.89758316') / y]]

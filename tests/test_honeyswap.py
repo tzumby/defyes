@@ -31,16 +31,16 @@ def test_get_lptoken_data():
 def test_underlying(decimals):
     x = Honeyswap.underlying(TEST_WALLET, UNIv2, TEST_BLOCK, XDAI,
                              WEB3, decimals=decimals)
-    assert x == [[WETH_XDAI, Decimal('697386974825513061735.0076492') / (10 ** (18 if decimals else 0))],
-                 [GNO_XDAI, Decimal('11931071995026019072977.21406') / (10 ** (18 if decimals else 0))]]
+    assert x == [[WETH_XDAI, Decimal('697386974825513061735.0076492') / (10**18 if decimals else 1)],
+                 [GNO_XDAI, Decimal('11931071995026019072977.21406') / (10**18 if decimals else 1)]]
 
 
 @pytest.mark.parametrize('decimals', [True, False])
 def test_pool_balances(decimals):
     x = Honeyswap.pool_balances(UNIv2, TEST_BLOCK, XDAI, WEB3,
                                 decimals=decimals)
-    assert x == [[WETH_XDAI, Decimal('697389190335766422886') / (10 ** (18 if decimals else 0))],
-                 [GNO_XDAI, Decimal('11931109898533386964234') / (10 ** (18 if decimals else 0))]]
+    assert x == [[WETH_XDAI, Decimal('697389190335766422886') / (10**18 if decimals else 1)],
+                 [GNO_XDAI, Decimal('11931109898533386964234') / (10**18 if decimals else 1)]]
 
 
 @pytest.mark.parametrize('decimals', [True, False])
@@ -49,7 +49,7 @@ def test_swap_fees(decimals):
                             decimals=decimals)
     assert x['swaps'] == [{'block': 27449397,
                            'token': GNO_XDAI,
-                           'amount': Decimal('18914160864473195.745') / Decimal(10 ** (18 if decimals else 0))},
+                           'amount': Decimal('18914160864473195.745') / Decimal(10**18 if decimals else 1)},
                           {'block': 27450198,
                            'token': GNO_XDAI,
-                           'amount': Decimal('2825275064344436.103') / (10 ** (18 if decimals else 0))}]
+                           'amount': Decimal('2825275064344436.103') / (10**18 if decimals else 1)}]
