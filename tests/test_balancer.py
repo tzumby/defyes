@@ -256,7 +256,7 @@ def test_unwrap():
     assert usdc == [ETHTokenAddr.USDC, Decimal('0.3695278389467781030866438160')]
     assert dai == [ETHTokenAddr.DAI, Decimal('0.3804761470992138348159360416')]
 
-    lptoken_amount = 0.010622337758482546
+    lptoken_amount = Decimal('0.0106223377584825466601881061023959773592650890350341796875')
     dai, weth = Balancer.unwrap(lptoken_amount, B60WETH40DAI_ADDR, block, ETHEREUM, web3=node)
     assert dai == [ETHTokenAddr.DAI, Decimal('0.3998802387901373103114663897')]
     assert weth == [ETHTokenAddr.WETH, Decimal('0.0003284487726480976462916290608')]

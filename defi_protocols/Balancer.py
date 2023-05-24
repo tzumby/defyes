@@ -510,7 +510,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # unwrap
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decimals=True):
+def unwrap(lptoken_amount: Decimal, lptoken_address: str, block: int | str, blockchain: str, web3: Web3 = None, decimals:bool = True) -> Decimal:
 
     balances = []
 
