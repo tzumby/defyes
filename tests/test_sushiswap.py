@@ -30,13 +30,13 @@ def test_get_lptoken_data_on_gnosis_differ_to_ethereum_when_using_const_call():
 
 def test_underlying_of_empty_address():
     data = SushiSwap.underlying(UNUSED_ADDRESS, SUSHISWAP_POOL_USDC_WETH, TEST_BLOCK, ETHEREUM)
-    assert data == [[USDC_ETH, 0.0, 0.0], [WETH_ETH, 0.0, 0.0]]
+    assert data == [[USDC_ETH, Decimal('0'), Decimal('0')], [WETH_ETH, Decimal('0'), Decimal('0')]]
 
 
 def test_underlying_of_empty_address_with_rewards():
     data = SushiSwap.underlying(UNUSED_ADDRESS, SUSHISWAP_POOL_USDC_WETH, TEST_BLOCK, ETHEREUM,
                                 reward=True, decimals=True)
-    assert data == [[[USDC_ETH, 0.0, 0.0], [WETH_ETH, 0.0, 0.0]], [[SUSHI_ETH, 0.0]]]
+    assert data == [[[USDC_ETH, Decimal('0'), Decimal('0')], [WETH_ETH, Decimal('0'), Decimal('0')]], [[SUSHI_ETH, Decimal('0')]]]
 
 
 def test_get_pool_info_v1():
@@ -80,7 +80,7 @@ def test_get_rewards():
     contract = SushiSwap.get_chef_contract(web3, TEST_BLOCK, ETHEREUM)
     rewards = SushiSwap.get_rewards(web3, UNUSED_ADDRESS, contract, pool_id=1,
                                     block=TEST_BLOCK, blockchain=ETHEREUM)
-    assert rewards == [[CVX_ETH, 0.0]]
+    assert rewards == [[CVX_ETH, Decimal('0')]]
 
 
 def test_pool_balances():

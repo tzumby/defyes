@@ -83,8 +83,8 @@ def test_underlying(reward, decimals):
                          reward=reward, decimals=decimals)
     print(u)
     expected = [[DAI_ETH, Decimal('0'), Decimal('0')],
-                [USDC_ETH, 0.0, 0.0],
-                [USDT_ETH, 0.0, 0.0]]
+                [USDC_ETH, Decimal('0'), Decimal('0')],
+                [USDT_ETH, Decimal('0'), Decimal('0')]]
     if reward:
         expected.append([CRV_ETH, 120624446582848732188 / Decimal(10**18 if decimals else 1)])
 
@@ -98,9 +98,9 @@ def test_unwrap(lptoken_amount, decimals):
                      decimals=decimals)
     print(u)
     expected = {0:
-                      [[DAI_ETH, 0.0],
-                      [USDC_ETH, 0.0],
-                      [USDT_ETH, 0.0]],
+                      [[DAI_ETH, Decimal('0')],
+                      [USDC_ETH, Decimal('0')],
+                      [USDT_ETH, Decimal('0')]],
                 10:
                       [[DAI_ETH, Decimal('3917354685557199081.180899410') / Decimal(10**18 if decimals else 1)],
                       [USDC_ETH, Decimal('4147544.963364350419868516281') / Decimal(10**6 if decimals else 1)],

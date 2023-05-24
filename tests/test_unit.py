@@ -51,7 +51,7 @@ def test_get_cdp_data(decimals):
                  'collateral_usd_value': Decimal('0.3637421370000000000000000000'),
                  'utilization_ratio': Decimal('445.3756063652608380645215157'),
                  'utilization': Decimal('645.4718932829867218326398778'),
-                 'debt_limit': 0.0,
+                 'debt_limit': Decimal('0'),
                  'borrowable_debt': Decimal('-1620969383653572380') / y}
 
 

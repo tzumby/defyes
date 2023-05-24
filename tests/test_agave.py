@@ -119,8 +119,8 @@ def test_get_apr(apy):
     TOKEN_ADDRESS = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
     apr = Agave.get_apr(TOKEN_ADDRESS, TEST_BLOCK, XDAI, web3=WEB3, apy=apy)
     # FIXME: make this more interesting:
-    assert apr == {True: [{'metric': 'apy', 'type': 'supply', 'value': 0.0}, {'metric': 'apy', 'type': 'variable_borrow', 'value': 0.0}, {'metric': 'apy', 'type': 'stable_borrow', 'value': 0.0}],
-                   False: [{'metric': 'apr', 'type': 'supply', 'value': 0.0}, {'metric': 'apr', 'type': 'variable_borrow', 'value': 0.0}, {'metric': 'apr', 'type': 'stable_borrow', 'value': 0.0}]}[apy]
+    assert apr == {True: [{'metric': 'apy', 'type': 'supply', 'value': Decimal('0')}, {'metric': 'apy', 'type': 'variable_borrow', 'value': Decimal('0')}, {'metric': 'apy', 'type': 'stable_borrow', 'value': Decimal('0')}],
+                   False: [{'metric': 'apr', 'type': 'supply', 'value': Decimal('0')}, {'metric': 'apr', 'type': 'variable_borrow', 'value': Decimal('0')}, {'metric': 'apr', 'type': 'stable_borrow', 'value': Decimal('0')}]}[apy]
 
 
 # FIXME: This test seems to depend on fluctuating values

@@ -99,7 +99,7 @@ def test_get_rewards_per_unit():
     node = get_node(XDAI, block)
     rewards = Symmetric.get_rewards_per_unit(LPTOKEN_ADDR, XDAI, node, block)
     assert rewards == [{'symm_address': GnosisTokenAddr.SYMM, 'symmPerSecond': Decimal('63269355361192.04081632653061')},
-                       {'reward_address': GnosisTokenAddr.GNO, 'rewardPerSecond': 0.0}]
+                       {'reward_address': GnosisTokenAddr.GNO, 'rewardPerSecond': Decimal('0')}]
 
 
 @pytest.mark.xfail(reason="Checking if db needs update")
