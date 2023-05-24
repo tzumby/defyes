@@ -40,9 +40,9 @@ def test_get_cdp_data(decimals):
     y = Decimal(10**18 if decimals else 1)
     assert x == {'icr': 69,
                  'liquidation_ratio': 70,
-                 'stability_fee': 0.9,
+                 'stability_fee': Decimal('0.9'),
                  'liquidation_fee': 5,
-                 'issuance_fee': 0.3,
+                 'issuance_fee': Decimal('0.3'),
                  'collateral_address': FTM_ETH,
                  'collateral_amount': Decimal('1000000000000000000') / y,
                  'debt_address': USDP,

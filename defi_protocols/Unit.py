@@ -263,16 +263,16 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, decim
             collateral_address).call(block_identifier=block)
 
         # Stability Fee
-        cdp_data['stability_fee'] = vault_contract.functions.stabilityFee(collateral_address, wallet).call(
-            block_identifier=block) / 1000
+        cdp_data['stability_fee'] = Decimal(vault_contract.functions.stabilityFee(collateral_address, wallet).call(
+            block_identifier=block)) / 1000
 
         # Liquidation Fee
         cdp_data['liquidation_fee'] = vault_contract.functions.liquidationFee(collateral_address, wallet).call(
             block_identifier=block)
 
         # Issuance fee
-        cdp_data['issuance_fee'] = vault_manager_borrow_fee_parameters_contract.functions.getBorrowFee(
-            collateral_address).call(block_identifier=block) / 100
+        cdp_data['issuance_fee'] = Decimal(vault_manager_borrow_fee_parameters_contract.functions.getBorrowFee(
+            collateral_address).call(block_identifier=block)) / 100
 
         # Collateral Address
         cdp_data['collateral_address'] = collateral_address
