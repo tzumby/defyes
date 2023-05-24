@@ -144,7 +144,7 @@ def test_get_comp_apr():
     block = 16924820
     node = get_node(ETHEREUM, block)
     usdt_comp_apr = Compound.get_comp_apr(ETHTokenAddr.USDT, block, ETHEREUM, web3=node)
-    assert usdt_comp_apr == [{'metric': 'apr', 'type': 'supply', 'value': Decimal('0E-27')},
+    assert usdt_comp_apr == [{'metric': 'apr', 'type': 'supply', 'value': Decimal('0')},
                              {'metric': 'apr', 'type': 'borrow', 'value': Decimal('0.004109317817792878835568000')}]
 
     dai_comp_apy = Compound.get_comp_apr(ETHTokenAddr.DAI, block, ETHEREUM, web3=node, apy=True)

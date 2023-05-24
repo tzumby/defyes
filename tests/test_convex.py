@@ -86,7 +86,7 @@ def test_underlying():
          [USDC_ETH, Decimal('0')],
          [USDT_ETH, Decimal('0')],
          [CRV_ETH, Decimal('0')],
-         [CVX_ETH, Decimal('0E-58')]]
+         [CVX_ETH, Decimal('0')]]
 
 
 def test_pool_balances():

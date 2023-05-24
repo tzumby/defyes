@@ -59,8 +59,8 @@ def test_underlying(campaigns, db, decimals, reward):
     x = Swapr.underlying(TEST_WALLET, DXS, TEST_BLOCK, XDAI, WEB3,
                          decimals=decimals, reward=reward, campaigns=campaigns, db=db)
     y = Decimal(10 ** (18 if decimals else 0))
-    assert x == [[BER_XDAI, Decimal('1071807153499412909748.616424') / y, Decimal('0E-10')],
-                 [GNO_XDAI, Decimal('8286291538240577738.223834754') / y, Decimal('0E-10')]]
+    assert x == [[BER_XDAI, Decimal('1071807153499412909748.616424') / y, Decimal('0')],
+                 [GNO_XDAI, Decimal('8286291538240577738.223834754') / y, Decimal('0')]]
 
 
 @pytest.mark.parametrize('decimals', [True, False])

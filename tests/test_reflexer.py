@@ -18,7 +18,7 @@ def test_underlying():
 def test_lptoken_underlying():
     block = 16000000
     underlying = Reflexer.balance_of_lptoken_underlying(WALLET, LPTOKEN_ADDR, block)
-    assert underlying == [[ETHTokenAddr.FLX, Decimal('0E+5')],
+    assert underlying == [[ETHTokenAddr.FLX, Decimal('0')],
                           [ETHTokenAddr.WETH, Decimal('0.0000')]]
 
 

@@ -80,8 +80,8 @@ def test_underlying():
     node = get_node(XDAI, block)
     underlying = Symmetric.underlying(WALLET, LPTOKEN_ADDR, block, XDAI, node, reward=True)
     assert underlying == [
-        [[GnosisTokenAddr.GNO, Decimal('0E-17'), Decimal('18.07623048385338968061676268')],
-         [GnosisTokenAddr.WXDAI, Decimal('0E-18'), Decimal('383.1488150228401270848778395')]],
+        [[GnosisTokenAddr.GNO, Decimal('0'), Decimal('18.07623048385338968061676268')],
+         [GnosisTokenAddr.WXDAI, Decimal('0'), Decimal('383.1488150228401270848778395')]],
         [[GnosisTokenAddr.SYMM, Decimal('17.618790701012049339')],
          [GnosisTokenAddr.GNO, Decimal('0')]]]
 

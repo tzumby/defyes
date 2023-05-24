@@ -82,7 +82,7 @@ def test_underlying(reward, decimals):
     u = Curve.underlying(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3,
                          reward=reward, decimals=decimals)
     print(u) 
-    expected = [[DAI_ETH, Decimal('0E-18'), Decimal('0E-18')],
+    expected = [[DAI_ETH, Decimal('0'), Decimal('0')],
                 [USDC_ETH, 0.0, 0.0],
                 [USDT_ETH, 0.0, 0.0]]
     if reward:
