@@ -14,6 +14,7 @@ from typing import Union, List, Dict
 from decimal import Decimal
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, balance_of, to_token_amount
 from defi_protocols.constants import AGVE_XDAI, STKAGAVE_XDAI
 
@@ -104,13 +105,13 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str,
 
     lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
-    lending_pool_address = lpapr_contract.functions.getLendingPool().call()
+    lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
     lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
                                          block=block)
 
     chainlink_eth_usd_contract = get_contract(CHAINLINK_XDAI_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_XDAI_USD,
                                               block=block)
-    chainlink_eth_usd_decimals = chainlink_eth_usd_contract.functions.decimals().call()
+    chainlink_eth_usd_decimals = const_call(chainlink_eth_usd_contract.functions.decimals())
     xdai_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block)
     xdai_usd_price = Decimal(xdai_usd_price) / Decimal(10 ** chainlink_eth_usd_decimals)
 
@@ -182,7 +183,7 @@ def get_all_rewards(wallet: str, block: Union[int, str], blockchain: str,
 
     stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
 
-    reward_token = stkagave_contract.functions.REWARD_TOKEN().call()
+    reward_token = const_call(stkagave_contract.functions.REWARD_TOKEN())
 
     reward_balance = stkagave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
 
@@ -226,7 +227,7 @@ def get_apr(token_address: str, block: Union[int, str], blockchain: str,
 
     lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
-    lending_pool_address = lpapr_contract.functions.getLendingPool().call()
+    lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
     lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
                                          block=block)
 
@@ -267,7 +268,7 @@ def get_staking_apr(block: Union[int, str], blockchain: str,
 
     stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
     emission_per_second = stkagave_contract.functions.assets(STKAGAVE_XDAI).call(block_identifier=block)[0]
-    agave_token_address = stkagave_contract.functions.REWARD_TOKEN().call()
+    agave_token_address = const_call(stkagave_contract.functions.REWARD_TOKEN())
     current_stakes = balance_of(STKAGAVE_XDAI, agave_token_address, block, blockchain, web3=web3, decimals=False)
 
     staking_apr = emission_per_second * seconds_per_year / current_stakes
