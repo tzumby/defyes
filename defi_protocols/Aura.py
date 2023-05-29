@@ -3,6 +3,7 @@ from decimal import Decimal
 from pathlib import Path
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
@@ -123,7 +124,7 @@ def get_pool_info(booster_contract, lptoken_address, block):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
 
-    reward_token_address = rewarder_contract.functions.rewardToken().call()
+    reward_token_address = const_call(rewarder_contract.functions.rewardToken())
     bal_rewards = rewarder_contract.functions.earned(wallet).call(block_identifier=block)
 
     return [reward_token_address, to_token_amount(reward_token_address, bal_rewards, blockchain, web3, decimals)]
@@ -143,7 +144,7 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
         extra_reward_contract = get_contract(extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDER,
                                              block=block)
 
-        extra_reward_token_address = extra_reward_contract.functions.rewardToken().call()
+        extra_reward_token_address = const_call(extra_reward_contract.functions.rewardToken())
         extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block)
 
         extra_rewards.append([extra_reward_token_address, to_token_amount(extra_reward_token_address, extra_reward, blockchain, web3, decimals)])
@@ -300,7 +301,7 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     wallet = Web3.to_checksum_address(wallet)
 
     aurabal_rewarder_contract = get_contract(AURABAL_REWARDER, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
-    aurabal_address = aurabal_rewarder_contract.functions.stakingToken().call()
+    aurabal_address = const_call(aurabal_rewarder_contract.functions.stakingToken())
     aurabal_staked = aurabal_rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
     result = [[aurabal_address, to_token_amount(aurabal_address, aurabal_staked, blockchain, web3, decimals)]]
@@ -334,7 +335,7 @@ def get_compounded(wallet, block, blockchain, web3=None, reward=False, decimals=
     wallet = Web3.to_checksum_address(wallet)
 
     stk_aurabal_contract = get_contract(stkauraBAL, blockchain, web3=web3, abi=ABI_STKAURABAL, block=block)
-    aurabal_address = stk_aurabal_contract.functions.underlying().call()
+    aurabal_address = const_call(stk_aurabal_contract.functions.underlying())
     aurabal_staked = stk_aurabal_contract.functions.balanceOfUnderlying(wallet).call(block_identifier=block)
 
     result = [[aurabal_address, to_token_amount(aurabal_address, aurabal_staked, blockchain, web3, decimals)]]
