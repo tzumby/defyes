@@ -1,8 +1,13 @@
+import logging
+
 from decimal import Decimal
 
-from defi_protocols import Connext
+from defi_protocols import Connext, add_stderr_logger
 from defi_protocols.functions import get_node
 from defi_protocols.constants import XDAI, GnosisTokenAddr
+
+
+add_stderr_logger(logging.DEBUG)
 
 WALLET_969 = "0x10e4597ff93cbee194f4879f8f1d54a370db6969"
 WALLET_e6f = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"

@@ -3,6 +3,7 @@ import requests
 from decimal import Decimal
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, to_token_amount, ABI_TOKEN_SIMPLIFIED
 from defi_protocols.constants import POLYGON, ZERO_ADDRESS
 
@@ -51,10 +52,10 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-    lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+    lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
     lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
-    lptoken_data['token0'] = lptoken_data['contract'].functions.token0().call()
-    lptoken_data['token1'] = lptoken_data['contract'].functions.token1().call()
+    lptoken_data['token0'] = const_call(lptoken_data['contract'].functions.token0())
+    lptoken_data['token1'] = const_call(lptoken_data['contract'].functions.token1())
     lptoken_data['reserves'] = lptoken_data['contract'].functions.getReserves().call(block_identifier=block)
     lptoken_data['kLast'] = lptoken_data['contract'].functions.kLast().call(block_identifier=block)
 
@@ -82,9 +83,9 @@ def get_pool_address(web3, token0, token1, block, blockchain):
     symbols = []
     for token in [token0, token1]:
         token_contract = get_contract(token, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
-        symbol = token_contract.functions.symbol().call()
+        symbol = const_call(token_contract.functions.symbol())
 
-        if 'wrapped' in token_contract.functions.name().call().lower():
+        if 'wrapped' in const_call(token_contract.functions.name()).lower():
             symbol = symbol[1:len(symbol)]
 
         symbol = 'XGTV2' if symbol == 'XGT' else symbol  # Special Case: symbol = 'XGT' -> XGTV2
@@ -120,7 +121,7 @@ def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=Tru
     :param decimals:
     :return:
     """
-    elk_token_address = pool_contract.functions.rewardsToken().call()
+    elk_token_address = const_call(pool_contract.functions.rewardsToken())
     elk_rewards = pool_contract.functions.earned(wallet).call(block_identifier=block)
 
     return [elk_token_address, to_token_amount(elk_token_address, elk_rewards, blockchain, web3, decimals)]
@@ -134,7 +135,7 @@ def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=Tru
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals=True):
     rewards = []
-    booster_token_address = pool_contract.functions.boosterToken().call()
+    booster_token_address = const_call(pool_contract.functions.boosterToken())
     if booster_token_address != ZERO_ADDRESS:
         booster_rewards = Decimal(pool_contract.functions.boosterEarned(wallet).call(block_identifier=block))
         rewards = [booster_token_address, to_token_amount(booster_token_address, booster_rewards, blockchain, web3, decimals)]
@@ -271,7 +272,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     reserves = lptoken_contract.functions.getReserves().call(block_identifier=block)[:2]
     for token, reserve in zip(['token0', 'token1'], reserves):
         func = getattr(lptoken_contract.functions, token)
-        token_address = func().call()
+        token_address = const_call(func())
         balances.append([token_address, to_token_amount(token_address, reserve, blockchain, web3, decimals)])
 
     return balances
@@ -304,8 +305,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
-    token0 = lptoken_contract.functions.token0().call()
-    token1 = lptoken_contract.functions.token1().call()
+    token0 = const_call(lptoken_contract.functions.token0())
+    token1 = const_call(lptoken_contract.functions.token1())
     result['swaps'] = []
 
     decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0

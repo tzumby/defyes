@@ -1,8 +1,13 @@
+import logging
+
 from decimal import Decimal
-from defi_protocols import Elk
+
+from defi_protocols import Elk, add_stderr_logger
 from defi_protocols.constants import POLYGON, PolygonTokenAddr, ETHEREUM, ETHTokenAddr, XDAI, GnosisTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node, get_contract
 
+
+add_stderr_logger(logging.DEBUG)
 
 WALLET_N1 = '0x61BEC4cAa9493Df4D8600B63bfC0Ec5FE5A52caC'
 WALLET_N2 = '0x7A05B87F0e95c3ABE3f296017C69b5A62C82e286'

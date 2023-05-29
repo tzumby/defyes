@@ -5,6 +5,7 @@ from typing import Union
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
+from defi_protocols.cache import const_call
 from defi_protocols.constants import ETHEREUM, ZERO_ADDRESS, X3CRV_ETH, CRV_ETH, XDAI, CRV_XDAI, E_ADDRESS, X3CRV_XDAI
 from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, get_logs, date_to_block, block_to_date, get_contract_abi, to_token_amount
 from defi_protocols.prices.prices import get_price
@@ -71,7 +72,7 @@ TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES = ['TokenExchangeUnderlying(address,i
 def get_registry_contract(web3, id, block, blockchain):
     provider_contract = get_contract(PROVIDER_ADDRESS, blockchain, web3=web3, abi=ABI_PROVIDER, block=block)
 
-    registry_address = provider_contract.functions.get_address(id).call()
+    registry_address = const_call(provider_contract.functions.get_address(id))
 
     if id == 0:
         abi = ABI_REGISTRY_REGULAR_POOLS
@@ -94,34 +95,34 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
     registry_contract = get_registry_contract(web3, 0, block, blockchain)
 
     if registry_contract.address != ZERO_ADDRESS:
-        gauge_address = registry_contract.functions.get_gauges(pool_address).call()[0][0]
+        gauge_address = const_call(registry_contract.functions.get_gauges(pool_address))[0][0]
 
     # 2: Try to retrieve the gauge address assuming the pool is a Factory Pool
     if gauge_address == ZERO_ADDRESS:
         registry_contract = get_registry_contract(web3, 3, block, blockchain)
 
         if registry_contract.address != ZERO_ADDRESS:
-            gauge_address = registry_contract.functions.get_gauge(pool_address).call()
+            gauge_address = const_call(registry_contract.functions.get_gauge(pool_address))
 
     # 3: Try to retrieve the gauge address assuming the pool is a Crypto V2 Pool
     if gauge_address == ZERO_ADDRESS:
         registry_contract = get_registry_contract(web3, 5, block, blockchain)
 
         if registry_contract.address != ZERO_ADDRESS:
-            gauge_address = registry_contract.functions.get_gauges(pool_address).call()[0][0]
+            gauge_address = const_call(registry_contract.functions.get_gauges(pool_address))[0][0]
 
     # 4: Try to retrieve the gauge address assuming the pool is a Crypto Factory Pool
     if gauge_address == ZERO_ADDRESS:
         registry_contract = get_registry_contract(web3, 6, block, blockchain)
 
         if registry_contract.address != ZERO_ADDRESS:
-            gauge_address = registry_contract.functions.get_gauge(pool_address).call()
+            gauge_address = const_call(registry_contract.functions.get_gauge(pool_address))
 
     # Pools which don't have their gauge registered in none of the registries
     if gauge_address == ZERO_ADDRESS and blockchain != ETHEREUM:
         x_chain_factory_contract = get_contract(X_CHAIN_GAUGE_FACTORY_ADDRESS, blockchain, web3=web3,
                                                 abi=ABI_X_CHAIN_GAUGE_FACTORY_ADDRESS, block=block)
-        gauge_address = x_chain_factory_contract.functions.get_gauge_from_lp_token(lptoken_address).call()
+        gauge_address = const_call(x_chain_factory_contract.functions.get_gauge_from_lp_token(lptoken_address))
 
     return gauge_address
 
@@ -138,7 +139,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
     gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
 
     try:
-        gauge_contract.functions.version().call()
+        const_call(gauge_contract.functions.version())
 
         if blockchain != ETHEREUM:
             if only_version:
@@ -154,10 +155,10 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
         pass
 
     try:
-        gauge_contract.functions.claimable_reward_write(ZERO_ADDRESS, ZERO_ADDRESS).call()
+        const_call(gauge_contract.functions.claimable_reward_write(ZERO_ADDRESS, ZERO_ADDRESS))
 
         try:
-            gauge_contract.functions.crv_token().call()
+            const_call(gauge_contract.functions.crv_token())
 
             if only_version:
                 return 'LiquidityGaugeV3'
@@ -174,10 +175,10 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
         pass
 
     try:
-        gauge_contract.functions.minter().call()
+        const_call(gauge_contract.functions.minter())
 
         try:
-            gauge_contract.functions.decimals().call()
+            const_call(gauge_contract.functions.decimals())
 
             if only_version:
                 return 'LiquidityGaugeV2'
@@ -186,7 +187,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
 
         except ContractLogicError:
             try:
-                gauge_contract.functions.claimable_reward(ZERO_ADDRESS).call()
+                const_call(gauge_contract.functions.claimable_reward(ZERO_ADDRESS))
                 if only_version:
                     return 'LiquidityGaugeReward'
                 else:
@@ -215,14 +216,14 @@ def get_pool_address(web3, lptoken_address, block, blockchain):
     registry_contract = get_registry_contract(web3, 0, block, blockchain)
 
     if registry_contract.address != ZERO_ADDRESS:
-        pool_address = registry_contract.functions.get_pool_from_lp_token(lptoken_address).call()
+        pool_address = const_call(registry_contract.functions.get_pool_from_lp_token(lptoken_address))
 
     # 2: Try to retrieve the pool address assuming the pool is a Crypto V2 Pool
     if pool_address == ZERO_ADDRESS:
         registry_contract = get_registry_contract(web3, 5, block, blockchain)
 
         if registry_contract.address != ZERO_ADDRESS:
-            pool_address = registry_contract.functions.get_pool_from_lp_token(lptoken_address).call()
+            pool_address = const_call(registry_contract.functions.get_pool_from_lp_token(lptoken_address))
 
     # 3: If the pool is not a Regular Pool or a V2 Pool then it's a Factory Pool
     if pool_address == ZERO_ADDRESS:
@@ -238,7 +239,7 @@ def get_pool_data(web3, minter, block, blockchain):
                  }
 
     try:
-        pool_data['contract'].functions.underlying_coins(0).call()
+        const_call(pool_data['contract'].functions.underlying_coins(0))
         pool_data['is_metapool'] = True
     except ContractLogicError as e:
         pass
@@ -317,11 +318,11 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
     lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
     try:
-        lptoken_data['minter'] = lptoken_data['contract'].functions.minter().call()
+        lptoken_data['minter'] = const_call(lptoken_data['contract'].functions.minter())
     except:
         lptoken_data['minter'] = None
 
-    lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+    lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
     lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
 
     return lptoken_data
@@ -360,7 +361,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
         i = 0
         while True:
-            token_address = gauge_contract.functions.reward_tokens(i).call()
+            token_address = const_call(gauge_contract.functions.reward_tokens(i))
 
             if token_address != ZERO_ADDRESS:
                 token_reward = gauge_contract.functions.claimable_reward(wallet, token_address).call(block_identifier=block)
@@ -381,7 +382,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     elif gauge_version in ['LiquidityGaugeV3', 'RewardsOnlyGauge']:
         i = 0
         while True:
-            token_address = gauge_contract.functions.reward_tokens(i).call()
+            token_address = const_call(gauge_contract.functions.reward_tokens(i))
             if token_address != ZERO_ADDRESS:
                 token_reward = gauge_contract.functions.claimable_reward_write(wallet, token_address).call(block_identifier=block)
                 all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
@@ -401,13 +402,13 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
     elif gauge_version in ['LiquidityGaugeReward', 'LiquidityGauge']:
 
-        token_address = gauge_contract.functions.crv_token().call()
+        token_address = const_call(gauge_contract.functions.crv_token())
         token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
         all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
 
         if gauge_version == 'LiquidityGaugeReward':
             # Additional rewards
-            token_address = gauge_contract.functions.rewarded_token().call()
+            token_address = cons_call(gauge_contract.functions.rewarded_token())
             token_reward = gauge_contract.function.claimable_reward(wallet).call(block_identifier=block)
             token_reward -= gauge_contract.claimed_rewards_for(wallet).call(block_identifier=block)
 
@@ -583,7 +584,7 @@ def pool_balances(lptoken_address, block, blockchain,
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
     try:
-        minter = lptoken_contract.functions.minter().call()
+        minter = const_call(lptoken_contract.functions.minter())
     except:
         minter = None
 
@@ -649,7 +650,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain,
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
     try:
-        minter = lptoken_contract.functions.minter().call()
+        minter = const_call(lptoken_contract.functions.minter())
     except ContractLogicError:
         minter = None
 
@@ -764,7 +765,7 @@ def swap_fees_v2(lptoken_address: str, blockchain: str,
     for i in range(0, 5):
         try:
             balance_token = lp_contract.functions.balances(i).call(block_identifier=block_end)
-            address_token = lp_contract.functions.coins(i).call()
+            address_token = const_call(lp_contract.functions.coins(i))
             tvl_token = to_token_amount(address_token, balance_token, blockchain, web3, decimals=True)
             tvl_token *= Decimal(get_price(address_token, block_end, blockchain)[0])
             balance.append(tvl_token)
