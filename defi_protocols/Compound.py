@@ -2,6 +2,7 @@ from decimal import Decimal
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, balance_of, get_decimals, to_token_amount
 from defi_protocols.constants import ETHEREUM, COMP_ETH, ZERO_ADDRESS
 from defi_protocols.prices import prices
@@ -68,7 +69,7 @@ def get_ctokens_contract_list(blockchain, web3, block):
     comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
                                         block=block)
 
-    return comptroller_contract.functions.getAllMarkets().call()
+    return const_call(comptroller_contract.functions.getAllMarkets())
 
 
 def get_comptroller_contract(blockchain, web3, block):
@@ -110,7 +111,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
         except (ContractLogicError, BadFunctionCallOutput):
             ctoken_data['underlying'] = ZERO_ADDRESS
 
-    ctoken_data['decimals'] = ctoken_data['contract'].functions.decimals().call()
+    ctoken_data['decimals'] = const_call(ctoken_data['contract'].functions.decimals())
     ctoken_data['borrowBalanceStored'] = ctoken_data['contract'].functions.borrowBalanceStored(wallet).call(
         block_identifier=block)
     ctoken_data['balanceOf'] = ctoken_data['contract'].functions.balanceOf(wallet).call(block_identifier=block)
@@ -291,7 +292,7 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals
         web3 = get_node(blockchain, block=block)
 
     ctoken_contract = get_contract(ctoken_address, blockchain, abi=ABI_CTOKEN, web3=web3, block=block)
-    ctoken_decimals = ctoken_contract.functions.decimals().call()
+    ctoken_decimals = const_call(ctoken_contract.functions.decimals())
     exchange_rate = ctoken_contract.functions.exchangeRateStored().call(block_identifier=block)
 
     try:
@@ -429,7 +430,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
             comp_price = Decimal(prices.get_price(COMP_ETH, block, blockchain, web3=web3)[0])
             underlying_token_price = Decimal(prices.get_price(underlying_token, block, blockchain, web3=web3)[0])
 
-            ctoken_decimals = ctoken_contract.functions.decimals().call()
+            ctoken_decimals = const_call(ctoken_contract.functions.decimals())
             underlying_decimals = get_decimals(underlying_token, ETHEREUM, web3=web3)
             underlying_mantissa = 18 - ctoken_decimals + underlying_decimals
 

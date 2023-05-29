@@ -1,5 +1,6 @@
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
     balance = bancor_poolcontract.functions.balanceOf(wallet).call(block_identifier=block)
 
     if balance != 0:
-        reserve_token = bancor_poolcontract.functions.reserveToken().call()
+        reserve_token = const_call(bancor_poolcontract.functions.reserveToken())
         pooltokens_contract = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO, block=block)
         bancor_pool = pooltokens_contract.functions.withdrawalAmounts(reserve_token, balance).call(block_identifier=block)
 
@@ -65,12 +66,12 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, decimals
 
     liquiditypools_contract = get_contract(BANCOR_NETWORK_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK,
                                            block=block)
-    liquidity_pools = liquiditypools_contract.functions.liquidityPools().call()
+    liquidity_pools = const_call(liquiditypools_contract.functions.liquidityPools())
     network_info_address = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
                                         block=block)
 
     for pool in liquidity_pools:
-        bn_token = network_info_address.functions.poolToken(pool).call()
+        bn_token = const_call(network_info_address.functions.poolToken(pool))
         balance = underlying(bn_token, wallet, block, blockchain, web3, decimals, reward)
         balances.append(balance)
     return balances
