@@ -69,7 +69,7 @@ def get_ctokens_contract_list(blockchain, web3, block):
     comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
                                         block=block)
 
-    return const_call(comptroller_contract.functions.getAllMarkets())
+    return comptroller_contract.functions.getAllMarkets().call()
 
 
 def get_comptroller_contract(blockchain, web3, block):

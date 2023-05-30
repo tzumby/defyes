@@ -66,7 +66,7 @@ def underlying_all(wallet: str, block: int, blockchain: str, web3=None, decimals
 
     liquiditypools_contract = get_contract(BANCOR_NETWORK_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK,
                                            block=block)
-    liquidity_pools = const_call(liquiditypools_contract.functions.liquidityPools())
+    liquidity_pools = liquiditypools_contract.functions.liquidityPools().call()
     network_info_address = get_contract(BANCOR_NETWORK_INFO_ADDRESS, blockchain, web3=web3, abi=ABI_NETWORK_INFO,
                                         block=block)
 

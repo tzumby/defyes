@@ -139,7 +139,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
     gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
 
     try:
-        const_call(gauge_contract.functions.version())
+        gauge_contract.functions.version().call()
 
         if blockchain != ETHEREUM:
             if only_version:
