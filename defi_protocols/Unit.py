@@ -1,6 +1,7 @@
 from decimal import Decimal
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, get_decimals
 from defi_protocols.constants import ETHEREUM, FANTOM, BINANCE
 
@@ -137,7 +138,7 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
         cdp_manager_contract = get_contract(cdp_manager_address, blockchain, web3=web3, abi=ABI_CDP_MANAGER,
                                             block=block)
         q112 = Decimal(cdp_manager_contract.functions.Q112().call(block_identifier=block))
-        usdp_address = cdp_manager_contract.functions.usdp().call()
+        usdp_address = const_call(cdp_manager_contract.functions.usdp())
         usdp_decimals = get_decimals(usdp_address, blockchain, web3=web3)
 
         # Initial Collateral Ratio
@@ -233,7 +234,7 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, decim
         collateral_amount = vault_contract.functions.collaterals(collateral_address, wallet).call(
             block_identifier=block)
 
-        usdp_address = vault_contract.functions.usdp().call()
+        usdp_address = const_call(vault_contract.functions.usdp())
         usdp_decimals = get_decimals(usdp_address, blockchain, web3=web3)
         debt_amount = vault_contract.functions.getTotalDebt(collateral_address, wallet).call(block_identifier=block)
 
@@ -352,7 +353,7 @@ def underlying(wallet, block, blockchain, web3=None, decimals=True):
         vault_address = get_vault_address(blockchain)
         vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
-        usdp_address = vault_contract.functions.usdp().call()
+        usdp_address = const_call(vault_contract.functions.usdp())
 
         usdp_decimals = get_decimals(usdp_address, blockchain, web3=web3) if decimals else 0
 

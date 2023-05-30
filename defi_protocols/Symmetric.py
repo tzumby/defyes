@@ -5,6 +5,7 @@ from pathlib import Path
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, BlockchainError, to_token_amount
 from defi_protocols.constants import XDAI, ZERO_ADDRESS
 
@@ -134,7 +135,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
     lptoken_data['poolId'] = lptoken_data['contract'].functions.getPoolId().call()
-    lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+    lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
     lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
 
     return lptoken_data
@@ -172,7 +173,7 @@ def get_symm_rewards(web3, wallet, chef_contract, pool_id, block, blockchain, de
     :param decimals:
     :return:
     """
-    symm_address = chef_contract.functions.SYMM().call()
+    symm_address = const_call(chef_contract.functions.SYMM())
     symm_rewards = chef_contract.functions.pendingSymm(pool_id, wallet).call(block_identifier=block)
 
     return [symm_address, to_token_amount(symm_address, symm_rewards, blockchain, web3, decimals)]
@@ -412,7 +413,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
     pool_id = pool_info['pool_info']['poolId']
 
     symm_reward_data = {
-        'symm_address': chef_contract.functions.SYMM().call(),
+        'symm_address': const_call(chef_contract.functions.SYMM()),
         'symmPerSecond': Decimal(chef_contract.functions.symmPerSecond().call(block_identifier=block)) * pool_info['pool_info']['allocPoint'] / pool_info['totalAllocPoint']
     }
     result.append(symm_reward_data)
