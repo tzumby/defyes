@@ -32,7 +32,7 @@ jobs:
           pip install -r requirements-dev.txt
           sh ci_secrets_helper.sh
           cat /tmp/tmp_config.json
-          PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest --log-stderr -vs
+          PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs --debug-defiproto
       - name: Archive cache
         uses: actions/upload-artifact@v3
         with:
