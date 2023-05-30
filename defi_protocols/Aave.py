@@ -173,7 +173,7 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
     if balances:
-        price_oracle_address = lpapr_contract.functions.getPriceOracle().call()
+        price_oracle_address = lpapr_contract.functions.getPriceOracle().call(block_identifier=block)
         price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE,
                                              block=block)
 

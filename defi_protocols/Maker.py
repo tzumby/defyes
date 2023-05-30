@@ -63,7 +63,7 @@ def get_vault_data(vault_id, block, web3=None):
 
     ilk = cpd_manager_contract.functions.ilks(vault_id).call(block_identifier=block)
 
-    ilk_info = ilk_registry_contract.functions.info(ilk).call()
+    ilk_info = ilk_registry_contract.functions.info(ilk).call(block_identifier=block)
 
     urn_handler_address = cpd_manager_contract.functions.urns(vault_id).call(block_identifier=block)
 

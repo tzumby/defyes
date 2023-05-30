@@ -95,7 +95,8 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
             vault_collateral = vault_contract.functions.vaultCollateral(vault_id).call(block_identifier=block)
             vault_debt = vault_contract.functions.vaultDebt(vault_id).call(block_identifier=block)
 
-            price_source_decimals = vault_contract.functions.priceSourceDecimals().call()
+            # TODO: determine if const_call can be used
+            price_source_decimals = vault_contract.functions.priceSourceDecimals().call(block_identifier=block)
 
             # Collateral Address
             vault_data['collateral_address'] = collateral_address

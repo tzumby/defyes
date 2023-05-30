@@ -134,7 +134,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
     lptoken_data = {}
 
     lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
-    lptoken_data['poolId'] = lptoken_data['contract'].functions.getPoolId().call()
+    lptoken_data['poolId'] = lptoken_data['contract'].functions.getPoolId().call(block_identifier=block)
     lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
     lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
 
@@ -150,7 +150,7 @@ def get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id):
     :param pool_id:
     :return:
     """
-    rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call()
+    rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call(block_identifier=block)
     rewarder_contract = get_contract(rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
 
     return rewarder_contract
@@ -302,13 +302,13 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
     factory_contract = get_contract(SYMFACTORY_XDAI, blockchain, block=block, web3=web3, abi=ABI_BPOOL)
 
     if pool_info is None:
-        if factory_contract.functions.isBPool(lptoken_address).call():
+        if factory_contract.functions.isBPool(lptoken_address).call(block_identifier=block):
             lp_token_contract = get_contract(lptoken_address, blockchain, block=block, web3=web3, abi=ABI_LPTOKENV1)
-            balance = lp_token_contract.functions.balanceOf(wallet).call()
-            totalsupply = lp_token_contract.functions.totalSupply().call()
-            current_tokens = lp_token_contract.functions.getCurrentTokens().call()
+            balance = lp_token_contract.functions.balanceOf(wallet).call(block_identifier=block)
+            totalsupply = lp_token_contract.functions.totalSupply().call(block_identifier=block)
+            current_tokens = lp_token_contract.functions.getCurrentTokens().call(block_identifier=block)
             for token in current_tokens:
-                balance_token = lp_token_contract.functions.getBalance(token).call()
+                balance_token = lp_token_contract.functions.getBalance(token).call(block_identifier=block)
                 amount = balance / Decimal(totalsupply) * to_token_amount(token, balance_token, blockchain, web3, decimals)
                 result.append([token, amount])
         else:
@@ -369,7 +369,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
-    pool_id = lptoken_contract.functions.getPoolId().call()
+    pool_id = lptoken_contract.functions.getPoolId().call(block_identifier=block)
 
     vault_contract = get_vault_contract(web3, block, blockchain)
     pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
@@ -427,7 +427,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
 
         # Rewarder Total Allocation Point Calculation
         rewarder_total_alloc_point = 0
-        for i in range(chef_contract.functions.poolLength().call()):
+        for i in range(chef_contract.functions.poolLength().call(block_identifier=block)):
             rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier=block)[2]
 
         reward_data['reward_address'] = rewarder_contract.functions.pendingTokens(pool_id, ZERO_ADDRESS, 1).call(block_identifier=block)[0][0]
@@ -520,13 +520,13 @@ def update_db(output_file=DB_FILE):
 
     symm_chef = get_chef_contract(web3, 'latest', XDAI)
     db_pool_length = len(db_data[XDAI]['pools'])
-    pools_delta = symm_chef.functions.poolLength().call() - db_pool_length
+    pools_delta = symm_chef.functions.poolLength().call(block_identifier='latest') - db_pool_length
 
     updated = False
     if pools_delta > 0:
         updated = True
         for i in range(pools_delta):
-            lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call()
+            lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call(block_identifier='latest')
             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
         with open(output_file, 'w') as db_file:
@@ -555,8 +555,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1, block=block_start)
     from IPython import embed; embed()
-    token0 = lptoken_contract.functions.getCurrentTokens().call()[0]
-    token1 = lptoken_contract.functions.getCurrentTokens().call()[1]
+    token0 = lptoken_contract.functions.getCurrentTokens().call(block_identifier=block)[0]
+    token1 = lptoken_contract.functions.getCurrentTokens().call(block_identifier=block)[1]
     result['swaps'] = []
 
     decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0

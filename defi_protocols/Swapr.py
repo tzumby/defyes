@@ -80,7 +80,7 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
                     distributions_amount - (i + 1)).call(block_identifier=block)
                 distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION,
                                                      block=block)
-                stakable_token = distribution_contract.functions.stakableToken().call()
+                stakable_token = distribution_contract.functions.stakableToken().call(block_identifier=block)
 
                 if stakable_token.lower() == lptoken_address.lower():
                     distribution_contracts.append(distribution_contract)
@@ -146,7 +146,8 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
     else:
         for distribution_contract in distribution_contracts:
-            reward_tokens = distribution_contract.functions.getRewardTokens().call()
+            # TODO: check if const_call can bu used
+            reward_tokens = distribution_contract.functions.getRewardTokens().call(block_identifier=block)
             claimable_rewards = distribution_contract.functions.claimableRewards(wallet).call(
                 block_identifier=block)
 
@@ -348,13 +349,13 @@ def update_db():
 
         staking_rewards_contract = get_staking_rewards_contract(web3, 'latest', blockchain)
 
-        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call()
+        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier=block)
 
         for i in tqdm(range(distributions_amount), desc='Fetching distributors...'):
             distribution_address = staking_rewards_contract.functions.distributions(
-                distributions_amount - (i + 1)).call()
+                distributions_amount - (i + 1)).call(block_identifier=block)
             distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION)
-            stakable_token = distribution_contract.functions.stakableToken().call()
+            stakable_token = distribution_contract.functions.stakableToken().call(block_identifier=block)
 
             try:
                 db_data[blockchain][stakable_token]

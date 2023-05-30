@@ -73,7 +73,8 @@ def get_markets_data(block, blockchain, web3=None, decimals=True, nproxy_contrac
             'rate': currency_rates[3][1] / (1000000000000000000 * Decimal(currency_rates[1][2]) / Decimal(currency_rates[0][2]))
         }
 
-        ntoken_address = nproxy_contract.functions.nTokenAddress(i + 1).call()
+        # TODO: check if const_call can be used
+        ntoken_address = nproxy_contract.functions.nTokenAddress(i + 1).call(block_identifier=block)
         ntoken_contract = get_contract(ntoken_address, blockchain, web3=web3, abi=ABI_NTOKEN, block=block)
         market_data['nToken'] = {
             'address': ntoken_address,

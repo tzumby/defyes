@@ -1,5 +1,6 @@
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, GetNodeIndexError
 from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, POLYGON, XDAI
 
@@ -53,7 +54,7 @@ def get_native_token_price(web3, block, blockchain):
 
     price_feed_contract = get_contract(price_feed_address, blockchain, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED,
                                        block=block)
-    price_feed_decimals = price_feed_contract.functions.decimals().call()
+    price_feed_decimals = const_call(price_feed_contract.functions.decimals())
     native_token_price = price_feed_contract.functions.latestAnswer().call(block_identifier=block) / (
                 10 ** price_feed_decimals)
 
@@ -95,7 +96,7 @@ def get_mainnet_price(token_address, block, web3=None, execution=1, index=0):
                     block_identifier=block)
                 price_feed_contract = get_contract(price_feed_address, ETHEREUM, web3=web3,
                                                    abi=ABI_CHAINLINK_PRICE_FEED, block=block)
-                price_feed_decimals = price_feed_contract.functions.decimals().call()
+                price_feed_decimals = const_call(price_feed_contract.functions.decimals())
 
                 if quote == CHAINLINK_ETH_QUOTES[0]:
                     return price_feed_contract.functions.latestAnswer().call(

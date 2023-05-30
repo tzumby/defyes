@@ -93,9 +93,10 @@ def get_gauges(block: Union[int, str], blockchain: str, web3=None, decimals=True
 
     gauge_controller_contract = get_contract(GAUGE_CONTROLLER, blockchain, web3=web3, abi=ABI_GAUGE_CONTROLLER,
                                              block=block)
-    n_gauges = gauge_controller_contract.functions.n_gauges().call()
+    n_gauges = gauge_controller_contract.functions.n_gauges().call(block_identifier=block)
     for i in range(0, n_gauges):
-        gauge_address = gauge_controller_contract.functions.gauges(i).call()
+        # TODO: check if const_call can be used
+        gauge_address = gauge_controller_contract.functions.gauges(i).call(block_identifier=block)
         gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
         lp_token_address = const_call(gauge_contract.functions.lp_token())
         gauges.append([gauge_address, lp_token_address])

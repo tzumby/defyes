@@ -440,15 +440,15 @@ def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
         token_contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
 
         try:
-            symbol = token_contract.functions.symbol().call()
+            symbol = const_call(token_contract.functions.symbol())
         except:
             try:
-                symbol = token_contract.functions.SYMBOL().call()
+                symbol = const_call(token_contract.functions.SYMBOL())
             except:
                 try:
                     token_contract = web3.eth.contract(address=token_address,
                                                        abi=get_contract_abi(token_address, blockchain))
-                    symbol = token_contract.functions.symbol().call()
+                    symbol = const_call(token_contract.functions.symbol())
                 except:
                     logger.debug('Token %s has no symbol()' % token_address)
                     symbol = ''
@@ -593,7 +593,7 @@ def search_proxy_contract(contract_address, blockchain, web3=None):
                 if output_types == ['address']:
                     try:
                         proxy_address_func = getattr(contract.functions, func['name'])
-                        proxy_address = proxy_address_func().call()
+                        proxy_address = proxy_address_func().call(block_identifier=block)
                         if web3.isAddress(proxy_address) and proxy_address != ZERO_ADDRESS:
                             return get_contract_proxy_abi(contract_address, proxy_address, blockchain, web3=web3)
                     except:

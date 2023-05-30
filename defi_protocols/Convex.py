@@ -350,7 +350,7 @@ def update_db(db_path=None, save_to=None):
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
     db_pool_length = len(db_data['pools'])
 
-    pools_delta = booster.functions.poolLength().call() - db_pool_length
+    pools_delta = booster.functions.poolLength().call(block_identifier='latest') - db_pool_length
 
     if pools_delta > 0:
         for i in range(pools_delta):

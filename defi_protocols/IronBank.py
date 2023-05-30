@@ -136,7 +136,8 @@ def get_all_rewards(wallet, itoken, block, blockchain, web3=None, decimals=True,
         staking_rewards_contract = get_contract(staking_rewards_address, blockchain, web3=web3,
                                                 abi=ABI_STAKING_REWARDS, block=block)
 
-    all_rewards_tokens = staking_rewards_contract.functions.getAllRewardsTokens().call()
+    # TODO: determine if const_call can be used
+    all_rewards_tokens = staking_rewards_contract.functions.getAllRewardsTokens().call(block_identifier=block)
 
     for reward_token in all_rewards_tokens:
         reward_earned = staking_rewards_contract.functions.earned(itoken, wallet).call(block_identifier=block)
@@ -160,15 +161,17 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     staking_rewards_helper_address = ZERO_ADDRESS
     rewards_tokens = []
 
-    all_staking_rewards = staking_rewards_factory_contract.functions.getAllStakingRewards().call()
+    # TODO: determine if const_call can be used
+    all_staking_rewards = staking_rewards_factory_contract.functions.getAllStakingRewards().call(block_identifier=block)
     for staking_rewards in all_staking_rewards:
         staking_rewards_contract = get_contract(staking_rewards, blockchain, web3=web3, abi=ABI_STAKING_REWARDS,
                                                 block=block)
 
         if staking_rewards_helper_address is ZERO_ADDRESS:
-            staking_rewards_helper_address = staking_rewards_contract.functions.helperContract().call()
+            staking_rewards_helper_address = const_call(staking_rewards_contract.functions.helperContract())
 
-        all_rewards_tokens = staking_rewards_contract.functions.getAllRewardsTokens().call()
+        # TODO: determine if const_call can be used
+        all_rewards_tokens = staking_rewards_contract.functions.getAllRewardsTokens().call(block_identifier=block)
         for rewards_token in all_rewards_tokens:
             if rewards_token is not [] and rewards_token not in rewards_tokens:
                 rewards_tokens.append(rewards_token)
@@ -276,7 +279,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     staking_rewards_contract = get_contract(staking_rewards_address, blockchain, web3=web3, abi=ABI_STAKING_REWARDS,
                                             block=block)
 
-    staking_rewards_helper_address = staking_rewards_contract.functions.helperContract().call()
+    staking_rewards_helper_address = const_call(staking_rewards_contract.functions.helperContract())
     staking_rewards_helper_contract = get_contract(staking_rewards_helper_address, blockchain, web3=web3,
                                                    abi=ABI_STAKING_REWARDS_HELPER, block=block)
     user_staked = call_contract_method(staking_rewards_helper_contract.functions.getUserStaked(wallet), block)
@@ -320,7 +323,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
                                                     web3=web3, abi=ABI_STAKING_REWARDS_FACTORY, block=block)
 
     user_staked = []
-    all_markets = unitroller_contract.functions.getAllMarkets().call()
+    all_markets = unitroller_contract.functions.getAllMarkets().call(block_identifier=block)
     for itoken in all_markets:
 
         itoken_data = get_itoken_data(itoken, wallet, block, blockchain, web3=web3)
@@ -351,7 +354,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
             staking_rewards_contract = get_contract(staking_rewards_address, blockchain, web3=web3,
                                                     abi=ABI_STAKING_REWARDS, block=block)
 
-            staking_rewards_helper_address = staking_rewards_contract.functions.helperContract().call()
+            staking_rewards_helper_address = const_call(staking_rewards_contract.functions.helperContract())
             staking_rewards_helper_contract = get_contract(staking_rewards_helper_address, blockchain, web3=web3,
                                                            abi=ABI_STAKING_REWARDS_HELPER, block=block)
             user_staked = call_contract_method(staking_rewards_helper_contract.functions.getUserStaked(wallet), block)
