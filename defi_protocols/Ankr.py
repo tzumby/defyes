@@ -21,8 +21,11 @@ Ankr = EthDerivative(
 )
 
 
-def underlying(wallet: str, block: int | str, blockchain: str, decimals: bool = True, web3: Web3 = None) -> list:
+def underlying(wallet: str, block: int | str, blockchain: str, decimals: bool = True, web3: Web3 = None, unwrapped: bool=True) -> list:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
-    value = Ankr.underlying(wallet=wallet, block=block, decimals=decimals, web3=web3)
-    return [[Ankr.underlying_token, value]]
+    value = Ankr.underlying(wallet=wallet, block=block, decimals=decimals, web3=web3, unwrapped=unwrapped)
+    if unwrapped:
+        return [[Ankr.underlying_token, value]]
+    else:
+        return [[Ankr.addr, value]]
