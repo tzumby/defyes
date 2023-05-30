@@ -1,15 +1,10 @@
 import pytest
-import logging
 from decimal import Decimal
 
 from defi_protocols.functions import get_node
 from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH, DAI_ETH, USDC_ETH, USDT_ETH
 from defi_protocols import Curve, add_stderr_logger
 
-
-_h = add_stderr_logger(logging.DEBUG)
-logger = logging.getLogger(__name__)
-# logger.addHandler(_h)
 
 # 2023.04.06
 TEST_BLOCK = 16993460

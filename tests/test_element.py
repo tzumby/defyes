@@ -1,11 +1,8 @@
-import logging
 from decimal import Decimal
 
 from defi_protocols import Element, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, E_ADDRESS
 
-
-add_stderr_logger(logging.DEBUG)
 
 LPTOKEN_ADDR = '0x06325440D014e39736583c165C2963BA99fAf14E'
 WALLET = '0x849D52316331967b6fF1198e5E32A0eB168D039d'

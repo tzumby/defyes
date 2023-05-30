@@ -1,4 +1,3 @@
-import logging
 import pytest
 
 from decimal import Decimal
@@ -7,8 +6,6 @@ from defi_protocols import Unit, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, DAI_ETH
 from defi_protocols.functions import get_node
 
-
-add_stderr_logger(logging.DEBUG)
 
 USDP = '0x1456688345527bE1f37E9e627DA0837D6f08C925'
 FTM_ETH = '0x4E15361FD6b4BB609Fa63C81A2be19d873717870'

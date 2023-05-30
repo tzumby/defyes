@@ -1,4 +1,3 @@
-import logging
 import pytest
 
 from decimal import Decimal
@@ -7,8 +6,6 @@ from defi_protocols import Honeyswap, add_stderr_logger
 from defi_protocols.functions import get_node
 from defi_protocols.constants import XDAI, WETH_XDAI, GNO_XDAI
 
-
-add_stderr_logger(logging.DEBUG)
 
 TEST_BLOCK = 27450341
 TEST_WALLET = '0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f'

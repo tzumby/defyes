@@ -1,11 +1,9 @@
-import logging
 from decimal import Decimal
 
 from defi_protocols import Balancer, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, XDAI, POLYGON, BAL_POL, ETHTokenAddr, GnosisTokenAddr
 from defi_protocols.functions import get_contract, get_node, date_to_block
 
-add_stderr_logger(logging.DEBUG)
 
 WALLET_N1 = '0x31cD267D34EC6368eac930Be4f412dfAcc71A844'
 WALLET_N2 = '0x4b0429F3db75dbA6B82c32a200C9C298ffC05839'

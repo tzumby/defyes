@@ -1,5 +1,3 @@
-import logging
-
 from decimal import Decimal
 
 from defi_protocols import SushiSwap, add_stderr_logger
@@ -7,8 +5,6 @@ from defi_protocols.constants import ETHEREUM, USDC_ETH, WETH_ETH, SUSHI_ETH, CV
 from defi_protocols.functions import get_node
 from defi_protocols.cache import const_call
 
-
-add_stderr_logger(logging.DEBUG)
 
 SUSHISWAP_POOL_USDC_WETH = '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0'
 UNUSED_ADDRESS = '0xCafe7CceDfB2deBE0a49830D3C2777721E3728A5'

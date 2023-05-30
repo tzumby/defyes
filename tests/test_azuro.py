@@ -1,12 +1,9 @@
-import logging
 from decimal import Decimal
 
 from defi_protocols import Azuro, add_stderr_logger
 from defi_protocols.constants import XDAI, WXDAI
 from defi_protocols.functions import get_node
 
-
-add_stderr_logger(logging.DEBUG)
 
 WALLET_N1 = '0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f'
 NFT_ID = 1099511627781

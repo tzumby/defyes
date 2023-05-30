@@ -1,13 +1,9 @@
-import logging
-
 from decimal import Decimal
 
 from defi_protocols import Maker, add_stderr_logger
 from defi_protocols.functions import get_node
 from defi_protocols.constants import ETHEREUM, DAI_ETH, ETHTokenAddr
 
-
-add_stderr_logger(logging.DEBUG)
 
 TEST_BLOCK = 17070386
 WEB3 = get_node(blockchain=ETHEREUM, block=TEST_BLOCK)

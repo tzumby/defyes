@@ -1,4 +1,3 @@
-import logging
 import pytest
 
 from decimal import Decimal
@@ -8,8 +7,6 @@ from defi_protocols import Symmetric, add_stderr_logger
 from defi_protocols.functions import get_node
 from defi_protocols.constants import XDAI, GnosisTokenAddr
 
-
-add_stderr_logger(logging.DEBUG)
 
 WALLET = '0xa3E1282ac6116A698A49b2084c5c30fE1947b4A5'
 LPTOKEN_ADDR = '0x650f5d96E83d3437bf5382558cB31F0ac5536684'

@@ -1,12 +1,7 @@
-import logging
-
 from decimal import Decimal
 
 from defi_protocols import QiDao, add_stderr_logger
 from defi_protocols.constants import GnosisTokenAddr, XDAI
-
-
-add_stderr_logger(logging.DEBUG)
 
 
 def test_get_vaul_address():

@@ -1,11 +1,7 @@
-import logging
 from decimal import Decimal
 
 from defi_protocols import Aave, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr
-
-
-add_stderr_logger(logging.DEBUG)
 
 
 STK_AAVE = '0x4da27a545c0c5B758a6BA100e3a049001de870f5'
