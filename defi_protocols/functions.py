@@ -167,7 +167,7 @@ def last_block(blockchain, web3=None, block='latest'):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    return web3.eth.blockNumber
+    return web3.eth.block_number
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
