@@ -166,7 +166,7 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
                                                 block=block)
 
         if staking_rewards_helper_address is ZERO_ADDRESS:
-            staking_rewards_helper_address = const_call(staking_rewards_contract.functions.helperContract())
+            staking_rewards_helper_address = staking_rewards_contract.functions.helperContract().call()
 
         all_rewards_tokens = staking_rewards_contract.functions.getAllRewardsTokens().call()
         for rewards_token in all_rewards_tokens:
@@ -229,7 +229,7 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
                                          web3=web3,
                                          abi=ABI_VE_DIST,
                                          block=block)
-        fee_dist_reward_token = fee_dist_contract.functions.token().call()
+        fee_dist_reward_token = const_call(fee_dist_contract.functions.token())
         fee_dist_claimable_reward = call_contract_method(fee_dist_contract.functions.claimable(nft_id), block)
         fee_dist_claimable_reward = fee_dist_claimable_reward if fee_dist_claimable_reward else Decimal(0)
 
@@ -276,7 +276,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     staking_rewards_contract = get_contract(staking_rewards_address, blockchain, web3=web3, abi=ABI_STAKING_REWARDS,
                                             block=block)
 
-    staking_rewards_helper_address = const_call(staking_rewards_contract.functions.helperContract())
+    staking_rewards_helper_address = staking_rewards_contract.functions.helperContract().call()
     staking_rewards_helper_contract = get_contract(staking_rewards_helper_address, blockchain, web3=web3,
                                                    abi=ABI_STAKING_REWARDS_HELPER, block=block)
     user_staked = call_contract_method(staking_rewards_helper_contract.functions.getUserStaked(wallet), block)
@@ -351,7 +351,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
             staking_rewards_contract = get_contract(staking_rewards_address, blockchain, web3=web3,
                                                     abi=ABI_STAKING_REWARDS, block=block)
 
-            staking_rewards_helper_address = const_call(staking_rewards_contract.functions.helperContract())
+            staking_rewards_helper_address = staking_rewards_contract.functions.helperContract().call()
             staking_rewards_helper_contract = get_contract(staking_rewards_helper_address, blockchain, web3=web3,
                                                            abi=ABI_STAKING_REWARDS_HELPER, block=block)
             user_staked = call_contract_method(staking_rewards_helper_contract.functions.getUserStaked(wallet), block)
@@ -391,7 +391,7 @@ def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals
     itoken_decimals = const_call(itoken_contract.functions.decimals())
     exchange_rate = itoken_contract.functions.exchangeRateStored().call(block_identifier=block)
 
-    underlying_token = itoken_contract.functions.underlying().call()
+    underlying_token = const_call(itoken_contract.functions.underlying())
     underlying_token_decimals = get_decimals(underlying_token, blockchain, web3=web3) if decimals else 0
 
     underlying_token_balance = itoken_amount * Decimal(exchange_rate) / Decimal(10 ** (18 - itoken_decimals + underlying_token_decimals))

@@ -6,6 +6,7 @@ from decimal import Decimal
 from typing import Union
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
 from defi_protocols.util.topic import decode_address_hexor
@@ -96,7 +97,7 @@ def get_gauges(block: Union[int, str], blockchain: str, web3=None, decimals=True
     for i in range(0, n_gauges):
         gauge_address = gauge_controller_contract.functions.gauges(i).call()
         gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
-        lp_token_address = gauge_contract.functions.lp_token().call()
+        lp_token_address = const_call(gauge_contract.functions.lp_token())
         gauges.append([gauge_address, lp_token_address])
     return gauges
 
@@ -114,7 +115,7 @@ def get_all_rewards(wallet: str, gauge_address: str, block: Union[int, str], blo
     rewards.append([IDLE_TOKEN, to_token_amount(IDLE_TOKEN, idle_rewards, blockchain, web3, decimals)])
 
     for i in range(0, 10):
-        reward_tokens = gauge_contract.functions.reward_tokens(i).call()
+        reward_tokens = const_call(gauge_contract.functions.reward_tokens(i))
         if reward_tokens == '0x0000000000000000000000000000000000000000':
             break
         claimable_rewards = gauge_contract.functions.claimable_reward_write(wallet, reward_tokens).call(block_identifier=block)

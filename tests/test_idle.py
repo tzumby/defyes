@@ -1,8 +1,13 @@
+import logging
 import pytest
+
 from decimal import Decimal
 
-from defi_protocols import Idle
+from defi_protocols import Idle, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr
+
+
+add_stderr_logger(logging.DEBUG)
 
 TEST_WALLET = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
 TEST_BLOCK = 16836190
