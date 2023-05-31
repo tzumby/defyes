@@ -7,11 +7,24 @@ import diskcache
 
 logger = logging.getLogger(__name__)
 
+
+VERSION = 1
+VERSION_CACHE_KEY = 'VERSION'
+
 _cache = None
+
+def check_version():
+    version = _cache.get(VERSION_CACHE_KEY, 0)
+    if version != VERSION:
+        _cache.clear()
+        _cache[VERSION_CACHE_KEY] = VERSION
+        logger.info(f"Old cache version! Creating new cache with version: {VERSION}")
+
 if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
     logger.debug(f"Cache enabled. Storage is at '{cache_dir}'.")
     _cache = diskcache.Cache(directory=cache_dir)
+    check_version()
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
 else:
@@ -62,12 +75,15 @@ def disk_cache_middleware(make_request, web3):
             cache_key = f"{web3._network_name}.{method}.{params_hash}"
             if cache_key not in _cache:
                 response = make_request(method, params)
-                if not ('error' in response or 'result' not in response or response['result'] is None):
-                    _cache[cache_key] = response['result']
+                if not 'error' in response and 'result' in response and response['result'] is not None:
+                    _cache[cache_key] = ('result', response['result'])
+                elif 'error' in response:
+                    if response['error']['code'] in [-32000, -32015]:
+                        _cache[cache_key] = ('error', response['error'])
                 return response
             else:
-                data = _cache[cache_key]
-                return {'jsonrpc': '2.0', 'id': 11, 'result': data}
+                key, data = _cache[cache_key]
+                return {'jsonrpc': '2.0', 'id': 11, key: data}
         else:
             logger.debug(f"Not caching '{method}' with params: '{params}'")
             return make_request(method, params)
