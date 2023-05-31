@@ -405,27 +405,9 @@ def get_decimals(token_address, blockchain, web3=None, block='latest'):
 
     return decimals
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_symbol
-# 'web3' = web3 (Node) -> Improves performance
-# 'block' = block identifier used to call the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
-    """
-
-    :param str token_address:
-    :param str blockchain:
-    :param web3:
-    :param block:
-    :param int index:
-    :return:
-    """
-
     if web3 is None:
         web3 = get_node(blockchain, block=block)
-
-    if not web3.isConnected():
-        raise Exception
 
     token_address = Web3.to_checksum_address(token_address)
 
@@ -440,25 +422,23 @@ def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
         token_contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
 
         try:
-            symbol = token_contract.functions.symbol().call()
+            symbol = const_call(token_contract.functions.symbol())
         except:
             try:
-                symbol = token_contract.functions.SYMBOL().call()
+                symbol = const_call(token_contract.functions.SYMBOL())
             except:
                 try:
                     token_contract = web3.eth.contract(address=token_address,
                                                        abi=get_contract_abi(token_address, blockchain))
-                    symbol = token_contract.functions.symbol().call()
+                    symbol = const_call(token_contract.functions.symbol())
                 except:
-                    logger.debug('Token %s has no symbol()' % token_address)
-                    symbol = ''
+                    raise ValueError('Token %s has no symbol()' % token_address)
 
         if not isinstance(symbol, str):
             symbol = symbol.hex()
             symbol = bytes.fromhex(symbol).decode('utf-8').rstrip('\x00')
 
     return symbol
-
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CONTRACTS AND ABIS
