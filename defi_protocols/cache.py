@@ -89,7 +89,7 @@ def disk_cache_middleware(make_request, web3):
             return make_request(method, params)
     return middleware
 
-def cache_call(exclude_args=None):
+def cache_call(exclude_args=None, filter= lambda *args, **kwargs: True):
     """Decorator to cache the result of a function.
 
     It has the ability to exclude arguments that the result
@@ -101,21 +101,26 @@ def cache_call(exclude_args=None):
     def get_pi_digits(http_client, count):
         response = http_client.get(f"https://api.pi.delivery/v1/pi?start=0&numberOfDigits={count}")
         return response["content"]
+
+    A filter function can be provided to add conditions, based on arguments, to cache the result.
     """
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             from inspect import getcallargs
-            cache_args = getcallargs(f, *args, **kwargs)
-            if exclude_args:
-                for arg in exclude_args:
-                    cache_args.pop(arg)
-            cache_key = generate_cache_key((f.__qualname__, cache_args))
-            if cache_key not in _cache:
-                result = f(*args, **kwargs)
-                _cache[cache_key] = result
+            if filter(*args, **kwargs):
+                cache_args = getcallargs(f, *args, **kwargs)
+                if exclude_args:
+                    for arg in exclude_args:
+                        cache_args.pop(arg)
+                cache_key = generate_cache_key((f.__qualname__, cache_args))
+                if cache_key not in _cache:
+                    result = f(*args, **kwargs)
+                    _cache[cache_key] = result
+                else:
+                    result = _cache[cache_key]
             else:
-                result = _cache[cache_key]
+                result = f(*args, **kwargs)
             return result
         return wrapper
     return decorator

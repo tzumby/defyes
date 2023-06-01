@@ -11,7 +11,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 from web3.providers import HTTPProvider, JSONBaseProvider
 from defi_protocols import cache
-from defi_protocols.cache import const_call
+from defi_protocols.cache import const_call, cache_call
 from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOERLI, API_KOVAN_GETLOGS, KOVAN, API_ROPSTEN_GETLOGS, ROPSTEN,
                                       API_KEY_OPTIMISM, API_OPTIMISM_GETLOGS, OPTIMISM, API_KEY_FANTOM, API_FANTOM_GETLOGS, FANTOM,
                                       API_KEY_BINANCE, API_BINANCE_GETLOGS, BINANCE, API_KEY_AVALANCHE, API_AVALANCHE_GETLOGS,
@@ -688,6 +688,10 @@ def get_data(contract_address, function_name, parameters, blockchain, web3=None,
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_token_tx
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def latest_not_in_params(*args, **kwargs):
+    return not 'latest' in args
+
+@cache_call(filter=latest_not_in_params)
 def get_token_tx(token_address, contract_address, block_start, block_end, blockchain):
     data = None
 
@@ -737,6 +741,7 @@ def get_token_tx(token_address, contract_address, block_start, block_end, blockc
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_tx_list
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@cache_call(filter=latest_not_in_params)
 def get_tx_list(contract_address, block_start, block_end, blockchain):
     data = None
 
