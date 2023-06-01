@@ -69,7 +69,7 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
             amount = amount + int(log['data'].hex(), 16)
     remove_logs = get_logs_web3(address=azuro_pool.addr,
                                 blockchain=blockchain,
-                                start_block=26026907,
+                                start_block=0,
                                 topics=[azuro_pool.liquidity_removed_topic, wallethex, nfthex],
                                 block=block,
                                 web3=web3)
@@ -82,7 +82,7 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
 def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str, web3: Web3 = None, decimals: bool = True, rewards: bool = False) -> list:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
-    
+
     wallet = Web3.to_checksum_address(wallet)
 
     pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
@@ -97,6 +97,7 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
             owner = None
         if owner == wallet:
             node_withdraw = contract.functions.nodeWithdrawView(nftid).call(block_identifier=block)
+            assert False
             deposit = get_deposit(wallet, nftid, contract.address, block, blockchain, web3)
             balance += node_withdraw
             reward += node_withdraw - deposit
