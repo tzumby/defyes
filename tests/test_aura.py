@@ -33,10 +33,10 @@ WALLET_39d = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 WALLET_e1c = "0x58e6c7ab55aa9012eacca16d1ed4c15795669e1c"
 
 
-@pytest.mark.xfail(reason="Checking if db needs update")
 def test_db_uptodate():
+    block = 17012817
     with NamedTemporaryFile() as tmpfile:
-        uptodate = Aura.update_db(tmpfile.name)
+        uptodate = Aura.update_db(tmpfile.name, block)
         assert uptodate is False, "DB is outdated"
 
 

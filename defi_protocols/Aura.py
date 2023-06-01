@@ -414,7 +414,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # update_db
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def update_db(output_file=DB_FILE):
+def update_db(output_file=DB_FILE, block='latest'):
 
     try:
         with open(DB_FILE, 'r') as db_file:
@@ -428,13 +428,13 @@ def update_db(output_file=DB_FILE):
 
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
     db_pool_length = len(db_data['pools'])
-    pools_delta = booster.functions.poolLength().call(block_identifier='latest') - db_pool_length
+    pools_delta = booster.functions.poolLength().call(block_identifier=block) - db_pool_length
 
     updated = False
     if pools_delta > 0:
         updated = True
         for i in range(pools_delta):
-            pool_info = booster.functions.poolInfo(db_pool_length + i).call(block_identifier='latest')
+            pool_info = booster.functions.poolInfo(db_pool_length + i).call(block_identifier=block)
             db_data['pools'][pool_info[0]] = {
                 'poolId': db_pool_length + i,
                 'token': pool_info[1],

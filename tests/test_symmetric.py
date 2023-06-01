@@ -104,10 +104,10 @@ def test_get_rewards_per_unit():
                        {'reward_address': GnosisTokenAddr.GNO, 'rewardPerSecond': Decimal('0')}]
 
 
-@pytest.mark.xfail(reason="Checking if db needs update")
 def test_db_uptodate():
+    block = 25502427
     with NamedTemporaryFile() as tmpfile:
-        uptodate = Symmetric.update_db(tmpfile.name)
+        uptodate = Symmetric.update_db(tmpfile.name, block)
         assert uptodate is False, "DB is outdated"
 
 

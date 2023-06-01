@@ -507,7 +507,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # # update_db
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def update_db(output_file=DB_FILE):
+def update_db(output_file=DB_FILE, block='latest'):
     try:
         with open(DB_FILE, 'r') as db_file:
             db_data = json.load(db_file)
@@ -518,15 +518,15 @@ def update_db(output_file=DB_FILE):
 
     web3 = get_node(XDAI)
 
-    symm_chef = get_chef_contract(web3, 'latest', XDAI)
+    symm_chef = get_chef_contract(web3, block, XDAI)
     db_pool_length = len(db_data[XDAI]['pools'])
-    pools_delta = symm_chef.functions.poolLength().call(block_identifier='latest') - db_pool_length
+    pools_delta = symm_chef.functions.poolLength().call(block_identifier=block) - db_pool_length
 
     updated = False
     if pools_delta > 0:
         updated = True
         for i in range(pools_delta):
-            lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call(block_identifier='latest')
+            lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call(block_identifier=block)
             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
         with open(output_file, 'w') as db_file:
