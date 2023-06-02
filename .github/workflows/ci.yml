@@ -9,16 +9,102 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install .
+
+      - name: Download cache from latest main artifact
+        continue-on-error: true
+        run: |
+          cat << EOF | python
+
+          import requests
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          s = requests.Session()
+          s.headers["Accept"] = "application/vnd.github+json"
+          s.headers["Authorization"] = "Bearer ${{ secrets.GITHUB_TOKEN }}"
+          s.headers["X-GitHub-Api-Version"] = "2022-11-28"
+
+          def main():
+              path = Path("/tmp/defi_protocols")
+              path.mkdir(exist_ok=True)
+              cache_zip = path / "cache-db.zip"
+              download_last_artifact("cache-db", branch="main", to=cache_zip)
+              print(f"Unzipping {cache_zip} to {path}.")
+              ZipFile(cache_zip).extractall(path)
+              cache_file = path / "cache.db"
+              if not cache_file.exists():
+                  raise FileNotFoundError(cache_file)
+              file_size = len(cache_file.read_bytes())
+              print(f"Cache {cache_file} ({file_size:_} bytes).")
+
+          def download_last_artifact(name, branch, to):
+              runs = get(
+                  "https://api.github.com/repos/${{ github.repository }}/actions/runs",
+                  params={"branch": branch, "event": "push"},
+              ).json()
+              runs = dict_get(runs, "workflow_runs")
+              run = find_latest_succeed_run(runs)
+              artifacts_url = dict_get(run, "artifacts_url")
+              print(f"Using {artifacts_url=}")
+              artifacts = dict_get(get(artifacts_url).json(), "artifacts")
+              artifact_url = find_artifact(name, artifacts)
+              print(f"Downloading {to} from {artifact_url=} ...")
+              download(artifact_url, to=to)
+
+          def get(*args, **kwargs):
+              response = s.get(*args, **kwargs)
+              response.raise_for_status()
+              return response
+
+          def find_latest_succeed_run(runs):
+              for run in runs:
+                  if dict_get(run, "conclusion") == "success":
+                      return run
+              else:
+                  raise LookupError(f"Non succeed workflow runs found among {len(runs)} runs.")
+
+          def find_artifact(name, artifacts):
+              return first(
+                  dict_get(artifact, "archive_download_url")
+                  for artifact in artifacts
+                  if dict_get(artifact, "name") == name
+              )
+
+          def download(url, to):
+              response = get(url)
+              with open(to, "wb") as f:
+                  f.write(response.content)
+
+          first = lambda seq: next(iter(seq))
+
+          def dict_get(d, *keys):
+              node = d
+              try:
+                  for key in keys:
+                      node = node[key]
+              except (KeyError, TypeError):
+                  print(node)
+                  raise
+              else:
+                  return node
+
+          main()
+
+          EOF
+
       - name: Run tests
         env:
           CI: true
@@ -33,6 +119,7 @@ jobs:
           sh ci_secrets_helper.sh
           cat /tmp/tmp_config.json
           PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs --debug-defiproto
+
       - name: Archive cache
         uses: actions/upload-artifact@v3
         with:

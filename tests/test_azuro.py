@@ -6,19 +6,21 @@ from defi_protocols import Azuro, add_stderr_logger
 from defi_protocols.constants import XDAI, WXDAI
 from defi_protocols.functions import get_node
 
-
 WALLET_N1 = '0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f'
 NFT_ID = 1099511627781
 
 BLOCK = 27532353
 NODE = get_node(XDAI, BLOCK)
 
-@pytest.mark.skip(reason='Solve wide range queries')
+xfail = pytest.mark.xfail(reason="Azuro endpoint limit issue")
+
+
+@xfail
 def test_get_deposit():
     assert Azuro.get_deposit(WALLET_N1, NFT_ID, Azuro.POOL_ADDR_V2, BLOCK, XDAI, NODE) == 500000000000000000000000
 
 
-@pytest.mark.skip(reason='Solve wide range queries')
+@xfail
 def test_underlying():
     assert Azuro.underlying(WALLET_N1,
                             NFT_ID,
@@ -29,7 +31,7 @@ def test_underlying():
                                               [WXDAI, Decimal('22206.977145829181047864')]]
 
 
-@pytest.mark.skip(reason='Solve wide range queries')
+@xfail
 def test_underlying_all():
     assert Azuro.underlying_all(WALLET_N1,
                                 BLOCK,

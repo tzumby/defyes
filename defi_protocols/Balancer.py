@@ -7,7 +7,7 @@ from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs, to_token_amount
+from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs, to_token_amount, last_block
 from defi_protocols.constants import ETHEREUM, XDAI, BAL_ETH, BAL_ARB, BAL_XDAI, BB_A_USD_OLD_ETH, BB_A_USD_ETH, POLYGON, ARBITRUM, BAL_POL, ZERO_ADDRESS
 from defi_protocols.prices.prices import get_price
 
@@ -21,16 +21,20 @@ VAULT = '0xBA12222222228d8Ba445958a75a0704d566BF2C8'
 # LIQUIDITY GAUGE FACTORY
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Ethereum Liquidity Gauge Factory Contract Address
-LIQUIDITY_GAUGE_FACTORY_ETHEREUM = '0x4E7bBd911cf1EFa442BC1b2e9Ea01ffE785412EC'
+LIQUIDITY_GAUGE_FACTORY_ETHEREUM = '0x4E7bBd911cf1EFa442BC1b2e9Ea01ffE785412EC' # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_ETHEREUM_V2 = '0xf1665E19bc105BE4EDD3739F88315cC699cc5b65'
 
 # Polygon Liquidity Gauge Factory Contract Address
-LIQUIDITY_GAUGE_FACTORY_POLYGON = '0x3b8cA519122CdD8efb272b0D3085453404B25bD0'
+# LIQUIDITY_GAUGE_FACTORY_POLYGON = '0x3b8cA519122CdD8efb272b0D3085453404B25bD0' # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_POLYGON = '0x22625eEDd92c81a219A83e1dc48f88d54786B017'
 
 # Arbitrum Liquidity Gauge Factory Contract Address
-LIQUIDITY_GAUGE_FACTORY_ARBITRUM = '0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2'
+# LIQUIDITY_GAUGE_FACTORY_ARBITRUM = '0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2' # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_ARBITRUM = '0x6817149cb753BF529565B4D023d7507eD2ff4Bc0'
 
 # GC Liquidity Gauge Factory Contract Address
-LIQUIDITY_GAUGE_FACTORY_XDAI = "0x809B79b53F18E9bc08A961ED4678B901aC93213a"
+# LIQUIDITY_GAUGE_FACTORY_XDAI = '0x809B79b53F18E9bc08A961ED4678B901aC93213a' # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_XDAI = '0x83E443EF4f9963C77bd860f94500075556668cb8'
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # veBAL
@@ -72,8 +76,8 @@ ABI_VEBAL = '[{"stateMutability":"view","type":"function","name":"token","inputs
 # veBAL Fee Distributor ABI - claimTokens
 ABI_VEBAL_FEE_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"contract IERC20[]","name":"tokens","type":"address[]"}],"name":"claimTokens","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"nonpayable","type":"function"}]'
 
-# LP Token ABI - getPoolId, decimals, getActualSupply, getVirtualSupply, totalSupply, getBptIndex, balanceOf, getSwapFeePercentage, getRate, getScalingFactors
-ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getActualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getVirtualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getBptIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getSwapFeePercentage","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getScalingFactors","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
+# LP Token ABI - getPoolId, decimals, getActualSupply, getVirtualSupply, totalSupply, getBptIndex, balanceOf, getSwapFeePercentage, getRate, getScalingFactors, POOL_ID
+ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getActualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getVirtualSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getBptIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getSwapFeePercentage","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getScalingFactors","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"POOL_ID","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}]'
 
 # Gauge ABI - claimable_tokens, claimable_reward, reward_count, reward_tokens, reward_contract
 ABI_GAUGE = '[{"stateMutability":"nonpayable","type":"function","name":"claimable_tokens","inputs":[{"name":"addr","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"claimable_reward","inputs":[{"name":"_user","type":"address"},{"name":"_reward_token","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_tokens","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}]}, {"stateMutability":"view","type":"function","name":"reward_contract","inputs":[],"outputs":[{"name":"","type":"address"}]}]'
@@ -92,6 +96,9 @@ ABI_CHILD_CHAIN_STREAMER = '[{"stateMutability":"view","type":"function","name":
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Swap Event Signature
 SWAP_EVENT_SIGNATURE = 'Swap(bytes32,address,address,uint256,uint256)'
+
+# Gauge Created Event Signature
+GAUGE_CREATED_EVENT_SIGNATURE = 'GaugeCreated(address)'
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -132,9 +139,56 @@ def get_gauge_address(blockchain, block, web3, lptoken_addr):
     gauge_factory_address = get_gauge_factory_address(blockchain)
     gauge_factory_contract = get_contract(gauge_factory_address, blockchain, web3=web3,
                                           abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block)
+    
+    gauge_address = ZERO_ADDRESS
 
-    return const_call(gauge_factory_contract.functions.getPoolGauge(lptoken_addr))
+    if blockchain == ETHEREUM:
+        gauge_address = const_call(gauge_factory_contract.functions.getPoolGauge(lptoken_addr))
+        
+        if gauge_address == ZERO_ADDRESS:
+            gauge_factory_address = LIQUIDITY_GAUGE_FACTORY_ETHEREUM_V2
+        else:
+            return gauge_address
+    
+    get_logs_bool = True
+    block_from = 0
+    block_to = last_block(blockchain, web3=web3)
+    hash_overlap = []
 
+    gauge_created_event = web3.keccak(text=GAUGE_CREATED_EVENT_SIGNATURE).hex()
+
+    while get_logs_bool:
+        gauge_created_logs = get_logs(block_from, block_to, gauge_factory_address, gauge_created_event, blockchain)
+
+        log_count = len(gauge_created_logs)
+
+        if log_count != 0:
+            end_block = int(
+                gauge_created_logs[log_count - 1]['blockNumber'][2:len(gauge_created_logs[log_count - 1]['blockNumber'])], 16)
+
+            for gauge_created_log in gauge_created_logs:
+                block_number = int(gauge_created_log['blockNumber'][2:len(gauge_created_log['blockNumber'])], 16)
+
+                if gauge_created_log['transactionHash'] in hash_overlap:
+                    continue
+
+                if block_number == end_block:
+                    hash_overlap.append(gauge_created_log['transactionHash'])
+                
+                tx = web3.eth.get_transaction(gauge_created_log['transactionHash'])
+
+                if lptoken_addr == Web3.to_checksum_address('0x'+tx['input'][34:74]):
+                    gauge_address = Web3.to_checksum_address('0x' + gauge_created_log['topics'][1][-40:])
+                    
+                    return gauge_address
+
+        if log_count < 1000:
+            get_logs_bool = False
+
+        else:
+            block_from = block_number
+
+    return gauge_address
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_lptoken_data
@@ -147,7 +201,12 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
     lptoken_data = {}
 
     lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
-    lptoken_data['poolId'] = const_call(lptoken_data['contract'].functions.getPoolId())
+
+    try:
+        lptoken_data['poolId'] = const_call(lptoken_data['contract'].functions.getPoolId())
+    except:
+        lptoken_data['poolId'] = const_call(lptoken_data['contract'].functions.POOL_ID())
+
     lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
 
     try:
@@ -615,7 +674,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
             for swap_log in swap_logs:
                 block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
 
-                if swap_log['transactionHash'] in swap_log:
+                if swap_log['transactionHash'] in hash_overlap:
                     continue
 
                 if block_number == last_block:
