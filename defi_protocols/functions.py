@@ -250,13 +250,17 @@ def date_to_timestamp(datestring, utc=0):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def date_to_block(datestring, blockchain, utc=0) -> int:
     """
+    Returns the block number of a specified date.
 
-    :param str datestring:
-    :param str blockchain:
-    :param utc:
-    :return:
+    The date can be a string (in the format '%Y-%m-%d %H:%M:%S') or a datetime object. UTC is asumed as timezone.
+    An example datestring: '2023-02-20 18:30:00'.
     """
-    return timestamp_to_block(date_to_timestamp(datestring, utc=utc), blockchain)
+    if hasattr(datestring, "utctimetuple"):
+        timestamp = calendar.timegm(datestring.utctimetuple())
+    else:
+        timestamp = date_to_timestamp(datestring, utc=utc)
+
+    return timestamp_to_block(timestamp, blockchain)
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
