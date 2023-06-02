@@ -13,7 +13,7 @@ NFT_ID = 1099511627781
 BLOCK = 27532353
 NODE = get_node(XDAI, BLOCK)
 
-#@pytest.mark.skip(reason='Solve wide range queries')
+@pytest.mark.skip(reason='Solve wide range queries')
 def test_get_deposit():
     assert Azuro.get_deposit(WALLET_N1, NFT_ID, Azuro.POOL_ADDR_V2, BLOCK, XDAI, NODE) == 500000000000000000000000
 
