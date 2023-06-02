@@ -89,7 +89,8 @@ def disk_cache_middleware(make_request, web3):
             return make_request(method, params)
     return middleware
 
-def cache_call(exclude_args=None, filter= lambda *args, **kwargs: True):
+
+def cache_call(exclude_args=None, filter=None):
     """Decorator to cache the result of a function.
 
     It has the ability to exclude arguments that the result
@@ -107,9 +108,8 @@ def cache_call(exclude_args=None, filter= lambda *args, **kwargs: True):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            from inspect import getcallargs
-            if filter(*args, **kwargs):
-                cache_args = getcallargs(f, *args, **kwargs)
+            cache_args = getcallargs(f, *args, **kwargs)
+            if filter is None or filter(cache_args):
                 if exclude_args:
                     for arg in exclude_args:
                         cache_args.pop(arg)

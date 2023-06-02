@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 from typing import Union, Optional, List
+from inspect import getcallargs
 
 from web3 import Web3
 from web3.exceptions import ContractLogicError
@@ -34,9 +35,11 @@ from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOE
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def latest_not_in_params(args):
+    return not 'latest' in args
+
 # CUSTOM EXCEPTIONS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class BlockchainError(Exception):
     pass
 
