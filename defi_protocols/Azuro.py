@@ -16,6 +16,7 @@ class AzuroPools:
     addr: str
     liquidity_added_topic: str = field(init=False)
     liquidity_removed_topic: str = field(init=False)
+    first_block: int = field(init=False)
     version: int = field(init=False)
 
     def __post_init__(self):
@@ -24,10 +25,12 @@ class AzuroPools:
             self.version = 1
             liquidity_added_event = 'LiquidityAdded (index_topic_1 address account, uint256 amount, uint48 leaf)'
             liquidity_removed_event = 'LiquidityRemoved (index_topic_1 address account, index_topic_2 uint48 leaf, uint256 amount)'
+            self.first_block = 22535363
         else:
             self.version = 2
             liquidity_added_event = 'LiquidityAdded (index_topic_1 address account, index_topic_2 uint48 leaf, uint256 amount)'
             liquidity_removed_event = 'LiquidityRemoved (index_topic_1 address account, index_topic_2 uint48 leaf, uint256 amount)'
+            self.first_block = 26026907
 
         self.liquidity_added_topic = str(TopicCreator(liquidity_added_event))
         self.liquidity_removed_topic = str(TopicCreator(liquidity_removed_event))
@@ -58,7 +61,7 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
     amount = 0
     add_logs = get_logs_web3(address=azuro_pool.addr,
                              blockchain=blockchain,
-                             start_block=0,
+                             start_block=azuro_pool.first_block,
                              topics=[azuro_pool.liquidity_added_topic, wallethex],
                              block=block,
                              web3=web3)
@@ -69,7 +72,7 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
             amount = amount + int(log['data'].hex(), 16)
     remove_logs = get_logs_web3(address=azuro_pool.addr,
                                 blockchain=blockchain,
-                                start_block=0,
+                                start_block=azuro_pool.first_block,
                                 topics=[azuro_pool.liquidity_removed_topic, wallethex, nfthex],
                                 block=block,
                                 web3=web3)
@@ -97,7 +100,6 @@ def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str,
             owner = None
         if owner == wallet:
             node_withdraw = contract.functions.nodeWithdrawView(nftid).call(block_identifier=block)
-            assert False
             deposit = get_deposit(wallet, nftid, contract.address, block, blockchain, web3)
             balance += node_withdraw
             reward += node_withdraw - deposit
