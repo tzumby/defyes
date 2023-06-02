@@ -804,6 +804,7 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_logs
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@cache_call(filter=latest_not_in_params)
 def get_logs(block_start, block_end, address, topic0, blockchain, **kwargs):
     data = None
     optional_parameters = ''
