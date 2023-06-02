@@ -1,12 +1,13 @@
+import diskcache
 import functools
 import logging
 import os
 
+from inspect import getcallargs
 from web3.middleware.cache import generate_cache_key
-import diskcache
+
 
 logger = logging.getLogger(__name__)
-
 
 VERSION = 1
 VERSION_CACHE_KEY = 'VERSION'

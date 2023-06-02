@@ -101,6 +101,7 @@ class ProviderManager(JSONBaseProvider):
                     logger.exception("Unexpected exception when making request.")
         raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
 
+
 def get_web3_provider(provider):
     web3 = Web3(provider)
 
@@ -127,13 +128,13 @@ def get_web3_provider(provider):
         web3.middleware_onion.add(cache.disk_cache_middleware, 'disk_cache')
     return web3
 
+
 def get_web3_call_count(web3):
     """Obtain the total number of calls that have been made by a web3 instance."""
     return web3.middleware_onion['call_counter'].call_count
 
 # store latest and archival ProviderManagers as they are used
 _nodes_providers = dict()
-
 def get_node(blockchain, block='latest'):
     """
     If block is 'latest'  it retrieves a Full Node, in other case it retrieves an Archival Node.
@@ -161,11 +162,6 @@ def get_node(blockchain, block='latest'):
     return web3
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# last_block
-# 'web3' = web3 (Node) -> Improves performance
-# 'block' = block identifier used to call the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def last_block(blockchain, web3=None, block='latest'):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -173,17 +169,11 @@ def last_block(blockchain, web3=None, block='latest'):
     return web3.eth.block_number
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# timestamp_to_date
-# 'utc' = timezone of the Output is UTC(+'utc')
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def timestamp_to_date(timestamp, utc=0):
     return datetime.utcfromtimestamp(timestamp + 3600 * utc).strftime('%Y-%m-%d %H:%M:%S')
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# timestamp_to_block
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@cache_call()
 def timestamp_to_block(timestamp, blockchain) -> int:
     data = None
 
@@ -235,10 +225,6 @@ def timestamp_to_block(timestamp, blockchain) -> int:
     return int(data)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# date_to_timestamp
-# 'utc' = timezone of the Input is UTC(+'utc')
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def date_to_timestamp(datestring, utc=0):
     #   localTimestamp = math.floor(time.mktime(datetime.strptime(datestring,'%Y-%m-%d %H:%M:%S').timetuple()) + 3600 * utc)
     utc_timestamp = math.floor(
@@ -247,10 +233,6 @@ def date_to_timestamp(datestring, utc=0):
     return utc_timestamp
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# date_to_block
-# 'utc' = timezone of the Output is UTC(+'utc')
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def date_to_block(datestring, blockchain, utc=0) -> int:
     """
 
@@ -261,10 +243,7 @@ def date_to_block(datestring, blockchain, utc=0) -> int:
     """
     return timestamp_to_block(date_to_timestamp(datestring, utc=utc), blockchain)
 
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# block_to_timestamp
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@cache_call()
 def block_to_timestamp(block, blockchain):
     data = None
 
@@ -310,17 +289,10 @@ def block_to_timestamp(block, blockchain):
     return int(data)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# block_to_date
-# 'utc' = timezone of the Output is UTC(+'utc')
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def block_to_date(block, blockchain, utc=0):
     return timestamp_to_date(block_to_timestamp(block, blockchain), utc=utc)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_blocks_per_year
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_blocks_per_year(blockchain):
     current_block = last_block(blockchain)
     ts = math.floor(datetime.now().timestamp()) - (3600 * 24 * 365)
@@ -331,14 +303,10 @@ def get_blocks_per_year(blockchain):
     return block_delta
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ERC20 TOKENS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # token_info
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@cache_call()
 def token_info(token_address, blockchain):  # NO ESTÁ POLYGON
-
     if blockchain.lower() == ETHEREUM:
         data = requests.get(API_ETHPLORER_GETTOKENINFO % (token_address, API_KEY_ETHPLORER)).json()
 
@@ -348,11 +316,6 @@ def token_info(token_address, blockchain):  # NO ESTÁ POLYGON
     return data
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# balance_of
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def balance_of(address, contract_address, block, blockchain, web3=None, decimals=True) -> Decimal:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -373,11 +336,6 @@ def balance_of(address, contract_address, block, blockchain, web3=None, decimals
     return to_token_amount(contract_address, balance, blockchain, web3, decimals)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# total_supply
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def total_supply(token_address: str, block: int | str, blockchain: str, web3: Web3=None, decimals: bool = True) -> Decimal:
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -389,11 +347,7 @@ def total_supply(token_address: str, block: int | str, blockchain: str, web3: We
 
     return to_token_amount(token_address, total_supply_v, blockchain, web3, decimals)
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_decimals
-# 'web3' = web3 (Node) -> Improves performance
-# 'block' = block identifier used to call the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 def get_decimals(token_address, blockchain, web3=None, block='latest'):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -407,6 +361,7 @@ def get_decimals(token_address, blockchain, web3=None, block='latest'):
         decimals = const_call(token_contract.functions.decimals())
 
     return decimals
+
 
 def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
     if web3 is None:
@@ -443,12 +398,8 @@ def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
 
     return symbol
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CONTRACTS AND ABIS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_contract_abi
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@cache_call()
 def get_contract_abi(contract_address, blockchain):
     data = None
 
@@ -514,12 +465,6 @@ def get_contract_abi(contract_address, blockchain):
     return data
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_contract
-# 'web3' = web3 (Node) -> Improves performance
-# 'abi' = specifies the exact ABI (used when contracts are not verified)
-# 'block' = block identifier used to call the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_contract(contract_address, blockchain, web3=None, abi=None, block='latest'):
     if web3 == None:
         web3 = get_node(blockchain, block=block)
@@ -537,11 +482,6 @@ def get_contract(contract_address, blockchain, web3=None, abi=None, block='lates
         return web3.eth.contract(address=contract_address, abi=abi)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_contract_proxy_abi
-# 'web3' = web3 (Node) -> Improves performance
-# 'block' = block identifier used to call the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, web3=None, block='latest'):
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -556,10 +496,6 @@ def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, w
         return None
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# search_proxy_contract
-# 'web3' = web3 (Node) -> Improves performance
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def search_proxy_contract(contract_address, blockchain, web3=None):
     if web3 == None:
         web3 = get_node(blockchain)
@@ -585,11 +521,6 @@ def search_proxy_contract(contract_address, blockchain, web3=None):
     return contract
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_abi_function_signatures
-# 'web3' = web3 (Node) -> Improves performance
-# 'abi_address' = Proxy contract to get the ABI
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_address=None):
     if web3 == None:
         web3 = get_node(blockchain)
@@ -645,11 +576,6 @@ def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_add
     return None
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_data
-# 'web3' = web3 (Node) -> Improves performance
-# 'abi_address' = Proxy contract to get the ABI
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_data(contract_address, function_name, parameters, blockchain, web3=None, abi_address=None):
     if web3 == None:
         web3 = get_node(blockchain)
@@ -685,15 +611,7 @@ def get_data(contract_address, function_name, parameters, blockchain, web3=None,
         return None
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ACCOUNTS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_token_tx
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def latest_not_in_params(*args, **kwargs):
-    return not 'latest' in args
-
 @cache_call(filter=latest_not_in_params)
 def get_token_tx(token_address, contract_address, block_start, block_end, blockchain):
     data = None
