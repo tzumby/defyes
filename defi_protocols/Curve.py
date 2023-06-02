@@ -690,7 +690,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain,
                 for swap_log in swap_logs:
                     block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
 
-                    if swap_log['transactionHash'] in swap_log:
+                    if swap_log['transactionHash'] in hash_overlap:
                         continue
 
                     if block_number == last_block:
