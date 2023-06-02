@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.util.topic import decode_address_hexor
 from defi_protocols.util.api import RequestFromScan
@@ -77,7 +78,7 @@ def get_tranche(input_data: str, hash: str, underlying_address: str, underlying_
                                         abi=PT_ABI,
                                         block=block)
 
-    yield_token = yield_token_contract.functions.interestToken().call()
+    yield_token = const_call(yield_token_contract.functions.interestToken())
 
     tx = web3.eth.get_transaction_receipt(hash)
     pool_id = tx['logs'][0]['topics'][1].hex()
@@ -138,7 +139,7 @@ def get_amount(wallet: str, name: str, pt_token: str, underlying_token: str, poo
     pool_total_supply = pool_token_contract.functions.totalSupply().call(block_identifier=block)
     pool_share_wallet = pool_token_contract.functions.balanceOf(wallet).call(block_identifier=block) / Decimal(pool_total_supply)
 
-    pool_token_vault_address = pool_token_contract.functions.getVault().call()
+    pool_token_vault_address = const_call(pool_token_contract.functions.getVault())
     pool_token_vault = get_contract(pool_token_vault_address, blockchain, web3=web3, abi=BALANCER_VAULT_ABI, block=block)
     pool_totals = pool_token_vault.functions.getPoolTokens(pool_id).call(block_identifier=block)
 

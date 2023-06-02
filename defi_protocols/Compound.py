@@ -2,6 +2,7 @@ from decimal import Decimal
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, balance_of, get_decimals, to_token_amount
 from defi_protocols.constants import ETHEREUM, COMP_ETH, ZERO_ADDRESS
 from defi_protocols.prices import prices
@@ -68,7 +69,7 @@ def get_ctokens_contract_list(blockchain, web3, block):
     comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
                                         block=block)
 
-    return comptroller_contract.functions.getAllMarkets().call()
+    return comptroller_contract.functions.getAllMarkets().call(block_identifier=block)
 
 
 def get_comptroller_contract(blockchain, web3, block):
@@ -105,12 +106,13 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
     if underlying_token:
         ctoken_data['underlying'] = underlying_token
     else:
-        try:
-            ctoken_data['underlying'] = ctoken_data['contract'].functions.underlying().call(block_identifier=block)
-        except (ContractLogicError, BadFunctionCallOutput):
+        symbol = const_call(ctoken_data['contract'].functions.symbol())
+        if symbol == 'cETH':
             ctoken_data['underlying'] = ZERO_ADDRESS
+        else:
+            ctoken_data['underlying'] = ctoken_data['contract'].functions.underlying().call(block_identifier=block)
 
-    ctoken_data['decimals'] = ctoken_data['contract'].functions.decimals().call()
+    ctoken_data['decimals'] = const_call(ctoken_data['contract'].functions.decimals())
     ctoken_data['borrowBalanceStored'] = ctoken_data['contract'].functions.borrowBalanceStored(wallet).call(
         block_identifier=block)
     ctoken_data['balanceOf'] = ctoken_data['contract'].functions.balanceOf(wallet).call(block_identifier=block)
@@ -164,11 +166,12 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
         ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
-        try:
-            underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
-        except (ContractLogicError, BadFunctionCallOutput):
+        symbol = const_call(ctoken_contract.functions.symbol())
+        if symbol == 'cETH':
             # cETH does not have the underlying function
             underlying_token = ZERO_ADDRESS
+        else:
+            underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
         if underlying_token == token_address:
             ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
@@ -210,11 +213,12 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
         if balance_of(wallet, ctoken_address, block, blockchain, web3=web3) > 0:
             ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
-            try:
-                underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
-            except (ContractLogicError, BadFunctionCallOutput):
+            symbol = const_call(ctoken_contract.functions.symbol())
+            if symbol == 'cETH':
                 # cETH does not have the underlying function
                 underlying_token = ZERO_ADDRESS
+            else:
+                underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
             ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
                                           ctoken_contract=ctoken_contract, underlying_token=underlying_token)
@@ -291,14 +295,15 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals
         web3 = get_node(blockchain, block=block)
 
     ctoken_contract = get_contract(ctoken_address, blockchain, abi=ABI_CTOKEN, web3=web3, block=block)
-    ctoken_decimals = ctoken_contract.functions.decimals().call()
+    ctoken_decimals = const_call(ctoken_contract.functions.decimals())
     exchange_rate = ctoken_contract.functions.exchangeRateStored().call(block_identifier=block)
 
-    try:
-        underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
-    except (ContractLogicError, BadFunctionCallOutput):
+    symbol = const_call(ctoken_contract.functions.symbol())
+    if symbol == 'cETH':
         # cETH does not have the underlying function
         underlying_token = ZERO_ADDRESS
+    else:
+        underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
     underlying_token_decimals = get_decimals(underlying_token, blockchain, web3=web3) if decimals else 0
     mantissa = 18 - ctoken_decimals + underlying_token_decimals
@@ -340,11 +345,12 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
     for ctoken_address in ctoken_list:
         ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
-        try:
-            underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
-        except (ContractLogicError, BadFunctionCallOutput):
+        symbol = const_call(ctoken_contract.functions.symbol())
+        if symbol == 'cETH':
             # cETH does not have the underlying function
             underlying_token = ZERO_ADDRESS
+        else:
+            underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
         if underlying_token == token_address:
             # blocks_per_day is an aproximation (5 blocks per minute)
@@ -404,11 +410,12 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
     for ctoken_address in ctoken_list:
         ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
-        try:
-            underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
-        except (ContractLogicError, BadFunctionCallOutput):
+        symbol = const_call(ctoken_contract.functions.symbol())
+        if symbol == 'cETH':
             # cETH does not have the underlying function
             underlying_token = ZERO_ADDRESS
+        else:
+            underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
         if underlying_token == token_address:
             # blocks_per_day is an aproximation
@@ -429,7 +436,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
             comp_price = Decimal(prices.get_price(COMP_ETH, block, blockchain, web3=web3)[0])
             underlying_token_price = Decimal(prices.get_price(underlying_token, block, blockchain, web3=web3)[0])
 
-            ctoken_decimals = ctoken_contract.functions.decimals().call()
+            ctoken_decimals = const_call(ctoken_contract.functions.decimals())
             underlying_decimals = get_decimals(underlying_token, ETHEREUM, web3=web3)
             underlying_mantissa = 18 - ctoken_decimals + underlying_decimals
 

@@ -1,4 +1,3 @@
-import logging
 import pytest
 from decimal import Decimal
 
@@ -7,7 +6,6 @@ from defi_protocols.functions import get_node, get_contract
 from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH, DAI_ETH, USDC_ETH, USDT_ETH, CVX_ETH, LDO_ETH
 
 
-add_stderr_logger(logging.DEBUG)
 TEST_BLOCK = 16993460
 TEST_WALLET = '0xF929122994E177079c924631bA13Fb280F5CD1f9'
 WEB3 = get_node(blockchain=ETHEREUM, block=TEST_BLOCK)

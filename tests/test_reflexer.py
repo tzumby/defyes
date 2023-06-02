@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from defi_protocols import Reflexer
+from defi_protocols import Reflexer, add_stderr_logger
 from defi_protocols.constants import ETHTokenAddr
 
 

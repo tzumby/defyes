@@ -1,10 +1,12 @@
 import pytest
+
 from decimal import Decimal
 from tempfile import NamedTemporaryFile
 
-from defi_protocols import Symmetric
+from defi_protocols import Symmetric, add_stderr_logger
 from defi_protocols.functions import get_node
 from defi_protocols.constants import XDAI, GnosisTokenAddr
+
 
 WALLET = '0xa3E1282ac6116A698A49b2084c5c30fE1947b4A5'
 LPTOKEN_ADDR = '0x650f5d96E83d3437bf5382558cB31F0ac5536684'
@@ -102,10 +104,10 @@ def test_get_rewards_per_unit():
                        {'reward_address': GnosisTokenAddr.GNO, 'rewardPerSecond': Decimal('0')}]
 
 
-@pytest.mark.xfail(reason="Checking if db needs update")
 def test_db_uptodate():
+    block = 25502427
     with NamedTemporaryFile() as tmpfile:
-        uptodate = Symmetric.update_db(tmpfile.name)
+        uptodate = Symmetric.update_db(tmpfile.name, block)
         assert uptodate is False, "DB is outdated"
 
 

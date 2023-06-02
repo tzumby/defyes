@@ -1,5 +1,6 @@
 from decimal import Decimal
-from defi_protocols import Elk
+
+from defi_protocols import Elk, add_stderr_logger
 from defi_protocols.constants import POLYGON, PolygonTokenAddr, ETHEREUM, ETHTokenAddr, XDAI, GnosisTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node, get_contract
 

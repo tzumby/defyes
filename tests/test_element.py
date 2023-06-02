@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from defi_protocols import Element
+from defi_protocols import Element, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, E_ADDRESS
 
 

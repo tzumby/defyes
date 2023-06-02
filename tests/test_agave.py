@@ -1,13 +1,9 @@
-import logging
 import pytest
 from decimal import Decimal
 
 from defi_protocols import Agave, add_stderr_logger
 from defi_protocols.constants import XDAI, AGVE_XDAI
 from defi_protocols.functions import get_node, get_contract
-
-
-add_stderr_logger(logging.DEBUG)
 
 
 STK_AGAVE = '0x610525b415c1BFAeAB1a3fc3d85D87b92f048221'

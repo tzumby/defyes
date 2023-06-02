@@ -1,8 +1,9 @@
 from decimal import Decimal
 
-from defi_protocols import Compound
+from defi_protocols import Compound, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node
+
 
 CTOKEN_CONTRACTS = {
     'cbat_contract': '0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E',

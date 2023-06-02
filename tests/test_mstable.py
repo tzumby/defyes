@@ -1,5 +1,6 @@
 from decimal import Decimal
-from defi_protocols import mStable
+
+from defi_protocols import mStable, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr
 
 

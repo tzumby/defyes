@@ -5,6 +5,7 @@ from decimal import Decimal
 from tqdm import tqdm
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs
 from defi_protocols.constants import ETHEREUM, XDAI
 
@@ -79,7 +80,7 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
                     distributions_amount - (i + 1)).call(block_identifier=block)
                 distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION,
                                                      block=block)
-                stakable_token = distribution_contract.functions.stakableToken().call()
+                stakable_token = distribution_contract.functions.stakableToken().call(block_identifier=block)
 
                 if stakable_token.lower() == lptoken_address.lower():
                     distribution_contracts.append(distribution_contract)
@@ -103,10 +104,10 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-    lptoken_data['decimals'] = lptoken_data['contract'].functions.decimals().call()
+    lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
     lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
-    lptoken_data['token0'] = lptoken_data['contract'].functions.token0().call()
-    lptoken_data['token1'] = lptoken_data['contract'].functions.token1().call()
+    lptoken_data['token0'] = const_call(lptoken_data['contract'].functions.token0())
+    lptoken_data['token1'] = const_call(lptoken_data['contract'].functions.token1())
     lptoken_data['reserves'] = lptoken_data['contract'].functions.getReserves().call(block_identifier=block)
     lptoken_data['kLast'] = lptoken_data['contract'].functions.kLast().call(block_identifier=block)
 
@@ -145,7 +146,8 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
     else:
         for distribution_contract in distribution_contracts:
-            reward_tokens = distribution_contract.functions.getRewardTokens().call()
+            # TODO: check if const_call can bu used
+            reward_tokens = distribution_contract.functions.getRewardTokens().call(block_identifier=block)
             claimable_rewards = distribution_contract.functions.claimableRewards(wallet).call(
                 block_identifier=block)
 
@@ -247,7 +249,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
         except:
             continue
 
-        token_address = func().call()
+        token_address = const_call(func())
 
         token_decimals = get_decimals(token_address, blockchain, web3=web3) if decimals else 0
 
@@ -271,8 +273,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
 
-    token0 = lptoken_contract.functions.token0().call()
-    token1 = lptoken_contract.functions.token1().call()
+    token0 = const_call(lptoken_contract.functions.token0())
+    token1 = const_call(lptoken_contract.functions.token1())
     result['swaps'] = []
 
     decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0
@@ -347,13 +349,13 @@ def update_db():
 
         staking_rewards_contract = get_staking_rewards_contract(web3, 'latest', blockchain)
 
-        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call()
+        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier=block)
 
         for i in tqdm(range(distributions_amount), desc='Fetching distributors...'):
             distribution_address = staking_rewards_contract.functions.distributions(
-                distributions_amount - (i + 1)).call()
+                distributions_amount - (i + 1)).call(block_identifier=block)
             distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION)
-            stakable_token = distribution_contract.functions.stakableToken().call()
+            stakable_token = distribution_contract.functions.stakableToken().call(block_identifier=block)
 
             try:
                 db_data[blockchain][stakable_token]
