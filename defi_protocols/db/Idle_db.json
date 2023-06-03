@@ -269,6 +269,15 @@
                 "aa_gauge": null
             },
             "bb token": "0x38D36353D07CfB92650822D9c31fB4AdA1c73D6E"
+        },
+        {
+            "underlying_token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+            "CDO address": "0xc4574c60a455655864ab80fa7638561a756c5e61",
+            "AA tranche": {
+                "aa_token": "0x0a6f2449C09769950cFb76f905Ad11c341541f70",
+                "aa_gauge": null
+            },
+            "bb token": "0x3Eb6318b8D9f362a0e1D99F6032eDB1C4c602500"
         }
     ]
 }

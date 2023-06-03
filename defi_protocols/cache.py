@@ -1,17 +1,31 @@
+import diskcache
 import functools
 import logging
 import os
 
+from inspect import getcallargs
 from web3.middleware.cache import generate_cache_key
-import diskcache
+
 
 logger = logging.getLogger(__name__)
 
+VERSION = 1
+VERSION_CACHE_KEY = 'VERSION'
+
 _cache = None
+
+def check_version():
+    version = _cache.get(VERSION_CACHE_KEY, 0)
+    if version != VERSION:
+        _cache.clear()
+        _cache[VERSION_CACHE_KEY] = VERSION
+        logger.info(f"Old cache version! Creating new cache with version: {VERSION}")
+
 if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
     logger.debug(f"Cache enabled. Storage is at '{cache_dir}'.")
     _cache = diskcache.Cache(directory=cache_dir)
+    check_version()
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
 else:
@@ -48,7 +62,7 @@ def disk_cache_middleware(make_request, web3):
     It also do not caches if block='latest'.
     """
 
-    RPC_WHITELIST = {'eth_chainId', 'eth_call'}
+    RPC_WHITELIST = {'eth_chainId', 'eth_call', 'eth_getTransactionReceipt', 'eth_getLogs'}
 
     def middleware(method, params):
         do_cache = False
@@ -62,18 +76,22 @@ def disk_cache_middleware(make_request, web3):
             cache_key = f"{web3._network_name}.{method}.{params_hash}"
             if cache_key not in _cache:
                 response = make_request(method, params)
-                if not ('error' in response or 'result' not in response or response['result'] is None):
-                    _cache[cache_key] = response['result']
+                if not 'error' in response and 'result' in response and response['result'] is not None:
+                    _cache[cache_key] = ('result', response['result'])
+                elif 'error' in response:
+                    if response['error']['code'] in [-32000, -32015]:
+                        _cache[cache_key] = ('error', response['error'])
                 return response
             else:
-                data = _cache[cache_key]
-                return {'jsonrpc': '2.0', 'id': 11, 'result': data}
+                key, data = _cache[cache_key]
+                return {'jsonrpc': '2.0', 'id': 11, key: data}
         else:
             logger.debug(f"Not caching '{method}' with params: '{params}'")
             return make_request(method, params)
     return middleware
 
-def cache_call(exclude_args=None):
+
+def cache_call(exclude_args=None, filter=None):
     """Decorator to cache the result of a function.
 
     It has the ability to exclude arguments that the result
@@ -85,21 +103,25 @@ def cache_call(exclude_args=None):
     def get_pi_digits(http_client, count):
         response = http_client.get(f"https://api.pi.delivery/v1/pi?start=0&numberOfDigits={count}")
         return response["content"]
+
+    A filter function can be provided to add conditions, based on arguments, to cache the result.
     """
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            from inspect import getcallargs
             cache_args = getcallargs(f, *args, **kwargs)
-            if exclude_args:
-                for arg in exclude_args:
-                    cache_args.pop(arg)
-            cache_key = generate_cache_key((f.__qualname__, cache_args))
-            if cache_key not in _cache:
-                result = f(*args, **kwargs)
-                _cache[cache_key] = result
+            if filter is None or filter(cache_args):
+                if exclude_args:
+                    for arg in exclude_args:
+                        cache_args.pop(arg)
+                cache_key = generate_cache_key((f.__qualname__, cache_args))
+                if cache_key not in _cache:
+                    result = f(*args, **kwargs)
+                    _cache[cache_key] = result
+                else:
+                    result = _cache[cache_key]
             else:
-                result = _cache[cache_key]
+                result = f(*args, **kwargs)
             return result
         return wrapper
     return decorator

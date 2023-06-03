@@ -1,4 +1,5 @@
 import pytest
+
 from decimal import Decimal
 
 from defi_protocols import Honeyswap, add_stderr_logger

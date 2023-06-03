@@ -1,6 +1,7 @@
 from typing import Union, List
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.constants import ETHTokenAddr
 
@@ -37,7 +38,7 @@ def underlying(wallet: str, token_address: str , block: Union[str,int], blockcha
 
     cToken_instance = get_contract(token_address, blockchain, abi=CTOKEN_ABI, web3=web3, block=block)
     cToken_balance = cToken_instance.functions.balanceOf(wallet).call(block_identifier=block)
-    base_token = cToken_instance.functions.baseToken().call()
+    base_token = const_call(cToken_instance.functions.baseToken())
     balances.append([base_token, to_token_amount(base_token, cToken_balance, blockchain, web3, decimals)])
 
     return balances

@@ -1,6 +1,7 @@
 from decimal import Decimal
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, get_decimals, timestamp_to_block, block_to_timestamp, to_token_amount
 from defi_protocols.constants import XDAI, GnosisTokenAddr, POLYGON, MAI_POL
 
@@ -90,11 +91,12 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
 
         if vault_contract.functions.exists(vault_id).call(block_identifier=block):
 
-            debt_address = vault_contract.functions.mai().call()
+            debt_address = const_call(vault_contract.functions.mai())
             vault_collateral = vault_contract.functions.vaultCollateral(vault_id).call(block_identifier=block)
             vault_debt = vault_contract.functions.vaultDebt(vault_id).call(block_identifier=block)
 
-            price_source_decimals = vault_contract.functions.priceSourceDecimals().call()
+            # TODO: determine if const_call can be used
+            price_source_decimals = vault_contract.functions.priceSourceDecimals().call(block_identifier=block)
 
             # Collateral Address
             vault_data['collateral_address'] = collateral_address
@@ -145,7 +147,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
             block_polygon = timestamp_to_block(block_to_timestamp(block, blockchain), POLYGON)
 
             price_feed_contract = get_contract(CHAINLINK_MATIC_USD, POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon)
-            price_feed_decimals = price_feed_contract.functions.decimals().call()
+            price_feed_decimals = const_call(price_feed_contract.functions.decimals())
             matic_usd_price = Decimal(price_feed_contract.functions.latestAnswer().call(block_identifier=block_polygon))
             matic_usd_price /= Decimal(10 ** price_feed_decimals)
 
@@ -197,7 +199,7 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, decim
 
             result.append([collateral_address, collateral_amount])
 
-            debt_address = vault_contract.functions.mai().call()
+            debt_address = const_call(vault_contract.functions.mai())
             debt_decimals = get_decimals(debt_address, blockchain, web3=web3) if decimals else 0
 
             debt_amount = -1 * Decimal(vault_contract.functions.vaultDebt(vault_id).call(block_identifier=block))

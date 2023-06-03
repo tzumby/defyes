@@ -2,6 +2,7 @@ from typing import Union
 from decimal import Decimal
 from web3 import Web3
 
+from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract
 
 # RealT Token Address
@@ -24,9 +25,9 @@ def underlying(wallet: str, block: Union[int,str], blockchain: str,
     token_contract = get_contract(TOKEN_CONTRACT_XDAI, blockchain,
                                   web3, abi=TOKEN_CONTRACT_ABI)
     balance_of = Decimal(token_contract.functions.balanceOf(wallet).call(block_identifier=block))
-    token_decimals = token_contract.functions.decimals().call()
-    underlying_token = token_contract.functions.UNDERLYING_ASSET_ADDRESS().call()
+    token_decimals = const_call(token_contract.functions.decimals())
+    underlying_token = const_call(token_contract.functions.UNDERLYING_ASSET_ADDRESS())
 
-    balance = balance_of / Decimal(10**(token_decimals if decimals else 0))
+    balance = balance_of / Decimal(10**token_decimals if decimals else 1)
 
     return [[underlying_token, balance]]

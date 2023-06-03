@@ -1,15 +1,10 @@
 import pytest
-import logging
 from decimal import Decimal
 
 from defi_protocols.functions import get_node
 from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH, DAI_ETH, USDC_ETH, USDT_ETH
 from defi_protocols import Curve, add_stderr_logger
 
-
-_h = add_stderr_logger(logging.DEBUG)
-logger = logging.getLogger(__name__)
-# logger.addHandler(_h)
 
 # 2023.04.06
 TEST_BLOCK = 16993460
@@ -81,7 +76,6 @@ def test_get_all_rewards(decimals):
 def test_underlying(reward, decimals):
     u = Curve.underlying(TEST_WALLET, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3,
                          reward=reward, decimals=decimals)
-    print(u)
     expected = [[DAI_ETH, Decimal('0'), Decimal('0')],
                 [USDC_ETH, Decimal('0'), Decimal('0')],
                 [USDT_ETH, Decimal('0'), Decimal('0')]]
@@ -96,7 +90,6 @@ def test_underlying(reward, decimals):
 def test_unwrap(lptoken_amount, decimals):
     u = Curve.unwrap(lptoken_amount, X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3,
                      decimals=decimals)
-    print(u)
     expected = {0:
                       [[DAI_ETH, Decimal('0')],
                       [USDC_ETH, Decimal('0')],
@@ -112,7 +105,6 @@ def test_unwrap(lptoken_amount, decimals):
 @pytest.mark.parametrize('decimals', [True, False])
 def test_pool_balances(decimals):
     pb = Curve.pool_balances(X3CRV_ETH, TEST_BLOCK, ETHEREUM, web3=WEB3, decimals=decimals)
-    print(pb)
     assert pb == [[DAI_ETH, Decimal('165857824629254122209119338') / Decimal(10**18 if decimals else 1)],
                   [USDC_ETH, Decimal('175604425510732') / Decimal(10**6 if decimals else 1)],
                   [USDT_ETH, Decimal('92743777795510') / Decimal(10**6 if decimals else 1)]]
@@ -141,7 +133,6 @@ def test_swap_fees(decimals):
 @pytest.mark.parametrize('apy', [False, True])
 def test_get_base_apr(apy):
     x = Curve.get_base_apr(X3CRV_ETH, ETHEREUM, TEST_BLOCK, web3=WEB3, apy=apy)
-    print(x)
     assert True
 
 
@@ -149,12 +140,10 @@ def test_get_base_apr(apy):
 @pytest.mark.parametrize('apy', [False, True])
 def test_swap_fees_v2(apy):
     sf = Curve.swap_fees_v2(X3CRV_ETH, ETHEREUM, TEST_BLOCK, web3=WEB3, apy=apy)
-    print(sf)
     assert True
 
 
 @pytest.mark.skip('web3.exceptions.ABIFunctionNotFound')
 def test_get_swap_fees_APR():
     sf = Curve.get_swap_fees_APR(X3CRV_ETH, ETHEREUM, TEST_BLOCK, web3=WEB3)
-    print(sf)
     assert True

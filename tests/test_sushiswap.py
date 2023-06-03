@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from defi_protocols import SushiSwap
+from defi_protocols import SushiSwap, add_stderr_logger
 from defi_protocols.constants import ETHEREUM, USDC_ETH, WETH_ETH, SUSHI_ETH, CVX_ETH, XDAI
 from defi_protocols.functions import get_node
 from defi_protocols.cache import const_call

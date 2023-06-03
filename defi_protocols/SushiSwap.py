@@ -173,8 +173,8 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
             pool_length = result['chef_contract'].functions.poolLength().call(block_identifier=block)
 
             for pool_id in range(pool_length):
-
-                address = result['chef_contract'].functions.poolInfo(pool_id).call()[0]
+                # TODO: determine if const_call can be used
+                address = result['chef_contract'].functions.poolInfo(pool_id).call(block_identifier=block)[0]
 
                 if address == lptoken_address:
                     result['pool_info'] = {
@@ -273,7 +273,8 @@ def get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id):
     :param pool_id:
     :return:
     """
-    rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call()
+    # TODO: determine if const_call can be used
+    rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call(block_identifier=block)
     if rewarder_contract_address != ZERO_ADDRESS:
         rewarder_contract = get_contract(rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
     else:
@@ -556,7 +557,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
             for swap_log in swap_logs:
                 block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
 
-                if swap_log['transactionHash'] in swap_log:
+                if swap_log['transactionHash'] in hash_overlap:
                     continue
 
                 if block_number == last_block:
@@ -686,7 +687,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
 
         # Rewarder Total Allocation Point Calculation
         rewarder_total_alloc_point = 0
-        for i in range(chef_contract.functions.poolLength().call()):
+        for i in range(chef_contract.functions.poolLength().call(block_identifier=block)):
             rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier=block)[2]
 
         reward_data['reward_address'] = \
@@ -781,7 +782,7 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
     token1_address = const_call(pool_contract.functions.token1())
     token1_price = get_price(token1_address,block_end,blockchain,web3)[0]
     token1_decimals = get_decimals(token1_address,blockchain,web3=web3,block=block_end)
-    reserves = pool_contract.functions.getReserves().call()
+    reserves = const_call(pool_contract.functions.getReserves())
     tvl = (reserves[0]/10**token0_decimals)*token0_price + (reserves[1]/10**token1_decimals)*token1_price
     apr = token_fees_usd/tvl * (365/days) * 100
     seconds_per_year = 365*24*60*60
@@ -823,54 +824,54 @@ def update_db():
 
     master_chefv2 = get_chef_contract(web3, 'latest', ETHEREUM)
     db_pool_length = len(db_data[ETHEREUM]['poolsv2'])
-    pools_delta = master_chefv2.functions.poolLength().call() - db_pool_length
+    pools_delta = master_chefv2.functions.poolLength().call(block_identifier='latest') - db_pool_length
 
     if pools_delta > 0:
 
         update = True
 
         for i in range(pools_delta):
-            lptoken_address = master_chefv2.functions.lpToken(db_pool_length + i).call()
+            lptoken_address = master_chefv2.functions.lpToken(db_pool_length + i).call(block_identifier='latest')
             db_data[ETHEREUM]['poolsv2'][lptoken_address] = db_pool_length + i
 
     master_chefv1 = get_chef_contract(web3, 'latest', ETHEREUM, v1=True)
     db_pool_length = len(db_data[ETHEREUM]['poolsv1'])
-    pools_delta = master_chefv1.functions.poolLength().call() - db_pool_length
+    pools_delta = master_chefv1.functions.poolLength().call(block_identifier='latest') - db_pool_length
 
     if pools_delta > 0:
 
         update = True
 
         for i in range(pools_delta):
-            lptoken_address = master_chefv1.functions.poolInfo(db_pool_length + i).call()[0]
+            lptoken_address = master_chefv1.functions.poolInfo(db_pool_length + i).call(block_identifier='latest')[0]
             db_data[ETHEREUM]['poolsv1'][lptoken_address] = db_pool_length + i
 
     web3 = get_node(POLYGON)
 
     mini_chef = get_chef_contract(web3, 'latest', POLYGON)
     db_pool_length = len(db_data[POLYGON]['pools'])
-    pools_delta = mini_chef.functions.poolLength().call() - db_pool_length
+    pools_delta = mini_chef.functions.poolLength().call(block_identifier='latest') - db_pool_length
 
     if pools_delta > 0:
 
         update = True
 
         for i in range(pools_delta):
-            lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call()
+            lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call(block_identifier='latest')
             db_data[POLYGON]['pools'][lptoken_address] = db_pool_length + i
 
     web3 = get_node(XDAI)
 
     mini_chef = get_chef_contract(web3, 'latest', XDAI)
     db_pool_length = len(db_data[XDAI]['pools'])
-    pools_delta = mini_chef.functions.poolLength().call() - db_pool_length
+    pools_delta = mini_chef.functions.poolLength().call(block_identifier='latest') - db_pool_length
 
     if pools_delta > 0:
 
         update = True
 
         for i in range(pools_delta):
-            lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call()
+            lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call(block_identifier='latest')
             db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
 
     if update is True:
