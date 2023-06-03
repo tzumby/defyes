@@ -183,25 +183,24 @@ def test_underlying2():
     assert dai == [ETHTokenAddr.DAI, Decimal('10020.02915614176748146463595'), Decimal('0'), Decimal('0')]
 
 
-@pytest.mark.xfail(reason="Endpoint returns execution reverted (FIXME)")
 def test_underlying3():
-    block = 27628264
+    block = 28275634
     node = get_node(XDAI, block)
 
     [[wxdai, usdt, usdc], [bal_rewards]] = Balancer.underlying(WALLET_e6f, bb_ag_USD_ADDR, block, XDAI, web3=node, reward=True)
     # [token, balance, staked, locked]
-    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal('0'), Decimal('231630.4520708764614852651447'), Decimal('0')]
-    assert usdt == [GnosisTokenAddr.USDT, Decimal('0'), Decimal('129389.9646741889854921886919'), Decimal('0')]
-    assert usdc == [GnosisTokenAddr.USDC, Decimal('0'), Decimal('215323.4406333984829272057417'), Decimal('0')]
-    assert bal_rewards == [GnosisTokenAddr.BAL, Decimal('912.766811694786760658')]
+    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal('0'), Decimal('225689.5790202310752030943317'), Decimal('0')]
+    assert usdt == [GnosisTokenAddr.USDT, Decimal('0'), Decimal('157457.9259177606355118786078'), Decimal('0')]
+    assert usdc == [GnosisTokenAddr.USDC, Decimal('0'), Decimal('193285.0087113081451905116408'), Decimal('0')]
+    assert bal_rewards == [GnosisTokenAddr.BAL, Decimal('72.028749058272541921')]
 
     [[wxdai, usdt, usdc, gno], [bal_rewards]] = Balancer.underlying(WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, XDAI, web3=node, reward=True)
     # [token, balance, staked, locked]
-    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal('0'), Decimal('326481.1081191359531049993899'), Decimal('0')]
-    assert usdt == [GnosisTokenAddr.USDT, Decimal('0'), Decimal('182374.0301357226114023222974'), Decimal('0')]
-    assert usdc == [GnosisTokenAddr.USDC, Decimal('0'), Decimal('303496.5172908532882309603470'), Decimal('0')]
-    assert gno == [GnosisTokenAddr.GNO, Decimal('0'), Decimal('7683.297282539918745398450942'), Decimal('0')]
-    assert bal_rewards == [GnosisTokenAddr.BAL, Decimal('1598.223979578614141886')]
+    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal('0'), Decimal('333762.1862551265554595821346'), Decimal('0')]
+    assert usdt == [GnosisTokenAddr.USDT, Decimal('0'), Decimal('232857.4576888133034458734522'), Decimal('0')]
+    assert usdc == [GnosisTokenAddr.USDC, Decimal('0'), Decimal('285840.5220032092259613956715'), Decimal('0')]
+    assert gno == [GnosisTokenAddr.GNO, Decimal('0'), Decimal('7325.982201639479819930022796'), Decimal('0')]
+    assert bal_rewards == [GnosisTokenAddr.BAL, Decimal('422.039676607937704001')]
 
 
 def test_pool_balances():

@@ -302,12 +302,12 @@ def get_rewards(web3, gauge_contract, wallet, block, blockchain, decimals=True):
     """
     rewards = []
 
-    if blockchain == ETHEREUM:
-        reward_count = gauge_contract.functions.reward_count().call(block_identifier=block)
-    else:
-        child_chain_streamer_contract = get_contract(const_call(gauge_contract.functions.reward_contract()), blockchain,
-                                                     web3=web3, abi=ABI_CHILD_CHAIN_STREAMER, block=block)
-        reward_count = child_chain_streamer_contract.functions.reward_count().call(block_identifier=block)
+    # if blockchain == ETHEREUM:
+    reward_count = gauge_contract.functions.reward_count().call(block_identifier=block)
+    # else:
+        # child_chain_streamer_contract = get_contract(gauge_contract.functions.reward_contract().call(), blockchain, 
+        #                                              web3=web3, abi=ABI_CHILD_CHAIN_STREAMER, block=block)
+        # reward_count = child_chain_streamer_contract.functions.reward_count().call(block_identifier=block)
 
     for i in range(reward_count):
 
@@ -377,9 +377,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     if gauge_address != ZERO_ADDRESS:
         gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
 
-        if blockchain == ETHEREUM:
-            bal_rewards = get_bal_rewards(web3, gauge_contract, wallet, block, blockchain)
-            all_rewards.append(bal_rewards)
+        # if blockchain == ETHEREUM:
+        bal_rewards = get_bal_rewards(web3, gauge_contract, wallet, block, blockchain)
+        all_rewards.append(bal_rewards)
 
         # In side-chains, BAL rewards are retrieved with the get_rewards function too
         rewards = get_rewards(web3, gauge_contract, wallet, block, blockchain)
@@ -408,11 +408,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
     vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
-    gauge_factory_address = get_gauge_factory_address(blockchain)
-    gauge_factory_contract = get_contract(gauge_factory_address, blockchain, web3=web3,
-                                            abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block)
-
-    gauge_address = const_call(gauge_factory_contract.functions.getPoolGauge(lptoken_address))
+    gauge_address = get_gauge_address(blockchain, block, web3, lptoken_address)
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
     lptoken_data['balanceOf'] = Decimal(lptoken_data['contract'].functions.balanceOf(wallet).call(block_identifier=block))
@@ -652,7 +648,11 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
-    pool_id = const_call(lptoken_contract.functions.getPoolId())
+    try:
+        pool_id = const_call(lptoken_contract.functions.getPoolId())
+    except:
+        pool_id = const_call(lptoken_contract.functions.POOL_ID())
+
     pool_id = '0x' + pool_id.hex()
     result['swaps'] = []
 
