@@ -729,57 +729,32 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_logs
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@cache_call(filter=latest_not_in_params)
-def get_logs(block_start, block_end, address, topic0, blockchain, **kwargs):
+def get_logs(block_start, block_end, address, topic0, blockchain, block_interval=None, **kwargs): 
+    block_interval = block_end if block_interval is None else block_interval
+
+    if block_end == 'latest':
+        web3 = get_node(blockchain)
+        block_end = web3.eth.block_number
+
+    n_blocks = list(range(block_start, block_end + 1, block_interval))
+    n_blocks += [] if ((block_end - block_start) / block_interval) % 1 == 0 else [block_end]
+    logs = []
+    for from_block, to_block in zip(n_blocks[:-1], n_blocks[1:]):
+        logs += _get_logs(block_start, block_end, address, topic0, blockchain, **kwargs)
+
+    return logs
+
+
+@cache_call()
+def _get_logs(block_start, block_end, address, topic0, blockchain, **kwargs):
+    KEYS_WHITELIST = ['topic1', 'topic2', 'topic3', 'topic0_1_opr',
+                      'topic0_2_opr', 'topic0_3_opr', 'topic1_2_opr',
+                      'topic1_3_opr' 'topic2_3_opr']
     data = None
     optional_parameters = ''
-
     for key, value in kwargs.items():
-
-        if key == 'topic1':
-            if value:
-                optional_parameters += '&topic1=%s' % (value)
-                continue
-
-        if key == 'topic2':
-            if value:
-                optional_parameters += '&topic2=%s' % (value)
-                continue
-
-        if key == 'topic3':
-            if value:
-                optional_parameters += '&topic3=%s' % (value)
-                continue
-
-        if key == 'topic0_1_opr':
-            if value:
-                optional_parameters += '&topic0_1_opr=%s' % (value)
-                continue
-
-        if key == 'topic0_2_opr':
-            if value:
-                optional_parameters += '&topic0_2_opr=%s' % (value)
-                continue
-
-        if key == 'topic0_3_opr':
-            if value:
-                optional_parameters += '&topic0_3_opr=%s' % (value)
-                continue
-
-        if key == 'topic1_2_opr':
-            if value:
-                optional_parameters += '&topic1_2_opr=%s' % (value)
-                continue
-
-        if key == 'topic1_3_opr':
-            if value:
-                optional_parameters += '&topic1_3_opr=%s' % (value)
-                continue
-
-        if key == 'topic2_3_opr':
-            if value:
-                optional_parameters += '&topic2_3_opr=%s' % (value)
-                continue
+        if key in KEYS_WHITELIST and value:
+            optional_parameters += f'&{key}={value}'
 
     if blockchain == ETHEREUM:
         data = requests.get(API_ETHERSCAN_GETLOGS % (
