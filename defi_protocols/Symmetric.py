@@ -554,9 +554,9 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1, block=block_start)
-    from IPython import embed; embed()
-    token0 = lptoken_contract.functions.getCurrentTokens().call(block_identifier=block)[0]
-    token1 = lptoken_contract.functions.getCurrentTokens().call(block_identifier=block)[1]
+
+    token0 = lptoken_contract.functions.getCurrentTokens().call(block_identifier='latest')[0]
+    token1 = lptoken_contract.functions.getCurrentTokens().call(block_identifier='latest')[1]
     result['swaps'] = []
 
     decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0

@@ -349,13 +349,13 @@ def update_db():
 
         staking_rewards_contract = get_staking_rewards_contract(web3, 'latest', blockchain)
 
-        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier=block)
+        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier='latest')
 
         for i in tqdm(range(distributions_amount), desc='Fetching distributors...'):
             distribution_address = staking_rewards_contract.functions.distributions(
-                distributions_amount - (i + 1)).call(block_identifier=block)
+                distributions_amount - (i + 1)).call(block_identifier='latest')
             distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION)
-            stakable_token = distribution_contract.functions.stakableToken().call(block_identifier=block)
+            stakable_token = distribution_contract.functions.stakableToken().call(block_identifier='latest')
 
             try:
                 db_data[blockchain][stakable_token]
