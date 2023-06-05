@@ -516,8 +516,8 @@ def search_proxy_contract(contract_address, blockchain, web3=None):
                 if output_types == ['address']:
                     try:
                         proxy_address_func = getattr(contract.functions, func['name'])
-                        proxy_address = proxy_address_func().call(block_identifier=block)
-                        if web3.isAddress(proxy_address) and proxy_address != ZERO_ADDRESS:
+                        proxy_address = const_call(proxy_address_func())
+                        if web3.is_address(proxy_address) and proxy_address != ZERO_ADDRESS:
                             return get_contract_proxy_abi(contract_address, proxy_address, blockchain, web3=web3)
                     except:
                         continue
