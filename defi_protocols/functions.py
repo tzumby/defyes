@@ -847,19 +847,27 @@ def is_archival(endpoint) -> bool:
 # 'web3' = web3 (Node) -> Improves performance
 # 'block' = block identifier used to call the getNode() function
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_logs_web3(address: str, blockchain: str, start_block: Optional[Union[int, str]] = None,
-                  topics: Optional[list] = None, block: Optional[Union[int, str]] = None,
-                  block_hash: Optional[str] = None, web3=None) -> dict:
-    if web3 == None:
+def get_logs_web3(address: str, blockchain: str, start_block: int | str = None,
+                  topics: list = None, block: int | str = None,
+                  block_hash: str = None, web3: Web3=None) -> dict:
+    #FIXME: Add documentation
+    if web3 is None:
         web3 = get_node(blockchain, block=block)
 
     address = Web3.to_checksum_address(address)
-    return web3.eth.get_logs(
-        {'address': address, 'fromBlock': start_block, 'toBlock': block, 'topics': topics, 'blockHash': block_hash})
+    logs = web3.eth.get_logs({'address': address, 'fromBlock': start_block, 'toBlock': None, 'topics': topics, 'blockHash': block_hash})
+
+    if not isinstance(block, str) and block is not None:
+        for i in range(len(logs)):
+            if logs[i]['blockNumber'] > block:
+                logs = logs[:i]
+                break
+    return logs
 
 
-def get_transaction(tx_hash: str, blockchain: str, block: str = 'latest') -> dict:
-    if web3 == None:
+def get_transaction(tx_hash: str, blockchain: str, block: str = 'latest', web3:Web3=None) -> dict:
+    #FIXME: Add documentation
+    if web3 is None:
         web3 = get_node(blockchain, block=block)
 
     return web3.eth.get_transaction(tx_hash)  

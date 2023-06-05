@@ -12,15 +12,11 @@ NFT_ID = 1099511627781
 BLOCK = 27532353
 NODE = get_node(XDAI, BLOCK)
 
-xfail = pytest.mark.xfail(reason="Azuro endpoint limit issue")
 
-
-@xfail
 def test_get_deposit():
     assert Azuro.get_deposit(WALLET_N1, NFT_ID, Azuro.POOL_ADDR_V2, BLOCK, XDAI, NODE) == 500000000000000000000000
 
 
-@xfail
 def test_underlying():
     assert Azuro.underlying(WALLET_N1,
                             NFT_ID,
@@ -31,7 +27,6 @@ def test_underlying():
                                               [WXDAI, Decimal('22206.977145829181047864')]]
 
 
-@xfail
 def test_underlying_all():
     assert Azuro.underlying_all(WALLET_N1,
                                 BLOCK,
