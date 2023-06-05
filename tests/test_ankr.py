@@ -10,6 +10,22 @@ BLOCKCHAIN = ETHEREUM
 def test_underlying():
     block = 17293000
     underlying_unwrapped = Ankr.underlying(WALLET, block, BLOCKCHAIN, unwrapped=True)
-    assert underlying_unwrapped == [[ZERO_ADDRESS, Decimal('269.06349805584043045')]]
+    assert underlying_unwrapped == [[ZERO_ADDRESS, Decimal('269.0634980558404304508072537')]]
     underlying_wrapped = Ankr.underlying(WALLET, block, BLOCKCHAIN, unwrapped=False)
     assert underlying_wrapped == [[ANKR_ADDR, Decimal('241.476225403906583644')]]
+
+def test_unwrap():
+    block = 17293000
+    amount_int = 12345677893892348743
+    unwrapped_int_result = Ankr.unwrap(amount_int, block, BLOCKCHAIN)
+    assert unwrapped_int_result == [[ZERO_ADDRESS, Decimal('13.75610072770168784459304943')]]
+    amount_float = amount_int+0.1
+    unwrapped_float_result = Ankr.unwrap(amount_float, block, BLOCKCHAIN)
+    assert unwrapped_float_result == [[ZERO_ADDRESS, Decimal('13.75610072770168690974211539')]]
+    amount_decimal = Decimal(amount_float)
+    unwrapped_decimal_result = Ankr.unwrap(amount_decimal, block, BLOCKCHAIN)
+    assert unwrapped_decimal_result == [[ZERO_ADDRESS, Decimal('13.75610072770168690974211539')]]
+
+
+
+
