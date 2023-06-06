@@ -1,7 +1,7 @@
 import pytest
 from decimal import Decimal
 
-from defi_protocols import Bancor, add_stderr_logger
+from defi_protocols import Bancor
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, E_ADDRESS
 from defi_protocols.functions import get_node
 

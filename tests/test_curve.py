@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from defi_protocols.functions import get_node
 from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH, DAI_ETH, USDC_ETH, USDT_ETH
-from defi_protocols import Curve, add_stderr_logger
+from defi_protocols import Curve
 
 
 # 2023.04.06

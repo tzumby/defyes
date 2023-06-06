@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from defi_protocols import Compound, add_stderr_logger
+from defi_protocols import Compound
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node
 

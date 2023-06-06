@@ -2,7 +2,7 @@ import pytest
 
 from decimal import Decimal
 
-from defi_protocols import Honeyswap, add_stderr_logger
+from defi_protocols import Honeyswap
 from defi_protocols.functions import get_node
 from defi_protocols.constants import XDAI, WETH_XDAI, GNO_XDAI
 

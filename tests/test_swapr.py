@@ -2,7 +2,7 @@ import pytest
 
 from decimal import Decimal
 
-from defi_protocols import Swapr, add_stderr_logger
+from defi_protocols import Swapr
 from defi_protocols.functions import get_node, get_contract
 from defi_protocols.constants import XDAI, ETHEREUM, GNO_XDAI, WETH_XDAI
 

@@ -3,7 +3,7 @@ import pytest
 from decimal import Decimal
 from tempfile import NamedTemporaryFile
 
-from defi_protocols import Aura, add_stderr_logger
+from defi_protocols import Aura
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
 from defi_protocols.functions import get_node, get_contract
 

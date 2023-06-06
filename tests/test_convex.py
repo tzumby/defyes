@@ -1,7 +1,7 @@
 import pytest
 from decimal import Decimal
 
-from defi_protocols import Convex, add_stderr_logger
+from defi_protocols import Convex
 from defi_protocols.functions import get_node, get_contract
 from defi_protocols.constants import ETHEREUM, X3CRV_ETH, CRV_ETH, DAI_ETH, USDC_ETH, USDT_ETH, CVX_ETH, LDO_ETH
 

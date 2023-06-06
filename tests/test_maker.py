@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from defi_protocols import Maker, add_stderr_logger
+from defi_protocols import Maker
 from defi_protocols.functions import get_node
 from defi_protocols.constants import ETHEREUM, DAI_ETH, ETHTokenAddr
 
