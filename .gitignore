@@ -8,3 +8,5 @@ config.json
 *,cover
 .coverage
 *.egg-info
+.tmp/
+.home/
