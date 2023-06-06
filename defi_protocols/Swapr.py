@@ -6,7 +6,7 @@ from tqdm import tqdm
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs
+from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs_web3
 from defi_protocols.constants import ETHEREUM, XDAI
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -36,6 +36,9 @@ ABI_LPTOKEN = '[{"type":"function","stateMutability":"view","payable":false,"out
 # Swap Event Signature
 
 SWAP_EVENT_SIGNATURE = 'Swap(address,uint256,uint256,uint256,uint256,address)'
+
+
+DB_FILE = Path(__file__).parent / "db" / "Swapr_db.json"
 
 
 def get_staking_rewards_contract(web3, block, blockchain):
@@ -280,61 +283,36 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0
     decimals1 = get_decimals(token1, blockchain, web3=web3) if decimals else 0
 
-    get_logs_bool = True
-    block_from = block_start
-    block_to = block_end
-
     swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
+    swap_logs = get_logs_web3(address=lptoken_address,
+                              blockchain=blockchain,
+                              block_start=block_start,
+                              block_end=block_end,
+                              topics=[swap_event])
 
-    while get_logs_bool:
-        swap_logs = get_logs(block_from, block_to, lptoken_address, swap_event, blockchain)
-
-        log_count = len(swap_logs)
-
-        if log_count != 0:
-            last_block = int(
-                swap_logs[log_count - 1]['blockNumber'][2:len(swap_logs[log_count - 1]['blockNumber'])], 16)
-
-            for swap_log in swap_logs:
-                block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
-
-                if swap_log['transactionHash'] in hash_overlap:
-                    continue
-
-                if block_number == last_block:
-                    hash_overlap.append(swap_log['transactionHash'])
-
-                fee = lptoken_contract.functions.swapFee().call(block_identifier=block_number)
-
-                if int(swap_log['data'][2:66], 16) == 0:
-                    swap_data = {
-                        'block': block_number,
-                        'token': token1,
-                        'amount': (Decimal(fee) / Decimal(10000)) * Decimal(int(swap_log['data'][67:130], 16)) / Decimal(10 ** decimals1)
-                    }
-                else:
-                    swap_data = {
-                        'block': block_number,
-                        'token': token0,
-                        'amount': (Decimal(fee) / Decimal(10000)) * Decimal(int(swap_log['data'][2:66], 16)) / Decimal(10 ** decimals0)
-                    }
-
-                result['swaps'].append(swap_data)
-
-        if log_count < 1000:
-            get_logs_bool = False
-
+    for swap_log in swap_logs:
+        fee = lptoken_contract.functions.swapFee().call(block_identifier=swap_log['blockNumber'])
+        if int(swap_log['data'].hex()[2:66], 16) == 0:
+            token = token1
+            amount = Decimal(fee) / Decimal(10000) * int(swap_log['data'].hex()[67:130], 16) / Decimal(10 ** decimals1)
         else:
-            block_from = block_number
+            token = token0
+            amount = Decimal(fee) / Decimal(10000) * int(swap_log['data'].hex()[2:66], 16) / Decimal(10 ** decimals0)
+
+        swap_data = {
+            'block': swap_log['blockNumber'],
+            'token': token,
+            'amount': amount
+        }
+
+        result['swaps'].append(swap_data)
 
     return result
 
 
-# FIXME: path should be a parameter
-def update_db():
-
+def update_db(output_file=DB_FILE, block='latest'):
     try:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Swapr_db.json', 'r') as db_file:
+        with open(DB_FILE, 'r') as db_file:
             db_data = json.load(db_file)
     except:
         db_data = {
@@ -347,15 +325,15 @@ def update_db():
 
         web3 = get_node(blockchain)
 
-        staking_rewards_contract = get_staking_rewards_contract(web3, 'latest', blockchain)
+        staking_rewards_contract = get_staking_rewards_contract(web3, block, blockchain)
 
-        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier='latest')
+        distributions_amount = staking_rewards_contract.functions.getDistributionsAmount().call(block_identifier=block)
 
         for i in tqdm(range(distributions_amount), desc='Fetching distributors...'):
             distribution_address = staking_rewards_contract.functions.distributions(
-                distributions_amount - (i + 1)).call(block_identifier='latest')
+                distributions_amount - (i + 1)).call(block_identifier=block)
             distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION)
-            stakable_token = distribution_contract.functions.stakableToken().call(block_identifier='latest')
+            stakable_token = distribution_contract.functions.stakableToken().call(block_identifier=block)
 
             try:
                 db_data[blockchain][stakable_token]
@@ -364,5 +342,5 @@ def update_db():
 
             db_data[blockchain][stakable_token].append(Web3.to_checksum_address(distribution_address))
 
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Swapr_db.json', 'w') as db_file:
+        with open(output_file, 'w') as db_file:
             json.dump(db_data, db_file)

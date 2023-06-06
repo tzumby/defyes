@@ -106,9 +106,9 @@ def test_get_wallet_by_tx():
 def test_swap_fees():
     fees = SushiSwap.swap_fees(SUSHISWAP_POOL_USDC_WETH, block_start=TEST_BLOCK, block_end=TEST_BLOCK+100,
                                blockchain=ETHEREUM)
-    assert fees == {'swaps': [{'block': 16836208, 'token': WETH_ETH, 'amount': Decimal('0.001260902533618111983')},
+    assert fees == {'swaps': [{'block': 16836208, 'token': WETH_ETH, 'amount': Decimal('0.001260902533618112')},
                               {'block': 16836209, 'token': WETH_ETH, 'amount': Decimal('0.00201')},
                               {'block': 16836228, 'token': WETH_ETH, 'amount': Decimal('0.000297375')},
                               {'block': 16836229, 'token': USDC_ETH, 'amount': Decimal('0.9')},
-                              {'block': 16836265, 'token': WETH_ETH, 'amount': Decimal('0.000779999999999999997')},
-                              {'block': 16836287, 'token': USDC_ETH, 'amount': Decimal('0.750')}]}
+                              {'block': 16836265, 'token': WETH_ETH, 'amount': Decimal('0.00078')},
+                              {'block': 16836287, 'token': USDC_ETH, 'amount': Decimal('0.75')}]}

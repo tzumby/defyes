@@ -7,7 +7,7 @@ from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs, to_token_amount, last_block
+from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs_web3, to_token_amount
 from defi_protocols.constants import ETHEREUM, XDAI, BAL_ETH, BAL_ARB, BAL_XDAI, BB_A_USD_OLD_ETH, BB_A_USD_ETH, POLYGON, ARBITRUM, BAL_POL, ZERO_ADDRESS
 from defi_protocols.prices.prices import get_price
 
@@ -157,46 +157,21 @@ def get_gauge_address(blockchain, block, web3, lptoken_addr):
 
     if gauge_factory_address != LIQUIDITY_GAUGE_FACTORY_ETHEREUM:
         block_from = BLOCKCHAIN_START_BLOCK[blockchain]
-        get_logs_bool = True
-        gauge_found = False
-        block_to = last_block(blockchain, web3=web3)
-        hash_overlap = []
-
         gauge_created_event = web3.keccak(text=GAUGE_CREATED_EVENT_SIGNATURE).hex()
 
-        while get_logs_bool:
-            gauge_created_logs = get_logs(block_from, block_to, gauge_factory_address, gauge_created_event, blockchain)
+        logs = get_logs_web3(address=gauge_factory_address,
+                             blockchain=blockchain,
+                             block_start=block_from,
+                             block_end=block,
+                             topics=[gauge_created_event])
+        for log in logs:
+            tx = web3.eth.get_transaction(log['transactionHash'])
+            if lptoken_addr == Web3.to_checksum_address(f"0x{tx['input'][34:74]}"):
+                gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
+                break
+        return gauge_address
 
-            log_count = len(gauge_created_logs)
 
-            if log_count != 0:
-                end_block = int(
-                    gauge_created_logs[log_count - 1]['blockNumber'][2:len(gauge_created_logs[log_count - 1]['blockNumber'])], 16)
-
-                for gauge_created_log in gauge_created_logs:
-                    block_number = int(gauge_created_log['blockNumber'][2:len(gauge_created_log['blockNumber'])], 16)
-
-                    if gauge_created_log['transactionHash'] in hash_overlap:
-                        continue
-
-                    if block_number == end_block:
-                        hash_overlap.append(gauge_created_log['transactionHash'])
-
-                    tx = web3.eth.get_transaction(gauge_created_log['transactionHash'])
-                    if lptoken_addr == Web3.to_checksum_address('0x'+tx['input'][34:74]):
-                        gauge_address = Web3.to_checksum_address('0x' + gauge_created_log['topics'][1][-40:])
-                        gauge_found = True
-                        break
-                
-                if gauge_found:
-                    break
-            
-            if log_count < 1000:
-                get_logs_bool = False
-
-            else:
-                block_from = block_number
-    
     return gauge_address
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -647,14 +622,12 @@ def unwrap(lptoken_amount: Decimal, lptoken_address: str, block: int | str, bloc
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, decimals=True):
 
     result = {}
-    hash_overlap = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block_start)
+        web3 = get_node(blockchain, block=block_end)
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
-
     try:
         pool_id = const_call(lptoken_contract.functions.getPoolId())
     except:  # FIXME: too broad exception
@@ -662,51 +635,27 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     pool_id = '0x' + pool_id.hex()
     result['swaps'] = []
-
-    get_logs_bool = True
-    block_from = block_start
-    block_to = block_end
-
     swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
-    swap_logs = get_logs(block_start, block_end, VAULT, swap_event, blockchain, topic1=pool_id)
+    swap_logs = get_logs_web3(address=VAULT,
+                              blockchain=blockchain,
+                              block_start=block_start,
+                              block_end=block_end,
+                              topics=[swap_event, pool_id])
 
-    while get_logs_bool:
-        swap_logs = get_logs(block_from, block_to, VAULT, swap_event, blockchain, topic1=pool_id)
+    for swap_log in swap_logs:
+        token_in = Web3.to_checksum_address(f"0x{swap_log['topics'][2].hex()[-40:]}")
+        lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
+        swap_fee = Decimal(lptoken_contract.functions.getSwapFeePercentage().call(block_identifier=swap_log['blockNumber']))
+        swap_fee /= Decimal(10 ** lptoken_decimals)
+        swap_fee *= int(swap_log['data'].hex()[2:66], 16)
 
-        log_count = len(swap_logs)
+        swap_data = {
+            'block': swap_log['blockNumber'],
+            'tokenIn': token_in,
+            'amountIn': to_token_amount(token_in, swap_fee, blockchain, web3, decimals)
+        }
 
-        if log_count != 0:
-            last_block = int(
-                swap_logs[log_count - 1]['blockNumber'][2:len(swap_logs[log_count - 1]['blockNumber'])], 16)
-
-            for swap_log in swap_logs:
-                block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
-
-                if swap_log['transactionHash'] in hash_overlap:
-                    continue
-
-                if block_number == last_block:
-                    hash_overlap.append(swap_log['transactionHash'])
-
-                token_in = Web3.to_checksum_address('0x' + swap_log['topics'][2][-40:])
-                lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
-                swap_fee = Decimal(lptoken_contract.functions.getSwapFeePercentage().call(block_identifier=block_number))
-                swap_fee /= Decimal(10 ** lptoken_decimals)
-                swap_fee *= int(swap_log['data'][2:66], 16)
-
-                swap_data = {
-                    'block': block_number,
-                    'tokenIn': token_in,
-                    'amountIn': to_token_amount(token_in, swap_fee, blockchain, web3, decimals)
-                }
-
-                result['swaps'].append(swap_data)
-
-        if log_count < 1000:
-            get_logs_bool = False
-
-        else:
-            block_from = block_number
+        result['swaps'].append(swap_data)
 
     return result
 
@@ -719,6 +668,10 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
     block_start = date_to_block(datetime.strftime(
         datetime.strptime(block_to_date(block_end, blockchain), '%Y-%m-%d %H:%M:%S') - timedelta(days=days),
         '%Y-%m-%d %H:%M:%S'), blockchain)
+
+    if block_start < BLOCKCHAIN_START_BLOCK[blockchain]:
+        block_start = BLOCKCHAIN_START_BLOCK[blockchain]
+
     fees = swap_fees(lptoken_address, block_start, block_end, blockchain, web3)
     # create a dictionary to store the total amountIn for each tokenIn
     totals_dict = {}
@@ -749,4 +702,3 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str, block_end: Union[in
     else:
         return apr
 
-get_gauge_address(ETHEREUM, 'latest', get_node(ETHEREUM), '0xfeBb0bbf162E64fb9D0dfe186E517d84C395f016')

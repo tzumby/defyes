@@ -50,7 +50,7 @@ def test_swap_fees(decimals):
                             decimals=decimals)
     assert x['swaps'] == [{'block': 27449397,
                            'token': GNO_XDAI,
-                           'amount': Decimal('18914160864473195.745') / Decimal(10**18 if decimals else 1)},
+                           'amount': Decimal('18914160864473196') / Decimal(10**18 if decimals else 1)},
                           {'block': 27450198,
                            'token': GNO_XDAI,
-                           'amount': Decimal('2825275064344436.103') / (10**18 if decimals else 1)}]
+                           'amount': Decimal('2825275064344436') / (10**18 if decimals else 1)}]

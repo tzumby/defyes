@@ -723,13 +723,8 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
     return data
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # LOGS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_logs
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_logs(block_start, block_end, address, topic0, blockchain, block_interval=None, **kwargs): 
+def get_block_intervals(blockchain, block_start, block_end, block_interval):
     block_interval = block_end if block_interval is None else block_interval
 
     if block_end == 'latest':
@@ -738,15 +733,14 @@ def get_logs(block_start, block_end, address, topic0, blockchain, block_interval
 
     n_blocks = list(range(block_start, block_end + 1, block_interval))
     n_blocks += [] if ((block_end - block_start) / block_interval) % 1 == 0 else [block_end]
-    logs = []
-    for from_block, to_block in zip(n_blocks[:-1], n_blocks[1:]):
-        logs += _get_logs(block_start, block_end, address, topic0, blockchain, **kwargs)
 
-    return logs
+    return list(zip(n_blocks[:-1], n_blocks[1:]))
+
 
 
 @cache_call()
-def _get_logs(block_start, block_end, address, topic0, blockchain, **kwargs):
+def get_logs_http(block_start, block_end, address, topic0, blockchain, **kwargs):
+    # Returns only the first 1000 results
     KEYS_WHITELIST = ['topic1', 'topic2', 'topic3', 'topic0_1_opr',
                       'topic0_2_opr', 'topic0_3_opr', 'topic1_2_opr',
                       'topic1_3_opr' 'topic2_3_opr']
@@ -799,8 +793,40 @@ def _get_logs(block_start, block_end, address, topic0, blockchain, **kwargs):
     return data
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_logs_web3
+def get_logs_web3(address: str,
+                  blockchain: str,
+                  block_start: int | str = None,
+                  block_end: int | str = None,
+                  topics: list = None,
+                  block_hash: str = None,
+                  web3: Web3 = None) -> dict:
+    #FIXME: Add documentation
+    if web3 is None:
+        web3 = get_node(blockchain, block=block_end)
 
+    address = Web3.to_checksum_address(address)
+    try:
+        logs = web3.eth.get_logs({'address': address, 'fromBlock': block_start, 'toBlock': None, 'topics': topics, 'blockHash': block_hash})
+        if not isinstance(block_end, str) and block_end is not None:
+            for i in range(len(logs)):
+                if logs[i]['blockNumber'] > block_end:
+                    logs = logs[:i]
+                    break
+    except ValueError as error:
+        error_info = error.args[0]
+        if error_info['code'] == -32005:
+            logs = []
+            block_interval = int(error_info['data']['to'], 16) - int(error_info['data']['from'], 16)
+            logger.debug(f'Web3.eth.get_logs: query returned more than 10000 results. Trying with a {block_interval} block range.')
+            for from_block, to_block in get_block_intervals(blockchain, block_start, block_end, block_interval):
+                logs += web3.eth.get_logs({'address': address, 'fromBlock': from_block, 'toBlock': to_block, 'topics': topics, 'blockHash': block_hash})
+        else:
+            raise ValueError
+    return logs
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_block_samples(start_date, samples, blockchain, end_date='latest', utc=0, dates=False):
     start_timestamp = date_to_timestamp(start_date, utc=utc)
     if end_date == 'latest':
@@ -824,7 +850,6 @@ def get_block_samples(start_date, samples, blockchain, end_date='latest', utc=0,
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 def is_archival(endpoint) -> bool:
     """
     Checks whether a node is an archival node or a full node.
@@ -840,34 +865,3 @@ def is_archival(endpoint) -> bool:
     except ValueError:
         return False
     return True
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_logs_web3
-# 'web3' = web3 (Node) -> Improves performance
-# 'block' = block identifier used to call the getNode() function
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_logs_web3(address: str, blockchain: str, start_block: int | str = None,
-                  topics: list = None, block: int | str = None,
-                  block_hash: str = None, web3: Web3=None) -> dict:
-    #FIXME: Add documentation
-    if web3 is None:
-        web3 = get_node(blockchain, block=block)
-
-    address = Web3.to_checksum_address(address)
-    logs = web3.eth.get_logs({'address': address, 'fromBlock': start_block, 'toBlock': None, 'topics': topics, 'blockHash': block_hash})
-
-    if not isinstance(block, str) and block is not None:
-        for i in range(len(logs)):
-            if logs[i]['blockNumber'] > block:
-                logs = logs[:i]
-                break
-    return logs
-
-
-def get_transaction(tx_hash: str, blockchain: str, block: str = 'latest', web3:Web3=None) -> dict:
-    #FIXME: Add documentation
-    if web3 is None:
-        web3 = get_node(blockchain, block=block)
-
-    return web3.eth.get_transaction(tx_hash)  

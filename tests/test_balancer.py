@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from defi_protocols import Balancer, add_stderr_logger
+from defi_protocols import Balancer
 from defi_protocols.constants import ETHEREUM, XDAI, POLYGON, BAL_POL, ETHTokenAddr, GnosisTokenAddr
 from defi_protocols.functions import get_contract, get_node, date_to_block
 
@@ -271,7 +271,6 @@ def test_swap_fees():
 
     assert swaps['swaps'] == [{'block': 16671528, 'tokenIn': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'amountIn': Decimal('0.09017533361647305728')},
                               {'block': 16671542, 'tokenIn': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'amountIn': Decimal('0.0795350748930228736')}]
-
 
 def test_swap_fees_apr():
     blockend = date_to_block('2023-02-20 18:30:00', ETHEREUM)
