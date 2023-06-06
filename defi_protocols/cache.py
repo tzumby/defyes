@@ -24,7 +24,11 @@ def check_version():
 if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
     logger.debug(f"Cache enabled. Storage is at '{cache_dir}'.")
-    _cache = diskcache.Cache(directory=cache_dir)
+
+    # If a value serialized size is great than disk_min_file_size then it will be
+    # saved into a file and not into the sqlite cache.db
+    MIN_FILE_SIZE_BYTES = 250 * 1024 * 1024
+    _cache = diskcache.Cache(directory=cache_dir, disk_min_file_size=MIN_FILE_SIZE_BYTES)
     check_version()
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
