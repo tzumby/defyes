@@ -69,6 +69,11 @@ NODE_OPTIMISM = {
     'archival': config_data['nodes'][OPTIMISM]['archival']
 }
 
+NODE_ARBITRUM = {
+    'latest': config_data['nodes'][ARBITRUM]['latest'],
+    'archival': config_data['nodes'][ARBITRUM]['archival']
+}
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # TESTNETS
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -97,9 +102,9 @@ NODES_ENDPOINTS = {
     OPTIMISM: NODE_OPTIMISM,
     ROPSTEN: NODE_ROPSTEN,
     KOVAN: NODE_KOVAN,
-    GOERLI: NODE_GOERLI
+    GOERLI: NODE_GOERLI,
+    ARBITRUM: NODE_ARBITRUM
 }
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # MAX EXECUTIONS
@@ -298,6 +303,7 @@ API_KEY_BINANCE = config_data['apikeys']['binance']
 API_KEY_AVALANCHE = config_data['apikeys']['avalanche']
 API_KEY_FANTOM = config_data['apikeys']['fantom']
 API_KEY_OPTIMISM = config_data['apikeys']['optimism']
+API_KEY_ARBITRUM = config_data['apikeys']['arbitrum']
 API_KEY_ZAPPER = config_data['apikeys']['zapper']
 API_KEY_ETHPLORER = config_data['apikeys']['ethplorer']
 
@@ -323,6 +329,7 @@ API_BINANCE_GETBLOCKNOBYTIME = 'https://api.bscscan.com/api?module=block&action=
 API_AVALANCHE_GETBLOCKNOBYTIME = 'https://api.snowtrace.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s'
 API_FANTOM_GETBLOCKNOBYTIME = 'https://api.ftmscan.com/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s'
 API_OPTIMISM_GETBLOCKNOBYTIME = 'https://api-optimistic.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s'
+API_ARBITRUM_GETBLOCKNOBYTIME = 'https://api.arbiscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s'
 API_ROPSTEN_GETBLOCKNOBYTIME = 'https://api-ropsten.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s'
 API_KOVAN_GETBLOCKNOBYTIME = 'https://api-kovan.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s'
 API_GOERLI_GETBLOCKNOBYTIME = 'https://api-goerli.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s'
@@ -336,6 +343,7 @@ API_BINANCE_GETBLOCKREWARD = 'https://api.bscscan.com/api?module=block&action=ge
 API_AVALANCHE_GETBLOCKREWARD = 'https://api.snowtrace.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s'
 API_FANTOM_GETBLOCKREWARD = 'https://api.ftmscan.com/api?module=block&action=getblockreward&blockno=%d&apikey=%s'
 API_OPTIMISM_GETBLOCKREWARD = 'https://api-optimistic.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s'
+API_ARBITRUM_GETBLOCKREWARD = 'https://api.arbiscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s'
 API_ROPSTEN_GETBLOCKREWARD = 'https://api-ropsten.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s'
 API_KOVAN_GETBLOCKREWARD = 'https://api-kovan.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s'
 API_GOERLI_GETBLOCKREWARD = 'https://api-goerli.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s'
@@ -349,6 +357,7 @@ API_BINANCE_GETABI = 'https://api.bscscan.com/api?module=contract&action=getabi&
 API_AVALANCHE_GETABI = 'https://api.snowtrace.io/api?module=contract&action=getabi&address=%s&apikey=%s'
 API_FANTOM_GETABI = 'https://api.ftmscan.com/api?module=contract&action=getabi&address=%s&apikey=%s'
 API_OPTIMISM_GETABI = 'https://api-optimistic.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s'
+API_ARBITRUM_GETABI = 'https://api.arbiscan.io/api?module=contract&action=getabi&address=%s&apikey=%s'
 API_ROPSTEN_GETABI = 'https://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s'
 API_KOVAN_GETABI = 'https://api-kovan.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s'
 API_GOERLI_GETABI = 'https://api-goerli.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s'
@@ -362,6 +371,7 @@ API_BINANCE_TOKENTX = 'https://api.bscscan.com/api?module=account&action=tokentx
 API_AVALANCHE_TOKENTX = 'https://api.snowtrace.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_FANTOM_TOKENTX = 'https://api.ftmscan.com/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_OPTIMISM_TOKENTX = 'https://api-optimistic.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
+API_ARBITRUM_TOKENTX = 'https://api.arbiscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_ROPSTEN_TOKENTX = 'https://api-ropsten.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_KOVAN_TOKENTX = 'https://api-kovan.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_GOERLI_TOKENTX = 'https://api-goerli.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
@@ -375,6 +385,7 @@ API_BINANCE_TXLIST = 'https://api.bscscan.com/api?module=account&action=txlist&a
 API_AVALANCHE_TXLIST = 'https://api.snowtrace.io/api?module=account&action=txlist&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_FANTOM_TXLIST = 'https://api.ftmscan.com/api?module=account&action=txlist&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_OPTIMISM_TXLIST = 'https://api-optimistic.etherscan.io/api?module=account&action=txlist&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
+API_ARBITRUM_TXLIST = 'https://api.arbiscan.io/api?module=account&action=txlist&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_ROPSTEN_TXLIST = 'https://api-ropsten.etherscan.io/api?module=account&action=txlist&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_KOVAN_TXLIST = 'https://api-kovan.etherscan.io/api?module=account&action=txlist&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_GOERLI_TXLIST = 'https://api-goerli.etherscan.io/api?module=account&action=txlist&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
@@ -388,6 +399,7 @@ API_AVALANCHE_GETLOGS = 'https://api.snowtrace.io/api?module=logs&action=getLogs
 API_BINANCE_GETLOGS = 'https://api.bscscan.com/api?module=logs&action=getLogs&fromBlock=%s&toBlock=%s&address=%s&topic0=%s&apikey=%s'
 API_FANTOM_GETLOGS = 'https://api.ftmscan.com/api?module=logs&action=getLogs&fromBlock=%s&toBlock=%s&address=%s&topic0=%s&apikey=%s'
 API_OPTIMISM_GETLOGS = 'https://api-optimistic.etherscan.io/api?module=logs&action=getLogs&fromBlock=%s&toBlock=%s&address=%s&topic0=%s&apikey=%s'
+API_ARBITRUM_GETLOGS = 'https://api.arbiscan.io/api?module=logs&action=getLogs&fromBlock=%s&toBlock=%s&address=%s&topic0=%s&apikey=%s'
 API_ROPSTEN_GETLOGS = 'https://api-ropsten.etherscan.io/api?module=logs&action=getLogs&fromBlock=%s&toBlock=%s&address=%s&topic0=%s&apikey=%s'
 API_KOVAN_GETLOGS = 'https://api-kovan.etherscan.io/api?module=logs&action=getLogs&fromBlock=%s&toBlock=%s&address=%s&topic0=%s&apikey=%s'
 API_GOERLI_GETLOGS = 'https://api-goerli.etherscan.io/api?module=logs&action=getLogs&fromBlock=%s&toBlock=%s&address=%s&topic0=%s&apikey=%s'

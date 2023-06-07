@@ -47,6 +47,7 @@ class Explorer(ExtendedEnum):
     BSCSCAN = 'bscscan.com'
     AVAXSCAN = 'snowtrace.io'
     FTMSCAN = 'ftmscan.io'
+    ARBISCAN = 'arbisscan.io'
 
     def __str__(self) -> str:
         """Represent as string."""
