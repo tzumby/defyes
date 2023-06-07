@@ -335,35 +335,27 @@ def update_db(db_path=None, save_to=None):
     if save_to is None:
         save_to = db_path
 
-    try:
-        with open(db_path, 'r') as db_file:
-            # Reading from json file
-            db_data = json.load(db_file)
-    # FIXME: use specific exception
-    except:
-        db_data = {
-            'pools': {}
-        }
+    db_data = {
+        'pools': {}
+    }
 
     web3 = get_node(ETHEREUM)
 
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
-    db_pool_length = len(db_data['pools'])
 
-    pools_delta = booster.functions.poolLength().call(block_identifier='latest') - db_pool_length
+    pools_length = booster.functions.poolLength().call(block_identifier='latest')
 
-    if pools_delta > 0:
-        for i in range(pools_delta):
-            pool_info = const_call(booster.functions.poolInfo(db_pool_length + i))
-            db_data['pools'][pool_info[0]] = {
-                'poolId': db_pool_length + i,
-                'token': pool_info[1],
-                'gauge': pool_info[2],
-                'crvRewards': pool_info[3],
-                'stash': pool_info[4],
-                'shutdown': pool_info[5]
-            }
+    for i in range(pools_length):
+        pool_info = booster.functions.poolInfo(i).call(block_identifier='latest')  # can't be const_call!
+        db_data['pools'][pool_info[0]] = {
+            'poolId': i,
+            'token': pool_info[1],
+            'gauge': pool_info[2],
+            'crvRewards': pool_info[3],
+            'stash': pool_info[4],
+            'shutdown': pool_info[5]
+        }
 
     with open(save_to, 'w') as db_file:
-        json.dump(db_data, db_file)
+        json.dump(db_data, db_file, indent=2)
     return db_data

@@ -411,40 +411,23 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     return balances
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# update_db
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db(output_file=DB_FILE, block='latest'):
-
-    try:
-        with open(DB_FILE, 'r') as db_file:
-            db_data = json.load(db_file)
-    except:
-        db_data = {
-            'pools': {}
-        }
+    db_data = {'pools': {}}
 
     web3 = get_node(ETHEREUM)
-
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
-    db_pool_length = len(db_data['pools'])
-    pools_delta = booster.functions.poolLength().call(block_identifier=block) - db_pool_length
+    pools_length = booster.functions.poolLength().call(block_identifier=block)
 
-    updated = False
-    if pools_delta > 0:
-        updated = True
-        for i in range(pools_delta):
-            pool_info = booster.functions.poolInfo(db_pool_length + i).call(block_identifier=block)
-            db_data['pools'][pool_info[0]] = {
-                'poolId': db_pool_length + i,
-                'token': pool_info[1],
-                'gauge': pool_info[2],
-                'crvRewards': pool_info[3],
-                'stash': pool_info[4],
-                'shutdown': pool_info[5]
-            }
+    for i in range(pools_length):
+        pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
+        db_data['pools'][pool_info[0]] = {
+            'poolId': i,
+            'token': pool_info[1],
+            'gauge': pool_info[2],
+            'crvRewards': pool_info[3],
+            'stash': pool_info[4],
+            'shutdown': pool_info[5]
+        }
 
-        with open(output_file, 'w') as db_file:
-            json.dump(db_data, db_file)
-
-    return updated
+    with open(output_file, 'w') as db_file:
+        json.dump(db_data, db_file, indent=2)

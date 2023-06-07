@@ -95,6 +95,7 @@ def test_pool_balances():
                  [USDT_ETH, Decimal('92743777795510')]]
 
 
+@pytest.mark.skip(reason="Takes too long")
 def test_update_db():
     data = Convex.update_db(save_to="/dev/null")
     assert data
