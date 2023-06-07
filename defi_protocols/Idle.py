@@ -252,7 +252,7 @@ def underlying_all(
             decimals,
         )
         if amounts:
-            if rewards and address["AA tranche"]["aa_gauge"] != None:
+            if rewards and address["AA tranche"]["aa_gauge"] is not None:
                 rewards = get_all_rewards(
                     wallet, address["AA tranche"]["aa_gauge"], block, blockchain, web3, decimals=decimals
                 )

@@ -1,7 +1,5 @@
 from decimal import Decimal
 
-import pytest
-
 from defi_protocols import Idle
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr
 

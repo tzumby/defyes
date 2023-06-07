@@ -5,8 +5,7 @@ import math
 import re
 from datetime import datetime
 from decimal import Decimal
-from inspect import getcallargs
-from typing import List, Optional, Union
+from typing import List
 
 import requests
 from web3 import Web3
@@ -120,7 +119,7 @@ logger = logging.getLogger(__name__)
 
 
 def latest_not_in_params(args):
-    return not "latest" in args
+    return "latest" not in args
 
 
 # CUSTOM EXCEPTIONS
@@ -582,12 +581,12 @@ def get_contract_abi(contract_address, blockchain):
 
 
 def get_contract(contract_address, blockchain, web3=None, abi=None, block="latest"):
-    if web3 == None:
+    if web3 is None:
         web3 = get_node(blockchain, block=block)
 
     contract_address = Web3.to_checksum_address(contract_address)
 
-    if abi == None:
+    if abi is None:
         try:
             abi = get_contract_abi(contract_address, blockchain)
             return web3.eth.contract(address=contract_address, abi=abi)
@@ -613,7 +612,7 @@ def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, w
 
 
 def search_proxy_impl_address(contract_address, blockchain, web3=None, block="latest"):
-    if web3 == None:
+    if web3 is None:
         web3 = get_node(blockchain)
 
     proxy_impl_address = ZERO_ADDRESS
@@ -682,7 +681,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
 
 
 def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_address=None, block="latest"):
-    if web3 == None:
+    if web3 is None:
         web3 = get_node(blockchain)
 
     contract_address = Web3.to_checksum_address(contract_address)

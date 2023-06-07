@@ -543,7 +543,6 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     :return:
     """
     result = {}
-    hash_overlap = []
 
     if web3 is None:
         web3 = get_node(blockchain, block=block_start)
@@ -716,7 +715,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block="latest")
 #         return None
 
 #     try:
-#         if web3 == None:
+#         if web3 is None:
 #             web3 = get_node(blockchain, block=block)
 
 #         data = get_rewards_per_unit(lptoken_address, blockchain, web3=web3, block=block)
@@ -797,7 +796,7 @@ def get_swap_fees_APR(
     tvl = (reserves[0] / 10**token0_decimals) * token0_price + (reserves[1] / 10**token1_decimals) * token1_price
     apr = token_fees_usd / tvl * (365 / days) * 100
     seconds_per_year = 365 * 24 * 60 * 60
-    if apy == True:
+    if apy:
         apy = (1 + (apr / seconds_per_year)) ** (seconds_per_year) - 1
         return apy
     else:

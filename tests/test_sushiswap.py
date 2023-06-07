@@ -87,7 +87,6 @@ def test_get_rewards():
 
 
 def test_pool_balances():
-    web3 = get_node(ETHEREUM)
     balances = SushiSwap.pool_balances(SUSHISWAP_POOL_USDC_WETH, block=TEST_BLOCK, blockchain=ETHEREUM)
     assert balances == [[USDC_ETH, Decimal("16413544.906577")], [WETH_ETH, Decimal("9860.137476763535111002")]]
 

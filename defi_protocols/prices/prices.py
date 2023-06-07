@@ -201,7 +201,7 @@ def get_today_prices_data(file_name, return_type="df", web3=None):
         for k in tqdm((token_file[j].keys())):
             token_address = k
             token_blokchain = j
-            token_symbol = token_file[j][token_address]["symbol"]
+            # token_symbol = token_file[j][token_address]["symbol"]
             # print(token_address,token_blokchain,token_symbol)
 
             now = datetime(

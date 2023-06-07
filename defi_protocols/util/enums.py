@@ -1,6 +1,5 @@
 """Location of all Enum types"""
 
-import os
 from enum import Enum
 
 

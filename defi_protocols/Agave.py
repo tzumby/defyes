@@ -15,7 +15,6 @@ from typing import Dict, List, Union
 
 from web3 import Web3
 
-from defi_protocols import Balancer
 from defi_protocols.cache import const_call
 from defi_protocols.constants import AGVE_XDAI, STKAGAVE_XDAI
 from defi_protocols.functions import balance_of, get_contract, get_node, to_token_amount

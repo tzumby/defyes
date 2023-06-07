@@ -45,7 +45,7 @@ def get_safe_functions(
             functions2, params2 = input_data_bytes
             if "multiSend" in str(functions2):
                 transaction = params2["transactions"].hex()
-                function_list = decode_multisend_transaction(transaction, web3)
+                function_list = decode_multisend_transaction(transaction, web3, blockchain)
                 return function_list
             elif "execTransactionWithRole" in str(functions2):
                 data_output = decode_function_input(params2["to"], params2["data"], blockchain, web3)
@@ -75,8 +75,7 @@ def get_safe_functions(
         return get_safe_functions(tx_hash, block, blockchain, web3, index=index + 1, execution=execution)
 
 
-def decode_multisend_transaction(input_data: str, web3) -> list:
-    length_input_data = len(input_data)
+def decode_multisend_transaction(input_data: str, web3, blockchain: str) -> list:
     function_list = []
     for i in range(0, 10):
         operation = input_data[:2]
@@ -84,7 +83,6 @@ def decode_multisend_transaction(input_data: str, web3) -> list:
         value = input_data[42:106]
         data_length = int("0x" + input_data[106:170].lstrip("0"), 16)
         data_rest = input_data[170 : 170 + (data_length * 2)]
-        # FIXME: where does blockchain comes from? It's undefined.
         data_output = decode_function_input(to_address, data_rest, blockchain, web3)
         decode_dict = {
             "operation": operation,

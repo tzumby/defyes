@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defi_protocols import Symmetric
-from defi_protocols.constants import XDAI, GnosisTokenAddr
+from defi_protocols.constants import XDAI
 from defi_protocols.functions import get_node
 
 

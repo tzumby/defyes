@@ -150,7 +150,6 @@ def test_get_apr(apy):
 # FIXME: This test seems to depend on fluctuating values
 @pytest.mark.parametrize("apy", [True, False])
 def test_get_staking_apr(apy):
-    TOKEN_ADDRESS = "0x3a97704a1b25F08aa230ae53B352e2e72ef52843"
     stk_apr = Agave.get_staking_apr(TEST_BLOCK, XDAI, web3=WEB3, apy=apy)
     assert (
         stk_apr

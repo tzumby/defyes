@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 from web3 import Web3
-from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defi_protocols.cache import const_call
 from defi_protocols.constants import COMP_ETH, ETHEREUM, ZERO_ADDRESS
