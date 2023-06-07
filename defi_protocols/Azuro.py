@@ -61,9 +61,9 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
     amount = 0
     add_logs = get_logs_web3(address=azuro_pool.addr,
                              blockchain=blockchain,
-                             start_block=azuro_pool.first_block,
+                             block_start=azuro_pool.first_block,
+                             block_end=block,
                              topics=[azuro_pool.liquidity_added_topic, wallethex],
-                             block=block,
                              web3=web3)
     for log in add_logs:
         if azuro_pool.version == 1 and log['data'].hex()[-11:] == nfthex[-11:]:
@@ -72,9 +72,9 @@ def get_deposit(wallet: str, nftid: int, contract_address: str, block: Union[int
             amount = amount + int(log['data'].hex(), 16)
     remove_logs = get_logs_web3(address=azuro_pool.addr,
                                 blockchain=blockchain,
-                                start_block=azuro_pool.first_block,
+                                block_start=azuro_pool.first_block,
+                                block_end=block,
                                 topics=[azuro_pool.liquidity_removed_topic, wallethex, nfthex],
-                                block=block,
                                 web3=web3)
     for log in remove_logs:
         amount = amount - int(log['data'].hex(), 16)

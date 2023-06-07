@@ -206,13 +206,13 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, web3=No
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # update_db (function to update database with addresses from all tranches that have been deployed)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def update_db() -> dict:
+def update_db(block='latest') -> dict:
     """
 
     :return:
     """
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Idle_db.json', 'w') as db_file:
-        addresses = get_addresses('latest', ETHEREUM)
+        addresses = get_addresses(block, ETHEREUM)
         json.dump(addresses, db_file, indent=4)
 
 

@@ -2,7 +2,7 @@ import pytest
 
 from decimal import Decimal
 
-from defi_protocols import Azuro, add_stderr_logger
+from defi_protocols import Azuro
 from defi_protocols.constants import XDAI, WXDAI
 from defi_protocols.functions import get_node
 

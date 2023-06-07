@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from defi_protocols import QiDao, add_stderr_logger
+from defi_protocols import QiDao
 from defi_protocols.constants import GnosisTokenAddr, XDAI
 
 

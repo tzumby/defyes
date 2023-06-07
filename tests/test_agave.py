@@ -1,7 +1,7 @@
 import pytest
 from decimal import Decimal
 
-from defi_protocols import Agave, add_stderr_logger
+from defi_protocols import Agave
 from defi_protocols.constants import XDAI, AGVE_XDAI
 from defi_protocols.functions import get_node, get_contract
 

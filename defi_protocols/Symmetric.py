@@ -6,7 +6,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs, BlockchainError, to_token_amount
+from defi_protocols.functions import get_node, get_contract, get_decimals, get_logs_web3, BlockchainError, to_token_amount
 from defi_protocols.constants import XDAI, ZERO_ADDRESS
 
 
@@ -554,57 +554,35 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1, block=block_start)
-    from IPython import embed; embed()
-    token0 = lptoken_contract.functions.getCurrentTokens().call(block_identifier=block)[0]
-    token1 = lptoken_contract.functions.getCurrentTokens().call(block_identifier=block)[1]
+
+    token0 = lptoken_contract.functions.getCurrentTokens().call(block_identifier='latest')[0]
+    token1 = lptoken_contract.functions.getCurrentTokens().call(block_identifier='latest')[1]
     result['swaps'] = []
 
     decimals0 = get_decimals(token0, blockchain, web3=web3) if decimals else 0
     decimals1 = get_decimals(token1, blockchain, web3=web3) if decimals else 0
 
-    get_logs_bool = True
-    block_from = block_start
-    block_to = block_end
-
     swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
+    swap_logs = get_logs_web3(address=lptoken_address,
+                              blockchain=blockchain,
+                              block_start=block_start,
+                              block_end=block_end,
+                              topics=[swap_event])
 
-    while get_logs_bool:
-        swap_logs = get_logs(block_from, block_to, lptoken_address, swap_event, blockchain)
-
-        log_count = len(swap_logs)
-
-        if log_count != 0:
-            last_block = int(
-                swap_logs[log_count - 1]['blockNumber'][2:len(swap_logs[log_count - 1]['blockNumber'])], 16)
-
-            for swap_log in swap_logs:
-                block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
-
-                if swap_log['transactionHash'] in hash_overlap:
-                    continue
-
-                if block_number == last_block:
-                    hash_overlap.append(swap_log['transactionHash'])
-
-                if int(swap_log['data'][2:66], 16) == 0:
-                    swap_data = {
-                        'block': block_number,
-                        'token': token1,
-                        'amount': Decimal(int(swap_log['data'][67:130], 16)) / Decimal(10 ** decimals1) * Decimal(0.003)
-                    }
-                else:
-                    swap_data = {
-                        'block': block_number,
-                        'token': token0,
-                        'amount': Decimal(int(swap_log['data'][2:66], 16)) / Decimal(10 ** decimals0) * Decimal(0.003)
-                    }
-
-                result['swaps'].append(swap_data)
-
-        if log_count < 1000:
-            get_logs_bool = False
-
+    for swap_log in swap_logs:
+        if int(swap_log['data'].hex()[2:66], 16) == 0:
+            token = token1
+            amount = Decimal(0.003 * int(swap_log['data'].hex()[67:130], 16)) / Decimal(10 ** decimals1)
         else:
-            block_from = block_number
+            token = token0
+            amount = Decimal(0.003 * int(swap_log['data'].hex()[2:66], 16)) / Decimal(10 ** decimals0)
+
+        swap_data = {
+            'block': swap_log['blockNumber'],
+            'token': token,
+            'amount': amount
+        }
+
+        result['swaps'].append(swap_data)
 
     return result

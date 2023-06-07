@@ -2,7 +2,7 @@ import pytest
 
 from decimal import Decimal
 
-from defi_protocols import Unit, add_stderr_logger
+from defi_protocols import Unit
 from defi_protocols.constants import ETHEREUM, DAI_ETH
 from defi_protocols.functions import get_node
 

@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from defi_protocols import Connext, add_stderr_logger
+from defi_protocols import Connext
 from defi_protocols.functions import get_node
 from defi_protocols.constants import XDAI, GnosisTokenAddr
 

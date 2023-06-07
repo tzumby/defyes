@@ -2,7 +2,7 @@ import pytest
 
 from decimal import Decimal
 
-from defi_protocols import UniswapV3, add_stderr_logger
+from defi_protocols import UniswapV3
 from defi_protocols.constants import ETHEREUM, ETHTokenAddr
 from defi_protocols.functions import get_node
 

@@ -7,7 +7,7 @@ from web3.exceptions import ContractLogicError
 
 from defi_protocols.cache import const_call
 from defi_protocols.constants import ETHEREUM, ZERO_ADDRESS, X3CRV_ETH, CRV_ETH, XDAI, CRV_XDAI, E_ADDRESS, X3CRV_XDAI
-from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, get_logs, date_to_block, block_to_date, get_contract_abi, to_token_amount
+from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, get_logs_web3, date_to_block, block_to_date, get_contract_abi, to_token_amount
 from defi_protocols.prices.prices import get_price
 
 
@@ -671,51 +671,28 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain,
     exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES + TOKEN_EXCHANGE_EVENT_SIGNATURES
 
     for exchange_event_signature in exchange_event_signatures:
-
-        get_logs_bool = True
-        block_from = block_start
-        block_to = block_end
-        hash_overlap = []
-
         exchange_event = web3.keccak(text=exchange_event_signature).hex()
+        swap_logs = get_logs_web3(address=minter,
+                                  blockchain=blockchain,
+                                  block_start=block_start,
+                                  block_end=block_end,
+                                  topics=[exchange_event])
 
-        while get_logs_bool:
-            swap_logs = get_logs(block_from, block_to, minter, exchange_event, blockchain)
+        for swap_log in swap_logs:
+            token_out = pool_data['coins'][int(swap_log['data'].hex()[-128:-64], 16)]
+            token_out_decimals = get_decimals(token_out, blockchain, web3=web3)
 
-            log_count = len(swap_logs)
+            # FIXME: shouldn't the 10 be token_out_decimals???
+            swap_fee = Decimal(pool_data['contract'].functions.fee().call(block_identifier=swap_log['blockNumber'])) / Decimal(10 ** 10)
 
-            if log_count != 0:
-                last_block = int(
-                    swap_logs[log_count - 1]['blockNumber'][2:len(swap_logs[log_count - 1]['blockNumber'])], 16)
+            swap_data = {
+                'block': swap_log['blockNumber'],
+                'tokenOut': token_out,
+                'amountOut': swap_fee * int(swap_log['data'].hex()[-64:], 16) / Decimal(10 ** token_out_decimals)
+            }
 
-                for swap_log in swap_logs:
-                    block_number = int(swap_log['blockNumber'][2:len(swap_log['blockNumber'])], 16)
+            result['swaps'].append(swap_data)
 
-                    if swap_log['transactionHash'] in hash_overlap:
-                        continue
-
-                    if block_number == last_block:
-                        hash_overlap.append(swap_log['transactionHash'])
-
-                    token_out = pool_data['coins'][int(swap_log['data'][-128:-64], 16)]
-                    token_out_decimals = get_decimals(token_out, blockchain, web3=web3)
-
-                    # FIXME: shouldn't the 10 be token_out_decimals???
-                    swap_fee = Decimal(pool_data['contract'].functions.fee().call(block_identifier=block_number)) / Decimal(10 ** 10)
-
-                    swap_data = {
-                        'block': block_number,
-                        'tokenOut': token_out,
-                        'amountOut': swap_fee * int(swap_log['data'][-64:], 16) / Decimal(10 ** token_out_decimals)
-                    }
-
-                    result['swaps'].append(swap_data)
-
-            if log_count < 1000:
-                get_logs_bool = False
-
-            else:
-                block_from = block_number
 
     return result
 
