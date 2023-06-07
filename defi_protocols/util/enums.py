@@ -25,6 +25,7 @@ class Chain(ExtendedEnum):
     AVALANCHE = 'avalanche'
     FANTOM = 'fantom'
     OPTIMISM = 'optimism'
+    ARBITRUM = 'arbitrum'
     AVAX = 'avax'
     ROPSTEN = 'ropsten'
     KOVAN = 'kovan'
@@ -47,6 +48,7 @@ class Explorer(ExtendedEnum):
     BSCSCAN = 'bscscan.com'
     AVAXSCAN = 'snowtrace.io'
     FTMSCAN = 'ftmscan.io'
+    ARBISSCAN = 'arbisscan.io'
 
     def __str__(self) -> str:
         """Represent as string."""

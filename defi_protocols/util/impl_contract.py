@@ -21,6 +21,7 @@ class ImplContractData:
         impl_slot = (int.from_bytes(hash_value, byteorder='big') - 1).to_bytes(32, byteorder='big')
         impl_contract = '0x' + Web3.to_hex(self.web3.eth.get_storage_at(self.proxy_address, impl_slot.hex(),))[-40:]
         impl_function = Web3.keccak(text="implementation()")[:4].hex()[2:]
+        #FIXME: this is not a correct way to identify EIP-1967 proxy contracts
         if len(self.bytecode_contract) >= 1000:
             return self.proxy_address
         elif len(self.bytecode_contract) < 150:
