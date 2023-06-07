@@ -9,6 +9,7 @@
         "fantom": "xyz",
         "ethplorer": "xyz",
         "optimism": "xyz",
+        "arbitrum": "xyz",
         "zapper": "xyz"
     },
 
@@ -140,6 +141,20 @@
             ]
         },
         "optimism": {
+            "latest": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ],
+            "archival": [
+                "first",
+                "second",
+                "third",
+                "fourth"
+            ]
+        },
+        "arbitrum": {
             "latest": [
                 "first",
                 "second",

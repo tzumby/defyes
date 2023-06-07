@@ -30,7 +30,8 @@ from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOE
                                       API_ETHERSCAN_GETBLOCKREWARD, API_GOERLI_GETBLOCKNOBYTIME, API_KOVAN_GETBLOCKNOBYTIME, API_ROPSTEN_GETBLOCKNOBYTIME,
                                       API_OPTIMISM_GETBLOCKNOBYTIME, API_FANTOM_GETBLOCKNOBYTIME, API_AVALANCHE_GETBLOCKNOBYTIME, API_BINANCE_GETBLOCKNOBYTIME,
                                       API_GNOSISSCAN_GETBLOCKNOBYTIME, API_POLYGONSCAN_GETBLOCKNOBYTIME, API_ETHERSCAN_GETBLOCKNOBYTIME,
-                                      NODES_ENDPOINTS)
+                                      NODES_ENDPOINTS, API_ARBITRUM_TOKENTX, API_ARBITRUM_TXLIST, API_ARBITRUM_GETLOGS, API_KEY_ARBITRUM, API_ARBITRUM_GETABI,
+                                      API_ARBITRUM_GETBLOCKNOBYTIME, API_ARBITRUM_GETBLOCKREWARD, ARBITRUM)
 
 
 logger = logging.getLogger(__name__)
@@ -204,6 +205,9 @@ def timestamp_to_block(timestamp, blockchain) -> int:
         elif blockchain == OPTIMISM:
             data = requests.get(API_OPTIMISM_GETBLOCKNOBYTIME % (timestamp, API_KEY_OPTIMISM)).json()['result']
 
+        elif blockchain == ARBITRUM:
+            data = requests.get(API_ARBITRUM_GETBLOCKNOBYTIME % (timestamp, API_KEY_OPTIMISM)).json()['result']
+
         elif blockchain == ROPSTEN:
             data = \
                 requests.get(API_ROPSTEN_GETBLOCKNOBYTIME % (timestamp, API_KEY_ETHERSCAN),
@@ -277,6 +281,9 @@ def block_to_timestamp(block, blockchain):
 
         elif blockchain == OPTIMISM:
             data = requests.get(API_OPTIMISM_GETBLOCKREWARD % (block, API_KEY_OPTIMISM)).json()['result']['timeStamp']
+
+        elif blockchain == ARBITRUM:
+            data = requests.get(API_ARBITRUM_GETBLOCKREWARD % (block, API_KEY_OPTIMISM)).json()['result']['timeStamp']
 
         elif blockchain == ROPSTEN:
             data = requests.get(API_ROPSTEN_GETBLOCKREWARD % (block, API_KEY_ETHERSCAN), headers=TESTNET_HEADER).json()[
@@ -374,12 +381,18 @@ def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
     token_address = Web3.to_checksum_address(token_address)
 
     if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
-        if blockchain == ETHEREUM:
+        if blockchain is ETHEREUM or OPTIMISM or ARBITRUM:
             symbol = 'ETH'
-        elif blockchain == POLYGON:
+        elif blockchain is POLYGON:
             symbol = 'MATIC'
-        elif blockchain == XDAI:
+        elif blockchain is XDAI:
             symbol = 'XDAI'
+        elif blockchain is FANTOM:
+            symbol = 'FTM'
+        elif blockchain is AVALANCHE:
+            symbol = 'AVAX'
+        elif blockchain is BINANCE:
+            symbol = 'BNB'
     else:
         token_contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
 
@@ -442,6 +455,11 @@ def get_contract_abi(contract_address, blockchain):
 
         elif blockchain == OPTIMISM:
             data = requests.get(API_OPTIMISM_GETABI % (contract_address, API_KEY_OPTIMISM)).json()['result']
+            if data == 'Contract source code not verified':
+                raise abiNotVerified
+
+        elif blockchain == ARBITRUM:
+            data = requests.get(API_ARBITRUM_GETABI % (contract_address, API_KEY_OPTIMISM)).json()['result']
             if data == 'Contract source code not verified':
                 raise abiNotVerified
 
@@ -542,7 +560,6 @@ def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_add
 
         functions = []
         for func in [obj for obj in abi if obj['type'] == 'function']:
-            function = {}
             name = func['name']
             input_types = [input['type'] for input in func['inputs']]
 
@@ -581,7 +598,7 @@ def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_add
 
 
 def get_data(contract_address, function_name, parameters, blockchain, web3=None, abi_address=None):
-    if web3 == None:
+    if web3 is None:
         web3 = get_node(blockchain)
 
     contract_address = Web3.to_checksum_address(contract_address)
@@ -648,6 +665,10 @@ def get_token_tx(token_address, contract_address, block_start, block_end, blockc
         data = requests.get(API_OPTIMISM_TOKENTX % (
             token_address, contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()['result']
 
+    elif blockchain == ARBITRUM:
+        data = requests.get(API_ARBITRUM_TOKENTX % (
+            token_address, contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()['result']
+
     elif blockchain == ROPSTEN:
         data = requests.get(API_ROPSTEN_TOKENTX % (
             token_address, contract_address, block_start, block_end, API_KEY_ETHERSCAN)).json()['result']
@@ -703,6 +724,11 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
     elif blockchain == OPTIMISM:
         data = \
             requests.get(API_OPTIMISM_TXLIST % (contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()[
+                'result']
+
+    elif blockchain == ARBITRUM:
+        data = \
+            requests.get(API_ARBITRUM_TXLIST % (contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()[
                 'result']
 
     elif blockchain == ROPSTEN:
@@ -807,6 +833,10 @@ def get_logs(block_start, block_end, address, topic0, blockchain, **kwargs):
 
     elif blockchain == OPTIMISM:
         data = requests.get(API_OPTIMISM_GETLOGS % (
+            block_start, block_end, address, topic0, API_KEY_OPTIMISM) + optional_parameters).json()['result']
+
+    elif blockchain == ARBITRUM:
+        data = requests.get(API_ARBITRUM_GETLOGS % (
             block_start, block_end, address, topic0, API_KEY_OPTIMISM) + optional_parameters).json()['result']
 
     elif blockchain == ROPSTEN:
