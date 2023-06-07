@@ -13,7 +13,7 @@ blockexplorers= {Chain.ETHEREUM.value:[Explorer.ETHERSCAN.value, API_KEY_ETHERSC
                 Chain.BINANCE.value:[Explorer.BSCSCAN.value, API_KEY_BINANCE],
                 Chain.AVALANCHE.value:[Explorer.AVAXSCAN.value, API_KEY_AVALANCHE],
                 Chain.FANTOM.value:[Explorer.FTMSCAN.value, API_KEY_FANTOM],
-                Chain.AVALANCHE.value:[Explorer.AVAXSCAN.value, API_KEY_AVALANCHE]}
+                Chain.ARBITRUM.value:[Explorer.ARBISCAN.value, API_KEY_ARBITRUM]}
 
 #print(blockexplorers)
 
