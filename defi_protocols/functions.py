@@ -381,7 +381,7 @@ def get_symbol(token_address, blockchain, web3=None, block='latest') -> str:
     token_address = Web3.to_checksum_address(token_address)
 
     if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
-        if blockchain is ETHEREUM or OPTIMISM or ARBITRUM:
+        if blockchain is ETHEREUM or blockchain is OPTIMISM or blockchain is ARBITRUM:
             symbol = 'ETH'
         elif blockchain is POLYGON:
             symbol = 'MATIC'
