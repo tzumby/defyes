@@ -206,7 +206,7 @@ def timestamp_to_block(timestamp, blockchain) -> int:
             data = requests.get(API_OPTIMISM_GETBLOCKNOBYTIME % (timestamp, API_KEY_OPTIMISM)).json()['result']
 
         elif blockchain == ARBITRUM:
-            data = requests.get(API_ARBITRUM_GETBLOCKNOBYTIME % (timestamp, API_KEY_OPTIMISM)).json()['result']
+            data = requests.get(API_ARBITRUM_GETBLOCKNOBYTIME % (timestamp, API_KEY_ARBITRUM)).json()['result']
 
         elif blockchain == ROPSTEN:
             data = \
@@ -283,7 +283,7 @@ def block_to_timestamp(block, blockchain):
             data = requests.get(API_OPTIMISM_GETBLOCKREWARD % (block, API_KEY_OPTIMISM)).json()['result']['timeStamp']
 
         elif blockchain == ARBITRUM:
-            data = requests.get(API_ARBITRUM_GETBLOCKREWARD % (block, API_KEY_OPTIMISM)).json()['result']['timeStamp']
+            data = requests.get(API_ARBITRUM_GETBLOCKREWARD % (block, API_KEY_ARBITRUM)).json()['result']['timeStamp']
 
         elif blockchain == ROPSTEN:
             data = requests.get(API_ROPSTEN_GETBLOCKREWARD % (block, API_KEY_ETHERSCAN), headers=TESTNET_HEADER).json()[
@@ -459,7 +459,7 @@ def get_contract_abi(contract_address, blockchain):
                 raise abiNotVerified
 
         elif blockchain == ARBITRUM:
-            data = requests.get(API_ARBITRUM_GETABI % (contract_address, API_KEY_OPTIMISM)).json()['result']
+            data = requests.get(API_ARBITRUM_GETABI % (contract_address, API_KEY_ARBITRUM)).json()['result']
             if data == 'Contract source code not verified':
                 raise abiNotVerified
 
@@ -667,7 +667,7 @@ def get_token_tx(token_address, contract_address, block_start, block_end, blockc
 
     elif blockchain == ARBITRUM:
         data = requests.get(API_ARBITRUM_TOKENTX % (
-            token_address, contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()['result']
+            token_address, contract_address, block_start, block_end, API_KEY_ARBITRUM)).json()['result']
 
     elif blockchain == ROPSTEN:
         data = requests.get(API_ROPSTEN_TOKENTX % (
@@ -728,7 +728,7 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
 
     elif blockchain == ARBITRUM:
         data = \
-            requests.get(API_ARBITRUM_TXLIST % (contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()[
+            requests.get(API_ARBITRUM_TXLIST % (contract_address, block_start, block_end, API_KEY_ARBITRUM)).json()[
                 'result']
 
     elif blockchain == ROPSTEN:
@@ -806,7 +806,7 @@ def get_logs_http(block_start, block_end, address, topic0, blockchain, **kwargs)
 
     elif blockchain == ARBITRUM:
         data = requests.get(API_ARBITRUM_GETLOGS % (
-            block_start, block_end, address, topic0, API_KEY_OPTIMISM) + optional_parameters).json()['result']
+            block_start, block_end, address, topic0, API_KEY_ARBITRUM) + optional_parameters).json()['result']
 
     elif blockchain == ROPSTEN:
         data = requests.get(API_ROPSTEN_GETLOGS % (
