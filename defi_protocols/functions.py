@@ -837,7 +837,7 @@ def get_logs_web3(address: str,
 
     address = Web3.to_checksum_address(address)
     try:
-        logs = web3.eth.get_logs({'address': address, 'fromBlock': block_start, 'toBlock': block_end, 'topics': topics, 'blockHash': block_hash})
+        logs = web3.eth.get_logs({'address': address, 'fromBlock': block_start, 'toBlock': None, 'topics': topics, 'blockHash': block_hash})
         if not isinstance(block_end, str) and block_end is not None:
             for i in range(len(logs)):
                 if logs[i]['blockNumber'] > block_end:

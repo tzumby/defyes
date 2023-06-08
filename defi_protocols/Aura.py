@@ -4,7 +4,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount
+from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount, last_block
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
@@ -104,33 +104,33 @@ def call_contract_method(method, block):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_info(booster_contract, lptoken_address, block):
 
-    with open(DB_FILE, 'r') as db_file:
-        db_data = json.load(db_file)
+    # with open(DB_FILE, 'r') as db_file:
+    #     db_data = json.load(db_file)
 
-    try:
-        pool_info = db_data['pools'][lptoken_address]
+    # try:
+    #     pool_info = db_data['pools'][lptoken_address]
 
-        if pool_info['shutdown'] is False:
-            pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'],
-                         pool_info['stash'], pool_info['shutdown']]
+    #     if pool_info['shutdown'] is False:
+    #         pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'],
+    #                      pool_info['stash'], pool_info['shutdown']]
 
-            return pool_info
-        else:
-            return None
-    except:
-        number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
+    #         return pool_info
+    #     else:
+    #         return None
+    # except:
+    number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
 
-        for pool_id in range(number_of_pools):
+    for pool_id in range(number_of_pools):
 
-            pool_info = booster_contract.functions.poolInfo(pool_id).call(block_identifier=block)
-            address = pool_info[0]
-            shutdown_status = pool_info[5]
+        pool_info = booster_contract.functions.poolInfo(pool_id).call(block_identifier=block)
+        address = pool_info[0]
+        shutdown_status = pool_info[5]
 
-            if address == lptoken_address:
-                if shutdown_status is False:
-                    return pool_info
-                else:
-                    return None
+        if address == lptoken_address:
+            if shutdown_status is False:
+                return pool_info
+            else:
+                continue
 
     return None
 
@@ -454,3 +454,10 @@ def update_db(output_file=DB_FILE, block='latest'):
 
     with open(output_file, 'w') as db_file:
         json.dump(db_data, db_file, indent=2)
+
+# block = last_block(ETHEREUM)
+# lptoken_address = '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9'
+# web3 = get_node(ETHEREUM, block=block)
+# booster_contract = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
+
+# pool_info = get_pool_info(booster_contract, lptoken_address, block)

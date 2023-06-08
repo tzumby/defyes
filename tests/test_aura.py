@@ -143,6 +143,26 @@ def test_underlying():
     assert gno == [ETHTokenAddr.GNO, Decimal('2857.614850691977937126713610')]
     assert weth == [ETHTokenAddr.WETH, Decimal('44.91525928857763211653589999')]
 
+    block = 17030603
+    node = get_node(ETHEREUM, block)
+
+    bal, eth, aurabal = Aura.underlying(WALLET_N5, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
+    assert bal == [ETHTokenAddr.BAL, Decimal('116433.7136895592470998702397')]
+    assert eth == [ETHTokenAddr.WETH, Decimal('108.2807112332312627897739854')]
+    assert aurabal == [ETHTokenAddr.auraBAL, Decimal('63020.44124792096385479026706')]
+
+    ohm, steth = Aura.underlying(WALLET_N1, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
+    assert ohm == [ETHTokenAddr.OHM, Decimal('1231058673158.390859056243781')]
+    assert steth == [ETHTokenAddr.wstETH, Decimal('6057140049865330402.887964025')]
+
+    gno, cow = Aura.underlying(WALLET_e1c, balancer_50COW_50GNO, block, ETHEREUM, web3=node)
+    assert gno == [ETHTokenAddr.GNO, Decimal('345.1743699207633159106677341')]
+    assert cow == [ETHTokenAddr.COW, Decimal('470374.1748462563486273095973')]
+
+    gno, weth = Aura.underlying(WALLET_e1c, balancer_80GNO_20WETH, block, ETHEREUM, web3=node)
+    assert gno == [ETHTokenAddr.GNO, Decimal('2896.528986560673411023728067')]
+    assert weth == [ETHTokenAddr.WETH, Decimal('42.53030185358673865030664650')]
+
 
 def test_pool_balances():
     block = 17030603
@@ -160,3 +180,6 @@ def test_get_compounded():
     aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, ETHEREUM, web3=node, reward=True)
     assert aurabal == [ETHTokenAddr.auraBAL, Decimal('173638.950900193303875756')]
     assert aura_rewards == [ETHTokenAddr.AURA, Decimal('518.423812233736947225')]
+
+
+test_underlying()

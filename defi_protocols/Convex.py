@@ -60,40 +60,40 @@ def get_pool_info(lptoken_address, block):
         [4] stash adress,
         [5] shutdown bool
     """
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'r') as db_file:
-        # Reading from json file
-        db_data = json.load(db_file)
+    # with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'r') as db_file:
+    #     # Reading from json file
+    #     db_data = json.load(db_file)
 
-    try:
-        pool_info = db_data['pools'][lptoken_address]
+    # try:
+    #     pool_info = db_data['pools'][lptoken_address]
 
-        if pool_info['shutdown']:
-            return None
-        else:
-            pool_info = [lptoken_address,
-                         pool_info['token'],
-                         pool_info['gauge'],
-                         pool_info['crvRewards'],
-                         pool_info['stash'],
-                         pool_info['shutdown']]
-            return pool_info
+    #     if pool_info['shutdown']:
+    #         return None
+    #     else:
+    #         pool_info = [lptoken_address,
+    #                      pool_info['token'],
+    #                      pool_info['gauge'],
+    #                      pool_info['crvRewards'],
+    #                      pool_info['stash'],
+    #                      pool_info['shutdown']]
+    #         return pool_info
 
-    except KeyError:
-        booster_contract = get_contract(BOOSTER, ETHEREUM, abi=ABI_BOOSTER, block=block)
+    # except KeyError:
+    booster_contract = get_contract(BOOSTER, ETHEREUM, abi=ABI_BOOSTER, block=block)
 
-        number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
+    number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
 
-        for pool_id in range(number_of_pools):
+    for pool_id in range(number_of_pools):
 
-            pool_info = booster_contract.functions.poolInfo(pool_id).call(block_identifier=block)
-            address = pool_info[0]
-            shutdown_status = pool_info[5]
+        pool_info = booster_contract.functions.poolInfo(pool_id).call(block_identifier=block)
+        address = pool_info[0]
+        shutdown_status = pool_info[5]
 
-            if address == lptoken_address:
-                if shutdown_status is False:
-                    return pool_info
-                else:
-                    return None
+        if address == lptoken_address:
+            if shutdown_status is False:
+                return pool_info
+            else:
+                continue
 
     return None
 

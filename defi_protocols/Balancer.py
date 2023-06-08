@@ -159,16 +159,17 @@ def get_gauge_address(blockchain, block, web3, lptoken_addr):
         block_from = BLOCKCHAIN_START_BLOCK[blockchain]
         gauge_created_event = web3.keccak(text=GAUGE_CREATED_EVENT_SIGNATURE).hex()
 
-        logs = get_logs_web3(address=gauge_factory_address,
-                             blockchain=blockchain,
-                             block_start=block_from,
-                             block_end=block,
-                             topics=[gauge_created_event])
-        for log in logs:
-            tx = web3.eth.get_transaction(log['transactionHash'])
-            if lptoken_addr[2:len(lptoken_addr)].lower() in tx['input']:
-                gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
-                break
+        if block >= block_from:
+            logs = get_logs_web3(address=gauge_factory_address,
+                                blockchain=blockchain,
+                                block_start=block_from,
+                                block_end=block,
+                                topics=[gauge_created_event])
+            for log in logs:
+                tx = web3.eth.get_transaction(log['transactionHash'])
+                if lptoken_addr[2:len(lptoken_addr)].lower() in tx['input']:
+                    gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
+                    break
         
         return gauge_address
 
