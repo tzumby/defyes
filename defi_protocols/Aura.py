@@ -7,6 +7,7 @@ from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
+from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
@@ -67,6 +68,8 @@ ABI_AURA_LOCKER = '[{"inputs":[{"internalType":"address","name":"","type":"addre
 # EXTRA REWARDS DISTRIBUTOR ABI - claimableRewards
 ABI_EXTRA_REWARDS_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"_account","type":"address"},{"internalType":"address","name":"_token","type":"address"}],"name":"claimableRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
+# EXTRA REWARD TOKEN ABI - baseToken
+ABI_EXTRA_REWARDS_TOKEN = '[{"inputs":[],"name":"baseToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
 # DB
 # Format
@@ -81,6 +84,19 @@ ABI_EXTRA_REWARDS_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"_
 # }
 DB_FILE = Path(__file__).parent / "db" / "Aura_db.json"
 
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# call_contract_method
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def call_contract_method(method, block):
+    try:
+        return method.call(block_identifier = block)
+    except Exception as e:
+        if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput or \
+                (type(e) == ValueError and (e.args[0]['code'] == -32000 or e.args[0]['code'] == -32015)):
+            return None
+        else:
+            raise e
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_info - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
@@ -145,6 +161,13 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
                                              block=block)
 
         extra_reward_token_address = const_call(extra_reward_contract.functions.rewardToken())
+
+        extra_reward_token_contract = get_contract(extra_reward_token_address, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_TOKEN, block=block)
+
+        base_token = call_contract_method(extra_reward_token_contract.functions.baseToken(), block)
+        if base_token != None:
+            extra_reward_token_address = base_token
+
         extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block)
 
         extra_rewards.append([extra_reward_token_address, to_token_amount(extra_reward_token_address, extra_reward, blockchain, web3, decimals)])

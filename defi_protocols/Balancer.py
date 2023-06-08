@@ -166,11 +166,11 @@ def get_gauge_address(blockchain, block, web3, lptoken_addr):
                              topics=[gauge_created_event])
         for log in logs:
             tx = web3.eth.get_transaction(log['transactionHash'])
-            if lptoken_addr == Web3.to_checksum_address(f"0x{tx['input'][34:74]}"):
+            if lptoken_addr[2:len(lptoken_addr)].lower() in tx['input']:
                 gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
                 break
+        
         return gauge_address
-
 
     return gauge_address
 
