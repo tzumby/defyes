@@ -4,7 +4,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount
+from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount, get_contract_creation, last_block
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
@@ -99,40 +99,39 @@ def call_contract_method(method, block):
             raise e
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_pool_info - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
-# [0] lptoken address, [1] token address, [2] gauge address, [3] crvRewards address, [4] stash adress, [5] shutdown bool
+# get_pool_rewarder - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_pool_info(booster_contract, lptoken_address, block):
+def get_pool_rewarder(booster_contract, lptoken_address, block):
 
-    # with open(DB_FILE, 'r') as db_file:
-    #     db_data = json.load(db_file)
+    with open(DB_FILE, 'r') as db_file:
+        db_data = json.load(db_file)
 
-    # try:
-    #     pool_info = db_data['pools'][lptoken_address]
+    rewarder = None
+    if lptoken_address in db_data['pools'].keys():
+        
+        blocks = list(db_data['pools'][lptoken_address].keys())[::-1]
+        for iblock in blocks:
+            if block >= int(iblock):
+                rewarder = db_data['pools'][lptoken_address][iblock]['rewarder']
+                break
+        
+    else:
+        number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
 
-    #     if pool_info['shutdown'] is False:
-    #         pool_info = [lptoken_address, pool_info['token'], pool_info['gauge'], pool_info['crvRewards'],
-    #                      pool_info['stash'], pool_info['shutdown']]
+        for pool_id in range(number_of_pools):
 
-    #         return pool_info
-    #     else:
-    #         return None
-    # except:
-    number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
+            pool_info = booster_contract.functions.poolInfo(pool_id).call(block_identifier=block)
+            address = pool_info[0]
+            shutdown_status = pool_info[5]
 
-    for pool_id in range(number_of_pools):
+            if address == lptoken_address:
+                if shutdown_status is False:
+                    rewarder = pool_info[3]
+                    break
+                else:
+                    continue
 
-        pool_info = booster_contract.functions.poolInfo(pool_id).call(block_identifier=block)
-        address = pool_info[0]
-        shutdown_status = pool_info[5]
-
-        if address == lptoken_address:
-            if shutdown_status is False:
-                return pool_info
-            else:
-                continue
-
-    return None
+    return rewarder
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -239,7 +238,7 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, bal_rewards_contract=None):
+def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, rewarder_contract=None):
 
     all_rewards = []
 
@@ -250,19 +249,18 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    if bal_rewards_contract is None:
+    if rewarder_contract is None:
         booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
-        pool_info = get_pool_info(booster_contract, lptoken_address, block)
+        rewarder = get_pool_rewarder(booster_contract, lptoken_address, block)
 
-        if pool_info is None:
+        if rewarder is None:
             print('Error: Incorrect Convex LPToken Address: ', lptoken_address)
             return None
 
-        bal_rewards_address = pool_info[3]
-        bal_rewards_contract = get_contract(bal_rewards_address, blockchain, web3=web3, abi=ABI_REWARDER,
+        rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER,
                                             block=block)
 
-    bal_rewards = get_rewards(web3, bal_rewards_contract, wallet, block, blockchain, decimals=decimals)
+    bal_rewards = get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=decimals)
     all_rewards.append(bal_rewards)
 
     # all_rewards[0][1] = bal_rewards_amount - aura_mint_amount is calculated using the bal_rewards_amount
@@ -272,7 +270,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         if len(aura_mint_amount) > 0:
             all_rewards.append(aura_mint_amount)
 
-    extra_rewards = get_extra_rewards(web3, bal_rewards_contract, wallet, block, blockchain, decimals=decimals)
+    extra_rewards = get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=decimals)
 
     if len(extra_rewards) > 0:
         for extra_reward in extra_rewards:
@@ -392,12 +390,11 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
     booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
 
-    pool_info = get_pool_info(booster_contract, lptoken_address, block)
+    rewarder = get_pool_rewarder(booster_contract, lptoken_address, block)
 
-    if pool_info:
-        bal_rewards_address = pool_info[3]
-        bal_rewards_contract = get_contract(bal_rewards_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
-        lptoken_staked = bal_rewards_contract.functions.balanceOf(wallet).call(block_identifier=block)
+    if rewarder is not None:
+        rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
+        lptoken_staked = rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
         if no_balancer_underlying is False:
             balancer_data = Balancer.underlying(wallet, lptoken_address, block, blockchain, web3=web3,
@@ -408,7 +405,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
         if reward is True:
             all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
-                                          bal_rewards_contract=bal_rewards_contract)
+                                          rewarder_contract=rewarder_contract)
 
             result.append(balances)
             result.append(all_rewards)
@@ -437,20 +434,31 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 def update_db(output_file=DB_FILE, block='latest'):
     db_data = {'pools': {}}
 
-    web3 = get_node(ETHEREUM)
-    booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
+    if isinstance(block, str):
+        if block == 'latest':
+            block = last_block(ETHEREUM)
+    
+    web3 = get_node(ETHEREUM, block=block)
+    booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
     pools_length = booster.functions.poolLength().call(block_identifier=block)
 
     for i in range(pools_length):
         pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
-        db_data['pools'][pool_info[0]] = {
-            'poolId': i,
-            'token': pool_info[1],
-            'gauge': pool_info[2],
-            'crvRewards': pool_info[3],
-            'stash': pool_info[4],
-            'shutdown': pool_info[5]
-        }
+
+        rewarder_data = get_contract_creation(pool_info[3], ETHEREUM)
+        rewarder_creation_tx = web3.eth.get_transaction(rewarder_data[0]['txHash'])
+
+        if pool_info[0] in db_data['pools'].keys():
+            db_data['pools'][pool_info[0]][rewarder_creation_tx['blockNumber']] = {
+                'poolId': i,
+                'rewarder': pool_info[3]
+            }
+        else:
+            db_data['pools'][pool_info[0]] = {
+                rewarder_creation_tx['blockNumber']: {
+                    'poolId': i,
+                    'rewarder': pool_info[3]
+            }}
 
     with open(output_file, 'w') as db_file:
         json.dump(db_data, db_file, indent=2)

@@ -48,18 +48,13 @@ def test_db_uptodate():
     assert db_stored == db
 
 
-def test_get_pool_info():
+def test_get_pool_rewarder():
     block = 17012817
     node = get_node(ETHEREUM, block)
     booster_contract = get_contract(Aura.BOOSTER, ETHEREUM, web3=node, abi=Aura.ABI_BOOSTER, block=block)
-    pool_info = Aura.get_pool_info(booster_contract, balancer_50OHM50wstETH_ADDR, block)
+    rewarder = Aura.get_pool_rewarder(booster_contract, balancer_50OHM50wstETH_ADDR, block)
 
-    assert pool_info == [balancer_50OHM50wstETH_ADDR,
-                         aura_OHMwstETH_TOKEN,
-                         balancer_OHMwstETHgauge_ADDR,
-                         aura_OHMwstETHvault_ADDR,
-                         aura_OHMwstETHstash_ADDR,
-                         False]
+    assert rewarder == aura_OHMwstETHvault_ADDR
 
 
 def test_get_rewards():

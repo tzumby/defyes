@@ -25,7 +25,7 @@ from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOE
                                       API_ROPSTEN_TOKENTX, API_OPTIMISM_TOKENTX, API_FANTOM_TOKENTX, API_AVALANCHE_TOKENTX, API_BINANCE_TOKENTX,
                                       API_GNOSISSCAN_TOKENTX, API_POLYGONSCAN_TOKENTX, API_ETHERSCAN_TOKENTX, ZERO_ADDRESS, TESTNET_HEADER,
                                       API_GOERLI_GETABI, API_KOVAN_GETABI, API_ROPSTEN_GETABI, API_OPTIMISM_GETABI, API_FANTOM_GETABI, API_AVALANCHE_GETABI,
-                                      API_BINANCE_GETABI, API_BLOCKSCOUT_GETABI, API_GNOSISSCAN_GETABI, API_POLYGONSCAN_GETABI, API_ETHERSCAN_GETABI,
+                                      API_BINANCE_GETABI, API_BLOCKSCOUT_GETABI, API_GNOSISSCAN_GETABI, API_POLYGONSCAN_GETABI, API_ETHERSCAN_GETABI, API_ETHERSCAN_GETCONTRACTCREATION,
                                       ABI_TOKEN_SIMPLIFIED, E_ADDRESS, MAX_EXECUTIONS, API_BLOCKSCOUT_GETTOKENCONTRACT, API_KEY_ETHPLORER, API_ETHPLORER_GETTOKENINFO,
                                       API_GOERLI_GETBLOCKREWARD, API_KOVAN_GETBLOCKREWARD, API_ROPSTEN_GETBLOCKREWARD, API_OPTIMISM_GETBLOCKREWARD, API_FANTOM_GETBLOCKREWARD,
                                       API_AVALANCHE_GETBLOCKREWARD, API_BINANCE_GETBLOCKREWARD, API_GNOSISSCAN_GETBLOCKREWARD, API_POLYGONSCAN_GETBLOCKREWARD,
@@ -750,6 +750,19 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
 
     return data
 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_contract_creation
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@cache_call(filter=latest_not_in_params)
+def get_contract_creation(contract_addresses, blockchain):
+    data = None
+
+    if blockchain == ETHEREUM:
+        data = \
+            requests.get(API_ETHERSCAN_GETCONTRACTCREATION % (contract_addresses, API_KEY_ETHERSCAN)).json()[
+                'result']
+
+    return data
 
 # LOGS
 def get_block_intervals(blockchain, block_start, block_end, block_interval):
