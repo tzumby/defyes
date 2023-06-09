@@ -6,7 +6,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, to_token_amount, get_contract_creation
+from defi_protocols.functions import get_node, get_contract, to_token_amount, get_contract_creation, last_block
 from defi_protocols.constants import ETHEREUM, CVX_ETH, CVXCRV_ETH
 from defi_protocols import Curve
 from defi_protocols.misc import get_db_filename
@@ -56,6 +56,10 @@ DB_FILE = Path(__file__).parent / "db" / "Convex_db.json"
 # get_pool_rewarder - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_rewarder(lptoken_address, block):
+
+    if isinstance(block, str):
+        if block == 'latest':
+            block = last_block(ETHEREUM)
 
     with open(DB_FILE, 'r') as db_file:
         db_data = json.load(db_file)

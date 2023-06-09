@@ -4,7 +4,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount, get_contract_creation
+from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount, get_contract_creation, last_block
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
@@ -102,6 +102,10 @@ def call_contract_method(method, block):
 # get_pool_rewarder - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_pool_rewarder(booster_contract, lptoken_address, block):
+
+    if isinstance(block, str):
+        if block == 'latest':
+            block = last_block(ETHEREUM)
 
     with open(DB_FILE, 'r') as db_file:
         db_data = json.load(db_file)
@@ -460,3 +464,6 @@ def update_db(output_file=DB_FILE, block='latest'):
         json.dump(db_data, db_file, indent=2)
 
     return db_data
+
+
+update_db()
