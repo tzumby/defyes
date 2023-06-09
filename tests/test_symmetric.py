@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from decimal import Decimal
@@ -106,9 +107,13 @@ def test_get_rewards_per_unit():
 
 def test_db_uptodate():
     block = 25502427
+    with open(Symmetric.DB_FILE, 'r') as db_file:
+        db_stored = json.load(db_file)
+
     with NamedTemporaryFile() as tmpfile:
-        uptodate = Symmetric.update_db(tmpfile.name, block)
-        assert uptodate is False, "DB is outdated"
+        db = Symmetric.update_db(tmpfile.name, block)
+
+    assert db_stored == db
 
 
 @pytest.mark.skip(reason="Bug in: lptoken_contract.functions.getCurrentTokens")

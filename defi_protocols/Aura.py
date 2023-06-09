@@ -454,3 +454,5 @@ def update_db(output_file=DB_FILE, block='latest'):
 
     with open(output_file, 'w') as db_file:
         json.dump(db_data, db_file, indent=2)
+
+    return db_data
