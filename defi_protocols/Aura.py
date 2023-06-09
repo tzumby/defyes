@@ -464,6 +464,3 @@ def update_db(output_file=DB_FILE, block='latest'):
         json.dump(db_data, db_file, indent=2)
 
     return db_data
-
-
-update_db()
