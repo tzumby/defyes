@@ -6,7 +6,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, to_token_amount
+from defi_protocols.functions import get_node, get_contract, to_token_amount, get_contract_creation, last_block
 from defi_protocols.constants import ETHEREUM, CVX_ETH, CVXCRV_ETH
 from defi_protocols import Curve
 from defi_protocols.misc import get_db_filename
@@ -49,38 +49,32 @@ ABI_REWARDS = '[{"inputs":[{"internalType":"address","name":"account","type":"ad
 # CVX ABI - reductionPerCliff, totalCliffs, maxSupply, totalSupply
 ABI_CVX = '[{"inputs":[],"name":"reductionPerCliff","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalCliffs","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"maxSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
+DB_FILE = Path(__file__).parent / "db" / "Convex_db.json"
 
-def get_pool_info(lptoken_address, block):
-    """
-    Output: pool_info method return a list with the following data:
-        [0] lptoken address,
-        [1] token address,
-        [2] gauge address,
-        [3] crvRewards address,
-        [4] stash adress,
-        [5] shutdown bool
-    """
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/db/Convex_db.json', 'r') as db_file:
-        # Reading from json file
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# get_pool_rewarder - Retrieves the result of the pool_info method if there is a match for the lptoken_address - Otherwise it returns None
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_pool_rewarder(lptoken_address, block):
+
+    if isinstance(block, str):
+        if block == 'latest':
+            block = last_block(ETHEREUM)
+
+    with open(DB_FILE, 'r') as db_file:
         db_data = json.load(db_file)
 
-    try:
-        pool_info = db_data['pools'][lptoken_address]
-
-        if pool_info['shutdown']:
-            return None
-        else:
-            pool_info = [lptoken_address,
-                         pool_info['token'],
-                         pool_info['gauge'],
-                         pool_info['crvRewards'],
-                         pool_info['stash'],
-                         pool_info['shutdown']]
-            return pool_info
-
-    except KeyError:
+    rewarder = None
+    if lptoken_address in db_data['pools'].keys():
+        
+        blocks = list(db_data['pools'][lptoken_address].keys())[::-1]
+        for iblock in blocks:
+            if block >= int(iblock):
+                rewarder = db_data['pools'][lptoken_address][iblock]['rewarder']
+                break
+        
+    else:
         booster_contract = get_contract(BOOSTER, ETHEREUM, abi=ABI_BOOSTER, block=block)
-
         number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
 
         for pool_id in range(number_of_pools):
@@ -91,11 +85,12 @@ def get_pool_info(lptoken_address, block):
 
             if address == lptoken_address:
                 if shutdown_status is False:
-                    return pool_info
+                    rewarder = pool_info[3]
+                    break
                 else:
-                    return None
+                    continue
 
-    return None
+    return rewarder
 
 
 def get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=True):
@@ -161,7 +156,7 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
 
 
 def get_all_rewards(wallet, lptoken_address, block, blockchain,
-                    web3=None, decimals=True, crv_rewards_contract=None):
+                    web3=None, decimals=True, rewarder_contract=None):
     """
     Output:
         List of Tuples: [reward_token_address, balance]
@@ -175,19 +170,18 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain,
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    if crv_rewards_contract is None:
-        pool_info = get_pool_info(lptoken_address, block)
+    if rewarder_contract is None:
+        rewarder = get_pool_rewarder(lptoken_address, block)
 
-        if pool_info is None:
+        if rewarder is None:
             print('Error: Incorrect Convex LPToken Address: ', lptoken_address)
             return None
 
-        crv_rewards_address = pool_info[3]
-        crv_rewards_contract = get_contract(crv_rewards_address, blockchain,
+        rewarder_contract = get_contract(rewarder, blockchain,
                                             web3=web3, abi=ABI_REWARDS,
                                             block=block)
 
-    crv_rewards = get_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=decimals)
+    crv_rewards = get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=decimals)
     all_rewards.append(crv_rewards)
 
     # all_rewards[0][1] = crv_rewards_amount - cvx_mint_amount is calculated using the crv_rewards_amount
@@ -197,7 +191,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain,
         if (len(cvx_mint_amount) > 0):
             all_rewards.append(cvx_mint_amount)
 
-    extra_rewards = get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, decimals=decimals)
+    extra_rewards = get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=decimals)
 
     if len(extra_rewards) > 0:
         for extra_reward in extra_rewards:
@@ -285,16 +279,15 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None,
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    pool_info = get_pool_info(lptoken_address, block)
+    rewarder = get_pool_rewarder(lptoken_address, block)
 
-    if pool_info is None:
+    if rewarder is None:
         print('Error: Incorrect Convex LPToken Address: ', lptoken_address)
         return None
 
-    crv_rewards_address = pool_info[3]
-    crv_rewards_contract = get_contract(crv_rewards_address, blockchain, web3=web3, abi=ABI_REWARDS, block=block)
+    rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDS, block=block)
 
-    lptoken_staked = crv_rewards_contract.functions.balanceOf(wallet).call(block_identifier=block)
+    lptoken_staked = rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
     if no_curve_underlying is False:
         balances = Curve.underlying(wallet, lptoken_address, block, blockchain,
@@ -307,7 +300,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None,
     if reward:
         all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain,
                                       web3=web3, decimals=decimals,
-                                      crv_rewards_contract=crv_rewards_contract)
+                                      rewarder_contract=rewarder_contract)
         result.extend(all_rewards)
 
     return result
@@ -329,41 +322,32 @@ def pool_balances(lptoken_address, block, blockchain, web3=None,
     return balances
 
 
-def update_db(db_path=None, save_to=None):
-    if db_path is None:
-        db_path = get_db_filename("Convex")
-    if save_to is None:
-        save_to = db_path
+def update_db(output_file=DB_FILE, block='latest'):
+    db_data = {'pools': {}}
+    
+    web3 = get_node(ETHEREUM, block=block)
+    booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
+    pools_length = booster.functions.poolLength().call(block_identifier=block)
 
-    try:
-        with open(db_path, 'r') as db_file:
-            # Reading from json file
-            db_data = json.load(db_file)
-    # FIXME: use specific exception
-    except:
-        db_data = {
-            'pools': {}
-        }
+    for i in range(pools_length):
+        pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
 
-    web3 = get_node(ETHEREUM)
+        rewarder_data = get_contract_creation(pool_info[3], ETHEREUM)
+        rewarder_creation_tx = web3.eth.get_transaction(rewarder_data[0]['txHash'])
 
-    booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER)
-    db_pool_length = len(db_data['pools'])
-
-    pools_delta = booster.functions.poolLength().call(block_identifier='latest') - db_pool_length
-
-    if pools_delta > 0:
-        for i in range(pools_delta):
-            pool_info = const_call(booster.functions.poolInfo(db_pool_length + i))
-            db_data['pools'][pool_info[0]] = {
-                'poolId': db_pool_length + i,
-                'token': pool_info[1],
-                'gauge': pool_info[2],
-                'crvRewards': pool_info[3],
-                'stash': pool_info[4],
-                'shutdown': pool_info[5]
+        if pool_info[0] in db_data['pools'].keys():
+            db_data['pools'][pool_info[0]][rewarder_creation_tx['blockNumber']] = {
+                'poolId': i,
+                'rewarder': pool_info[3]
             }
+        else:
+            db_data['pools'][pool_info[0]] = {
+                rewarder_creation_tx['blockNumber']: {
+                    'poolId': i,
+                    'rewarder': pool_info[3]
+            }}
 
-    with open(save_to, 'w') as db_file:
-        json.dump(db_data, db_file)
+    with open(output_file, 'w') as db_file:
+        json.dump(db_data, db_file, indent=2)
+
     return db_data

@@ -362,6 +362,10 @@ API_ROPSTEN_GETABI = 'https://api-ropsten.etherscan.io/api?module=contract&actio
 API_KOVAN_GETABI = 'https://api-kovan.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s'
 API_GOERLI_GETABI = 'https://api-goerli.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s'
 
+# SCANS - MODULE = CONTRACTS - GETCONTRACTCREATION
+API_ETHERSCAN_GETCONTRACTCREATION = 'https://api.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=%s&apikey=%s'
+
+
 # SCANS - MODULE = ACCOUNTS - TOKENTX
 API_ETHERSCAN_TOKENTX = 'https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'
 API_POLYGONSCAN_TOKENTX = 'https://api.polygonscan.com/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s'

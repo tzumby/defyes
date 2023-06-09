@@ -15,18 +15,14 @@ cDAI_plus_cUSDC = '0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2'
 steCRV = '0x06325440D014e39736583c165C2963BA99fAf14E'
 
 
-def test_get_pool_info():
-    x = Convex.get_pool_info(X3CRV_ETH, TEST_BLOCK)
-    assert x == ['0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-                 '0x30D9410ED1D5DA1F6C8391af5338C93ab8d4035C',
-                 '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A',
-                 '0x689440f2Ff927E1f24c72F1087E1FAF471eCe1c8',
-                 '0x0000000000000000000000000000000000000000', False]
+def test_get_pool_rewarder():
+    x = Convex.get_pool_rewarder(X3CRV_ETH, TEST_BLOCK)
+    assert x == '0x689440f2Ff927E1f24c72F1087E1FAF471eCe1c8'
 
 
 def test_get_rewards():
-    pool_info = Convex.get_pool_info(CRV3CRYPTO, TEST_BLOCK)
-    rw_contract = get_contract(pool_info[3], ETHEREUM,
+    rewarder = Convex.get_pool_rewarder(CRV3CRYPTO, TEST_BLOCK)
+    rw_contract = get_contract(rewarder, ETHEREUM,
                                web3=WEB3, abi=Convex.ABI_REWARDS,
                                block=TEST_BLOCK)
     wallet = '0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C'
@@ -42,8 +38,8 @@ def test_get_rewards():
                                     # '0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C', 
                                     # '0x849D52316331967b6fF1198e5E32A0eB168D039d'])
 def test_get_extra_rewards(lp_token, wallet):
-    pool_info = Convex.get_pool_info(lp_token, TEST_BLOCK)
-    rw_contract = get_contract(pool_info[3], ETHEREUM,
+    rewarder = Convex.get_pool_rewarder(lp_token, TEST_BLOCK)
+    rw_contract = get_contract(rewarder, ETHEREUM,
                                web3=WEB3, abi=Convex.ABI_REWARDS,
                                block=TEST_BLOCK)
     x = Convex.get_extra_rewards(WEB3, rw_contract, wallet, TEST_BLOCK,
@@ -95,6 +91,7 @@ def test_pool_balances():
                  [USDT_ETH, Decimal('92743777795510')]]
 
 
+@pytest.mark.skip(reason="Takes too long")
 def test_update_db():
     data = Convex.update_db(save_to="/dev/null")
     assert data

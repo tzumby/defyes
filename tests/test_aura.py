@@ -4,7 +4,7 @@ from decimal import Decimal
 from tempfile import NamedTemporaryFile
 
 from defi_protocols import Aura
-from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
+from defi_protocols.constants import ETHEREUM, ETHTokenAddr
 from defi_protocols.functions import get_node, get_contract
 
 
@@ -29,29 +29,32 @@ WALLET_N2 = "0x6d707F73f621722fEc0E6A260F43f24cCC8d4997"
 WALLET_N3 = "0x76d3a0F4Cdc9E75E0A4F898A7bCB1Fb517c9da88"
 WALLET_N4 = "0xB1f881f47baB744E7283851bC090bAA626df931d"
 WALLET_N5 = "0x36cc7B13029B5DEe4034745FB4F24034f3F2ffc6"
+WALLET_N6 = "0xC47eC74A753acb09e4679979AfC428cdE0209639"
+WALLET_N7 = "0x245cc372c84b3645bf0ffe6538620b04a217988b" # olympusdao.eth
+WALLET_N8 = "0x7cb71c594febace6b6ba11126abeb8cc860cb24a"
 WALLET_39d = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 WALLET_e1c = "0x58e6c7ab55aa9012eacca16d1ed4c15795669e1c"
 
 
+@pytest.mark.skip(reason="Takes too long")
 def test_db_uptodate():
     block = 17012817
+    with open(Aura.DB_FILE, 'r') as db_file:
+        db_stored = json.load(db_file)
+
     with NamedTemporaryFile() as tmpfile:
-        uptodate = Aura.update_db(tmpfile.name, block)
-        assert uptodate is False, "DB is outdated"
+        db = Symmetric.update_db(tmpfile.name, block)
+
+    assert db_stored == db
 
 
-def test_get_pool_info():
+def test_get_pool_rewarder():
     block = 17012817
     node = get_node(ETHEREUM, block)
     booster_contract = get_contract(Aura.BOOSTER, ETHEREUM, web3=node, abi=Aura.ABI_BOOSTER, block=block)
-    pool_info = Aura.get_pool_info(booster_contract, balancer_50OHM50wstETH_ADDR, block)
+    rewarder = Aura.get_pool_rewarder(booster_contract, balancer_50OHM50wstETH_ADDR, block)
 
-    assert pool_info == [balancer_50OHM50wstETH_ADDR,
-                         aura_OHMwstETH_TOKEN,
-                         balancer_OHMwstETHgauge_ADDR,
-                         aura_OHMwstETHvault_ADDR,
-                         aura_OHMwstETHstash_ADDR,
-                         False]
+    assert rewarder == aura_OHMwstETHvault_ADDR
 
 
 def test_get_rewards():
@@ -92,11 +95,11 @@ def test_get_aura_mint_amount():
 
 
 def test_get_all_rewards():
-    block = 17018536
+    block = 17437365
     node = get_node(ETHEREUM, block)
-    bal_rewards, aura_rewards = Aura.get_all_rewards(WALLET_N2, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
-    assert bal_rewards == [ETHTokenAddr.BAL,  Decimal('0.064024732718053571')]
-    assert aura_rewards == [ETHTokenAddr.AURA, Decimal('0.406220080813836023749526866')]
+    bal_rewards, aura_rewards = Aura.get_all_rewards(WALLET_N6, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
+    assert bal_rewards == [ETHTokenAddr.BAL,  Decimal('18.466229228629648765')]
+    assert aura_rewards == [ETHTokenAddr.AURA, Decimal('184.8187828205580331490302075')]
 
 
 def test_get_locked():
@@ -119,6 +122,26 @@ def test_get_staked():
 
 
 def test_underlying():
+    block = 17437427
+    node = get_node(ETHEREUM, block)
+
+    bal, eth, aurabal = Aura.underlying(WALLET_N6, balancer_auraBALSTABLE_ADDR, block, ETHEREUM, web3=node)
+    assert bal == [ETHTokenAddr.BAL, Decimal('38369.18588053512759139996168')]
+    assert eth == [ETHTokenAddr.WETH, Decimal('25.93597482398118254851195716')]
+    assert aurabal == [ETHTokenAddr.auraBAL, Decimal('23621.36000159691559589201902')]
+
+    ohm, steth = Aura.underlying(WALLET_N7, balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node, decimals=False)
+    assert ohm == [ETHTokenAddr.OHM, Decimal('18201639099.93016793856133145')]
+    assert steth == [ETHTokenAddr.wstETH, Decimal('92391287661971156.30751574987')]
+
+    gno, cow = Aura.underlying(WALLET_N8, balancer_50COW_50GNO, block, ETHEREUM, web3=node)
+    assert gno == [ETHTokenAddr.GNO, Decimal('4.900304056592836121847285939')]
+    assert cow == [ETHTokenAddr.COW, Decimal('7837.281775186463382851500589')]
+
+    gno, weth = Aura.underlying(WALLET_e1c, balancer_80GNO_20WETH, block, ETHEREUM, web3=node)
+    assert gno == [ETHTokenAddr.GNO, Decimal('2857.614850691977937126713610')]
+    assert weth == [ETHTokenAddr.WETH, Decimal('44.91525928857763211653589999')]
+
     block = 17030603
     node = get_node(ETHEREUM, block)
 

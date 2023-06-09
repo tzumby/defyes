@@ -111,6 +111,23 @@ def get_pool_info(web3, lptoken_address, block, blockchain):
     except ContractLogicError:
         pass
 
+    # On-Chain
+    # result['chef_contract'] = get_chef_contract(web3, block, blockchain)
+
+    # poolLength = result['chef_contract'].functions.poolLength().call(block_identifier=block)
+
+    # for i in range(poolLength):
+    #     lptoken_address_aux = result['chef_contract'].functions.lpToken(i).call(block_identifier=block)
+    #     if lptoken_address_aux == lptoken_address:
+    #         result['pool_info'] = {
+    #             'poolId': i,
+    #             'allocPoint':
+    #                 result['chef_contract'].functions.poolInfo(i).call(
+    #                     block_identifier=block)[2]
+    #         }
+    #         result['totalAllocPoint'] = result['chef_contract'].functions.totalAllocPoint().call(block_identifier=block)
+    #     break
+
     return result
 
 
@@ -508,32 +525,21 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
 # # update_db
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db(output_file=DB_FILE, block='latest'):
-    try:
-        with open(DB_FILE, 'r') as db_file:
-            db_data = json.load(db_file)
-    except:
-        db_data = {XDAI: {
-            'pools': {}
-        }}
+    db_data = {XDAI: {'pools': {}}}
 
-    web3 = get_node(XDAI)
+    web3 = get_node(XDAI, block)
 
     symm_chef = get_chef_contract(web3, block, XDAI)
-    db_pool_length = len(db_data[XDAI]['pools'])
-    pools_delta = symm_chef.functions.poolLength().call(block_identifier=block) - db_pool_length
+    poolLength = symm_chef.functions.poolLength().call(block_identifier=block)
 
-    updated = False
-    if pools_delta > 0:
-        updated = True
-        for i in range(pools_delta):
-            lptoken_address = symm_chef.functions.lpToken(db_pool_length + i).call(block_identifier=block)
-            db_data[XDAI]['pools'][lptoken_address] = db_pool_length + i
+    for i in range(poolLength):
+        lptoken_address = symm_chef.functions.lpToken(i).call(block_identifier=block)
+        db_data[XDAI]['pools'][lptoken_address] = i
 
-        with open(output_file, 'w') as db_file:
-            json.dump(db_data, db_file)
+    with open(output_file, 'w') as db_file:
+        json.dump(db_data, db_file)
 
-    return updated
-
+    return db_data
 
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, decimals=True):
     """
