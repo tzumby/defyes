@@ -4,8 +4,8 @@ from decimal import Decimal
 from tempfile import NamedTemporaryFile
 
 from defi_protocols import Aura
-from defi_protocols.constants import ETHEREUM, ETHTokenAddr, ZERO_ADDRESS
-from defi_protocols.functions import get_node, get_contract, last_block
+from defi_protocols.constants import ETHEREUM, ETHTokenAddr
+from defi_protocols.functions import get_node, get_contract
 
 
 balancer_50OHM50wstETH_ADDR = "0xd4f79CA0Ac83192693bce4699d0c10C66Aa6Cf0F"
@@ -180,6 +180,3 @@ def test_get_compounded():
     aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, ETHEREUM, web3=node, reward=True)
     assert aurabal == [ETHTokenAddr.auraBAL, Decimal('173638.950900193303875756')]
     assert aura_rewards == [ETHTokenAddr.AURA, Decimal('518.423812233736947225')]
-
-
-test_underlying()

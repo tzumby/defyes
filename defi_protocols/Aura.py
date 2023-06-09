@@ -4,7 +4,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount, last_block
+from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
@@ -454,10 +454,3 @@ def update_db(output_file=DB_FILE, block='latest'):
 
     with open(output_file, 'w') as db_file:
         json.dump(db_data, db_file, indent=2)
-
-# block = last_block(ETHEREUM)
-# lptoken_address = '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9'
-# web3 = get_node(ETHEREUM, block=block)
-# booster_contract = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
-
-# pool_info = get_pool_info(booster_contract, lptoken_address, block)
