@@ -39,9 +39,13 @@ WALLET_e1c = "0x58e6c7ab55aa9012eacca16d1ed4c15795669e1c"
 @pytest.mark.skip(reason="Takes too long")
 def test_db_uptodate():
     block = 17012817
+    with open(Aura.DB_FILE, 'r') as db_file:
+        db_stored = json.load(db_file)
+
     with NamedTemporaryFile() as tmpfile:
-        uptodate = Aura.update_db(tmpfile.name, block)
-        assert uptodate is False, "DB is outdated"
+        db = Aura.update_db(tmpfile.name, block)
+
+    assert db_stored == db
 
 
 def test_get_pool_info():

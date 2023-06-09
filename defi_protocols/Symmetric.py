@@ -525,9 +525,9 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block='latest')
 # # update_db
 # #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def update_db(output_file=DB_FILE, block='latest'):
-    db_data = {'pools': {}}
+    db_data = {XDAI: {'pools': {}}}
 
-    web3 = get_node(XDAI)
+    web3 = get_node(XDAI, block)
 
     symm_chef = get_chef_contract(web3, block, XDAI)
     poolLength = symm_chef.functions.poolLength().call(block_identifier=block)
@@ -539,6 +539,7 @@ def update_db(output_file=DB_FILE, block='latest'):
     with open(output_file, 'w') as db_file:
         json.dump(db_data, db_file)
 
+    return db_data
 
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, decimals=True):
     """
