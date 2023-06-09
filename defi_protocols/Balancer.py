@@ -189,8 +189,11 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     try:
         lptoken_data['poolId'] = const_call(lptoken_data['contract'].functions.getPoolId())
-    except:  # FIXME: too broad exception
-        lptoken_data['poolId'] = const_call(lptoken_data['contract'].functions.POOL_ID())
+    except ContractLogicError:
+        try:
+            lptoken_data['poolId'] = const_call(lptoken_data['contract'].functions.POOL_ID())
+        except ContractLogicError:
+            lptoken_data['poolId'] = None
 
     lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
 
@@ -412,74 +415,75 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                 lptoken_data['locked'] = Decimal(vebal_contract.functions.locked(wallet).call(block_identifier=block)[0])
             except:
                 pass
+    
+    if lptoken_data['poolId'] is not None:
+        pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier=block)
+        pool_tokens = pool_tokens_data[0]
+        pool_balances = [Decimal(balance) for balance in pool_tokens_data[1]]
 
-    pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier=block)
-    pool_tokens = pool_tokens_data[0]
-    pool_balances = [Decimal(balance) for balance in pool_tokens_data[1]]
+        pool_balance_fraction = lptoken_data['balanceOf'] / lptoken_data['totalSupply']
+        pool_staked_fraction = lptoken_data['staked'] / lptoken_data['totalSupply']
+        pool_locked_fraction = lptoken_data['locked'] / lptoken_data['totalSupply']
+        for i in range(len(pool_tokens)):
 
-    pool_balance_fraction = lptoken_data['balanceOf'] / lptoken_data['totalSupply']
-    pool_staked_fraction = lptoken_data['staked'] / lptoken_data['totalSupply']
-    pool_locked_fraction = lptoken_data['locked'] / lptoken_data['totalSupply']
-    for i in range(len(pool_tokens)):
+            if i == lptoken_data['bptIndex']:
+                continue
 
-        if i == lptoken_data['bptIndex']:
-            continue
+            token_address = pool_tokens[i]
+            token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER,
+                                            block=block)
 
-        token_address = pool_tokens[i]
-        token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER,
-                                        block=block)
+            token_decimals = const_call(token_contract.functions.decimals())
 
-        token_decimals = const_call(token_contract.functions.decimals())
+            unwrapped_balances = []
 
-        unwrapped_balances = []
-
-        if call_contract_method(token_contract.functions.getRate(), block) is not None:
-            unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
-        else:
-            main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
-            if main_token is None:
-                stETH = call_contract_method(token_contract.functions.stETH(), block)
-                if stETH is not None:
-                    if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
-                        main_token = stETH
+            if call_contract_method(token_contract.functions.getRate(), block) is not None:
+                unwrapped_balances = unwrap(pool_balances[i] / (10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
+            else:
+                main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
+                if main_token is None:
+                    stETH = call_contract_method(token_contract.functions.stETH(), block)
+                    if stETH is not None:
+                        if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
+                            main_token = stETH
+                        else:
+                            main_token = token_address
                     else:
                         main_token = token_address
+
+                if lptoken_data['scalingFactors'] is not None:
+                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
                 else:
-                    main_token = token_address
+                    token_balance = pool_balances[i]
 
-            if lptoken_data['scalingFactors'] is not None:
-                token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
-            else:
-                token_balance = pool_balances[i]
+                if decimals is True:
+                    token_balance = token_balance / (10**token_decimals)
 
-            if decimals is True:
-                token_balance = token_balance / (10**token_decimals)
+                unwrapped_balances.append([main_token, token_balance])
 
-            unwrapped_balances.append([main_token, token_balance])
+            for main_token, token_balance in unwrapped_balances:
+                token_balance = Decimal(token_balance)
 
-        for main_token, token_balance in unwrapped_balances:
-            token_balance = Decimal(token_balance)
+                if aura_staked is None:
+                    token_staked = token_balance * pool_staked_fraction
+                else:
+                    aura_pool_fraction = Decimal(aura_staked) / lptoken_data['totalSupply']
+                    token_staked = token_balance * aura_pool_fraction
 
-            if aura_staked is None:
-                token_staked = token_balance * pool_staked_fraction
-            else:
-                aura_pool_fraction = Decimal(aura_staked) / lptoken_data['totalSupply']
-                token_staked = token_balance * aura_pool_fraction
+                token_locked = token_balance * pool_locked_fraction
+                token_balance = token_balance * pool_balance_fraction
 
-            token_locked = token_balance * pool_locked_fraction
-            token_balance = token_balance * pool_balance_fraction
+                balances.append([main_token, token_balance, token_staked, token_locked])
 
-            balances.append([main_token, token_balance, token_staked, token_locked])
+        if reward is True:
+            all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
+                                            gauge_address=gauge_address)
 
-    if reward is True:
-        all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals,
-                                        gauge_address=gauge_address)
+            result.append(balances)
+            result.append(all_rewards)
 
-        result.append(balances)
-        result.append(all_rewards)
-
-    else:
-        result = balances
+        else:
+            result = balances
 
     return result
 
@@ -500,49 +504,50 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
-    pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier=block)
-    pool_tokens = pool_tokens_data[0]
-    pool_balances = [Decimal(balance) for balance in pool_tokens_data[1]]
+    if lptoken_data['poolId'] is not None:
+        pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier=block)
+        pool_tokens = pool_tokens_data[0]
+        pool_balances = [Decimal(balance) for balance in pool_tokens_data[1]]
 
-    for i in range(len(pool_tokens)):
+        for i in range(len(pool_tokens)):
 
-        if i == lptoken_data['bptIndex']:
-            continue
+            if i == lptoken_data['bptIndex']:
+                continue
 
-        token_address = pool_tokens[i]
-        token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER,
-                                        block=block)
+            token_address = pool_tokens[i]
+            token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER,
+                                            block=block)
 
-        token_decimals = const_call(token_contract.functions.decimals())
+            token_decimals = const_call(token_contract.functions.decimals())
 
-        unwrapped_balances = []
-        if call_contract_method(token_contract.functions.getRate(), block) is not None:
-            unwrapped_balances = unwrap(pool_balances[i] / Decimal(10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
-        else:
-            main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
-            if main_token is None:
-                stETH = call_contract_method(token_contract.functions.stETH(), block)
-                if stETH is not None:
-                    if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
-                        main_token = stETH
+            unwrapped_balances = []
+            if call_contract_method(token_contract.functions.getRate(), block) is not None:
+                unwrapped_balances = unwrap(pool_balances[i] / Decimal(10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
+            else:
+                main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
+                if main_token is None:
+                    stETH = call_contract_method(token_contract.functions.stETH(), block)
+                    if stETH is not None:
+                        if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
+                            main_token = stETH
+                        else:
+                            main_token = token_address
                     else:
                         main_token = token_address
+
+                if lptoken_data['scalingFactors'] is not None:
+                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / Decimal(10 ** (2 * 18 - token_decimals))
                 else:
-                    main_token = token_address
+                    main_token = pool_tokens[i]
+                    token_balance = pool_balances[i]
 
-            if lptoken_data['scalingFactors'] is not None:
-                token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / Decimal(10 ** (2 * 18 - token_decimals))
-            else:
-                main_token = pool_tokens[i]
-                token_balance = pool_balances[i]
+                unwrapped_balances.append([main_token, to_token_amount(main_token, token_balance, blockchain, web3, decimals)])
 
-            unwrapped_balances.append([main_token, to_token_amount(main_token, token_balance, blockchain, web3, decimals)])
+            for main_token, token_balance in unwrapped_balances:
+                balances.append([main_token, token_balance])
 
-        for main_token, token_balance in unwrapped_balances:
-            balances.append([main_token, token_balance])
-
-    first = itemgetter(0)
-    balances = [[k, sum(item[1] for item in tups_to_sum)] for k, tups_to_sum in groupby(balances, key=first)]
+        first = itemgetter(0)
+        balances = [[k, sum(item[1] for item in tups_to_sum)] for k, tups_to_sum in groupby(balances, key=first)]
 
     return balances
 
@@ -563,56 +568,57 @@ def unwrap(lptoken_amount: Decimal, lptoken_address: str, block: int | str, bloc
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
-    pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier=block)
-    pool_tokens = pool_tokens_data[0]
-    pool_balances = [Decimal(balance) for balance in pool_tokens_data[1]]
+    if lptoken_data['poolId'] is not None:
+        pool_tokens_data = vault_contract.functions.getPoolTokens(lptoken_data['poolId']).call(block_identifier=block)
+        pool_tokens = pool_tokens_data[0]
+        pool_balances = [Decimal(balance) for balance in pool_tokens_data[1]]
 
-    pool_balance_fraction = Decimal(lptoken_amount) * Decimal(10 ** lptoken_data['decimals']) / lptoken_data['totalSupply']
+        pool_balance_fraction = Decimal(lptoken_amount) * Decimal(10 ** lptoken_data['decimals']) / lptoken_data['totalSupply']
 
-    for i in range(len(pool_tokens)):
+        for i in range(len(pool_tokens)):
 
-        if i == lptoken_data['bptIndex']:
-            continue
+            if i == lptoken_data['bptIndex']:
+                continue
 
-        token_address = pool_tokens[i]
-        token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER,
-                                        block=block)
+            token_address = pool_tokens[i]
+            token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER,
+                                            block=block)
 
-        token_decimals = const_call(token_contract.functions.decimals())
+            token_decimals = const_call(token_contract.functions.decimals())
 
-        unwrapped_balances = []
-        if call_contract_method(token_contract.functions.getRate(), block) is not None:
-            unwrapped_balances = unwrap(pool_balances[i] / Decimal(10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
-        else:
-            main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
-            if main_token is None:
-                stETH = call_contract_method(token_contract.functions.stETH(), block)
-                if stETH is not None:
-                    if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
-                        main_token = stETH
+            unwrapped_balances = []
+            if call_contract_method(token_contract.functions.getRate(), block) is not None:
+                unwrapped_balances = unwrap(pool_balances[i] / Decimal(10**token_decimals), token_address, block, blockchain, web3=web3, decimals=decimals)
+            else:
+                main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
+                if main_token is None:
+                    stETH = call_contract_method(token_contract.functions.stETH(), block)
+                    if stETH is not None:
+                        if lptoken_data['scalingFactors'] is not None and lptoken_data['scalingFactors'][i] != (10**18):
+                            main_token = stETH
+                        else:
+                            main_token = token_address
                     else:
                         main_token = token_address
+
+                if lptoken_data['scalingFactors'] is not None:
+                    token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
                 else:
-                    main_token = token_address
+                    token_balance = pool_balances[i]
 
-            if lptoken_data['scalingFactors'] is not None:
-                token_balance = pool_balances[i] * lptoken_data['scalingFactors'][i] / (10 ** (2 * 18 - token_decimals))
-            else:
-                token_balance = pool_balances[i]
+                if decimals is True:
+                    token_balance = token_balance / (10**token_decimals)
 
-            if decimals is True:
-                token_balance = token_balance / (10**token_decimals)
+                unwrapped_balances.append([main_token, token_balance])
 
-            unwrapped_balances.append([main_token, token_balance])
+            for unwrapped_balance in unwrapped_balances:
+                main_token, token_balance = unwrapped_balance
+                token_balance = token_balance * pool_balance_fraction
 
-        for unwrapped_balance in unwrapped_balances:
-            main_token, token_balance = unwrapped_balance
-            token_balance = token_balance * pool_balance_fraction
+                balances.append([main_token, token_balance])
 
-            balances.append([main_token, token_balance])
-
-    first = itemgetter(0)
-    balances = [[k, sum(item[1] for item in tups_to_sum)] for k, tups_to_sum in groupby(balances, key=first)]
+        first = itemgetter(0)
+        balances = [[k, sum(item[1] for item in tups_to_sum)] for k, tups_to_sum in groupby(balances, key=first)]
 
     return balances
 
@@ -631,32 +637,36 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
     try:
         pool_id = const_call(lptoken_contract.functions.getPoolId())
-    except:  # FIXME: too broad exception
-        pool_id = const_call(lptoken_contract.functions.POOL_ID())
+    except ContractLogicError:
+        try:
+            pool_id = const_call(lptoken_contract.functions.POOL_ID())
+        except ContractLogicError:
+            pool_id = None
 
-    pool_id = '0x' + pool_id.hex()
-    result['swaps'] = []
-    swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
-    swap_logs = get_logs_web3(address=VAULT,
-                              blockchain=blockchain,
-                              block_start=block_start,
-                              block_end=block_end,
-                              topics=[swap_event, pool_id])
+    if pool_id is not None:
+        pool_id = '0x' + pool_id.hex()
+        result['swaps'] = []
+        swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
+        swap_logs = get_logs_web3(address=VAULT,
+                                blockchain=blockchain,
+                                block_start=block_start,
+                                block_end=block_end,
+                                topics=[swap_event, pool_id])
 
-    for swap_log in swap_logs:
-        token_in = Web3.to_checksum_address(f"0x{swap_log['topics'][2].hex()[-40:]}")
-        lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
-        swap_fee = Decimal(lptoken_contract.functions.getSwapFeePercentage().call(block_identifier=swap_log['blockNumber']))
-        swap_fee /= Decimal(10 ** lptoken_decimals)
-        swap_fee *= int(swap_log['data'].hex()[2:66], 16)
+        for swap_log in swap_logs:
+            token_in = Web3.to_checksum_address(f"0x{swap_log['topics'][2].hex()[-40:]}")
+            lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
+            swap_fee = Decimal(lptoken_contract.functions.getSwapFeePercentage().call(block_identifier=swap_log['blockNumber']))
+            swap_fee /= Decimal(10 ** lptoken_decimals)
+            swap_fee *= int(swap_log['data'].hex()[2:66], 16)
 
-        swap_data = {
-            'block': swap_log['blockNumber'],
-            'tokenIn': token_in,
-            'amountIn': to_token_amount(token_in, swap_fee, blockchain, web3, decimals)
-        }
+            swap_data = {
+                'block': swap_log['blockNumber'],
+                'tokenIn': token_in,
+                'amountIn': to_token_amount(token_in, swap_fee, blockchain, web3, decimals)
+            }
 
-        result['swaps'].append(swap_data)
+            result['swaps'].append(swap_data)
 
     return result
 
