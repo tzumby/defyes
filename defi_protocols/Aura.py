@@ -4,7 +4,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount, get_contract_creation, last_block
+from defi_protocols.functions import get_node, get_decimals, get_contract, to_token_amount, get_contract_creation
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols import Balancer
 from web3.exceptions import ContractLogicError, BadFunctionCallOutput
@@ -433,10 +433,6 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
 def update_db(output_file=DB_FILE, block='latest'):
     db_data = {'pools': {}}
-
-    if isinstance(block, str):
-        if block == 'latest':
-            block = last_block(ETHEREUM)
     
     web3 = get_node(ETHEREUM, block=block)
     booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
