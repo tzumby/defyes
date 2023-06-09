@@ -112,8 +112,12 @@ jobs:
           NODE_XDAI: ${{ secrets.NODE_XDAI }}
           NODE_POLYGON: ${{ secrets.NODE_POLYGON }}
           NODE_OPTIMISM: ${{ secrets.NODE_OPTIMISM }}
+          NODE_ARBITRUM: ${{ secrets.NODE_ARBITRUM }}
           APIKEYS_ETHERSCAN: ${{ secrets.APIKEYS_ETHERSCAN }}
           APIKEYS_POLSCAN: ${{ secrets.APIKEYS_POLSCAN }}
+          APIKEYS_GNOSISSCAN: ${{ secrets.APIKEYS_GNOSISSCAN }}
+          APIKEYS_OPTIMISM: ${{ secrets.APIKEYS_OPTIMISM }}
+          APIKEYS_ARBITRUM: ${{ secrets.APIKEYS_ARBITRUM }}
         run: |
           pip install -r requirements-dev.txt
           sh ci_secrets_helper.sh

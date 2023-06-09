@@ -3,6 +3,8 @@ import requests
 import calendar
 import math
 import logging
+import re
+
 from datetime import datetime
 from decimal import Decimal
 from typing import Union, Optional, List
@@ -837,22 +839,37 @@ def get_logs_web3(address: str,
 
     address = Web3.to_checksum_address(address)
     try:
-        logs = web3.eth.get_logs({'address': address, 'fromBlock': block_start, 'toBlock': None, 'topics': topics, 'blockHash': block_hash})
+        params = {'address': address, 'fromBlock': block_start, 'toBlock': None, 'topics': topics}
+        if block_hash is not None:
+            params.update({'blockHash': block_hash})
+        logs = web3.eth.get_logs(params)
+
         if not isinstance(block_end, str) and block_end is not None:
-            for i in range(len(logs)):
-                if logs[i]['blockNumber'] > block_end:
-                    logs = logs[:i]
+            for n in range(len(logs)):
+                if logs[n]['blockNumber'] > block_end:
+                    logs = logs[:n]
                     break
     except ValueError as error:
         error_info = error.args[0]
-        if error_info['code'] == -32005:
-            logs = []
+
+        if error_info['code'] == -32005:  # error code in infura
             block_interval = int(error_info['data']['to'], 16) - int(error_info['data']['from'], 16)
-            logger.debug(f'Web3.eth.get_logs: query returned more than 10000 results. Trying with a {block_interval} block range.')
-            for from_block, to_block in get_block_intervals(blockchain, block_start, block_end, block_interval):
-                logs += web3.eth.get_logs({'address': address, 'fromBlock': from_block, 'toBlock': to_block, 'topics': topics, 'blockHash': block_hash})
+        elif error_info['code'] == -32602:  # error code in alchemy
+            blocks = [int(block, 16) for block in re.findall(r'0x[0-9a-fA-F]+', error_info['message'])]
+            block_interval = blocks[1] - blocks[0]
         else:
-            raise ValueError
+            raise ValueError(error_info)
+
+        logger.debug(f'Web3.eth.get_logs: query returned more than 10000 results. Trying with a {block_interval} block range.')
+        logs = []
+        params = {'address': address, 'topics': topics}
+        if block_hash is not None:
+            params.update({'blockHash': block_hash})
+
+        for from_block, to_block in get_block_intervals(blockchain, block_start, block_end, block_interval):
+            params.update({'fromBlock': from_block, 'toBlock': to_block})
+            logs += web3.eth.get_logs(params)
+
     return logs
 
 
