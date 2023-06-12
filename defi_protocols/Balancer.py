@@ -7,7 +7,7 @@ from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs_web3, to_token_amount
+from defi_protocols.functions import get_node, get_contract, get_decimals, block_to_date, date_to_block, balance_of, get_logs_web3, to_token_amount, last_block
 from defi_protocols.constants import ETHEREUM, XDAI, BAL_ETH, BAL_ARB, BAL_XDAI, BB_A_USD_OLD_ETH, BB_A_USD_ETH, POLYGON, ARBITRUM, BAL_POL, ZERO_ADDRESS
 from defi_protocols.prices.prices import get_price
 
@@ -145,6 +145,13 @@ def get_gauge_factory_address(blockchain):
 # get_gauge_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_gauge_address(blockchain, block, web3, lptoken_addr):
+    
+    if isinstance(block, str):
+        if block == 'latest':
+            block = last_block(ETHEREUM)
+        else:
+            raise ValueError('Incorrect block.')
+
     gauge_factory_address = get_gauge_factory_address(blockchain)
 
     gauge_address = ZERO_ADDRESS

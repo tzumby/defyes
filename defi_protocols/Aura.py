@@ -106,6 +106,8 @@ def get_pool_rewarder(booster_contract, lptoken_address, block):
     if isinstance(block, str):
         if block == 'latest':
             block = last_block(ETHEREUM)
+        else:
+            raise ValueError('Incorrect block.')
 
     with open(DB_FILE, 'r') as db_file:
         db_data = json.load(db_file)
