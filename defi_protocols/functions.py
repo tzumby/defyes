@@ -162,6 +162,7 @@ def get_node(blockchain, block='latest'):
 
     web3 = get_web3_provider(providers)
     web3._network_name = blockchain
+    web3._called_with_block = block
     return web3
 
 
