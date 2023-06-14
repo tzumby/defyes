@@ -1,71 +1,23 @@
 import logging
-import json
 
-from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import ClassVar, Dict, List
-from web3.contract import Contract
+from typing import Dict, List
 from web3.exceptions import ContractLogicError, ContractCustomError
 from web3 import Web3
 
-from defi_protocols.cache import const_call
 from defi_protocols.constants import ETHEREUM
-from defi_protocols.functions import get_node, get_contract
+from defi_protocols.contract import DefiContract
+from defi_protocols.functions import get_decimals
 
 
 logger = logging.getLogger(__name__)
 
-
-
-class ContractFunction:
-    def __init__(self, attr, args, kwargs, get_contract_func):
-        self.attr = attr
-        self.args = args
-        self.kwargs = kwargs
-        self.get_contract = get_contract_func
-
-    def _get_contract_func(self, attr, *args, **kwargs):
-        block = kwargs.get('block_identifier', 'latest')
-        contract = self.get_contract(block)
-        contract_func = getattr(contract.functions, attr)
-        return contract_func
-
-    def call(self, *args, **kwargs):
-        contract_func = self._get_contract_func(self.attr, *args, **kwargs)
-        return contract_func(*self.args, **self.kwargs).call(*args, **kwargs)
-
-    def const_call(self, *args, **kwargs):
-        contract_func = self._get_contract_func(self.attr, *args, **kwargs)
-        return const_call(contract_func(*self.args, **self.kwargs))
-
-
-class DefiContract:
-    ABI: str = 'MUST_BE_DEFINED'
-
-    def __init__(self, blockchain: str, address: str) -> None:
-        self.blockchain = blockchain
-        self.address = address
-        self.node = None
-        self.contract = None
-
-        for method_name in [func['name'] for func in json.loads(self.ABI)]:
-            setattr(self, method_name, self.create_method(method_name))
-
-    def create_method(self, method_name):
-        def method(*args, **kwargs):
-            return ContractFunction(method_name, args, kwargs, get_contract_func=self.get_contract)
-        return method
-
-    def get_contract(self, block) -> Contract:
-        if self.node is None or block != self.node._called_with_block:
-            self.node = get_node(self.blockchain, block)
-            self.contract = self.node.eth.contract(address=self.address, abi=self.ABI)
-        return self.contract
-
-
 # Borrow Module
 # https://docs.angle.money/angle-borrowing-module/borrowing-module
 # https://github.com/AngleProtocol/borrow-contracts/tree/main
+
+# https://developers.angle.money/borrowing-module-contracts/smart-contract-docs/treasury
+# https://github.com/AngleProtocol/borrow-contracts/tree/main/contracts/treasury
 class Treasury(DefiContract):
     ABI: str = """[{"inputs":[],\
                     "name":"stablecoin",\
@@ -105,6 +57,33 @@ class Treasury(DefiContract):
         return vaults
 
 
+class Oracle(DefiContract):
+    ABI: str = """[{"inputs": [],\
+                    "name": "DESCRIPTION",\
+                    "outputs": [{"internalType": "string", "name": "", "type": "string"}],\
+                    "stateMutability": "view","type": "function"},\
+                   {"inputs": [],\
+                    "name": "read",\
+                    "outputs": [{"internalType": "uint256", "name": "quoteAmount", "type": "uint256"}],\
+                    "stateMutability": "view", "type": "function"}\
+                  ]"""
+
+    def __init__(self, blockchain, address) -> None:
+        super().__init__(blockchain, address)
+        self.decimals = self.get_decimals()
+
+    def get_decimals(self) -> int:
+        description = self.DESCRIPTION().const_call()
+        if 'EUR' in description:
+            return 18
+        else:
+            raise ValueError('Not decimal specified')
+
+    @property
+    def rate(self) -> Decimal:
+        return self.read().call() / Decimal(10 ** self.decimals)
+
+
 class VaultManager(DefiContract):
     ABI: str = """[{"inputs": [{"internalType": "address", "name": "owner", "type": "address"}],\
                     "name": "balanceOf",\
@@ -117,7 +96,44 @@ class VaultManager(DefiContract):
                    {"inputs":[{"internalType":"uint256","name":"vaultID","type":"uint256"}],\
                     "name":"ownerOf",\
                     "outputs":[{"internalType":"address","name":"","type":"address"}],\
-                    "stateMutability":"view","type":"function"}\
+                    "stateMutability":"view","type":"function"},\
+                   {"inputs":[],\
+                    "name":"oracle",\
+                    "outputs":[{"internalType":"contract IOracle","name":"","type":"address"}],\
+                    "stateMutability":"view","type":"function"},\
+                   {"inputs": [],\
+                    "name": "collateralFactor",\
+                    "outputs": [{"internalType": "uint64", "name": "", "type": "uint64"}],\
+                    "stateMutability": "view", "type": "function"},\
+                   {"inputs": [],\
+                    "name": "BASE_INTEREST",\
+                    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                    "stateMutability": "view", "type": "function"},\
+                   {"inputs": [],\
+                    "name": "BASE_PARAMS",\
+                    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                    "stateMutability": "view", "type": "function"},\
+                   {"inputs": [],\
+                    "name": "collateral",\
+                    "outputs": [{"internalType": "contract IERC20", "name": "", "type": "address"}],\
+                    "stateMutability": "view", "type": "function"},\
+                   {"inputs": [{"internalType": "uint256", "name": "vaultID", "type": "uint256"}],\
+                    "name": "getVaultDebt",\
+                    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                    "stateMutability": "view", "type": "function"},\
+                   {"inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],\
+                    "name": "vaultData",\
+                    "outputs": [{"internalType": "uint256", "name": "collateralAmount", "type": "uint256"},\
+                                {"internalType": "uint256", "name": "normalizedDebt", "type": "uint256"}],\
+                    "stateMutability": "view", "type": "function"},\
+                   {"inputs":[],\
+                    "name":"stablecoin",\
+                    "outputs":[{"internalType":"contract IAgToken","name":"","type":"address"}],\
+                    "stateMutability":"view","type":"function"},\
+                   {"inputs": [],\
+                    "name": "interestRate",\
+                    "outputs": [{"internalType": "uint64", "name": "", "type": "uint64"}],\
+                    "stateMutability": "view", "type": "function"}\
                   ]"""
 
     def __init__(self, blockchain, address) -> None:
@@ -127,8 +143,44 @@ class VaultManager(DefiContract):
         wallet = Web3.to_checksum_address(wallet)
         return self.balanceOf(wallet).call(block_identifier=block) >= 1
 
+    @property
+    def stable_coin(self):
+        return self.stablecoin().const_call()
 
-def get_managers_and_vaultcounts(blockchain: str, wallet: str, block: int | str) -> None:
+    @property
+    def collateral_coin(self):
+        return self.collateral().const_call()
+
+    def get_oracle(self) -> Oracle:
+        return Oracle(self.blockchain, self.oracle().const_call())
+
+    def get_vault_data(self, vaultid: int, block: int) -> Dict:
+        stablecoin_decimals = get_decimals(self.stable_coin, self.blockchain, self.get_node(block))
+        collateral_decimals = get_decimals(self.collateral_coin, self.blockchain, self.get_node(block))
+        contract_decimals = str(self.BASE_PARAMS().const_call()).count('0')
+        interest_decimals = str(self.BASE_INTEREST().const_call()).count('0')
+
+        collateral_factor = self.collateralFactor().call(block_identifier=block) / Decimal(10 ** contract_decimals)
+        debt = self.getVaultDebt(vaultid).call(block_identifier=block) / Decimal(10 ** stablecoin_decimals)
+        collateral_deposit, normalized_debt = self.vaultData(vaultid).call(block_identifier=block)
+        collateral_amount = collateral_deposit / Decimal(10 **collateral_decimals)
+
+        collateral_to_stablecoin = self.get_oracle().rate
+        collateral_in_stablecoin = collateral_deposit * collateral_to_stablecoin / Decimal(10 ** stablecoin_decimals)
+
+        health_factor = collateral_in_stablecoin * collateral_factor / debt
+
+        available_to_borrow = collateral_in_stablecoin * collateral_factor - debt
+
+        interest_rate_per_second = self.interestRate().call(block_identifier=block) / Decimal(10 ** interest_decimals)
+
+        return {'debt': debt, 'available_to_borrow': available_to_borrow, 'collateral_deposit': collateral_amount,
+                'health_factor': health_factor, 'loan_to_value': debt / collateral_in_stablecoin,
+                'anual_interest_rate': interest_rate_per_second * 365 * 24 * 3600,
+                'liquidation_price_in_stablecoin_fiat': debt / collateral_factor / collateral_amount}
+
+
+def underlying(blockchain: str, wallet: str, block: int | str) -> None:
     """
     Returns the list of vault_manager contracts in which the wallet owns at least a Vault.
     """
@@ -140,11 +192,12 @@ def get_managers_and_vaultcounts(blockchain: str, wallet: str, block: int | str)
         vault_manager = VaultManager(blockchain, vault_addr)
 
         if vault_manager.has_vaults_owned_by(wallet, block):
-            vault_count = vault_manager.vaultIDCount().call(block_identifier=block)
-            for nvault in range(vault_count + 1):
+            vaults = vault_manager.vaultIDCount().call(block_identifier=block)
+            for vault_id in range(vaults + 1):
                 try:
-                    if wallet == vault_manager.ownerOf(nvault).call(block_identifier=block):
-                        print(nvault)
+                    if wallet == vault_manager.ownerOf(vault_id).call(block_identifier=block):
+                        vault_data = vault_manager.get_vault_data(vault_id, block)
+                        print(vault_data)
                 except ContractCustomError as error:
                     if error == '0x0c5473ba':
                         pass

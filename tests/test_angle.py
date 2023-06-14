@@ -26,4 +26,4 @@ def test_angle_treasury():
             '0x96de5c30F2BF4683c7903F3e921F720602F8868A'] == t.get_all_vault_managers_addrs(block)
 
     # everything below is WIP
-    Angle.get_managers_and_vaultcounts(ETHEREUM, wallet, block)
+    Angle.underlying(ETHEREUM, wallet, block)
