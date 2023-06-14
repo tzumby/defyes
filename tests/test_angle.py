@@ -4,13 +4,14 @@ from defi_protocols import Angle
 from defi_protocols.constants import ETHEREUM
 
 agEUR = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
+WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
+
 
 def test_angle_treasury():
-    wallet = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
     block = 17451062
 
     t = Angle.Treasury(ETHEREUM)
-    assert t.stable_coin == agEUR
+    assert t.stable_token == agEUR
     assert ['0x241D7598BD1eb819c0E9dEd456AcB24acA623679',
             '0x1beCE8193f8Dc2b170135Da9F1fA8b81C7aD18b1',
             '0x73aaf8694BA137a7537E7EF544fcf5E2475f227B',
@@ -25,5 +26,7 @@ def test_angle_treasury():
             '0x913E8e1eD659C27613E937a6B6119b91D985094c',
             '0x96de5c30F2BF4683c7903F3e921F720602F8868A'] == t.get_all_vault_managers_addrs(block)
 
-    # everything below is WIP
-    Angle.underlying(ETHEREUM, wallet, block)
+
+def test_underlying():
+    block = 17451062
+    Angle.underlying(ETHEREUM, WALLET, block)

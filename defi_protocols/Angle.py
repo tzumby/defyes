@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 # https://docs.angle.money/angle-borrowing-module/borrowing-module
 # https://github.com/AngleProtocol/borrow-contracts/tree/main
 
-# https://developers.angle.money/borrowing-module-contracts/smart-contract-docs/treasury
-# https://github.com/AngleProtocol/borrow-contracts/tree/main/contracts/treasury
 class Treasury(DefiContract):
+    # https://developers.angle.money/borrowing-module-contracts/smart-contract-docs/treasury
+    # https://github.com/AngleProtocol/borrow-contracts/tree/main/contracts/treasury
     ABI: str = """[{"inputs":[],\
                     "name":"stablecoin",\
                     "outputs":[{"internalType":"contract IAgToken","name":"","type":"address"}],\
@@ -35,7 +35,7 @@ class Treasury(DefiContract):
         super().__init__(blockchain, self.ADDRS[blockchain])
 
     @property
-    def stable_coin(self):
+    def stable_token(self):
         return self.stablecoin().const_call()
 
     def get_all_vault_managers_addrs(self, block) -> List[str]:
@@ -144,24 +144,26 @@ class VaultManager(DefiContract):
         return self.balanceOf(wallet).call(block_identifier=block) >= 1
 
     @property
-    def stable_coin(self):
+    def stable_token(self):
         return self.stablecoin().const_call()
 
     @property
-    def collateral_coin(self):
+    def collateral_token(self):
         return self.collateral().const_call()
 
     def get_oracle(self) -> Oracle:
         return Oracle(self.blockchain, self.oracle().const_call())
 
     def get_vault_data(self, vaultid: int, block: int) -> Dict:
-        stablecoin_decimals = get_decimals(self.stable_coin, self.blockchain, self.get_node(block))
-        collateral_decimals = get_decimals(self.collateral_coin, self.blockchain, self.get_node(block))
+        stablecoin_decimals = get_decimals(self.stable_token, self.blockchain, self.get_node(block))
+        collateral_decimals = get_decimals(self.collateral_token, self.blockchain, self.get_node(block))
         contract_decimals = str(self.BASE_PARAMS().const_call()).count('0')
         interest_decimals = str(self.BASE_INTEREST().const_call()).count('0')
 
         collateral_factor = self.collateralFactor().call(block_identifier=block) / Decimal(10 ** contract_decimals)
+
         debt = self.getVaultDebt(vaultid).call(block_identifier=block) / Decimal(10 ** stablecoin_decimals)
+
         collateral_deposit, normalized_debt = self.vaultData(vaultid).call(block_identifier=block)
         collateral_amount = collateral_deposit / Decimal(10 **collateral_decimals)
 
@@ -190,8 +192,8 @@ def underlying(blockchain: str, wallet: str, block: int | str) -> None:
     for vault_addr in treasury.get_all_vault_managers_addrs(block):
 
         vault_manager = VaultManager(blockchain, vault_addr)
-
         if vault_manager.has_vaults_owned_by(wallet, block):
+
             vaults = vault_manager.vaultIDCount().call(block_identifier=block)
             for vault_id in range(vaults + 1):
                 try:
