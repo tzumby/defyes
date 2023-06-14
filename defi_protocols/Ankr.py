@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 ANKR_ADDR = '0xE95A203B1a91a908F9B9CE46459d101078c2c3cb'
 
+#FIXME: We have to find a way to take into consideration the different ankrETH proxy implementations, may be with a database keeping track of the changes and the blocks
+
+
 Ankr = EthDerivative(
     protocol="Ankr",
     description="Ankr Staked ETH",
