@@ -54,6 +54,7 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
     Returns:
         tuple: (token amount, Claim status)
     """
+    wallet = Web3.to_checksum_address(wallet)
     if round_number == 'latest':
         round_number = token_symbol
 
@@ -64,7 +65,6 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
         json_data = response.json()
     else:
         print(f'Failed to download the JSON file. Status code: {response.status_code}')
-
     try:
         index_number = json_data['claims'][wallet]['index']
         hexstr = json_data['claims'][wallet]['amount']  # get hex amount
@@ -74,7 +74,8 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
             token_amount = 0
 
         return token_amount
-    except KeyError:
+    except KeyError as e:
+        print(e)
         pass
 
 
@@ -99,6 +100,6 @@ def check_claimed_or_unclaimed(wallet, index_number):
 
 
 if __name__ == '__main__':
-    get_rewards_per_token('FLX')
+    print(get_rewards_per_token('0x849d52316331967b6ff1198e5e32a0eb168d039d', 'LDO', 18, '0013'))
     get_rewards_per_token('LDO')
     get_all_rewards(wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d')
