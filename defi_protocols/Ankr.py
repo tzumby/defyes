@@ -12,12 +12,20 @@ logger = logging.getLogger(__name__)
 
 ANKR_ADDR = '0xE95A203B1a91a908F9B9CE46459d101078c2c3cb'
 
+#FIXME: We have to find a way to take into consideration the different ankrETH proxy implementations, may be with a database keeping track of the changes and the blocks
+
+
 Ankr = EthDerivative(
     protocol="Ankr",
     description="Ankr Staked ETH",
     blockchain=ETHEREUM,
     addr=ANKR_ADDR,
     underlying_token='0x0000000000000000000000000000000000000000',
+    #The 'sharesToBonds' function is only present in the proxy implementation contract from block 16476340 onwards
+    #Some proxy implementations:
+    #AETH_R16: 0x1E5e5CF3652989A57736901D95749A326F5Cb60F
+    #AETH_R17: 0x89632e27427109d64fFe1CdD98027139477E020F
+    #AETH_R18: 0x3eD1DFBCCF893b7d2D730EAd3e5eDBF1f8f95a48
     eth_value_function='sharesToBonds',
     eth_value_abi='[{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"sharesToBonds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 )

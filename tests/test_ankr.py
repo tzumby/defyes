@@ -25,6 +25,11 @@ def test_unwrap():
     amount_decimal = Decimal(amount_float)
     unwrapped_decimal_result = Ankr.unwrap(amount_decimal, block, BLOCKCHAIN)
     assert unwrapped_decimal_result == [[ZERO_ADDRESS, Decimal('13.75610072770168690974211539')]]
+    #Block where ankrETH had a different proxy implementation (ARETH_16)
+    block = 16476339
+    amount_int = 12345677893892348743
+    unwrapped_int_result = Ankr.unwrap(amount_int, block, BLOCKCHAIN)
+    assert unwrapped_int_result == [[ZERO_ADDRESS, Decimal('13.55106811673978062983888839')]]
 
 
 
