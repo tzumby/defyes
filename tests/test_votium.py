@@ -27,5 +27,5 @@ def test_get_rewards_per_token():
 
 
 # TODO test for get all, it just runs get rewards per token for a list
-def test_get_all_rewards(wallet):
-    pass
+# def test_get_all_rewards(wallet):
+#     pass
