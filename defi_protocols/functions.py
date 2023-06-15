@@ -957,6 +957,3 @@ def is_archival(endpoint) -> bool:
     except ValueError:
         return False
     return True
-
-
-get_abi_function_signatures("0xe65cdB6479BaC1e22340E4E755fAE7E509EcD06c", ETHEREUM)
