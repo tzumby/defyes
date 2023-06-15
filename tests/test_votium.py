@@ -20,7 +20,7 @@ def test_get_rewards_per_token():
     decimals = 18
     round_number = '0013'
     x = Votium.get_rewards_per_token(WALLET, token_symbol, decimals, round_number)
-    if Votium.check_claimed_or_unclaimed:
+    if Votium.check_claimed_or_unclaimed(WALLET, 1675):
         assert x == Decimal(0)
     else:
         assert x == Decimal(439.9597422149969)
