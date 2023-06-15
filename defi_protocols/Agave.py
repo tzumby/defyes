@@ -312,7 +312,7 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str,
 
     return balances
 
-def get_agave_tokens(blockchain: str, block: int | str, web3: Web3 = None):
+def get_agave_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> dict:
     if web3 is None:
         web3 = get_node(blockchain, block)
 
@@ -345,14 +345,3 @@ def get_extra_rewards(wallet: str, block: int | str, blockchain: str, web3: Web3
 
     amount = rewarder_contract.functions.getRewardsBalance(tokens_accruing_rewards, wallet).call(block_identifier=block)
     return [[token_address, to_token_amount(token_address, amount, blockchain, web3=web3, decimals=decimals)]]
-
-a=get_extra_rewards('0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f', 25830991, 'xdai')
-print(a)
-a=get_extra_rewards('0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f', 25830991, 'xdai', decimals=False)
-print(a)
-#Balancer.unwrap( float(a[0][1]),a[0][0],25830992-1, 'xdai')
-web3=get_node('xdai')
-pdp_contract = get_contract(PDP_XDAI, 'xdai', web3=web3, abi=ABI_PDP, block='latest')
-#reserves_tokens = pdp_contract.functions.getAllATokens().call(block_identifier='latest')
-
-print(get_agave_tokens('xdai', 28471737))
