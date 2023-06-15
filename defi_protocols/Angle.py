@@ -1,5 +1,6 @@
 import logging
 
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Dict, List
 from web3.exceptions import ContractLogicError, ContractCustomError
@@ -15,6 +16,15 @@ logger = logging.getLogger(__name__)
 # Borrow Module
 # https://docs.angle.money/angle-borrowing-module/borrowing-module
 # https://github.com/AngleProtocol/borrow-contracts/tree/main
+
+@dataclass
+class Asset:
+    network: str
+    id: str
+    amount: Decimal
+
+    def __repr__(self):
+        return f'<Asset: {self.amount} of token {self.id} in {self.network} network>'
 
 class Treasury(DefiContract):
     # https://developers.angle.money/borrowing-module-contracts/smart-contract-docs/treasury
@@ -176,7 +186,9 @@ class VaultManager(DefiContract):
 
         interest_rate_per_second = self.interestRate().call(block_identifier=block) / Decimal(10 ** interest_decimals)
 
-        return {'debt': debt, 'available_to_borrow': available_to_borrow, 'collateral_deposit': collateral_amount,
+        return {'debt': Asset(self.blockchain, self.stable_token, debt),
+                'available_to_borrow': Asset(self.blockchain, self.stable_token, available_to_borrow),
+                'collateral_deposit': Asset(self.blockchain, self.collateral_token, collateral_amount),
                 'health_factor': health_factor, 'loan_to_value': debt / collateral_in_stablecoin,
                 'anual_interest_rate': interest_rate_per_second * 365 * 24 * 3600,
                 'liquidation_price_in_stablecoin_fiat': debt / collateral_factor / collateral_amount}
@@ -189,6 +201,10 @@ def underlying(blockchain: str, wallet: str, block: int | str) -> None:
     wallet = Web3.to_checksum_address(wallet)
     treasury = Treasury(blockchain)
 
+    equivalent_amount = 0
+    equivalent_unit = 'EUR'  # TODO: make unit a parameter the user can choose
+    positions = []
+
     for vault_addr in treasury.get_all_vault_managers_addrs(block):
 
         vault_manager = VaultManager(blockchain, vault_addr)
@@ -199,10 +215,12 @@ def underlying(blockchain: str, wallet: str, block: int | str) -> None:
                 try:
                     if wallet == vault_manager.ownerOf(vault_id).call(block_identifier=block):
                         vault_data = vault_manager.get_vault_data(vault_id, block)
-                        print(vault_data)
+                        equivalent_amount += vault_data['available_to_borrow'].amount
+                        positions.append(vault_data)
                 except ContractCustomError as error:
                     if error == '0x0c5473ba':
                         pass
                     else:
                         ContractCustomError(error)
 
+    return {'equivalent_amount': equivalent_amount, 'equivalent_uint': equivalent_unit, 'positions': positions}

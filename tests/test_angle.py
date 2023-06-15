@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from defi_protocols import Angle
+from defi_protocols.Angle import Asset
 from defi_protocols.constants import ETHEREUM
 
 agEUR = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
@@ -29,4 +30,22 @@ def test_angle_treasury():
 
 def test_underlying():
     block = 17451062
-    Angle.underlying(ETHEREUM, WALLET, block)
+    underlying = Angle.underlying(ETHEREUM, WALLET, block)
+    assert underlying == {'equivalent_amount': Decimal('393682.000549024221506556'),
+                          'equivalent_uint': 'EUR',
+                          'positions': [
+                              {'debt': Asset('ethereum',
+                                             '0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8',
+                                             Decimal('235029.284458768826450263')),
+                               'available_to_borrow': Asset('ethereum',
+                                                            '0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8',
+                                                            Decimal('393682.000549024221506556')),
+                               'collateral_deposit': Asset('ethereum',
+                                                           '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+                                                           Decimal('475')),
+                               'health_factor': Decimal('2.675033821660159254363492910'),
+                               'loan_to_value': Decimal('0.2878468278663214900507504695'),
+                               'anual_interest_rate': Decimal('0.004987542475021200498864000'),
+                               'liquidation_price_in_stablecoin_fiat': Decimal('642.5954462304000723178755981')}
+                              ]
+                          }
