@@ -536,14 +536,14 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block='la
     if proxy_impl_address == ZERO_ADDRESS:
         bytecode = web3.eth.get_code(contract_address, block_identifier=block).hex()
         if bytecode[2:22] =='363d3d373d3d3d363d73' and bytecode[62:] =='5af43d82803e903d91602b57fd5bf3':
-            proxy_impl_address = '0x' + bytecode[22:62]
+            proxy_impl_address = Web3.to_checksum_address('0x' + bytecode[22:62])
     
     # Custom proxy implementation (similar to EIP-1167) - 
     # Examples: mainnet: 0x09cabEC1eAd1c0Ba254B09efb3EE13841712bE14 / GC: 0x7B7DA887E0c18e631e175532C06221761Db30A24
     if proxy_impl_address == ZERO_ADDRESS:
         bytecode = web3.eth.get_code(contract_address, block_identifier=block).hex()
         if bytecode[2:32] =='366000600037611000600036600073' and bytecode[72:] =='5af41558576110006000f3':
-            proxy_impl_address = '0x' + bytecode[32:72]
+            proxy_impl_address = Web3.to_checksum_address('0x' + bytecode[32:72])
     
     # OpenZeppelins' Unstructured Storage proxy pattern - Example: USDC in mainnet (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48)
     if proxy_impl_address == ZERO_ADDRESS:
