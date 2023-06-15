@@ -89,9 +89,8 @@ class Oracle(DefiContract):
         else:
             raise ValueError('Not decimal specified')
 
-    @property
-    def rate(self) -> Decimal:
-        return self.read().call() / Decimal(10 ** self.decimals)
+    def rate(self, block) -> Decimal:
+        return self.read().call(block_identifier=block) / Decimal(10 ** self.decimals)
 
 
 class VaultManager(DefiContract):
@@ -177,7 +176,7 @@ class VaultManager(DefiContract):
         collateral_deposit, normalized_debt = self.vaultData(vaultid).call(block_identifier=block)
         collateral_amount = collateral_deposit / Decimal(10 **collateral_decimals)
 
-        collateral_to_stablecoin = self.get_oracle().rate
+        collateral_to_stablecoin = self.get_oracle().rate(block)
         collateral_in_stablecoin = collateral_deposit * collateral_to_stablecoin / Decimal(10 ** stablecoin_decimals)
 
         health_factor = collateral_in_stablecoin * collateral_factor / debt
@@ -194,7 +193,7 @@ class VaultManager(DefiContract):
                 'liquidation_price_in_stablecoin_fiat': debt / collateral_factor / collateral_amount}
 
 
-def underlying(blockchain: str, wallet: str, block: int | str) -> None:
+def underlying(blockchain: str, wallet: str, block: int | str = 'latest') -> None:
     """
     Returns the list of vault_manager contracts in which the wallet owns at least a Vault.
     """
