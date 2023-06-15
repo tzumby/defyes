@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 from typing import Dict
 
@@ -5,6 +6,8 @@ import requests
 from web3 import Web3
 
 from defi_protocols.functions import get_contract
+
+logger = logging.getLogger(__name__)
 
 contract_address = '0x378Ba9B73309bE80BF4C2c027aAD799766a7ED5A'
 
@@ -25,7 +28,7 @@ def get_all_rewards(wallet: str) -> Dict:
     if response.status_code == 200:
         json_data = response.json()
     else:
-        print(f'Failed to download the JSON file. Status code: {response.status_code}')
+        raise Exception(f'Failed to download the JSON file. Status code: {response.status_code}')
 
     rewards_list = {"protocol": "Votium", "block": "latest", "positions": []}
     position = {"position ID": 'rewards', "balances": []}
@@ -64,7 +67,7 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
     if response.status_code == 200:
         json_data = response.json()
     else:
-        print(f'Failed to download the JSON file. Status code: {response.status_code}')
+        raise Exception(f'Failed to download the JSON file. Status code: {response.status_code}')
     try:
         index_number = json_data['claims'][wallet]['index']
         hexstr = json_data['claims'][wallet]['amount']  # get hex amount
@@ -74,7 +77,7 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
 
         return token_amount
     except KeyError as e:
-        print(e)
+        logger.warning(f"{token_symbol} was not retrievable. Key not Found: {e}")
         pass
 
 
@@ -89,17 +92,13 @@ def check_claimed_or_unclaimed(wallet, index_number):
         bool: if claimed or not.
     """
     wallet = Web3.to_checksum_address(wallet)
-    claimed = False
-    try:
-        contract = get_contract(contract_address, 'ethereum')
-        claimed = contract.functions.isClaimed(wallet, index_number).call()
-    except Exception as e:
-        print(f'It was not possible to get the contract: {e}')
+
+    contract = get_contract(contract_address, 'ethereum')
+    claimed = contract.functions.isClaimed(wallet, index_number).call()
 
     return claimed
 
 
 if __name__ == '__main__':
     print(get_rewards_per_token('0x849d52316331967b6ff1198e5e32a0eb168d039d', 'LDO', 18, '0013'))
-    get_rewards_per_token('LDO')
     get_all_rewards(wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d')
