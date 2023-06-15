@@ -137,3 +137,78 @@ def test_get_staked(wallet_address, decimals):
 
     data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=XDAI, web3=WEB3, decimals=decimals)
     assert data == [[AGVE_XDAI, expected]]
+
+def test_get_agave_tokens():
+    blockchain = 'xdai'
+    block = 28471737
+    assert Agave.get_agave_tokens(blockchain, block) == [
+        {
+            'underlying': '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+            'interest bearing': '0x291B5957c9CBe9Ca6f0b98281594b4eB495F4ec1',
+            'stable debt': '0x05c43e14d38bC5123F6408A57BE03714aB689F6e',
+            'variable debt': '0xa728C8f1CF7fC4d8c6d5195945C3760c87532724'
+        },
+        {
+            'underlying': '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+            'interest bearing': '0xd4e420bBf00b0F409188b338c5D87Df761d6C894',
+            'stable debt': '0xF4401355B41c867edbF09C821FA7B4fffbed5C82',
+            'variable debt': '0xec72De30C3084023F7908002A2252a606CCe0B2c'
+        },
+        {
+            'underlying': '0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2',
+            'interest bearing': '0xa286Ce70FB3a6269676c8d99BD9860DE212252Ef',
+            'stable debt': '0x4f9401Fb52fe53de977dcbF05A0F6237AaDC7Eb1',
+            'variable debt': '0x5b0568531322759EAB69269a86448b39B47e2AE8'
+         },
+        {
+            'underlying': '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb',
+            'interest bearing': '0xA26783eAd6C1f4744685c14079950622674ae8A8',
+            'stable debt': '0x0DfD401903bA960B2EED32A10f8aeB601Cd9A7A5',
+            'variable debt': '0x99272C6E2Baa601cEA8212b8fBAA7920A9f916F0'
+         },
+        {
+            'underlying': '0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252',
+            'interest bearing': '0x4863cfaF3392F20531aa72CE19E5783f489817d6',
+            'stable debt': '0xca0f3B157165FE11692a047ea14963ffAdfB31fD',
+            'variable debt': '0x110C5A1494F0AB6C851abB72AA2efa3dA738aB72'
+        },
+        {
+            'underlying': '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+            'interest bearing': '0x44932e3b1E662AdDE2F7bac6D5081C5adab908c6',
+            'stable debt': '0x43Ae4A9474eA23b0BC04C99F9fF2A9B4c2d5554c',
+            'variable debt': '0x73Ada33D706085d6B93350B5e6aED6178905Fb8A'
+        },
+        {
+            'underlying': '0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d',
+            'interest bearing': '0xA916A4891D80494c6cB0B49b11FD68238AAaF617',
+            'stable debt': '0x6Ca958336e7A1BDCDf7762aeb81613EaDdCc3110',
+            'variable debt': '0x7388cbdeb284902E1e07be616F92Adb3660Ed3a4'
+        },
+        {
+            'underlying': '0x4ECaBa5870353805a9F068101A40E0f32ed605C6',
+            'interest bearing': '0x5b4Ef67c63d091083EC4d30CFc4ac685ef051046',
+            'stable debt': '0xB067faD853d099EDd9c86483682e7D947B7983E5',
+            'variable debt': '0x474f83d77150bDDC6a6F34eEe4F5574EAfD05938'
+        },
+        {
+            'underlying': '0xcB444e90D8198415266c6a2724b7900fb12FC56E',
+            'interest bearing': '0xEB20B07a9abE765252E6b45e8292b12CB553CcA6',
+            'stable debt': '0x78A69aFc50E7705Ad4588cB57cF8D27B29161e51',
+            'variable debt': '0xA4a45B550897dD5d8a44c68DBD245C5934EbAcd9'
+        },
+        {
+            'underlying': '0x6C76971f98945AE98dD7d4DFcA8711ebea946eA6',
+            'interest bearing': '0x606B2689ba4A9F798f449fa6495186021486dD9f',
+            'stable debt': '0xeC7f91f26E7fD42E90fFa53ca0B0b02095A6B450',
+            'variable debt': '0xd0b168FD6a4e220f1a8FA99De97F8f428587e178'
+        }
+    ]
+
+@pytest.mark.parametrize('decimals', [True, False])
+def test_get_extra_rewards(decimals):
+    block = 25830991
+    blockchain = 'xdai'
+    wallet = '0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f'
+    assert Agave.get_extra_rewards(wallet, block, blockchain, decimals=decimals) == [['0x870Bb2C024513B5c9A69894dCc65fB5c47e422f3', Decimal('150.738302841301982923') if decimals else Decimal('150738302841301982923')]]
+
+
