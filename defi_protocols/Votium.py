@@ -68,17 +68,19 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
         json_data = response.json()
     else:
         raise Exception(f'Failed to download the JSON file. Status code: {response.status_code}')
-    try:
-        index_number = json_data['claims'][wallet]['index']
-        hexstr = json_data['claims'][wallet]['amount']  # get hex amount
-        token_amount = Web3.to_int(hexstr=hexstr) / pow(10, decimals)
-        if check_claimed_or_unclaimed(wallet, index_number):
-            token_amount = 0
 
-        return token_amount
-    except KeyError as e:
-        logger.warning(f"{token_symbol} was not retrievable. Key not Found: {e}")
-        pass
+    index_number = json_data['claims'].get(wallet, None)
+    if index_number is None:
+        logger.warning(f"{token_symbol} was not retrievable. {wallet} has not been found.")
+        return None
+
+    hexstr = json_data['claims'][wallet]['amount']  # get hex amount
+    token_amount = Web3.to_int(hexstr=hexstr) / pow(10, decimals)
+
+    if check_claimed_or_unclaimed(wallet, index_number):
+        token_amount = 0
+
+    return token_amount
 
 
 def check_claimed_or_unclaimed(wallet, index_number):
@@ -101,4 +103,4 @@ def check_claimed_or_unclaimed(wallet, index_number):
 
 if __name__ == '__main__':
     print(get_rewards_per_token('0x849d52316331967b6ff1198e5e32a0eb168d039d', 'LDO', 18, '0013'))
-    get_all_rewards(wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d')
+    print(get_all_rewards(wallet='0x849d52316331967b6ff1198e5e32a0eb168d039d'))
