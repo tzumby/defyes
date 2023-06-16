@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 contract_address = '0x378Ba9B73309bE80BF4C2c027aAD799766a7ED5A'
 
 
-def get_all_rewards(wallet: str) -> Dict:
+def get_all_rewards(wallet: str, blockchain: str = 'ethereum', block='latest') -> Dict:
     """Get the rewards of all tokens.
 
     Args:
@@ -21,6 +21,11 @@ def get_all_rewards(wallet: str) -> Dict:
     Returns:
         list[tuple]: List of token amount and claim status.
     """
+    if blockchain != 'ethereum':
+        raise ValueError("Only ethereum blockchain is supported")
+    if block != 'latest':
+        raise ValueError("only latest is supported")
+
     wallet = Web3.to_checksum_address(wallet)
     raw_json_url = 'https://raw.githubusercontent.com/oo-00/Votium/main/merkle/activeTokens.json'
     response = requests.get(raw_json_url)
