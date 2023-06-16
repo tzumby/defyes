@@ -171,7 +171,6 @@ WETH_ETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 WSTETH_ETH = '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'
 X3CRV_ETH = '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490'
 
-
 class ETHTokenAddr:
     BAT = '0x0D8775F648430679A709E98d2b0Cb6250d2887EF'
     COW = '0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB'
@@ -226,7 +225,6 @@ WETH_XDAI = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
 X3CRV_XDAI = '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
 WXDAI = '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
 
-
 class GnosisTokenAddr:
     AGVE = '0x3a97704a1b25F08aa230ae53B352e2e72ef52843'
     BAL = '0x7eF541E2a22058048904fE5744f9c7E4C57AF717'
@@ -254,7 +252,6 @@ class GnosisTokenAddr:
 BAL_POL = '0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3'
 MAI_POL = '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1'
 X3CRV_POL = '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171'
-
 
 class PolygonTokenAddr:
     BAL = '0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3'
@@ -294,8 +291,6 @@ UNIT = 'Unit'
 # API KEYS
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 API_KEY_ETHERSCAN = config_data['apikeys']['etherscan']
 API_KEY_POLSCAN = config_data['apikeys']['polscan']
 API_KEY_GNOSISSCAN = config_data['apikeys']['gnosisscan']
@@ -412,3 +407,10 @@ API_GOERLI_GETLOGS = 'https://api-goerli.etherscan.io/api?module=logs&action=get
 API_ETHERSCAN_GETTOKENINFO = 'https://api.etherscan.io/api?module=token&action=tokeninfo&contractaddress=%s&apikey=%s'
 API_ETHPLORER_GETTOKENINFO = 'https://api.ethplorer.io/getTokenInfo/%s?apiKey=%s'
 API_BLOCKSCOUT_GETTOKENCONTRACT = 'https://blockscout.com/xdai/mainnet/api?module=token&action=getToken&contractaddress=%s'
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# IMPLEMENTATION SLOTS for OpenZeppelins' EIPs
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IMPLEMENTATION_SLOT_EIP_1967 = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+IMPLEMENTATION_SLOT_UNSTRUCTURED = "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3"
