@@ -96,7 +96,7 @@ def check_claimed_or_unclaimed(wallet, index_number):
     wallet = Web3.to_checksum_address(wallet)
 
     contract = get_contract(contract_address, 'ethereum')
-    claimed = contract.functions.isClaimed(wallet, index_number).call()
+    claimed = contract.functions.isClaimed(wallet, int(index_number)).call()
 
     return claimed
 
