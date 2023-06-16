@@ -77,7 +77,7 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
     hexstr = json_data['claims'][wallet]['amount']  # get hex amount
     token_amount = Web3.to_int(hexstr=hexstr) / pow(10, decimals)
 
-    if check_claimed_or_unclaimed(wallet, index_number):
+    if check_claimed_or_unclaimed(wallet, index_number['index']):
         token_amount = 0
 
     return token_amount
@@ -96,7 +96,6 @@ def check_claimed_or_unclaimed(wallet, index_number):
     wallet = Web3.to_checksum_address(wallet)
 
     contract = get_contract(contract_address, 'ethereum')
-
     claimed = contract.functions.isClaimed(wallet, int(index_number)).call()
 
     return claimed

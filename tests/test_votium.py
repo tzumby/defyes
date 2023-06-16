@@ -28,7 +28,7 @@ def test_get_rewards_per_token():
 
 
 # Check output
-def test_get_all_rewards(wallet):
+def test_get_all_rewards():
     # fmt:off
     with patch('Votium.get_rewards_per_token') as mock_inner:
         mock_inner.side_effect = [None, None, None, None, 439.9597422149969, None, None, None, None, None, None, None, None,
