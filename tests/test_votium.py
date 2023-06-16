@@ -24,7 +24,7 @@ def test_get_rewards_per_token():
     if Votium.check_claimed_or_unclaimed(WALLET, 1675):
         assert x == Decimal(0)
     else:
-        assert x == Decimal(439.9597422149969)
+        assert x == Decimal(439.95974221499687928371713496744632720947265625)
 
 
 # Check output
