@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import patch
 
 import pytest
 
@@ -26,6 +27,16 @@ def test_get_rewards_per_token():
         assert x == Decimal(439.9597422149969)
 
 
-# TODO test for get all, it just runs get rewards per token for a list
-# def test_get_all_rewards(wallet):
-#     pass
+# Check output
+def test_get_all_rewards(wallet):
+    # fmt:off
+    with patch('Votium.get_rewards_per_token') as mock_inner:
+        mock_inner.side_effect = [None, None, None, None, 439.9597422149969, None, None, None, None, None, None, None, None,
+            None, None, None, None, 14.214765596330048, None, None, None, None, None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,]
+        # fmt: on
+        # Call the outer function
+        output = Votium.get_all_rewards(WALLET)
+
+        # Assertion to check the output
+        assert output == {'protocol': 'Votium', 'block': 'latest', 'positions': [{'position ID': 'rewards', 'balances': [{'token': '0x5a98fcbea516cf06857215779fd812ca3bef1b32', 'balance': Decimal('439.95974221499687928371713496744632720947265625')}, {'token': '0x03ab458634910aad20ef5f1c8ee96f1d6ac54919', 'balance': Decimal('14.2147655963300483250577599392272531986236572265625')}]}]}
