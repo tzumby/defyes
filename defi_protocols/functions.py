@@ -11,7 +11,7 @@ from typing import Union, Optional, List
 from inspect import getcallargs
 
 from web3 import Web3
-from web3.exceptions import ContractLogicError
+from web3.exceptions import ContractLogicError, ABIFunctionNotFound, BadFunctionCallOutput
 from web3.providers import HTTPProvider, JSONBaseProvider
 from defi_protocols import cache
 from defi_protocols.cache import const_call, cache_call
@@ -33,7 +33,7 @@ from defi_protocols.constants import (API_KEY_ETHERSCAN, API_GOERLI_GETLOGS, GOE
                                       API_OPTIMISM_GETBLOCKNOBYTIME, API_FANTOM_GETBLOCKNOBYTIME, API_AVALANCHE_GETBLOCKNOBYTIME, API_BINANCE_GETBLOCKNOBYTIME,
                                       API_GNOSISSCAN_GETBLOCKNOBYTIME, API_POLYGONSCAN_GETBLOCKNOBYTIME, API_ETHERSCAN_GETBLOCKNOBYTIME,
                                       NODES_ENDPOINTS, API_ARBITRUM_TOKENTX, API_ARBITRUM_TXLIST, API_ARBITRUM_GETLOGS, API_KEY_ARBITRUM, API_ARBITRUM_GETABI,
-                                      API_ARBITRUM_GETBLOCKNOBYTIME, API_ARBITRUM_GETBLOCKREWARD, ARBITRUM)
+                                      API_ARBITRUM_GETBLOCKNOBYTIME, API_ARBITRUM_GETBLOCKREWARD, ARBITRUM, IMPLEMENTATION_SLOT_EIP_1967, IMPLEMENTATION_SLOT_UNSTRUCTURED)
 
 
 logger = logging.getLogger(__name__)
@@ -520,41 +520,78 @@ def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, w
         return None
 
 
-def search_proxy_contract(contract_address, blockchain, web3=None):
+def search_proxy_impl_address(contract_address, blockchain, web3=None, block='latest'):
     if web3 == None:
         web3 = get_node(blockchain)
 
+    proxy_impl_address = ZERO_ADDRESS
+
     contract_address = Web3.to_checksum_address(contract_address)
 
-    contract = get_contract(contract_address, blockchain, web3=web3)
+    # OpenZeppelins' EIP-1967 - Example in mainnet: 0xE95A203B1a91a908F9B9CE46459d101078c2c3cb
+    proxy_impl_address = Web3.to_hex(web3.eth.get_storage_at(contract_address, IMPLEMENTATION_SLOT_EIP_1967, block_identifier=block))
+    proxy_impl_address = Web3.to_checksum_address('0x' + proxy_impl_address[-40:])
 
-    if contract is not None:
-        for func in [obj for obj in contract.abi if obj['type'] == 'function']:
-            name = str(func['name'].lower())
-            if 'implementation' in name:
-                output_types = [output['type'] for output in func['outputs']]
-                if output_types == ['address']:
-                    try:
-                        proxy_address_func = getattr(contract.functions, func['name'])
-                        proxy_address = const_call(proxy_address_func())
-                        if web3.is_address(proxy_address) and proxy_address != ZERO_ADDRESS:
-                            return get_contract_proxy_abi(contract_address, proxy_address, blockchain, web3=web3)
-                    except:
-                        continue
+    # OpenZeppelins' EIP-1167 - Example in GC: 0x793fAF861a78B07c0C8c0ed1450D3919F3473226)
+    if proxy_impl_address == ZERO_ADDRESS:
+        bytecode = web3.eth.get_code(contract_address, block_identifier=block).hex()
+        if bytecode[2:22] =='363d3d373d3d3d363d73' and bytecode[62:] =='5af43d82803e903d91602b57fd5bf3':
+            proxy_impl_address = Web3.to_checksum_address('0x' + bytecode[22:62])
+    
+    # Custom proxy implementation (similar to EIP-1167) - 
+    # Examples: mainnet: 0x09cabEC1eAd1c0Ba254B09efb3EE13841712bE14 / GC: 0x7B7DA887E0c18e631e175532C06221761Db30A24
+    if proxy_impl_address == ZERO_ADDRESS:
+        bytecode = web3.eth.get_code(contract_address, block_identifier=block).hex()
+        if bytecode[2:32] =='366000600037611000600036600073' and bytecode[72:] =='5af41558576110006000f3':
+            proxy_impl_address = Web3.to_checksum_address('0x' + bytecode[32:72])
+    
+    # OpenZeppelins' Unstructured Storage proxy pattern - Example: USDC in mainnet (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48)
+    if proxy_impl_address == ZERO_ADDRESS:
+        proxy_impl_address = Web3.to_hex(web3.eth.get_storage_at(contract_address, IMPLEMENTATION_SLOT_UNSTRUCTURED, block_identifier=block))
+        proxy_impl_address = Web3.to_checksum_address('0x' + proxy_impl_address[-40:])
+    
+    # OpenZeppelins' EIP-897 DelegateProxy - Examples: stETH in mainnet (0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84)
+    # It also includes the custom proxy implementation of the Comptroller: 0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B
+    if proxy_impl_address == ZERO_ADDRESS:
+        contract = get_contract(contract_address, blockchain, web3=web3)
+        if contract is not None:
+            for func in [obj for obj in contract.abi if obj['type'] == 'function']:
+                name = str(func['name'].lower())
+                if 'implementation' in name:
+                    output_types = [output['type'] for output in func['outputs']]
+                    if output_types == ['address']:
+                        try:
+                            proxy_impl_address_func = getattr(contract.functions, func['name'])
+                            proxy_impl_address = proxy_impl_address_func().call(block_identifier=block)
+                            break
+                        except Exception as e:
+                            if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput:
+                                continue
+    
+    # Custom proxy implementation (used by Safes) - Example: mainnet: 0x4F2083f5fBede34C2714aFfb3105539775f7FE64
+    if proxy_impl_address == ZERO_ADDRESS:
+        contract_custom_abi = get_contract(contract_address, ETHEREUM, abi='[{"inputs":[{"internalType":"uint256","name":"offset","type":"uint256"},{"internalType":"uint256","name":"length","type":"uint256"}],"name":"getStorageAt","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"}]')
+        try:
+           proxy_impl_address = Web3.to_hex(contract_custom_abi.functions.getStorageAt(0, 1).call())
+           proxy_impl_address = Web3.to_checksum_address('0x' + proxy_impl_address[-40:])
+        except Exception as e:
+            if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput:
+                pass
 
-    return contract
+    return proxy_impl_address
 
 
-def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_address=None):
+def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_address=None, block='latest'):
     if web3 == None:
         web3 = get_node(blockchain)
 
     contract_address = Web3.to_checksum_address(contract_address)
 
     if abi_address is None:
-        contract = search_proxy_contract(contract_address, blockchain, web3=web3)
+        proxy_impl_address = search_proxy_impl_address(contract_address, blockchain, web3=web3, block=block)
+        contract = get_contract_proxy_abi(contract_address, proxy_impl_address, blockchain, web3=web3)
     else:
-        contract = get_contract_proxy_abi(contract_address, abi_address, blockchain, web3=web3)
+        contract = get_contract_proxy_abi(contract_address, abi_address, blockchain, web3=web3, block=block)
 
     if contract is not None:
 
@@ -599,33 +636,28 @@ def get_abi_function_signatures(contract_address, blockchain, web3=None, abi_add
     return None
 
 
-def get_data(contract_address, function_name, parameters, blockchain, web3=None, abi_address=None):
+def get_data(contract_address, function_name, parameters, blockchain, web3=None, abi_address=None, block='latest'):
     if web3 is None:
         web3 = get_node(blockchain)
 
     contract_address = Web3.to_checksum_address(contract_address)
 
+    contract = None
+
     if abi_address is None:
         contract = get_contract(contract_address, blockchain, web3=web3)
 
-        if contract is None:
-            return None
-        else:
+        if contract is not None:
             try:
                 getattr(contract.functions, function_name)
-            except:
+            except ABIFunctionNotFound:
                 # If the contract does not have the function, it checks if there is a proxy implementation
-                proxy_contract = search_proxy_contract(contract_address, blockchain, web3=web3)
+                proxy_impl_address = search_proxy_impl_address(contract_address, blockchain, web3=web3, block=block)
 
-                if proxy_contract is not None:
-                    contract = proxy_contract
-                else:
-                    return None
+                if proxy_impl_address != ZERO_ADDRESS:
+                    contract = get_contract_proxy_abi(contract_address, proxy_impl_address, blockchain, web3=web3)
     else:
         contract = get_contract_proxy_abi(contract_address, abi_address, blockchain, web3=web3)
-
-        if contract is None:
-            return None
 
     try:
         return contract.encodeABI(fn_name=function_name, args=parameters)

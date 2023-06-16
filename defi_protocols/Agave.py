@@ -17,6 +17,7 @@ from web3 import Web3
 from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node, get_contract, balance_of, to_token_amount
 from defi_protocols.constants import AGVE_XDAI, STKAGAVE_XDAI
+from defi_protocols import Balancer
 
 
 logger = logging.getLogger(__name__)
@@ -36,11 +37,19 @@ LPAPR_XDAI = '0x3673C22153E363B1da69732c4E0aA71872Bbb87F'
 # 0x5E15d5E33d318dCEd84Bfe3F4EACe07909bE6d9c
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# EXTRA REWARDER CONTRACT
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Rewarder contract - XDAI
+REWARDER_ADDRESS = '0xfa255f5104f129B78f477e9a6D050a02f31A5D86'
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # XDAI
 # XDAI/USD Price Feed
 CHAINLINK_XDAI_USD = '0x678df3415fc31947dA4324eC63212874be5a82f8'
+
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -65,11 +74,15 @@ ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"
                                 {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
                 {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}]'
 
+REWARDER_ABI = '[{"inputs":[{"internalType":"contract IERC20","name":"rewardToken","type":"address"},{"internalType":"address","name":"emissionManager","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"asset","type":"address"},{"indexed":false,"internalType":"uint8","name":"decimals","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"emission","type":"uint256"}],"name":"AssetConfigUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"asset","type":"address"},{"indexed":false,"internalType":"uint256","name":"index","type":"uint256"}],"name":"AssetIndexUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"newBulkClaimer","type":"address"}],"name":"BulkClaimerUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"claimer","type":"address"}],"name":"ClaimerSet","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"newDistributionEnd","type":"uint256"}],"name":"DistributionEndUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"token","type":"address"}],"name":"RewardTokenUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RewardsAccrued","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"address","name":"claimer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RewardsClaimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"vault","type":"address"}],"name":"RewardsVaultUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"asset","type":"address"},{"indexed":false,"internalType":"uint256","name":"index","type":"uint256"}],"name":"UserIndexUpdated","type":"event"},{"inputs":[],"name":"BULK_CLAIMER","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"DISTRIBUTION_END","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"EMISSION_MANAGER","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRECISION","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PROXY_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REVISION","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"assets","outputs":[{"internalType":"uint104","name":"emissionPerSecond","type":"uint104"},{"internalType":"uint104","name":"index","type":"uint104"},{"internalType":"uint40","name":"lastUpdateTimestamp","type":"uint40"},{"internalType":"uint8","name":"decimals","type":"uint8"},{"internalType":"bool","name":"disabled","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"to","type":"address"}],"name":"bulkClaimRewardsOnBehalf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"to","type":"address"}],"name":"claimRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"to","type":"address"}],"name":"claimRewardsOnBehalf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256[]","name":"emissionsPerSecond","type":"uint256[]"},{"internalType":"uint256[]","name":"assetDecimals","type":"uint256[]"}],"name":"configureAssets","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"}],"name":"disableAssets","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getAssetData","outputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint8","name":"","type":"uint8"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getClaimer","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getDistributionEnd","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"address","name":"user","type":"address"}],"name":"getRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getRewardsVault","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"asset","type":"address"}],"name":"getUserAssetData","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserUnclaimedRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"totalSupply","type":"uint256"},{"internalType":"uint256","name":"userBalance","type":"uint256"}],"name":"handleAction","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"rewardsVault","type":"address"}],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"newRewardTokenAdjustmentAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"newRewardTokenAdjustmentMultiplier","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"bulkClaimer","type":"address"}],"name":"setBulkClaimer","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"caller","type":"address"}],"name":"setClaimer","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"distributionEnd","type":"uint256"}],"name":"setDistributionEnd","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"rewardToken","type":"address"}],"name":"setRewardToken","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"RewardTokenAdjustmentMultiplier","type":"bool"},{"internalType":"uint256","name":"RewardTokenAdjustmentAmount","type":"uint256"}],"name":"setRewardTokenAdjustment","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"rewardsVault","type":"address"}],"name":"setRewardsVault","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
+
 
 def get_reserves_tokens(pdp_contract, block: Union[int, str]) -> List[str]:
 
     rt = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
     return [e[1] for e in rt]
+
+
 
 
 def get_reserves_tokens_balances(web3, wallet: str, block: Union[int, str], blockchain: str,
@@ -298,3 +311,37 @@ def get_staked(wallet: str, block: Union[int, str], blockchain: str,
         balances.append([AGVE_XDAI, stkagave_balance])
 
     return balances
+
+def get_agave_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> dict:
+    if web3 is None:
+        web3 = get_node(blockchain, block)
+
+    pdp_contract = get_contract(PDP_XDAI, blockchain, web3=web3, abi=ABI_PDP, block=block)
+    reserve_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
+    agave_tokens = []
+    for token in reserve_tokens:
+        data = pdp_contract.functions.getReserveTokensAddresses(token[1]).call(block_identifier=block)
+        agave_tokens.append({
+            'underlying': token[1],
+            'interest bearing': data[0],
+            'stable debt': data[1],
+            'variable debt': data[2]
+        })
+    return agave_tokens
+
+def get_extra_rewards(wallet: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True) -> List[List]:
+
+    if web3 is None:
+        web3 = get_node(blockchain, block)
+
+    rewarder_contract = web3.eth.contract(address=REWARDER_ADDRESS, abi=REWARDER_ABI)
+    token_address = rewarder_contract.functions.REWARD_TOKEN().call(block_identifier=block)
+
+    agave_tokens = get_agave_tokens(blockchain, block, web3=web3)
+
+    tokens_accruing_rewards = []
+    for element in agave_tokens:
+        tokens_accruing_rewards = tokens_accruing_rewards + [element['interest bearing'], element['variable debt']]
+
+    amount = rewarder_contract.functions.getRewardsBalance(tokens_accruing_rewards, wallet).call(block_identifier=block)
+    return [[token_address, to_token_amount(token_address, amount, blockchain, web3=web3, decimals=decimals)]]
