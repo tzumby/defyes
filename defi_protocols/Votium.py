@@ -25,10 +25,8 @@ def get_all_rewards(wallet: str) -> Dict:
     raw_json_url = 'https://raw.githubusercontent.com/oo-00/Votium/main/merkle/activeTokens.json'
     response = requests.get(raw_json_url)
 
-    if response.status_code == 200:
-        json_data = response.json()
-    else:
-        raise Exception(f'Failed to download the JSON file. Status code: {response.status_code}')
+    response.raise_for_status()
+    json_data = response.json()
 
     rewards_list = {"protocol": "Votium", "block": "latest", "positions": []}
     position = {"position ID": 'rewards', "balances": []}
@@ -64,10 +62,8 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
     raw_json_url = f'https://raw.githubusercontent.com/oo-00/Votium/main/merkle/{token_symbol}/{round_number}.json'
     response = requests.get(raw_json_url)
 
-    if response.status_code == 200:
-        json_data = response.json()
-    else:
-        raise Exception(f'Failed to download the JSON file. Status code: {response.status_code}')
+    response.raise_for_status()
+    json_data = response.json()
 
     index_number = json_data['claims'].get(wallet, None)
     if index_number is None:
@@ -75,7 +71,7 @@ def get_rewards_per_token(wallet: str, token_symbol: str, decimals: int, round_n
         return None
 
     hexstr = json_data['claims'][wallet]['amount']  # get hex amount
-    token_amount = Web3.to_int(hexstr=hexstr) / pow(10, decimals)
+    token_amount = Decimal(Web3.to_int(hexstr=hexstr)) / pow(10, decimals)
 
     if check_claimed_or_unclaimed(wallet, index_number['index']):
         token_amount = 0
@@ -96,7 +92,7 @@ def check_claimed_or_unclaimed(wallet, index_number):
     wallet = Web3.to_checksum_address(wallet)
 
     contract = get_contract(contract_address, 'ethereum')
-    claimed = contract.functions.isClaimed(wallet, int(index_number)).call()
+    claimed = contract.functions.isClaimed(wallet, index_number).call()
 
     return claimed
 
