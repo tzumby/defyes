@@ -1137,6 +1137,42 @@
         "poolId": 189,
         "rewarder": "0x57f4cf13b325Ad101CfE9AD3a84d3B2302AA96c8"
       }
+    },
+    "0xCA0253A98D16e9C1e3614caFDA19318EE69772D0": {
+      "17484271": {
+        "poolId": 190,
+        "rewarder": "0xD22c1Dc9baEb5b549401Dd42E6227953cd816776"
+      }
+    },
+    "0x26f3f26F46cBeE59d1F8860865e13Aa39e36A8c0": {
+      "17484273": {
+        "poolId": 191,
+        "rewarder": "0xD24e00740306A67e29F189B55343F4804683d231"
+      }
+    },
+    "0x71c91B173984d3955f7756914bBF9a7332538595": {
+      "17484973": {
+        "poolId": 192,
+        "rewarder": "0x27FB53CDA31de0BFc634086e180EE8c5f44a28Eb"
+      }
+    },
+    "0x96AAE323E111A19b1E0e26F55e8De21F1dD01f26": {
+      "17484975": {
+        "poolId": 193,
+        "rewarder": "0x12261736A428580D53dfb2F213ae389e251Be4CF"
+      }
+    },
+    "0x852b90239C5034b5bb7a5e54eF1bEF3Ce3359CC8": {
+      "17484977": {
+        "poolId": 194,
+        "rewarder": "0xB94c129Cb0Adf7f5928e07476c668998251685F2"
+      }
+    },
+    "0x7C0d189E1FecB124487226dCbA3748bD758F98E4": {
+      "17495064": {
+        "poolId": 195,
+        "rewarder": "0x0106Bff3bD9C3BB9e4F8776591288F6855c4aF95"
+      }
     }
   }
 }
