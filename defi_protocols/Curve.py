@@ -408,7 +408,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
         if gauge_version == 'LiquidityGaugeReward':
             # Additional rewards
-            token_address = cons_call(gauge_contract.functions.rewarded_token())
+            token_address = const_call(gauge_contract.functions.rewarded_token())
             token_reward = gauge_contract.function.claimable_reward(wallet).call(block_identifier=block)
             token_reward -= gauge_contract.claimed_rewards_for(wallet).call(block_identifier=block)
 
