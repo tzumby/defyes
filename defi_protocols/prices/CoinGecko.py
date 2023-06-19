@@ -1,9 +1,17 @@
-import requests
 import math
 
-from defi_protocols.constants import (ETHEREUM, XDAI, POLYGON, AVALANCHE, OPTIMISM, ZERO_ADDRESS,
-                                      API_COINGECKO_COINID_PRICE_RANGE, API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE)
+import requests
 
+from defi_protocols.constants import (
+    API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE,
+    API_COINGECKO_COINID_PRICE_RANGE,
+    AVALANCHE,
+    ETHEREUM,
+    OPTIMISM,
+    POLYGON,
+    XDAI,
+    ZERO_ADDRESS,
+)
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -17,12 +25,18 @@ def get_price(token_address, timestamp, blockchain):
     :param blockchain:
     :return:
     """
-    if blockchain != ETHEREUM and blockchain != XDAI and blockchain != POLYGON and blockchain != AVALANCHE and blockchain != OPTIMISM:
+    if (
+        blockchain != ETHEREUM
+        and blockchain != XDAI
+        and blockchain != POLYGON
+        and blockchain != AVALANCHE
+        and blockchain != OPTIMISM
+    ):
         return [timestamp, None]
 
     if token_address == ZERO_ADDRESS:
         if blockchain == POLYGON:
-            coin_id = 'matic-network'
+            coin_id = "matic-network"
         else:
             coin_id = blockchain
 
@@ -30,50 +44,59 @@ def get_price(token_address, timestamp, blockchain):
         if data.status_code != 200:
             return [data.status_code, [timestamp, None]]
         else:
-            data = data.json()['prices']
+            data = data.json()["prices"]
             if data == []:
-                data = requests.get(API_COINGECKO_COINID_PRICE_RANGE % (
-                    coin_id, timestamp - 3600 * 24 * 40, timestamp + 3600 * 24 * 40))
+                data = requests.get(
+                    API_COINGECKO_COINID_PRICE_RANGE % (coin_id, timestamp - 3600 * 24 * 40, timestamp + 3600 * 24 * 40)
+                )
                 if data.status_code != 200:
                     return [data.status_code, [timestamp, None]]
                 else:
-                    data = data.json()['prices']
+                    data = data.json()["prices"]
                     if data == []:
-                        data = requests.get(API_COINGECKO_COINID_PRICE_RANGE % (
-                            coin_id, timestamp - 3600 * 24 * 180, timestamp + 3600 * 24 * 180))
+                        data = requests.get(
+                            API_COINGECKO_COINID_PRICE_RANGE
+                            % (coin_id, timestamp - 3600 * 24 * 180, timestamp + 3600 * 24 * 180)
+                        )
                         if data.status_code != 200:
                             return [data.status_code, [timestamp, None]]
                         else:
-                            data = data.json()['prices']
+                            data = data.json()["prices"]
 
     else:
         if blockchain == POLYGON:
-            blockchain_id = 'polygon-pos'
+            blockchain_id = "polygon-pos"
         elif blockchain == OPTIMISM:
-            blockchain_id = 'optimistic-ethereum'
+            blockchain_id = "optimistic-ethereum"
         else:
             blockchain_id = blockchain
 
-        data = requests.get(API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE % (
-            blockchain_id, token_address, timestamp - 3600 * 23, timestamp + 3600 * 1))
+        data = requests.get(
+            API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE
+            % (blockchain_id, token_address, timestamp - 3600 * 23, timestamp + 3600 * 1)
+        )
         if data.status_code != 200:
             return [data.status_code, [timestamp, None]]
         else:
-            data = data.json()['prices']
+            data = data.json()["prices"]
             if data == []:
-                data = requests.get(API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE % (
-                    blockchain_id, token_address, timestamp - 3600 * 24 * 40, timestamp + 3600 * 24 * 40))
+                data = requests.get(
+                    API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE
+                    % (blockchain_id, token_address, timestamp - 3600 * 24 * 40, timestamp + 3600 * 24 * 40)
+                )
                 if data.status_code != 200:
                     return [data.status_code, [timestamp, None]]
                 else:
-                    data = data.json()['prices']
+                    data = data.json()["prices"]
                     if data == []:
-                        data = requests.get(API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE % (
-                            blockchain_id, token_address, timestamp - 3600 * 24 * 180, timestamp + 3600 * 24 * 180))
+                        data = requests.get(
+                            API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE
+                            % (blockchain_id, token_address, timestamp - 3600 * 24 * 180, timestamp + 3600 * 24 * 180)
+                        )
                         if data.status_code != 200:
                             return [data.status_code, [timestamp, None]]
                         else:
-                            data = data.json()['prices']
+                            data = data.json()["prices"]
 
     if data == [] or data is None:
         return [200, [timestamp, None]]
@@ -89,9 +112,17 @@ def get_price(token_address, timestamp, blockchain):
         if i == len(data):
             return [200, [math.floor(data[i - 1][0] / 1000), data[i - 1][1]]]
         else:
-            return [200, [timestamp, (
-                    (timestamp * 1000 - data[i - 1][0]) * data[i][1] + (data[i][0] - timestamp * 1000) *
-                    data[i - 1][1]) / (data[i][0] - data[i - 1][0])]]
+            return [
+                200,
+                [
+                    timestamp,
+                    (
+                        (timestamp * 1000 - data[i - 1][0]) * data[i][1]
+                        + (data[i][0] - timestamp * 1000) * data[i - 1][1]
+                    )
+                    / (data[i][0] - data[i - 1][0]),
+                ],
+            ]
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -113,7 +144,7 @@ def get_price_range(token_address, start_timestamp, end_timestamp, blockchain):
 
     if token_address == ZERO_ADDRESS:
         if blockchain == POLYGON:
-            coin_id = 'matic-network'
+            coin_id = "matic-network"
         else:
             coin_id = blockchain
 
@@ -121,20 +152,22 @@ def get_price_range(token_address, start_timestamp, end_timestamp, blockchain):
         if data.status_code != 200:
             return [data.status_code, None]
         else:
-            data = data.json()['prices']
+            data = data.json()["prices"]
 
     else:
         if blockchain == POLYGON:
-            blockchain_id = 'polygon-pos'
+            blockchain_id = "polygon-pos"
         else:
             blockchain_id = blockchain
 
-        data = requests.get(API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE % (
-        blockchain_id, token_address, start_timestamp, end_timestamp))
+        data = requests.get(
+            API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE
+            % (blockchain_id, token_address, start_timestamp, end_timestamp)
+        )
         if data.status_code != 200:
             return [data.status_code, None]
         else:
-            data = data.json()['prices']
+            data = data.json()["prices"]
 
     if data == [] or data is None:
         return [200, None]

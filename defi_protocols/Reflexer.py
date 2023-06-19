@@ -2,19 +2,20 @@ import logging
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Union
+
 from web3 import Web3
 
-from defi_protocols.functions import get_node, balance_of, total_supply
 from defi_protocols.constants import ETHTokenAddr
+from defi_protocols.functions import balance_of, get_node, total_supply
 
 logger = logging.getLogger(__name__)
 
 LPTOKENS_DB = {
-    '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9': {
-        'name': "Reflexer-FLX/WETH",
-        'blockchain': 'ethereum',
-        'staked_token': '0x353EFAC5CaB823A41BC0d6228d7061e92Cf9Ccb0',
-        'tokens': [ETHTokenAddr.FLX, ETHTokenAddr.WETH]
+    "0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9": {
+        "name": "Reflexer-FLX/WETH",
+        "blockchain": "ethereum",
+        "staked_token": "0x353EFAC5CaB823A41BC0d6228d7061e92Cf9Ccb0",
+        "tokens": [ETHTokenAddr.FLX, ETHTokenAddr.WETH],
     },
 }
 
@@ -22,13 +23,13 @@ LPTOKENS_DB = {
 @dataclass
 class LiquidityPool:
     addr: str
-    block: Union[int, str] = 'latest'
+    block: Union[int, str] = "latest"
     web3: Web3 = None
     blockchain: str = field(init=False)
 
     def __post_init__(self):
         self.addr = Web3.to_checksum_address(self.addr)
-        self.blockchain = LPTOKENS_DB[self.addr]['blockchain']
+        self.blockchain = LPTOKENS_DB[self.addr]["blockchain"]
         if self.web3 is None:
             self.web3 = get_node(self.blockchain, block=self.block)
         else:
@@ -37,7 +38,7 @@ class LiquidityPool:
     def _underlying(self, amount):
         fraction = Decimal(amount) / total_supply(self.addr, self.block, self.blockchain)
         result = []
-        for token in LPTOKENS_DB[self.addr]['tokens']:
+        for token in LPTOKENS_DB[self.addr]["tokens"]:
             balance = balance_of(self.addr, token, self.block, self.blockchain)
 
             result.append([token, balance * fraction])
@@ -46,7 +47,7 @@ class LiquidityPool:
 
     def underlying(self, wallet):
         wallet = Web3.to_checksum_address(wallet)
-        amount = balance_of(wallet, LPTOKENS_DB[self.addr]['staked_token'], self.block, self.blockchain)
+        amount = balance_of(wallet, LPTOKENS_DB[self.addr]["staked_token"], self.block, self.blockchain)
         return self._underlying(amount)
 
     def lptoken_underlying(self, wallet):

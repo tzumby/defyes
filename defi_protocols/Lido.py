@@ -1,15 +1,18 @@
 from decimal import Decimal
 from typing import Union
+
 from web3 import Web3
 
-from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.constants import ETHEREUM, ZERO_ADDRESS, ETHTokenAddr
+from defi_protocols.functions import get_contract, get_node, to_token_amount
 
 STETH_ABI = '[{"constant":true,"inputs":[{"name":"_account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
 WSTETH_ABI = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"stEthPerToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
-def underlying(wallet: str, block: Union[int, str], steth: bool = False, decimals: bool = True, web3: object = None) -> list:
+def underlying(
+    wallet: str, block: Union[int, str], steth: bool = False, decimals: bool = True, web3: object = None
+) -> list:
     """
     Returns the balance of underlying ETH (or stETH if steth=True) corresponding to the stETH and wstETH held by a wallet.
     Parameters
@@ -73,7 +76,7 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool = Fals
         web3 = get_node(ETHEREUM, block=block)
 
     wsteth_contract = get_contract(ETHTokenAddr.wstETH, ETHEREUM, block=block, web3=web3)
-    stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10 ** 18)
+    stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10**18)
 
     steth_equivalent = amount * stEthPerToken
     token = ETHTokenAddr.stETH if steth else ZERO_ADDRESS

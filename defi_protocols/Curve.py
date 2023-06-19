@@ -2,27 +2,36 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Union
+
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defi_protocols.cache import const_call
-from defi_protocols.constants import ETHEREUM, ZERO_ADDRESS, X3CRV_ETH, CRV_ETH, XDAI, CRV_XDAI, E_ADDRESS, X3CRV_XDAI
-from defi_protocols.functions import get_node, get_contract, get_decimals, balance_of, get_logs_web3, date_to_block, block_to_date, get_contract_abi, to_token_amount
+from defi_protocols.constants import CRV_ETH, CRV_XDAI, E_ADDRESS, ETHEREUM, X3CRV_ETH, X3CRV_XDAI, XDAI, ZERO_ADDRESS
+from defi_protocols.functions import (
+    balance_of,
+    block_to_date,
+    date_to_block,
+    get_contract,
+    get_contract_abi,
+    get_decimals,
+    get_logs_web3,
+    get_node,
+    to_token_amount,
+)
 from defi_protocols.prices.prices import get_price
-
-
 
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROVIDER ADDRESS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-PROVIDER_ADDRESS = '0x0000000022D53366457F9d5E68Ec105046FC4383'
+PROVIDER_ADDRESS = "0x0000000022D53366457F9d5E68Ec105046FC4383"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # X-CHAIN GAUGE FACTORY ADDRESS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-X_CHAIN_GAUGE_FACTORY_ADDRESS = '0xabC000d88f23Bb45525E447528DBF656A9D55bf5'
+X_CHAIN_GAUGE_FACTORY_ADDRESS = "0xabC000d88f23Bb45525E447528DBF656A9D55bf5"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -61,12 +70,16 @@ ABI_GAUGE = '[{"name":"crv_token","outputs":[{"type":"address","name":""}],"inpu
 # EVENT SIGNATURES
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # TokenExchange Event Signatures
-TOKEN_EXCHANGE_EVENT_SIGNATURES = ['TokenExchange(address,int128,uint256,int128,uint256)',
-                                   'TokenExchange(address,uint256,uint256,uint256,uint256)']
+TOKEN_EXCHANGE_EVENT_SIGNATURES = [
+    "TokenExchange(address,int128,uint256,int128,uint256)",
+    "TokenExchange(address,uint256,uint256,uint256,uint256)",
+]
 
 # TokenExchangeUnderlying Event Signatures
-TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES = ['TokenExchangeUnderlying(address,int128,uint256,int128,uint256)',
-                                              'TokenExchangeUnderlying(address,uint256,uint256,uint256,uint256)']
+TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES = [
+    "TokenExchangeUnderlying(address,int128,uint256,int128,uint256)",
+    "TokenExchangeUnderlying(address,uint256,uint256,uint256,uint256)",
+]
 
 
 def get_registry_contract(web3, id, block, blockchain):
@@ -120,8 +133,9 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
 
     # Pools which don't have their gauge registered in none of the registries
     if gauge_address == ZERO_ADDRESS and blockchain != ETHEREUM:
-        x_chain_factory_contract = get_contract(X_CHAIN_GAUGE_FACTORY_ADDRESS, blockchain, web3=web3,
-                                                abi=ABI_X_CHAIN_GAUGE_FACTORY_ADDRESS, block=block)
+        x_chain_factory_contract = get_contract(
+            X_CHAIN_GAUGE_FACTORY_ADDRESS, blockchain, web3=web3, abi=ABI_X_CHAIN_GAUGE_FACTORY_ADDRESS, block=block
+        )
         gauge_address = const_call(x_chain_factory_contract.functions.get_gauge_from_lp_token(lptoken_address))
 
     return gauge_address
@@ -143,14 +157,14 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
 
         if blockchain != ETHEREUM:
             if only_version:
-                return 'ChildGauge'
+                return "ChildGauge"
             else:
-                return ['ChildGauge', gauge_contract]
+                return ["ChildGauge", gauge_contract]
 
         if only_version:
-            return 'LiquidityGaugeV5'
+            return "LiquidityGaugeV5"
         else:
-            return ['LiquidityGaugeV5', gauge_contract]
+            return ["LiquidityGaugeV5", gauge_contract]
     except ContractLogicError:
         pass
 
@@ -161,15 +175,15 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
             const_call(gauge_contract.functions.crv_token())
 
             if only_version:
-                return 'LiquidityGaugeV3'
+                return "LiquidityGaugeV3"
             else:
-                return ['LiquidityGaugeV3', gauge_contract]
+                return ["LiquidityGaugeV3", gauge_contract]
 
         except ContractLogicError:
             if only_version:
-                return 'RewardsOnlyGauge'
+                return "RewardsOnlyGauge"
             else:
-                return ['RewardsOnlyGauge', gauge_contract]
+                return ["RewardsOnlyGauge", gauge_contract]
 
     except ContractLogicError:
         pass
@@ -181,29 +195,29 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
             const_call(gauge_contract.functions.decimals())
 
             if only_version:
-                return 'LiquidityGaugeV2'
+                return "LiquidityGaugeV2"
             else:
-                return ['LiquidityGaugeV2', gauge_contract]
+                return ["LiquidityGaugeV2", gauge_contract]
 
         except ContractLogicError:
             try:
                 const_call(gauge_contract.functions.claimable_reward(ZERO_ADDRESS))
                 if only_version:
-                    return 'LiquidityGaugeReward'
+                    return "LiquidityGaugeReward"
                 else:
-                    return ['LiquidityGaugeReward', gauge_contract]
+                    return ["LiquidityGaugeReward", gauge_contract]
 
             except ContractLogicError:
                 if only_version:
-                    return 'LiquidityGauge'
+                    return "LiquidityGauge"
                 else:
-                    return ['LiquidityGauge', gauge_contract]
+                    return ["LiquidityGauge", gauge_contract]
 
     except ContractLogicError:
         if only_version:
-            return 'LiquidityGaugeV4'
+            return "LiquidityGaugeV4"
         else:
-            return ['LiquidityGaugeV4', gauge_contract]
+            return ["LiquidityGaugeV4", gauge_contract]
 
 
 def get_pool_address(web3, lptoken_address, block, blockchain):
@@ -233,14 +247,15 @@ def get_pool_address(web3, lptoken_address, block, blockchain):
 
 
 def get_pool_data(web3, minter, block, blockchain):
-    pool_data = {'contract': get_contract(minter, blockchain, web3=web3, block=block, abi=ABI_POOL),
-                 'is_metapool': False,
-                 'coins': {}
-                 }
+    pool_data = {
+        "contract": get_contract(minter, blockchain, web3=web3, block=block, abi=ABI_POOL),
+        "is_metapool": False,
+        "coins": {},
+    }
 
     try:
-        const_call(pool_data['contract'].functions.underlying_coins(0))
-        pool_data['is_metapool'] = True
+        const_call(pool_data["contract"].functions.underlying_coins(0))
+        pool_data["is_metapool"] = True
     except ContractLogicError as e:
         pass
 
@@ -248,16 +263,15 @@ def get_pool_data(web3, minter, block, blockchain):
     i = 0
     j = 0
     while next_token:
-
         try:
-            token_address = pool_data['contract'].functions.coins(i).call(block_identifier=block)
+            token_address = pool_data["contract"].functions.coins(i).call(block_identifier=block)
 
         except ContractLogicError:
-
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALETRNATIVE
             if i == 0:
-                pool_data['contract'] = get_contract(minter, blockchain, web3=web3,
-                                                     block=block, abi=ABI_POOL_ALTERNATIVE)
+                pool_data["contract"] = get_contract(
+                    minter, blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
+                )
             else:
                 next_token = False
 
@@ -270,24 +284,22 @@ def get_pool_data(web3, minter, block, blockchain):
         # IMPORTANT: AD-HOC FIX UNTIL WE FIND A WAY TO SOLVE HOW META POOLS WORK FOR DIFFERENT POOL TYPES AND SIDE-CHAINS
         # if token_address == X3CRV_ETH or token_address == X3CRV_POL or token_address == X3CRV_XDAI:
         if token_address == X3CRV_ETH:
-            pool_data['is_metapool'] = True
+            pool_data["is_metapool"] = True
 
             x3crv_minter = get_pool_address(web3, token_address, block, blockchain)
             x3crv_pool_contract = get_contract(x3crv_minter, blockchain, web3=web3, block=block, abi=ABI_POOL)
 
             x3crv_next_token = True
             while x3crv_next_token:
-
                 try:
                     token_address = x3crv_pool_contract.functions.coins(j).call(block_identifier=block)
 
                 except ContractLogicError:
-
                     # If the query fails when j == 0 -> the pool contract must be retrieved with the ABI_POOL_ALETRNATIVE
                     if i == 0:
-                        x3crv_pool_contract = get_contract(x3crv_minter, blockchain,
-                                                           web3=web3, block=block,
-                                                           abi=ABI_POOL_ALTERNATIVE)
+                        x3crv_pool_contract = get_contract(
+                            x3crv_minter, blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
+                        )
                     else:
                         x3crv_next_token = False
 
@@ -297,11 +309,11 @@ def get_pool_data(web3, minter, block, blockchain):
                     x3crv_next_token = False
                     continue
 
-                pool_data['coins'][i + j] = token_address
+                pool_data["coins"][i + j] = token_address
                 j += 1
 
         else:
-            pool_data['coins'][i + j] = token_address
+            pool_data["coins"][i + j] = token_address
 
         i += 1
 
@@ -309,27 +321,25 @@ def get_pool_data(web3, minter, block, blockchain):
 
 
 def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
-
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
     lptoken_data = {}
 
-    lptoken_data['contract'] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
     try:
-        lptoken_data['minter'] = const_call(lptoken_data['contract'].functions.minter())
+        lptoken_data["minter"] = const_call(lptoken_data["contract"].functions.minter())
     except:
-        lptoken_data['minter'] = None
+        lptoken_data["minter"] = None
 
-    lptoken_data['decimals'] = const_call(lptoken_data['contract'].functions.decimals())
-    lptoken_data['totalSupply'] = lptoken_data['contract'].functions.totalSupply().call(block_identifier=block)
+    lptoken_data["decimals"] = const_call(lptoken_data["contract"].functions.decimals())
+    lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
 
     return lptoken_data
 
 
-def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True,
-                    gauge_address=None):
+def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, gauge_address=None):
     """
     Output:
     List of Tuples: [reward_token_address, balance]
@@ -357,15 +367,18 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     gauge_version = gauge_data[0]
     gauge_contract = gauge_data[1]
 
-    if gauge_version in ['LiquidityGaugeV5', 'LiquidityGaugeV4', 'LiquidityGaugeV2', 'ChildGauge']:
-
+    if gauge_version in ["LiquidityGaugeV5", "LiquidityGaugeV4", "LiquidityGaugeV2", "ChildGauge"]:
         i = 0
         while True:
             token_address = const_call(gauge_contract.functions.reward_tokens(i))
 
             if token_address != ZERO_ADDRESS:
-                token_reward = gauge_contract.functions.claimable_reward(wallet, token_address).call(block_identifier=block)
-                all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
+                token_reward = gauge_contract.functions.claimable_reward(wallet, token_address).call(
+                    block_identifier=block
+                )
+                all_rewards.append(
+                    [token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)]
+                )
                 i += 1
             else:
                 break
@@ -379,18 +392,22 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
         all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
 
-    elif gauge_version in ['LiquidityGaugeV3', 'RewardsOnlyGauge']:
+    elif gauge_version in ["LiquidityGaugeV3", "RewardsOnlyGauge"]:
         i = 0
         while True:
             token_address = const_call(gauge_contract.functions.reward_tokens(i))
             if token_address != ZERO_ADDRESS:
-                token_reward = gauge_contract.functions.claimable_reward_write(wallet, token_address).call(block_identifier=block)
-                all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
+                token_reward = gauge_contract.functions.claimable_reward_write(wallet, token_address).call(
+                    block_identifier=block
+                )
+                all_rewards.append(
+                    [token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)]
+                )
                 i += 1
             else:
                 break
 
-        if gauge_version == 'LiquidityGaugeV3':
+        if gauge_version == "LiquidityGaugeV3":
             # CRV rewards
             if blockchain == ETHEREUM:
                 token_address = CRV_ETH
@@ -398,28 +415,39 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
                 token_address = CRV_XDAI
 
             token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
-            all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
+            all_rewards.append(
+                [token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)]
+            )
 
-    elif gauge_version in ['LiquidityGaugeReward', 'LiquidityGauge']:
-
+    elif gauge_version in ["LiquidityGaugeReward", "LiquidityGauge"]:
         token_address = const_call(gauge_contract.functions.crv_token())
         token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
         all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
 
-        if gauge_version == 'LiquidityGaugeReward':
+        if gauge_version == "LiquidityGaugeReward":
             # Additional rewards
             token_address = const_call(gauge_contract.functions.rewarded_token())
             token_reward = gauge_contract.function.claimable_reward(wallet).call(block_identifier=block)
             token_reward -= gauge_contract.claimed_rewards_for(wallet).call(block_identifier=block)
 
-            all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
+            all_rewards.append(
+                [token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)]
+            )
 
     return all_rewards
 
 
-def underlying(wallet, lptoken_address, block, blockchain,
-               web3=None, reward=False, decimals=True,
-               convex_staked=None, gauge_address=None):
+def underlying(
+    wallet,
+    lptoken_address,
+    block,
+    blockchain,
+    web3=None,
+    reward=False,
+    decimals=True,
+    convex_staked=None,
+    gauge_address=None,
+):
     """
     'convex_staked' = Staked LP Token Balance in Convex
     'gauge_address' = gauge_address
@@ -439,28 +467,25 @@ def underlying(wallet, lptoken_address, block, blockchain,
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
-    lptoken_data['balanceOf'] = lptoken_data['contract'].functions.balanceOf(wallet).call(block_identifier=block)
+    lptoken_data["balanceOf"] = lptoken_data["contract"].functions.balanceOf(wallet).call(block_identifier=block)
 
-    if lptoken_data['minter'] is None:
-        lptoken_data['minter'] = get_pool_address(web3, lptoken_address, block, blockchain)
+    if lptoken_data["minter"] is None:
+        lptoken_data["minter"] = get_pool_address(web3, lptoken_address, block, blockchain)
 
     if gauge_address is not None:
-        lptoken_data['gauge'] = gauge_address
+        lptoken_data["gauge"] = gauge_address
     else:
-        lptoken_data['gauge'] = get_pool_gauge_address(web3, lptoken_data['minter'], lptoken_address, block,
-                                                       blockchain)
+        lptoken_data["gauge"] = get_pool_gauge_address(web3, lptoken_data["minter"], lptoken_address, block, blockchain)
 
-    if lptoken_data['gauge'] is not None:
-        lptoken_data['staked'] = balance_of(wallet, lptoken_data['gauge'], block,
-                                            blockchain, web3=web3,
-                                            decimals=False)
+    if lptoken_data["gauge"] is not None:
+        lptoken_data["staked"] = balance_of(wallet, lptoken_data["gauge"], block, blockchain, web3=web3, decimals=False)
     else:
-        lptoken_data['staked'] = 0
+        lptoken_data["staked"] = 0
 
-    pool_contract = get_contract(lptoken_data['minter'], blockchain, web3=web3, block=block, abi=ABI_POOL)
+    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3, block=block, abi=ABI_POOL)
 
-    pool_balance_fraction = lptoken_data['balanceOf'] / lptoken_data['totalSupply']
-    pool_staked_fraction = lptoken_data['staked'] / lptoken_data['totalSupply']
+    pool_balance_fraction = lptoken_data["balanceOf"] / lptoken_data["totalSupply"]
+    pool_staked_fraction = lptoken_data["staked"] / lptoken_data["totalSupply"]
 
     next_token = True
     i = 0
@@ -470,9 +495,9 @@ def underlying(wallet, lptoken_address, block, blockchain,
         except ContractLogicError:
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALETRNATIVE
             if i == 0:
-                pool_contract = get_contract(lptoken_data['minter'], blockchain,
-                                             web3=web3, block=block,
-                                             abi=ABI_POOL_ALTERNATIVE)
+                pool_contract = get_contract(
+                    lptoken_data["minter"], blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
+                )
             else:
                 next_token = False
             continue
@@ -485,22 +510,27 @@ def underlying(wallet, lptoken_address, block, blockchain,
         balance = to_token_amount(token_address, balance, blockchain, web3, decimals)
 
         if convex_staked is None:
-            balances.append([token_address,
-                             balance * Decimal(pool_balance_fraction),
-                             balance * Decimal(pool_staked_fraction)])
+            balances.append(
+                [token_address, balance * Decimal(pool_balance_fraction), balance * Decimal(pool_staked_fraction)]
+            )
 
         else:
-            convex_pool_fraction = convex_staked / lptoken_data['totalSupply']
+            convex_pool_fraction = convex_staked / lptoken_data["totalSupply"]
             balances.append([token_address, balance * Decimal(convex_pool_fraction)])
 
         i += 1
 
     result = balances
     if reward:
-
-        all_rewards = get_all_rewards(wallet, lptoken_address, block, blockchain,
-                                      web3=web3, decimals=decimals,
-                                      gauge_address=lptoken_data['gauge'])
+        all_rewards = get_all_rewards(
+            wallet,
+            lptoken_address,
+            block,
+            blockchain,
+            web3=web3,
+            decimals=decimals,
+            gauge_address=lptoken_data["gauge"],
+        )
 
         result.extend(all_rewards)
 
@@ -522,11 +552,13 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
 
-    if lptoken_data['minter'] is None:
-        lptoken_data['minter'] = get_pool_address(web3, lptoken_address, block, blockchain)
+    if lptoken_data["minter"] is None:
+        lptoken_data["minter"] = get_pool_address(web3, lptoken_address, block, blockchain)
 
-    pool_contract = get_contract(lptoken_data['minter'], blockchain, web3=web3, block=block)
-    pool_fraction = Decimal(lptoken_amount) / Decimal(lptoken_data['totalSupply']) * Decimal(10 ** lptoken_data['decimals'])
+    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3, block=block)
+    pool_fraction = (
+        Decimal(lptoken_amount) / Decimal(lptoken_data["totalSupply"]) * Decimal(10 ** lptoken_data["decimals"])
+    )
 
     next_token = True
     i = 0
@@ -536,9 +568,9 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
         except ContractLogicError:
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALTERNATIVE
             if i == 0:
-                pool_contract = get_contract(lptoken_data['minter'], blockchain,
-                                             web3=web3, block=block,
-                                             abi=ABI_POOL_ALTERNATIVE)
+                pool_contract = get_contract(
+                    lptoken_data["minter"], blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
+                )
             else:
                 next_token = False
             continue
@@ -556,9 +588,10 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
 
         # We subtract the admin fees from the pool balances
         balance = pool_contract.functions.balances(i).call(
-            block_identifier=block) - pool_contract.functions.admin_balances(i).call(block_identifier=block)
+            block_identifier=block
+        ) - pool_contract.functions.admin_balances(i).call(block_identifier=block)
 
-        token_balance = Decimal(balance) / Decimal(10 ** token_decimals) * Decimal(pool_fraction)
+        token_balance = Decimal(balance) / Decimal(10**token_decimals) * Decimal(pool_fraction)
 
         balances.append([token_address, token_balance])
 
@@ -567,8 +600,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
     return balances
 
 
-def pool_balances(lptoken_address, block, blockchain,
-                  web3=None, decimals=True, meta=False):
+def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, meta=False):
     """
     Output: a list with 1 elements:
     1 - List of Tuples: [liquidity_token_address, balance]
@@ -618,10 +650,12 @@ def pool_balances(lptoken_address, block, blockchain,
             if meta is False:
                 balances.append([token_address, to_token_amount(token_address, balance, blockchain, web3, decimals)])
             else:
-                underlying = unwrap(to_token_amount(token_address, balance, blockchain, web3, decimals),
-                                    token_address,
-                                    block,
-                                    blockchain)
+                underlying = unwrap(
+                    to_token_amount(token_address, balance, blockchain, web3, decimals),
+                    token_address,
+                    block,
+                    blockchain,
+                )
                 for element in underlying:
                     balances.append([element[0], element[1]])
 
@@ -630,8 +664,7 @@ def pool_balances(lptoken_address, block, blockchain,
     return balances
 
 
-def swap_fees(lptoken_address, block_start, block_end, blockchain,
-              web3=None, decimals=True):
+def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, decimals=True):
     # FIXME: decimals is ignored
     # FIXME:
     """
@@ -659,7 +692,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain,
 
     pool_data = get_pool_data(web3, minter, block_start, blockchain)
 
-    result['swaps'] = []
+    result["swaps"] = []
 
     exchange_event_signatures = []
 
@@ -668,45 +701,54 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain,
     #     exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES
     # else:
     #     exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES
-    exchange_event_signatures = TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES + TOKEN_EXCHANGE_EVENT_SIGNATURES
+    exchange_event_signatures = (
+        TOKEN_EXCHANGE_EVENT_SIGNATURES + TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES + TOKEN_EXCHANGE_EVENT_SIGNATURES
+    )
 
     for exchange_event_signature in exchange_event_signatures:
         exchange_event = web3.keccak(text=exchange_event_signature).hex()
-        swap_logs = get_logs_web3(address=minter,
-                                  blockchain=blockchain,
-                                  block_start=block_start,
-                                  block_end=block_end,
-                                  topics=[exchange_event])
+        swap_logs = get_logs_web3(
+            address=minter, blockchain=blockchain, block_start=block_start, block_end=block_end, topics=[exchange_event]
+        )
 
         for swap_log in swap_logs:
-            token_out = pool_data['coins'][int(swap_log['data'].hex()[-128:-64], 16)]
+            token_out = pool_data["coins"][int(swap_log["data"].hex()[-128:-64], 16)]
             token_out_decimals = get_decimals(token_out, blockchain, web3=web3)
 
             # FIXME: shouldn't the 10 be token_out_decimals???
-            swap_fee = Decimal(pool_data['contract'].functions.fee().call(block_identifier=swap_log['blockNumber'])) / Decimal(10 ** 10)
+            swap_fee = Decimal(
+                pool_data["contract"].functions.fee().call(block_identifier=swap_log["blockNumber"])
+            ) / Decimal(10**10)
 
             swap_data = {
-                'block': swap_log['blockNumber'],
-                'tokenOut': token_out,
-                'amountOut': swap_fee * int(swap_log['data'].hex()[-64:], 16) / Decimal(10 ** token_out_decimals)
+                "block": swap_log["blockNumber"],
+                "tokenOut": token_out,
+                "amountOut": swap_fee * int(swap_log["data"].hex()[-64:], 16) / Decimal(10**token_out_decimals),
             }
 
-            result['swaps'].append(swap_data)
-
+            result["swaps"].append(swap_data)
 
     return result
 
 
-def get_base_apr(lptoken_address: str, blockchain: str,
-                 block_end: Union[int, str] = 'latest', web3=None, days: int = 1,
-                 apy: bool = False) -> int:
-
+def get_base_apr(
+    lptoken_address: str,
+    blockchain: str,
+    block_end: Union[int, str] = "latest",
+    web3=None,
+    days: int = 1,
+    apy: bool = False,
+) -> int:
     if web3 is None:
         web3 = get_node(blockchain, block=block_end)
 
-    block_start = date_to_block(datetime.strftime(
-        datetime.strptime(block_to_date(block_end, blockchain), '%Y-%m-%d %H:%M:%S') - timedelta(days=days),
-        '%Y-%m-%d %H:%M:%S'), blockchain)
+    block_start = date_to_block(
+        datetime.strftime(
+            datetime.strptime(block_to_date(block_end, blockchain), "%Y-%m-%d %H:%M:%S") - timedelta(days=days),
+            "%Y-%m-%d %H:%M:%S",
+        ),
+        blockchain,
+    )
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     address_abi = get_contract_abi(lptoken_address, blockchain)
 
@@ -717,8 +759,8 @@ def get_base_apr(lptoken_address: str, blockchain: str,
         xcp_profit_a = lp_contract.functions.xcp_profit_a().call(block_identifier=block_end)
         xcp_profit_prev = lp_contract.functions.xcp_profit().call(block_identifier=block_start)
         xcp_profit_a_prev = lp_contract.functions.xcp_profit_a().call(block_identifier=block_start)
-        growth = ((xcp_profit / 2) + (xcp_profit_a / 2) + Decimal(1 ** 18)) / 2
-        growth_prev = ((xcp_profit_prev / 2) + (xcp_profit_a_prev / 2) + Decimal(1 ** 18)) / 2
+        growth = ((xcp_profit / 2) + (xcp_profit_a / 2) + Decimal(1**18)) / 2
+        growth_prev = ((xcp_profit_prev / 2) + (xcp_profit_a_prev / 2) + Decimal(1**18)) / 2
         rate = ((growth - growth_prev) / growth_prev) / 2
         return rate
     except:
@@ -728,10 +770,14 @@ def get_base_apr(lptoken_address: str, blockchain: str,
         return rate
 
 
-def swap_fees_v2(lptoken_address: str, blockchain: str,
-                 block_end: Union[int, str] = 'latest', web3=None, days: int = 1,
-                 apy: bool = False) -> int:
-
+def swap_fees_v2(
+    lptoken_address: str,
+    blockchain: str,
+    block_end: Union[int, str] = "latest",
+    web3=None,
+    days: int = 1,
+    apy: bool = False,
+) -> int:
     if web3 is None:
         web3 = get_node(blockchain, block=block_end)
     rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
@@ -753,10 +799,14 @@ def swap_fees_v2(lptoken_address: str, blockchain: str,
 
 
 # FIXME: this looks unfinished
-def get_swap_fees_APR(lptoken_address: str, blockchain: str,
-                      block_end: Union[int, str] = 'latest', web3=None,
-                      days: int = 1, apy: bool = False) -> int:
-
+def get_swap_fees_APR(
+    lptoken_address: str,
+    blockchain: str,
+    block_end: Union[int, str] = "latest",
+    web3=None,
+    days: int = 1,
+    apy: bool = False,
+) -> int:
     rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
     apr = ((1 + rate) ** (365 / days) - 1) * 100
     seconds_per_year = 365 * 24 * 60 * 60
@@ -767,6 +817,8 @@ def get_swap_fees_APR(lptoken_address: str, blockchain: str,
         return apr
 
     # blockchain = ETHEREUM
+
+
 # lptoken = '0xd51a44d3fae010294c616388b506acda1bfaae46'
 # blockstart = date_to_block('2023-03-02 00:00:00',blockchain)
 # blockend = date_to_block('2023-02-20 19:24:00',blockchain)

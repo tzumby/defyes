@@ -1,10 +1,11 @@
 from decimal import Decimal
+
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract
+from defi_protocols.functions import get_contract, get_node
 
-BASIC_META_VAULT = '0x6d68f5b8c22a549334ca85960978f9de4deba2d3'
+BASIC_META_VAULT = "0x6d68f5b8c22a549334ca85960978f9de4deba2d3"
 
 BASIC_META_VAULT_ABI = '[{"inputs":[],"name":"asset","outputs":[{"internalType":"address","name":"assetTokenAddress","type":"address"}],"stateMutability":"view","type":"function"},\
                         {"inputs":[],"name":"assetPoolIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
@@ -22,7 +23,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
 
     wallet = Web3.to_checksum_address(wallet)
     token_address = Web3.to_checksum_address(token_address)
-    meta_vault_contract = get_contract(token_address,blockchain,web3=web3,abi=BASIC_META_VAULT_ABI,block=block)
+    meta_vault_contract = get_contract(token_address, blockchain, web3=web3, abi=BASIC_META_VAULT_ABI, block=block)
     balance_of_vault = meta_vault_contract.functions.balanceOf(wallet).call(block_identifier=block)
     underlying_asset = const_call(meta_vault_contract.functions.asset())
     asset_scale = const_call(meta_vault_contract.functions.assetScale()) if decimals else 1

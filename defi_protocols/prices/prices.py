@@ -1,15 +1,23 @@
-import os
 import json
-import requests
-import pandas as pd
-from tqdm import tqdm
-from pathlib import Path
+import os
 from datetime import datetime
+from pathlib import Path
+
+import pandas as pd
+import requests
+from tqdm import tqdm
 from web3 import Web3
 
-from defi_protocols.functions import get_node, timestamp_to_block, block_to_timestamp, GetNodeIndexError
-from defi_protocols.constants import MAX_EXECUTIONS, ETHEREUM, ZERO_ADDRESS, API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN
-from defi_protocols.prices import Chainlink, CoinGecko, _1inch, Zapper
+from defi_protocols.constants import (
+    API_ETHERSCAN_GETTOKENINFO,
+    API_KEY_ETHERSCAN,
+    ETHEREUM,
+    MAX_EXECUTIONS,
+    ZERO_ADDRESS,
+)
+from defi_protocols.functions import GetNodeIndexError, block_to_timestamp, get_node, timestamp_to_block
+from defi_protocols.prices import Chainlink, CoinGecko, Zapper, _1inch
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_price
@@ -33,72 +41,83 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
         if token_address == ZERO_ADDRESS:
             # returns price, source and blockchain:
-            return Chainlink.get_native_token_price(web3, block, blockchain), 'Chainlink', blockchain
+            return Chainlink.get_native_token_price(web3, block, blockchain), "Chainlink", blockchain
 
         try:
             if token_mapping_data is None:
-                with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/token_mapping.json',
-                          'r') as token_mapping_file:
+                with open(
+                    str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/token_mapping.json", "r"
+                ) as token_mapping_file:
                     # Reading from json file
                     token_mapping_data = json.load(token_mapping_file)
                     token_mapping_file.close()
 
             try:
-                price_feed_data = token_mapping_data[blockchain][token_address]['price_feed']
+                price_feed_data = token_mapping_data[blockchain][token_address]["price_feed"]
 
                 try:
-                    price_feed_data['source']
-                    price_feed_data['blockchain']
+                    price_feed_data["source"]
+                    price_feed_data["blockchain"]
                 except:
                     raise Exception
 
-                if blockchain == price_feed_data['blockchain']:
+                if blockchain == price_feed_data["blockchain"]:
                     token_address_mapping = token_address
                     block_price_feed = block
                 else:
                     try:
                         token_address_mapping = token_mapping_data[blockchain][token_address][
-                            price_feed_data['blockchain']]
+                            price_feed_data["blockchain"]
+                        ]
                     except:
                         token_address_mapping = token_address
 
-                    block_price_feed = timestamp_to_block(block_to_timestamp(block, blockchain),
-                                                          price_feed_data['blockchain'])
+                    block_price_feed = timestamp_to_block(
+                        block_to_timestamp(block, blockchain), price_feed_data["blockchain"]
+                    )
 
-                if price_feed_data['source'] == '1inch':
+                if price_feed_data["source"] == "1inch":
                     try:
-                        connector = price_feed_data['connector']
+                        connector = price_feed_data["connector"]
 
                     except:
                         connector = None
 
                     # returns price, source and blockchain:
-                    return _1inch.get_price(token_address_mapping, block_price_feed, price_feed_data['blockchain'],
-                                            connector=connector), '1inch', price_feed_data['blockchain']
+                    return (
+                        _1inch.get_price(
+                            token_address_mapping, block_price_feed, price_feed_data["blockchain"], connector=connector
+                        ),
+                        "1inch",
+                        price_feed_data["blockchain"],
+                    )
 
-                elif price_feed_data['source'] == 'coingecko':
-                    price_coingecko = CoinGecko.get_price(token_address_mapping, block_to_timestamp(block_price_feed,
-                                                                                                    price_feed_data[
-                                                                                                        'blockchain']),
-                                                          price_feed_data['blockchain'])
+                elif price_feed_data["source"] == "coingecko":
+                    price_coingecko = CoinGecko.get_price(
+                        token_address_mapping,
+                        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
+                        price_feed_data["blockchain"],
+                    )
 
                     while price_coingecko[0] == 429:
-                        price_coingecko = CoinGecko.get_price(token_address_mapping,
-                                                              block_to_timestamp(block_price_feed,
-                                                                                 price_feed_data['blockchain']),
-                                                              price_feed_data['blockchain'])
+                        price_coingecko = CoinGecko.get_price(
+                            token_address_mapping,
+                            block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
+                            price_feed_data["blockchain"],
+                        )
 
                     # returns price, source and blockchain:
-                    return price_coingecko[1][1], 'coingecko', price_feed_data['blockchain']
+                    return price_coingecko[1][1], "coingecko", price_feed_data["blockchain"]
 
-                elif price_feed_data['source'] == 'zapper':
-                    price_zapper = Zapper.get_price(token_address_mapping, block_to_timestamp(block_price_feed,
-                                                                                              price_feed_data[
-                                                                                                  'blockchain']),
-                                                    price_feed_data['blockchain'])
+                elif price_feed_data["source"] == "zapper":
+                    price_zapper = Zapper.get_price(
+                        token_address_mapping,
+                        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
+                        price_feed_data["blockchain"],
+                    )
 
                     # returns price, source and blockchain:
-                    return price_zapper[1][1], 'zapper', price_feed_data['blockchain']
+                    return price_zapper[1][1], "zapper", price_feed_data["blockchain"]
 
             except:
                 raise Exception
@@ -118,29 +137,35 @@ def get_price(token_address, block, blockchain, web3=None, execution=1, index=0,
 
             if token_address_eth is not None:
                 token_price = Chainlink.get_mainnet_price(token_address_eth, block_eth)
-                source = 'Chainlink'
-                final_blockchain = 'ETHEREUM'
+                source = "Chainlink"
+                final_blockchain = "ETHEREUM"
 
                 if token_price is None:
                     token_price = _1inch.get_price(token_address_eth, block_eth, ETHEREUM)
-                    source = '1inch'
-                    final_blockchain = 'ETHEREUM'  # redundant but to stay clear
+                    source = "1inch"
+                    final_blockchain = "ETHEREUM"  # redundant but to stay clear
 
             else:
                 token_price = _1inch.get_price(token_address, block, blockchain)
-                source = '1inch'
+                source = "1inch"
                 final_blockchain = blockchain
 
             return token_price, source, final_blockchain
 
-
     except GetNodeIndexError:
-        return get_price(token_address, block, blockchain, token_mapping_data=token_mapping_data, index=0,
-                         execution=execution + 1)
+        return get_price(
+            token_address, block, blockchain, token_mapping_data=token_mapping_data, index=0, execution=execution + 1
+        )
 
     except:
-        return get_price(token_address, block, blockchain, token_mapping_data=token_mapping_data, index=index + 1,
-                         execution=execution)
+        return get_price(
+            token_address,
+            block,
+            blockchain,
+            token_mapping_data=token_mapping_data,
+            index=index + 1,
+            execution=execution,
+        )
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -151,17 +176,18 @@ def get_etherscan_price(token_address):
 
     :param token_address:
     """
-    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()['result'][0][
-        'tokenPriceUSD']
+    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()["result"][0][
+        "tokenPriceUSD"
+    ]
 
-    return price, 'etherscan', ETHEREUM
+    return price, "etherscan", ETHEREUM
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_today_prices_data
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_today_prices_data(file_name, return_type='df', web3=None):
-    file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + '/' + file_name, 'r')
+def get_today_prices_data(file_name, return_type="df", web3=None):
+    file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/" + file_name, "r")
     token_file = json.load(file)
 
     price = []
@@ -175,16 +201,21 @@ def get_today_prices_data(file_name, return_type='df', web3=None):
         for k in tqdm((token_file[j].keys())):
             token_address = k
             token_blokchain = j
-            token_symbol = token_file[j][token_address]['symbol']
+            token_symbol = token_file[j][token_address]["symbol"]
             # print(token_address,token_blokchain,token_symbol)
 
-            now = datetime(datetime.now().year, datetime.now().month, datetime.now().day, datetime.now().hour,
-                           datetime.now().minute)
+            now = datetime(
+                datetime.now().year,
+                datetime.now().month,
+                datetime.now().day,
+                datetime.now().hour,
+                datetime.now().minute,
+            )
 
             # Use reference_block just if latest not needed.
             # reference_block = (date_to_block(now.strftime('%Y-%m-%d %H:%M:%S'), token_blokchain))
 
-            data = get_price(token_address, 'latest', token_blokchain, web3=web3)
+            data = get_price(token_address, "latest", token_blokchain, web3=web3)
             # print('Price Of',token_symbol,data,)
             price.append(data[0])
             source.append(data[1])
@@ -196,17 +227,15 @@ def get_today_prices_data(file_name, return_type='df', web3=None):
     # token_address.append(token_address[0])
 
     data_raw = {
-
-        'Price_Datetime': time_stamp,
-        'Price_Date': date_stamp,  # .strftime("%Y-%m-%d")
-        'Price': price,
-        'Source': source,
-        'Token_Address': token_address_data,
-        'Blockchain': blockchain
-
+        "Price_Datetime": time_stamp,
+        "Price_Date": date_stamp,  # .strftime("%Y-%m-%d")
+        "Price": price,
+        "Source": source,
+        "Token_Address": token_address_data,
+        "Blockchain": blockchain,
     }
 
-    if return_type == 'df':
+    if return_type == "df":
         df = pd.DataFrame(data_raw)
         return df
     else:
