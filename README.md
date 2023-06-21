@@ -555,21 +555,7 @@ To wipe the cache use the env var `DEFI_PROTO_CLEAN_CACHE` or call `defi_protoco
   ```console
   docker build -t <container_name>:<container_tag> .
   ```
-  ## Develope with the container
 
-  The following example runs the azuro portocol tests with the already built image:
-  ```console
-  docker run --rm \
-             -v $PWD/defi_protocols:/usr/local/lib/python3.10/site-packages/defi_protocols \
-             -v $PWD/mi_config.json:/data/config.json \
-             -v $PWD/tests:/data/tests \
-             <container_name>:<container_tag> \
-             bash -c "CONFIG_PATH=/data/config.json pytest -vvs /data/tests/test_azuro.py"
-  ```
-  Notice that three volumes are mounted:
-   - A local defi_protocols repo. This is needed to develop and reflects the changes inside the docker container.
-   - A personal configuration with api keys.
-   - The tests folder.
 
   # Aave
 
@@ -4173,6 +4159,99 @@ PR's are welcome !
 Please open a pull request in dev branch if you want to contribute to this awesome protocols!
 
 Found a Bug ? Create an Issue.
+
+
+
+## Development
+
+If it's possible, just use `make` witch gives you many shortcuts.  Otherwise try to mimic what it does by seeing
+[Makefile](Makefile).
+
+The easy way is to call `make`, which by default build the docker image with all the dependencies and install the git
+pre-commit hook to encorage you to commit well formatted code.
+
+
+### Build the docker image
+
+Run `make build` to build the docker image used to following development workflows.
+
+The default image name used is `defi-protocols`. You could override it specify `make build image=...`.
+
+The default `CONFIG_FILE` is defined as `config.json` from the current working directory.
+
+Every time a command is executed using this image, all the repository directory is mounted at `/repo` which is also
+the default current working directory inside the container. `.tmp` is mounted to `/tmp`, where the Internet
+requests/responces cache lives by default. `/repo/.home` is defined as the `HOME` to keep bash and ipython
+configurations and history across shell sessions.
+
+
+### Install the pre-commit hook
+
+To install or re-install the pre-commit hook, call `make install-pre-commit`. It'll copy the [.pre-commit](.pre-commit)
+file into the `.git` directory, to check for [linting](#linting) every time you try to create a new git
+commit.
+
+
+### Linting
+
+Linting is the process to check code format accomplishment.
+
+From now on you shoud ensure linting before commiting code. To help you doing that, `make lint` just check the code
+formatting.  It includes executing `black`, `isort` and `flake8` just in checking mode. If you want to apply `black`
+and `isort` changes automatically to your working-copy code, use `make pretty`.
+
+`flake8` just check the code, but it doesn't apply chages automatically. You shoud decide how to make the changes
+yourself base on the `flake8` output. Anyway, many code formating rules `flake8` checks are sanitized automatically
+by `black`.
+
+> To change the default path where the linter checks, you could specify `make lint path=...`.
+
+
+### Testing
+
+The short way is just calling `make test`, which runs all tests.
+
+if you want to specify a non default `config.json`, just overrider the env like
+```shell
+make test CONFIG_FILE=...
+```
+
+To have more control see [below](#a-shell-inside-the-container).
+
+
+### IPython
+
+Run `make ipython` straight away or `make shell` and then `ipython`.
+
+
+### A shell inside the container
+
+If you prefer to have more control over linting, testing, or debugging, execute `make shell`.
+
+`make shell` starts `bash` inside the container. Then, you can directly run `pytest`, `black`, `ipython`, etc.
+
+`bash`, as well as `ipython`, keeps its command history ;)
+
+`make shell` executes `bash` with the same user you called it (your own user). As the repo volume is mounted in
+read-write mode inside the container, it's useful to have new files or modified files with the same user you own
+instead of the root user. But, if you prefer to run it with the root user, call `make rootshell` instead.
+
+> `make` is always intended to be used outside the container.
+
+Some examples of calling `pytest` inside the container could be:
+
+```shell
+pytest -v
+```
+```shell
+pytest -vvs tests/test_azuro.py
+```
+```shell
+pytest tests/test_azuro.py --pdb -k deposit
+```
+
+> The `.home` directory is git ignored to prevent committing command history among other things, except for the
+> `.home/.bashrc` which you can edit and commit changes on it to define new bash command aliases or change the prompt.
 
 
 ## 💖 Like this project ?

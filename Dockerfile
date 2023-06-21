@@ -20,8 +20,15 @@ RUN pip install --upgrade pip \
 ###############################################################################
 # CODE
 
-COPY . /src/defeyes
+WORKDIR /repo
 
-RUN cd /src/defeyes \
- && pip install --no-cache-dir -r requirements-dev.txt \
- && pip install --no-cache-dir .
+COPY ./pyproject.toml /repo
+RUN pip install --no-cache-dir .
+
+COPY ./requirements-dev.txt /repo
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+ENV PYTHONPATH /repo
+ENV HOME /repo/.home
+
+COPY . /repo
