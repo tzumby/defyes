@@ -5,7 +5,7 @@ import pytest
 
 from defi_protocols import Votium
 
-WALLET = '0x849d52316331967b6ff1198e5e32a0eb168d039d'
+WALLET = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 
 
 # Check if the output is a bool.
@@ -17,9 +17,9 @@ def test_check_claimed_or_unclaimed():
 
 # Check output
 def test_get_rewards_per_token():
-    token_symbol = 'LDO'
+    token_symbol = "LDO"
     decimals = 18
-    round_number = '0013'
+    round_number = "0013"
     x = Votium.get_rewards_per_token(WALLET, token_symbol, decimals, round_number)
     if Votium.check_claimed_or_unclaimed(WALLET, 1675):
         assert x == Decimal(0)

@@ -1,9 +1,10 @@
 import math
-import requests
 from datetime import datetime
+
+import requests
 from dateutil.relativedelta import relativedelta
 
-from defi_protocols.constants import BINANCE, API_ZAPPER_PRICE, API_KEY_ZAPPER
+from defi_protocols.constants import API_KEY_ZAPPER, API_ZAPPER_PRICE, BINANCE
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,18 +20,20 @@ def get_price(token_address, timestamp, blockchain):
     """
 
     if blockchain == BINANCE:
-        blockchain_id = 'binance-smart-chain'
+        blockchain_id = "binance-smart-chain"
     else:
         blockchain_id = blockchain
 
     if timestamp >= (math.floor((datetime.now() - relativedelta(days=1)).timestamp())):
-        time_frame = 'hour'
+        time_frame = "hour"
     elif timestamp < (math.floor((datetime.now() - relativedelta(days=1)).timestamp())) and timestamp >= (
-    math.floor((datetime.now() - relativedelta(months=1)).timestamp())):
-        time_frame = 'day'
+        math.floor((datetime.now() - relativedelta(months=1)).timestamp())
+    ):
+        time_frame = "day"
     elif timestamp < (math.floor((datetime.now() - relativedelta(months=1)).timestamp())) and timestamp >= (
-    math.floor((datetime.now() - relativedelta(years=1)).timestamp())):
-        time_frame = 'year'
+        math.floor((datetime.now() - relativedelta(years=1)).timestamp())
+    ):
+        time_frame = "year"
     else:
         [999, [timestamp, None]]
 
@@ -39,7 +42,7 @@ def get_price(token_address, timestamp, blockchain):
     if data.status_code != 200:
         return [data.status_code, [timestamp, None]]
     else:
-        data = data.json()['prices']
+        data = data.json()["prices"]
 
     if data == [] or data is None:
         return [200, [timestamp, None]]
@@ -55,6 +58,14 @@ def get_price(token_address, timestamp, blockchain):
         if i == len(data):
             return [200, [math.floor(data[i - 1][0] / 1000), data[i - 1][1]]]
         else:
-            return [200, [timestamp, (
-                    (timestamp * 1000 - data[i - 1][0]) * data[i][1] + (data[i][0] - timestamp * 1000) *
-                    data[i - 1][1]) / (data[i][0] - data[i - 1][0])]]
+            return [
+                200,
+                [
+                    timestamp,
+                    (
+                        (timestamp * 1000 - data[i - 1][0]) * data[i][1]
+                        + (data[i][0] - timestamp * 1000) * data[i - 1][1]
+                    )
+                    / (data[i][0] - data[i - 1][0]),
+                ],
+            ]

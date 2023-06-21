@@ -2,6 +2,7 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
+
 def add_stderr_logger(level: int = logging.DEBUG) -> logging.StreamHandler:
     """
     Helper for quickly adding a StreamHandler to the logger. Useful for
