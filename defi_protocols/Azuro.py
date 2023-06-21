@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Union
 
 from web3 import Web3
-from web3.exceptions import ContractLogicError
+from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 
 from defi_protocols.functions import get_contract, get_logs_web3, get_node, to_token_amount
 from defi_protocols.util.topic import AddressHexor, TopicCreator
@@ -116,7 +116,7 @@ def underlying(
     for contract in [pool_v1_contract, pool_v2_contract]:
         try:
             owner = contract.functions.ownerOf(nftid).call(block_identifier=block)
-        except ContractLogicError:
+        except (ContractLogicError, BadFunctionCallOutput):
             owner = None
         if owner == wallet:
             node_withdraw = contract.functions.nodeWithdrawView(nftid).call(block_identifier=block)
