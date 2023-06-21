@@ -25,7 +25,7 @@ build:
 
 .PHONY: build-if-no-image
 build-if-no-image:
-	@docker inspect --type=image $(image) > /dev/null || docker build -t $(image)
+	@docker inspect --type=image $(image) > /dev/null || docker build -t $(image) .
 
 
 .PHONY: shell
