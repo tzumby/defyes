@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defi_protocols import Swapr
-from defi_protocols.constants import ETHEREUM, GNO_XDAI, WETH_XDAI, XDAI
+from defi_protocols.constants import GNO_XDAI, XDAI
 from defi_protocols.functions import get_contract, get_node
 
 TEST_BLOCK = 27450341

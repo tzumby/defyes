@@ -1,14 +1,13 @@
 import json
 import logging
 from decimal import Decimal
-from typing import Union
 
 import requests
 from web3 import Web3
 
 from defi_protocols import Curve, UniswapV3
-from defi_protocols.constants import ETHEREUM, XDAI, ZERO_ADDRESS, ETHTokenAddr
-from defi_protocols.functions import balance_of, get_contract, get_node, to_token_amount
+from defi_protocols.constants import ETHEREUM, XDAI
+from defi_protocols.functions import balance_of, get_node, to_token_amount
 
 logger = logging.getLogger(__name__)
 

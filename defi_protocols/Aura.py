@@ -175,7 +175,7 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
         )
 
         base_token = call_contract_method(extra_reward_token_contract.functions.baseToken(), block)
-        if base_token != None:
+        if base_token is not None:
             extra_reward_token_address = base_token
 
         extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block)

@@ -1,7 +1,5 @@
 from decimal import Decimal
 
-import pytest
-
 from defi_protocols import Balancer
 from defi_protocols.constants import BAL_POL, ETHEREUM, POLYGON, XDAI, ETHTokenAddr, GnosisTokenAddr
 from defi_protocols.functions import date_to_block, get_contract, get_node

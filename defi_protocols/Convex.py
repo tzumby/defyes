@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from decimal import Decimal
 from pathlib import Path
 
@@ -10,7 +9,6 @@ from defi_protocols import Curve
 from defi_protocols.cache import const_call
 from defi_protocols.constants import CVX_ETH, CVXCRV_ETH, ETHEREUM
 from defi_protocols.functions import get_contract, get_contract_creation, get_node, last_block, to_token_amount
-from defi_protocols.misc import get_db_filename
 
 logger = logging.getLogger(__name__)
 

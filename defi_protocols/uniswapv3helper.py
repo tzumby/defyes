@@ -1,5 +1,5 @@
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 
@@ -25,16 +25,16 @@ class LiquidityPosition:
         self.percentlower = (1 + (self.percentlower / 100)) * self.currentprice
         self.sqrcurrentprice = self.currentprice**0.5
 
-        if self.upperprice != None:
+        if self.upperprice is not None:
             self.upperprice = self.get_price(self.upperprice)
-        elif self.uppertick != None:
+        elif self.uppertick is not None:
             self.upperprice = self.get_price((self.basetick ** (self.uppertick / 2)) ** 2)
         else:
             self.upperprice = self.get_price(self.percentupper)
 
-        if self.lowerprice != None:
+        if self.lowerprice is not None:
             self.lowerprice = self.get_price(self.lowerprice)
-        elif self.lowertick != None:
+        elif self.lowertick is not None:
             self.lowerprice = self.get_price((self.basetick ** (self.lowertick / 2)) ** 2)
         else:
             self.lowerprice = self.get_price(self.percentlower)

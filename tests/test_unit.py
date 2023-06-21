@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defi_protocols import Unit
-from defi_protocols.constants import DAI_ETH, ETHEREUM
+from defi_protocols.constants import ETHEREUM
 from defi_protocols.functions import get_node
 
 USDP = "0x1456688345527bE1f37E9e627DA0837D6f08C925"

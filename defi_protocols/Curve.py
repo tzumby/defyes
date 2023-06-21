@@ -256,7 +256,7 @@ def get_pool_data(web3, minter, block, blockchain):
     try:
         const_call(pool_data["contract"].functions.underlying_coins(0))
         pool_data["is_metapool"] = True
-    except ContractLogicError as e:
+    except ContractLogicError:
         pass
 
     next_token = True
@@ -810,7 +810,7 @@ def get_swap_fees_APR(
     rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
     apr = ((1 + rate) ** (365 / days) - 1) * 100
     seconds_per_year = 365 * 24 * 60 * 60
-    if apy == True:
+    if apy:
         apy = (1 + (apr / seconds_per_year)) ** (seconds_per_year) - 1
         return apy
     else:

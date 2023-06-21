@@ -245,7 +245,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
             lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
             lptoken_data["isBoosted"] = False
 
-    if lptoken_data["isBoosted"] == True:
+    if lptoken_data["isBoosted"]:
         try:
             lptoken_data["bptIndex"] = const_call(lptoken_data["contract"].functions.getBptIndex())
         except:
@@ -805,8 +805,8 @@ def get_swap_fees_APR(
         fee += k[1] * Decimal(get_price(k[0], block_end, blockchain, web3)[0])
     pool_balance = pool_balances(lptoken_address, block_end, blockchain)
     tvl = 0
-    for l in pool_balance:
-        tvl += l[1] * Decimal(get_price(l[0], block_end, blockchain, web3)[0])
+    for balance in pool_balance:
+        tvl += balance[1] * Decimal(get_price(balance[0], block_end, blockchain, web3)[0])
 
     rate = Decimal(fee / tvl)
     apr = (((1 + rate) ** Decimal(365 / days) - 1) * 100) / 2

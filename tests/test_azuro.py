@@ -1,7 +1,5 @@
 from decimal import Decimal
 
-import pytest
-
 from defi_protocols import Azuro
 from defi_protocols.constants import WXDAI, XDAI
 from defi_protocols.functions import get_node

@@ -130,6 +130,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
 
             # Debt USD Value
             if vault_debt != 0:
+                debt_decimals = get_decimals(debt_address, blockchain, web3=web3)
                 vault_data["debt_usd_value"] = (
                     vault_data["debt_token_usd_value"] * Decimal(vault_debt) / Decimal(10**debt_decimals)
                 )

@@ -1,15 +1,7 @@
 from decimal import Decimal
 
 from defi_protocols import Elk
-from defi_protocols.constants import (
-    ETHEREUM,
-    POLYGON,
-    XDAI,
-    ZERO_ADDRESS,
-    ETHTokenAddr,
-    GnosisTokenAddr,
-    PolygonTokenAddr,
-)
+from defi_protocols.constants import ETHEREUM, POLYGON, XDAI, ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
 from defi_protocols.functions import get_contract, get_node
 
 WALLET_N1 = "0x61BEC4cAa9493Df4D8600B63bfC0Ec5FE5A52caC"

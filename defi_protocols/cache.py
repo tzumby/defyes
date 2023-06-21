@@ -34,7 +34,7 @@ if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
 else:
-    logger.debug(f"Cache is disabled")
+    logger.debug("Cache is disabled")
 
 
 def is_enabled():
@@ -85,7 +85,7 @@ def disk_cache_middleware(make_request, web3):
             cache_key = f"{web3._network_name}.{method}.{params_hash}"
             if cache_key not in _cache:
                 response = make_request(method, params)
-                if not "error" in response and "result" in response and response["result"] is not None:
+                if "error" not in response and "result" in response and response["result"] is not None:
                     _cache[cache_key] = ("result", response["result"])
                 elif "error" in response:
                     if response["error"]["code"] in [-32000, -32015]:

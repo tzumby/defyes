@@ -108,7 +108,6 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
 def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, decimals=True):
     result = {}
-    hash_overlap = []
 
     if web3 is None:
         web3 = get_node(blockchain, block=block_start)
