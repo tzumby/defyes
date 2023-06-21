@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Union
 
 from web3 import Web3
-from web3.exceptions import ContractLogicError, BadFunctionCallOutput
+from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defi_protocols.functions import get_contract, get_logs_web3, get_node, to_token_amount
 from defi_protocols.util.topic import AddressHexor, TopicCreator
