@@ -34,20 +34,27 @@ def test_underlying():
     block = 17451062
     underlying = Angle.underlying(ETHEREUM, WALLET, block)
     assert underlying == {
-        "equivalent_amount": Decimal("431692.91115667917318028225"),
-        "equivalent_uint": "EUR",
+        "equivalent_amount": Decimal("463952.9475832083686548919674"),
+        "equivalent_uint": "USD",
+        "version": 1,
         "assets": {
             "key": "vault_id",
             "positions": {
                 "19": {
                     "debt": Asset(
-                        "ethereum", "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8", Decimal("235029.284458768826450263")
+                        "ethereum",
+                        17451062,
+                        "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
+                        Decimal("235029.284458768826450263"),
                     ),
                     "available_to_borrow": Asset(
-                        "ethereum", "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8", Decimal("431692.91115667917318028225")
+                        "ethereum",
+                        17451062,
+                        "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
+                        Decimal("431692.91115667917318028225"),
                     ),
                     "collateral_deposit": Asset(
-                        "ethereum", "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0", Decimal("475")
+                        "ethereum", 17451062, "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0", Decimal("475")
                     ),
                     "health_factor": Decimal("2.836762223698175089305445941"),
                     "loan_to_value": Decimal("0.2714362146983829164458752415"),
