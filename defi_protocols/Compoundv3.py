@@ -1,14 +1,15 @@
-from typing import Union, List
+from typing import List, Union
+
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, to_token_amount
 from defi_protocols.constants import ETHTokenAddr
+from defi_protocols.functions import get_contract, get_node, to_token_amount
 
-CUSDCV3_ADDRESS = '0xc3d688B66703497DAA19211EEdff47f25384cdc3'
-CWETHV3_ADDRESS = '0xA17581A9E3356d9A858b789D68B4d866e593aE94'
+CUSDCV3_ADDRESS = "0xc3d688B66703497DAA19211EEdff47f25384cdc3"
+CWETHV3_ADDRESS = "0xA17581A9E3356d9A858b789D68B4d866e593aE94"
 
-REWARDS_ADDRESS = '0x1B0e765F6224C21223AeA2af16c1C46E38885a40'
+REWARDS_ADDRESS = "0x1B0e765F6224C21223AeA2af16c1C46E38885a40"
 
 CTOKEN_ABI = '[{"inputs":[],"name":"baseToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},\
             {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},\
@@ -17,9 +18,12 @@ CTOKEN_ABI = '[{"inputs":[],"name":"baseToken","outputs":[{"internalType":"addre
 
 CTOKEN_REWARDS_ABI = '[{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"rewardsClaimed","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-#TODO: till 29-4-2023 only cUSDC and cWETH exists, there will be more and then a token list would be nice to fetch from blockchain. 
+# TODO: till 29-4-2023 only cUSDC and cWETH exists, there will be more and then a token list would be nice to fetch from blockchain.
 
-def underlying(wallet: str, token_address: str , block: Union[str,int], blockchain: str, web3: object =None, decimals: bool=True) -> List[List]:
+
+def underlying(
+    wallet: str, token_address: str, block: Union[str, int], blockchain: str, web3: object = None, decimals: bool = True
+) -> List[List]:
     """give the underlying token and amounts of this protocol
 
     Args:
@@ -31,7 +35,7 @@ def underlying(wallet: str, token_address: str , block: Union[str,int], blockcha
         decimals (bool, optional): _description_. Defaults to True.
     """
     balances = []
-    web3 = get_node(blockchain, block=block) 
+    web3 = get_node(blockchain, block=block)
 
     wallet = Web3.to_checksum_address(wallet)
     token_address = Web3.to_checksum_address(token_address)
@@ -44,8 +48,9 @@ def underlying(wallet: str, token_address: str , block: Union[str,int], blockcha
     return balances
 
 
-def get_all_rewards(wallet: str, token_address: str, block: Union[int, str], blockchain: str,
-                    web3=None, decimals: bool = True) -> List[List]:
+def get_all_rewards(
+    wallet: str, token_address: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True
+) -> List[List]:
     """_summary_
 
     Args:
@@ -59,13 +64,13 @@ def get_all_rewards(wallet: str, token_address: str, block: Union[int, str], blo
         List[List]: _description_
     """
     rewards = []
-    web3 = get_node(blockchain, block=block) 
+    web3 = get_node(blockchain, block=block)
 
     wallet = Web3.to_checksum_address(wallet)
     token_address = Web3.to_checksum_address(token_address)
 
     cToken_instance = get_contract(REWARDS_ADDRESS, blockchain, abi=CTOKEN_REWARDS_ABI, web3=web3, block=block)
-    cToken_rewards = cToken_instance.functions.rewardsClaimed(token_address,wallet).call(block_identifier=block)
+    cToken_rewards = cToken_instance.functions.rewardsClaimed(token_address, wallet).call(block_identifier=block)
 
     rewards.append([ETHTokenAddr.COMP, to_token_amount(ETHTokenAddr.COMP, cToken_rewards, blockchain, web3, decimals)])
 

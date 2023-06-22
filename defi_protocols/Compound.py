@@ -1,23 +1,23 @@
 from decimal import Decimal
-from web3.exceptions import ContractLogicError, BadFunctionCallOutput
+
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, balance_of, get_decimals, to_token_amount
-from defi_protocols.constants import ETHEREUM, COMP_ETH, ZERO_ADDRESS
+from defi_protocols.constants import COMP_ETH, ETHEREUM, ZERO_ADDRESS
+from defi_protocols.functions import balance_of, get_contract, get_decimals, get_node, to_token_amount
 from defi_protocols.prices import prices
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # COMPTROLLER
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Ethereum - Comptroller Address
-COMPTROLLER_ETHEREUM = '0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B'
+COMPTROLLER_ETHEREUM = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # COMPOUND LENS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Ethereum - Compound Lens Address
-COMPOUND_LENS_ETHEREUM = '0xdCbDb7306c6Ff46f77B349188dC18cEd9DF30299'
+COMPOUND_LENS_ETHEREUM = "0xdCbDb7306c6Ff46f77B349188dC18cEd9DF30299"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -35,9 +35,9 @@ ABI_COMPOUND_LENS = '[{"constant":false,"inputs":[{"internalType":"contract Comp
 # WEB DOCS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-'''
+"""
 https://docs.compound.finance/v2/
-'''
+"""
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,8 +66,7 @@ def get_compound_token_address(blockchain):
 
 def get_ctokens_contract_list(blockchain, web3, block):
     comptroller_address = get_comptoller_address(blockchain)
-    comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER,
-                                        block=block)
+    comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER, block=block)
 
     return comptroller_contract.functions.getAllMarkets().call(block_identifier=block)
 
@@ -99,25 +98,27 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
     ctoken_data = {}
 
     if ctoken_contract:
-        ctoken_data['contract'] = ctoken_contract
+        ctoken_data["contract"] = ctoken_contract
     else:
-        ctoken_data['contract'] = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
+        ctoken_data["contract"] = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
     if underlying_token:
-        ctoken_data['underlying'] = underlying_token
+        ctoken_data["underlying"] = underlying_token
     else:
-        symbol = const_call(ctoken_data['contract'].functions.symbol())
-        if symbol == 'cETH':
-            ctoken_data['underlying'] = ZERO_ADDRESS
+        symbol = const_call(ctoken_data["contract"].functions.symbol())
+        if symbol == "cETH":
+            ctoken_data["underlying"] = ZERO_ADDRESS
         else:
-            ctoken_data['underlying'] = ctoken_data['contract'].functions.underlying().call(block_identifier=block)
+            ctoken_data["underlying"] = ctoken_data["contract"].functions.underlying().call(block_identifier=block)
 
-    ctoken_data['decimals'] = const_call(ctoken_data['contract'].functions.decimals())
-    ctoken_data['borrowBalanceStored'] = ctoken_data['contract'].functions.borrowBalanceStored(wallet).call(
-        block_identifier=block)
-    ctoken_data['balanceOf'] = ctoken_data['contract'].functions.balanceOf(wallet).call(block_identifier=block)
-    ctoken_data['exchangeRateStored'] = ctoken_data['contract'].functions.exchangeRateStored().call(
-        block_identifier=block)
+    ctoken_data["decimals"] = const_call(ctoken_data["contract"].functions.decimals())
+    ctoken_data["borrowBalanceStored"] = (
+        ctoken_data["contract"].functions.borrowBalanceStored(wallet).call(block_identifier=block)
+    )
+    ctoken_data["balanceOf"] = ctoken_data["contract"].functions.balanceOf(wallet).call(block_identifier=block)
+    ctoken_data["exchangeRateStored"] = (
+        ctoken_data["contract"].functions.exchangeRateStored().call(block_identifier=block)
+    )
 
     return ctoken_data
 
@@ -125,14 +126,14 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
 def _get_token_balance(ctoken_data, token_address, block, blockchain, web3, decimals):
     underlying_token_decimals = get_decimals(token_address, block=block, blockchain=blockchain, web3=web3)
 
-    mantissa = 18 - ctoken_data['decimals'] + underlying_token_decimals
-    exchange_rate = ctoken_data['exchangeRateStored'] / Decimal(10 ** mantissa)
+    mantissa = 18 - ctoken_data["decimals"] + underlying_token_decimals
+    exchange_rate = ctoken_data["exchangeRateStored"] / Decimal(10**mantissa)
 
-    underlying_token_balance = ctoken_data['balanceOf'] / Decimal(10 ** ctoken_data['decimals']) * exchange_rate
-    underlying_token_balance -= ctoken_data['borrowBalanceStored'] / Decimal(10 ** underlying_token_decimals)
+    underlying_token_balance = ctoken_data["balanceOf"] / Decimal(10 ** ctoken_data["decimals"]) * exchange_rate
+    underlying_token_balance -= ctoken_data["borrowBalanceStored"] / Decimal(10**underlying_token_decimals)
 
     if not decimals:
-        underlying_token_balance = underlying_token_balance * Decimal(10 ** underlying_token_decimals)
+        underlying_token_balance = underlying_token_balance * Decimal(10**underlying_token_decimals)
 
     return [token_address, underlying_token_balance]
 
@@ -163,19 +164,25 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
     ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
     for ctoken_address in ctoken_list:
-
         ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
         symbol = const_call(ctoken_contract.functions.symbol())
-        if symbol == 'cETH':
+        if symbol == "cETH":
             # cETH does not have the underlying function
             underlying_token = ZERO_ADDRESS
         else:
             underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
         if underlying_token == token_address:
-            ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
-                                          ctoken_contract=ctoken_contract, underlying_token=underlying_token)
+            ctoken_data = get_ctoken_data(
+                ctoken_address,
+                wallet,
+                block,
+                blockchain,
+                web3=web3,
+                ctoken_contract=ctoken_contract,
+                underlying_token=underlying_token,
+            )
             balances.append(_get_token_balance(ctoken_data, token_address, block, blockchain, web3, decimals))
 
     return balances
@@ -214,14 +221,21 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
             ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
             symbol = const_call(ctoken_contract.functions.symbol())
-            if symbol == 'cETH':
+            if symbol == "cETH":
                 # cETH does not have the underlying function
                 underlying_token = ZERO_ADDRESS
             else:
                 underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
-            ctoken_data = get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=web3,
-                                          ctoken_contract=ctoken_contract, underlying_token=underlying_token)
+            ctoken_data = get_ctoken_data(
+                ctoken_address,
+                wallet,
+                block,
+                blockchain,
+                web3=web3,
+                ctoken_contract=ctoken_contract,
+                underlying_token=underlying_token,
+            )
 
             balances.append(_get_token_balance(ctoken_data, underlying_token, block, blockchain, web3, decimals))
 
@@ -259,17 +273,17 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, decimals=True):
     comp_token_address = get_compound_token_address(blockchain)
     comptroller_address = get_comptoller_address(blockchain)
     if compound_lens_address and comp_token_address and comptroller_address:
-        compound_lens_contract = get_contract(compound_lens_address,
-                                              blockchain,
-                                              web3=web3,
-                                              abi=ABI_COMPOUND_LENS,
-                                              block=block)
-        meta_data = compound_lens_contract.functions.getCompBalanceMetadataExt(comp_token_address,
-                                                                               comptroller_address,
-                                                                               wallet).call(block_identifier=block)
+        compound_lens_contract = get_contract(
+            compound_lens_address, blockchain, web3=web3, abi=ABI_COMPOUND_LENS, block=block
+        )
+        meta_data = compound_lens_contract.functions.getCompBalanceMetadataExt(
+            comp_token_address, comptroller_address, wallet
+        ).call(block_identifier=block)
         comp_rewards = meta_data[3]
 
-        all_rewards.append([comp_token_address, to_token_amount(comp_token_address, comp_rewards, blockchain, web3, decimals)])
+        all_rewards.append(
+            [comp_token_address, to_token_amount(comp_token_address, comp_rewards, blockchain, web3, decimals)]
+        )
 
     return all_rewards
 
@@ -299,7 +313,7 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals
     exchange_rate = ctoken_contract.functions.exchangeRateStored().call(block_identifier=block)
 
     symbol = const_call(ctoken_contract.functions.symbol())
-    if symbol == 'cETH':
+    if symbol == "cETH":
         # cETH does not have the underlying function
         underlying_token = ZERO_ADDRESS
     else:
@@ -307,7 +321,7 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals
 
     underlying_token_decimals = get_decimals(underlying_token, blockchain, web3=web3) if decimals else 0
     mantissa = 18 - ctoken_decimals + underlying_token_decimals
-    underlying_token_balance = ctoken_amount * exchange_rate / Decimal(10 ** mantissa)
+    underlying_token_balance = ctoken_amount * exchange_rate / Decimal(10**mantissa)
 
     return [underlying_token, underlying_token_balance]
 
@@ -346,7 +360,7 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
         ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
         symbol = const_call(ctoken_contract.functions.symbol())
-        if symbol == 'cETH':
+        if symbol == "cETH":
             # cETH does not have the underlying function
             underlying_token = ZERO_ADDRESS
         else:
@@ -356,26 +370,29 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
             # blocks_per_day is an aproximation (5 blocks per minute)
             blocks_per_day = 7200
             days_per_year = 365
-            mantissa = Decimal(10 ** 18)
+            mantissa = Decimal(10**18)
             seconds_per_year = 31536000
 
             supply_rate_per_block = ctoken_contract.functions.supplyRatePerBlock().call(block_identifier=block)
             borrow_rate_per_block = ctoken_contract.functions.borrowRatePerBlock().call(block_identifier=block)
 
-            metric = 'apy'
-            supply = (((supply_rate_per_block / mantissa * blocks_per_day + 1) ** days_per_year) - 1)
-            borrow = (((borrow_rate_per_block / mantissa * blocks_per_day + 1) ** days_per_year) - 1)
+            metric = "apy"
+            supply = ((supply_rate_per_block / mantissa * blocks_per_day + 1) ** days_per_year) - 1
+            borrow = ((borrow_rate_per_block / mantissa * blocks_per_day + 1) ** days_per_year) - 1
 
             if not apy:
-                metric = 'apr'
+                metric = "apr"
                 supply = ((1 + supply) ** Decimal(1 / seconds_per_year) - 1) * seconds_per_year
                 borrow = ((1 + borrow) ** Decimal(1 / seconds_per_year) - 1) * seconds_per_year
 
-            result = [{'metric': metric, 'type': 'supply', 'value': supply},
-                      {'metric': metric, 'type': 'borrow', 'value': borrow}]
+            result = [
+                {"metric": metric, "type": "supply", "value": supply},
+                {"metric": metric, "type": "borrow", "value": borrow},
+            ]
             break
 
     return result
+
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_comp_apr
@@ -411,7 +428,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
         ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
 
         symbol = const_call(ctoken_contract.functions.symbol())
-        if symbol == 'cETH':
+        if symbol == "cETH":
             # cETH does not have the underlying function
             underlying_token = ZERO_ADDRESS
         else:
@@ -420,17 +437,19 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
         if underlying_token == token_address:
             # blocks_per_day is an aproximation
             blocks_per_day = 7200
-            mantissa = Decimal(10 ** 18)
+            mantissa = Decimal(10**18)
             days_per_year = 365
             seconds_per_year = 31536000
 
             comptroller_contract = get_comptroller_contract(blockchain, web3, block)
-            comp_supply_speed_per_block = comptroller_contract.functions.compSupplySpeeds(ctoken_address).call(
-                block_identifier=block) / mantissa
+            comp_supply_speed_per_block = (
+                comptroller_contract.functions.compSupplySpeeds(ctoken_address).call(block_identifier=block) / mantissa
+            )
             comp_supply_per_day = comp_supply_speed_per_block * blocks_per_day
 
-            comp_borrow_speed_per_block = comptroller_contract.functions.compBorrowSpeeds(ctoken_address).call(
-                block_identifier=block) / mantissa
+            comp_borrow_speed_per_block = (
+                comptroller_contract.functions.compBorrowSpeeds(ctoken_address).call(block_identifier=block) / mantissa
+            )
             comp_borrow_per_day = comp_borrow_speed_per_block * blocks_per_day
 
             comp_price = Decimal(prices.get_price(COMP_ETH, block, blockchain, web3=web3)[0])
@@ -441,27 +460,33 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
             underlying_mantissa = 18 - ctoken_decimals + underlying_decimals
 
             exchange_rate = ctoken_contract.functions.exchangeRateStored().call(block_identifier=block)
-            exchange_rate /= Decimal(10 ** underlying_mantissa)
+            exchange_rate /= Decimal(10**underlying_mantissa)
 
             ctoken_price = underlying_token_price * exchange_rate
 
             ctoken_total_supply = ctoken_contract.functions.totalSupply().call(block_identifier=block)
-            ctoken_total_supply /= Decimal(10 ** ctoken_decimals)
+            ctoken_total_supply /= Decimal(10**ctoken_decimals)
 
             total_borrows = ctoken_contract.functions.totalBorrows().call(block_identifier=block)
-            total_borrows /= Decimal(10 ** underlying_decimals)
+            total_borrows /= Decimal(10**underlying_decimals)
 
-            metric = 'apy'
-            comp_supply = ((1 + (comp_price * comp_supply_per_day) / (ctoken_total_supply * ctoken_price)) ** days_per_year) - 1
-            comp_borrow = ((1 + (comp_price * comp_borrow_per_day) / (total_borrows * underlying_token_price)) ** days_per_year) - 1
+            metric = "apy"
+            comp_supply = (
+                (1 + (comp_price * comp_supply_per_day) / (ctoken_total_supply * ctoken_price)) ** days_per_year
+            ) - 1
+            comp_borrow = (
+                (1 + (comp_price * comp_borrow_per_day) / (total_borrows * underlying_token_price)) ** days_per_year
+            ) - 1
 
             if not apy:
-                metric = 'apr'
+                metric = "apr"
                 comp_supply = ((1 + comp_supply) ** Decimal(1 / seconds_per_year) - 1) * seconds_per_year
                 comp_borrow = ((1 + comp_borrow) ** Decimal(1 / seconds_per_year) - 1) * seconds_per_year
 
-            result = [{'metric': metric, 'type': 'supply', 'value': comp_supply},
-                      {'metric': metric, 'type': 'borrow', 'value': comp_borrow}]
+            result = [
+                {"metric": metric, "type": "supply", "value": comp_supply},
+                {"metric": metric, "type": "borrow", "value": comp_borrow},
+            ]
             break
 
     return result

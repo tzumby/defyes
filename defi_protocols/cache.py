@@ -1,18 +1,18 @@
-import diskcache
 import functools
 import logging
 import os
-
 from inspect import getcallargs
-from web3.middleware.cache import generate_cache_key
 
+import diskcache
+from web3.middleware.cache import generate_cache_key
 
 logger = logging.getLogger(__name__)
 
 VERSION = 4
-VERSION_CACHE_KEY = 'VERSION'
+VERSION_CACHE_KEY = "VERSION"
 
 _cache = None
+
 
 def check_version():
     version = _cache.get(VERSION_CACHE_KEY, 0)
@@ -20,6 +20,7 @@ def check_version():
         _cache.clear()
         _cache[VERSION_CACHE_KEY] = VERSION
         logger.info(f"Old cache version! Creating new cache with version: {VERSION}")
+
 
 if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     cache_dir = os.environ.get("DEFI_PROTO_CACHE_DIR", "/tmp/defi_protocols/")
@@ -33,20 +34,24 @@ if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
         _cache.clear()
 else:
-    logger.debug(f'Cache is disabled')
+    logger.debug("Cache is disabled")
+
 
 def is_enabled():
     return _cache is not None
 
+
 def clear():
     if is_enabled():
         _cache.clear()
+
 
 class TemporaryCache:
     """Provides a context with a temporary cache.
 
     Useful for tests. Not thread safe!
     """
+
     def __init__(self):
         self.original_cache = _cache
 
@@ -66,13 +71,13 @@ def disk_cache_middleware(make_request, web3):
     It also do not caches if block='latest'.
     """
 
-    RPC_WHITELIST = {'eth_chainId', 'eth_call', 'eth_getTransactionReceipt', 'eth_getLogs', 'eth_getTransactionByHash'}
+    RPC_WHITELIST = {"eth_chainId", "eth_call", "eth_getTransactionReceipt", "eth_getLogs", "eth_getTransactionByHash"}
 
     def middleware(method, params):
         do_cache = False
-        if method in RPC_WHITELIST and 'latest' not in params:
+        if method in RPC_WHITELIST and "latest" not in params:
             do_cache = True
-        if method == 'eth_chainId':
+        if method == "eth_chainId":
             do_cache = True
 
         if do_cache:
@@ -80,18 +85,19 @@ def disk_cache_middleware(make_request, web3):
             cache_key = f"{web3._network_name}.{method}.{params_hash}"
             if cache_key not in _cache:
                 response = make_request(method, params)
-                if not 'error' in response and 'result' in response and response['result'] is not None:
-                    _cache[cache_key] = ('result', response['result'])
-                elif 'error' in response:
-                    if response['error']['code'] in [-32000, -32015]:
-                        _cache[cache_key] = ('error', response['error'])
+                if "error" not in response and "result" in response and response["result"] is not None:
+                    _cache[cache_key] = ("result", response["result"])
+                elif "error" in response:
+                    if response["error"]["code"] in [-32000, -32015]:
+                        _cache[cache_key] = ("error", response["error"])
                 return response
             else:
                 key, data = _cache[cache_key]
-                return {'jsonrpc': '2.0', 'id': 11, key: data}
+                return {"jsonrpc": "2.0", "id": 11, key: data}
         else:
             logger.debug(f"Not caching '{method}' with params: '{params}'")
             return make_request(method, params)
+
     return middleware
 
 
@@ -110,6 +116,7 @@ def cache_call(exclude_args=None, filter=None):
 
     A filter function can be provided to add conditions, based on arguments, to cache the result.
     """
+
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
@@ -127,8 +134,11 @@ def cache_call(exclude_args=None, filter=None):
             else:
                 result = f(*args, **kwargs)
             return result
+
         return wrapper
+
     return decorator
+
 
 def const_call(f):
     """Utility to do .call() on web3 contracts that are known to be cacheable"""

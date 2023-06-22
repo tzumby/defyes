@@ -1,20 +1,20 @@
 import logging
+from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import IntEnum
-from typing import Union, ClassVar
-from dataclasses import dataclass, field
+from typing import ClassVar, Union
+
 from web3 import Web3
 
-from defi_protocols.functions import get_node, get_contract, get_decimals
-
+from defi_protocols.functions import get_contract, get_decimals, get_node
 
 logger = logging.getLogger(__name__)
 
-FACTORY: str = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
+FACTORY: str = "0x1F98431c8aD98523631AE4a59f267346ea31F984"
 
-POSITIONS_NFT: str = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+POSITIONS_NFT: str = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88"
 
-UNISWAPV3_ROUTER2: str = '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'
+UNISWAPV3_ROUTER2: str = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"
 
 UNISWAPV3_QUOTER: str = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
 
@@ -68,10 +68,11 @@ ABI_QUOTER_V3: str = '[{"inputs":[{"internalType":"address","name":"tokenIn","ty
 # fees earned per unit of liquidity in token 0: fa
 # fees earned per unit of liquidity in token 1: fb
 
+
 @dataclass
 class Pool:
     blockchain: str
-    block: Union[int|str]
+    block: Union[int | str]
     web3: object
     tokenA: str
     tokenB: str
@@ -87,11 +88,13 @@ class Pool:
 
     def __post_init__(self) -> None:
         factory_address = get_contract(FACTORY, self.blockchain, self.web3, ABI_FACTORY, self.block)
-        self.addr = factory_address.functions.getPool(self.tokenA, self.tokenB, self.fee).call(block_identifier=self.block)
+        self.addr = factory_address.functions.getPool(self.tokenA, self.tokenB, self.fee).call(
+            block_identifier=self.block
+        )
         self.pool_contract = get_contract(self.addr, self.blockchain, self.web3, ABI_POOL, self.block)
         self.sqrt_price_x96, self.ic = self.pool_contract.functions.slot0().call(block_identifier=self.block)[0:2]
-        self.sqrt_price = Decimal(self.sqrt_price_x96) / Decimal(2 ** 96)
-        self.price = self.sqrt_price ** 2
+        self.sqrt_price = Decimal(self.sqrt_price_x96) / Decimal(2**96)
+        self.price = self.sqrt_price**2
         self.token0 = self.pool_contract.functions.token0().call(block_identifier=self.block)
         self.token1 = self.pool_contract.functions.token1().call(block_identifier=self.block)
 
@@ -110,7 +113,7 @@ class NFTPosition:
 
     nftid: int
     blockchain: str
-    block: Union[int|str]
+    block: Union[int | str]
     web3: object
     decimals: bool
     token0: str = field(init=False)
@@ -125,8 +128,19 @@ class NFTPosition:
     decimals1: int = field(init=False)
 
     def __post_init__(self) -> None:
-        self._nft_contract = get_contract(POSITIONS_NFT, self.blockchain, web3=self.web3, abi=ABI_POSITIONS_NFT, block=self.block)
-        self.token0, self.token1, self.fee, self.il, self.iu, liquidity, self.fr0, self.fr1 = self._nft_contract.functions.positions(self.nftid).call(block_identifier=self.block)[2:10]
+        self._nft_contract = get_contract(
+            POSITIONS_NFT, self.blockchain, web3=self.web3, abi=ABI_POSITIONS_NFT, block=self.block
+        )
+        (
+            self.token0,
+            self.token1,
+            self.fee,
+            self.il,
+            self.iu,
+            liquidity,
+            self.fr0,
+            self.fr1,
+        ) = self._nft_contract.functions.positions(self.nftid).call(block_identifier=self.block)[2:10]
         self.liquidity = Decimal(liquidity)
         if self.decimals:
             self.decimals0 = get_decimals(self.token0, self.blockchain, self.web3)
@@ -151,8 +165,8 @@ class NFTPosition:
             fee_upper_token0 = fo0up
             fee_upper_token1 = fo1up
 
-        fa = Decimal((fg0 - fee_lower_token0 - fee_upper_token0 - self.fr0) * self.liquidity) / Decimal(2 ** 128)
-        fb = Decimal((fg1 - fee_lower_token1 - fee_upper_token1 - self.fr1) * self.liquidity) / Decimal(2 ** 128)
+        fa = Decimal((fg0 - fee_lower_token0 - fee_upper_token0 - self.fr0) * self.liquidity) / Decimal(2**128)
+        fb = Decimal((fg1 - fee_lower_token1 - fee_upper_token1 - self.fr1) * self.liquidity) / Decimal(2**128)
 
         return [fa, fb]
 
@@ -160,7 +174,6 @@ class NFTPosition:
         # TODO: get_balance output sould not be variable
         balances = []
         if self.liquidity != 0:
-
             sa = Decimal(self.BASETICK) ** Decimal(int(self.il) / 2)
             sb = Decimal(self.BASETICK) ** Decimal(int(self.iu) / 2)
 
@@ -184,8 +197,8 @@ class NFTPosition:
             amount1 = Decimal(amount1) + Decimal(amount1fee)
 
             if self.decimals:
-                amount0 = amount0 / Decimal(10 ** self.decimals0)
-                amount1 = amount1 / Decimal(10 ** self.decimals1)
+                amount0 = amount0 / Decimal(10**self.decimals0)
+                amount1 = amount1 / Decimal(10**self.decimals1)
 
             if amount0 > 0:
                 balances.append([self.token0, amount0])
@@ -195,7 +208,15 @@ class NFTPosition:
         return balances
 
 
-def underlying(wallet: str, nftid: int, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True, fee: bool = False) -> list:
+def underlying(
+    wallet: str,
+    nftid: int,
+    block: Union[int, str],
+    blockchain: str,
+    web3=None,
+    decimals: bool = True,
+    fee: bool = False,
+) -> list:
     """Returns the balances of the underlying assets corresponding to a position held by a wallet.
     Parameters
     ----------
@@ -267,13 +288,14 @@ def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, deci
     growth_indexes = pool.get_fee_growth_indexes(nft_position.il, nft_position.iu)
     fa, fb = nft_position.get_fees(pool.ic, *growth_indexes)
     if decimals:
-        fa = fa / Decimal(10 ** nft_position.decimals0)
-        fb = fb / Decimal(10 ** nft_position.decimals1)
+        fa = fa / Decimal(10**nft_position.decimals0)
+        fb = fb / Decimal(10**nft_position.decimals1)
     return [[nft_position.token0, fa], [nft_position.token1, fb]]
 
 
-def get_rate_uniswap_v3(token_src: str, token_dst: str, block: Union[int, str], blockchain: str,
-                        web3=None, fee: int = FeeAmount.LOWEST) -> Decimal:
+def get_rate_uniswap_v3(
+    token_src: str, token_dst: str, block: Union[int, str], blockchain: str, web3=None, fee: int = FeeAmount.LOWEST
+) -> Decimal:
     """Returns the price of a token .
     Parameters
     ----------

@@ -1,13 +1,13 @@
 import logging
 from decimal import Decimal
-from typing import Union, List
-from web3.exceptions import ContractLogicError
+from typing import List, Union
+
 from web3 import Web3
+from web3.exceptions import ContractLogicError
 
 from defi_protocols.cache import const_call
-from defi_protocols.constants import ETHEREUM, STKAAVE_ETH, AAVE_ETH, ABPT_ETH
-from defi_protocols.functions import get_contract, get_node, balance_of, to_token_amount
-
+from defi_protocols.constants import AAVE_ETH, ABPT_ETH, ETHEREUM, STKAAVE_ETH
+from defi_protocols.functions import balance_of, get_contract, get_node, to_token_amount
 
 logger = logging.getLogger(__name__)
 
@@ -15,26 +15,26 @@ logger = logging.getLogger(__name__)
 # PROTOCOL DATA PROVIDER
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider - Ethereum
-PDP_ETHEREUM = '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d'
+PDP_ETHEREUM = "0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # LENDING POOL ADDRESSES PROVIDER REGISTRY
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Lending Pool Addresses Provider Registry - Ethereum
-LPAPR_ETHEREUM = '0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5'
+LPAPR_ETHEREUM = "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # STAKED ABPT TOKEN
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #
-STAKED_ABPT_TOKEN = '0xa1116930326D21fB917d5A27F1E9943A9595fb47'
+STAKED_ABPT_TOKEN = "0xa1116930326D21fB917d5A27F1E9943A9595fb47"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ETHEREUM
 # ETH/USD Price Feed
-CHAINLINK_ETH_USD = '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
+CHAINLINK_ETH_USD = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -102,7 +102,9 @@ def get_reserves_tokens(pdp_contract, block):
 # get_reserves_tokens_balances
 # 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_reserves_tokens_balances(web3: Web3, wallet: str, block: int | str, blockchain: str, decimals: bool = True) -> List:
+def get_reserves_tokens_balances(
+    web3: Web3, wallet: str, block: int | str, blockchain: str, decimals: bool = True
+) -> List:
     """
     :param web3:
     :param wallet:
@@ -119,9 +121,10 @@ def get_reserves_tokens_balances(web3: Web3, wallet: str, block: int | str, bloc
         reserves_tokens = get_reserves_tokens(pdp_contract, block)
 
         for reserves_token in reserves_tokens:
-
             try:
-                user_reserve_data = pdp_contract.functions.getUserReserveData(reserves_token, wallet).call(block_identifier=block)
+                user_reserve_data = pdp_contract.functions.getUserReserveData(reserves_token, wallet).call(
+                    block_identifier=block
+                )
             except ContractLogicError:
                 continue
 
@@ -163,25 +166,31 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
     lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
-    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
-                                         block=block)
+    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
 
-    chainlink_eth_usd_contract = get_contract(CHAINLINK_ETH_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD,
-                                              block=block)
+    chainlink_eth_usd_contract = get_contract(
+        CHAINLINK_ETH_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD, block=block
+    )
     chainlink_eth_usd_decimals = const_call(chainlink_eth_usd_contract.functions.decimals())
-    eth_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / Decimal(10 ** chainlink_eth_usd_decimals)
+    eth_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block) / Decimal(
+        10**chainlink_eth_usd_decimals
+    )
     balances = get_reserves_tokens_balances(web3, wallet, block, blockchain, decimals=decimals)
 
     if balances:
         price_oracle_address = lpapr_contract.functions.getPriceOracle().call(block_identifier=block)
-        price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE,
-                                             block=block)
+        price_oracle_contract = get_contract(
+            price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block
+        )
 
         for balance in balances:
-            asset = {'token_address': balance[0], 'token_amount': abs(balance[1])}
+            asset = {"token_address": balance[0], "token_amount": abs(balance[1])}
 
-            asset['token_price_usd'] = price_oracle_contract.functions.getAssetPrice(asset['token_address']).call(
-                block_identifier=block) / Decimal(10 ** 18) * eth_usd_price
+            asset["token_price_usd"] = (
+                price_oracle_contract.functions.getAssetPrice(asset["token_address"]).call(block_identifier=block)
+                / Decimal(10**18)
+                * eth_usd_price
+            )
 
             if balance[1] < 0:
                 debts.append(asset)
@@ -201,25 +210,25 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
 
     if total_collateral_ETH > 0:
         if total_debt_ETH > 0:
-            aave_data['collateral_ratio'] = Decimal(100 * total_collateral_ETH / total_debt_ETH)
+            aave_data["collateral_ratio"] = Decimal(100 * total_collateral_ETH / total_debt_ETH)
         else:
-            aave_data['collateral_ratio'] = Decimal('infinity')
+            aave_data["collateral_ratio"] = Decimal("infinity")
     else:
-        aave_data['collateral_ratio'] = Decimal('nan')
+        aave_data["collateral_ratio"] = Decimal("nan")
 
     if current_liquidation_th > 0:
-        aave_data['liquidation_ratio'] = 1000000 / Decimal(current_liquidation_th)
+        aave_data["liquidation_ratio"] = 1000000 / Decimal(current_liquidation_th)
     else:
-        aave_data['liquidation_ratio'] = Decimal('infinity')
+        aave_data["liquidation_ratio"] = Decimal("infinity")
 
     # Ether price in USD
-    aave_data['eth_price_usd'] = eth_usd_price
+    aave_data["eth_price_usd"] = eth_usd_price
 
     # Collaterals Data
-    aave_data['collaterals'] = collaterals
+    aave_data["collaterals"] = collaterals
 
     # Debts Data
-    aave_data['debts'] = debts
+    aave_data["debts"] = debts
 
     return aave_data
 
@@ -324,8 +333,7 @@ def get_apr(token_address, block, blockchain, web3=None, apy=False):
     lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
     lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
-    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL,
-                                         block=block)
+    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
 
     reserve_data = lending_pool_contract.functions.getReserveData(token_address).call(block_identifier=block)
 
@@ -333,7 +341,7 @@ def get_apr(token_address, block, blockchain, web3=None, apy=False):
     variable_borrow_rate = reserve_data[4]
     stable_borrow_rate = reserve_data[5]
 
-    ray = Decimal(10 ** 27)
+    ray = Decimal(10**27)
     seconds_per_year = 31536000
 
     deposit_apr = liquidity_rate / ray
@@ -341,17 +349,21 @@ def get_apr(token_address, block, blockchain, web3=None, apy=False):
     stable_borrow_apr = stable_borrow_rate / ray
 
     if apy is False:
-        return [{'metric': 'apr', 'type': 'supply', 'value': deposit_apr},
-                {'metric': 'apr', 'type': 'variable_borrow', 'value': variable_borrow_apr},
-                {'metric': 'apr', 'type': 'stable_borrow', 'value': stable_borrow_apr}]
+        return [
+            {"metric": "apr", "type": "supply", "value": deposit_apr},
+            {"metric": "apr", "type": "variable_borrow", "value": variable_borrow_apr},
+            {"metric": "apr", "type": "stable_borrow", "value": stable_borrow_apr},
+        ]
     else:
         deposit_apy = ((1 + (deposit_apr / seconds_per_year)) ** seconds_per_year) - 1
         variable_borrow_apy = ((1 + (variable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
         stable_borrow_apy = ((1 + (stable_borrow_apr / seconds_per_year)) ** seconds_per_year) - 1
 
-        return [{'metric': 'apy', 'type': 'supply', 'value': deposit_apy},
-                {'metric': 'apy', 'type': 'variable_borrow', 'value': variable_borrow_apy},
-                {'metric': 'apy', 'type': 'stable_borrow', 'value': stable_borrow_apy}]
+        return [
+            {"metric": "apy", "type": "supply", "value": deposit_apy},
+            {"metric": "apy", "type": "variable_borrow", "value": variable_borrow_apy},
+            {"metric": "apy", "type": "stable_borrow", "value": stable_borrow_apy},
+        ]
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -382,14 +394,16 @@ def get_staking_apr(block, blockchain, web3=None, apy=False):
     staking_apr = emission_per_second * seconds_per_year / current_stakes
 
     if apy is False:
-        return [{'metric': 'apr', 'type': 'staking', 'value': staking_apr}]
+        return [{"metric": "apr", "type": "staking", "value": staking_apr}]
     else:
         staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1
 
-        return [{'metric': 'apy', 'type': 'staking', 'value': staking_apy}]
+        return [{"metric": "apy", "type": "staking", "value": staking_apy}]
 
 
-def get_staked(wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, decimals: bool = True) -> list:
+def get_staked(
+    wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, decimals: bool = True
+) -> list:
     """
     :param block:
     :param blockchain:

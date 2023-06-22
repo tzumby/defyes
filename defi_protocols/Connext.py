@@ -1,32 +1,33 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from gql import gql, Client # thegraph queries
+
+from gql import Client, gql  # thegraph queries
 from gql.transport.requests import RequestsHTTPTransport
-from web3.exceptions import ContractLogicError, BadFunctionCallOutput
 from web3 import Web3
+from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_contract, balance_of, get_node, get_decimals
 from defi_protocols.constants import ETHEREUM, XDAI
+from defi_protocols.functions import balance_of, get_contract, get_decimals, get_node
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SUBGRAPH API ENDPOINTS
 # https://docs.connext.network/developers/guides/xcall-status
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Mainnet - Subgraph API endpoint
-SUBGRAPH_API_ENDPOINT_ETH = 'https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet'
+SUBGRAPH_API_ENDPOINT_ETH = "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet"
 
 # GC - Subgraph API endpoint
-SUBGRAPH_API_ENDPOINT_GC = 'https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis'
+SUBGRAPH_API_ENDPOINT_GC = "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CONNEXT DIAMOND ADDRESSES
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Mainnet - Connext Diamond Address
-CONNEXT_DIAMOND_ETH = '0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6'
+CONNEXT_DIAMOND_ETH = "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
 
 # GC - Connext Diamond Address
-CONNEXT_DIAMOND_GC = '0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109'
+CONNEXT_DIAMOND_GC = "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -37,10 +38,13 @@ ABI_CONNEXT_DIAMOND = '[{"inputs":[{"internalType":"bytes32","name":"key","type"
 
 def call_contract_method(method, block):
     try:
-        return method.call(block_identifier = block)
+        return method.call(block_identifier=block)
     except Exception as e:
-        if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput or \
-                (type(e) == ValueError and (e.args[0]['code'] == -32000 or e.args[0]['code'] == -32015)):
+        if (
+            type(e) == ContractLogicError
+            or type(e) == BadFunctionCallOutput
+            or (type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015))
+        ):
             return None
         else:
             raise e
@@ -58,20 +62,16 @@ def query_assets(subgraph_api_endpoint: str) -> list:
     assets = []
     skip = 0
     first = 1000
-    status = 'true'
+    status = "true"
 
     # Initialize subgraph
-    connext_transport=RequestsHTTPTransport(
-            url=subgraph_api_endpoint,
-            verify=True,
-            retries=3
-        )
+    connext_transport = RequestsHTTPTransport(url=subgraph_api_endpoint, verify=True, retries=3)
     client = Client(transport=connext_transport)
-    
+
     response_length = 1001
-    
+
     while not response_length < 1000:
-        query_string = f'''
+        query_string = f"""
         query {{
         assets(first: {first}, skip: {skip}, where: {{status_:{{status: {status}}}}}) {{
             id
@@ -81,24 +81,24 @@ def query_assets(subgraph_api_endpoint: str) -> list:
             status {{status}}
         }}
         }}
-        '''
+        """
 
-        #formatted_query_string = query_string.format(first=assets_to_query, skip=skip)
+        # formatted_query_string = query_string.format(first=assets_to_query, skip=skip)
         response = client.execute(gql(query_string))
-        assets.extend(response['assets'])
-        response_length = len(response['assets'])
+        assets.extend(response["assets"])
+        response_length = len(response["assets"])
         skip += response_length
-        
+
     for a in assets:
-        a['id'] = Web3.to_checksum_address(a['id'])
-        a['adoptedAsset'] = Web3.to_checksum_address(a['adoptedAsset'])
-        a['decimal'] = int(a['decimal']) if a.get('decimal', None) else 0
+        a["id"] = Web3.to_checksum_address(a["id"])
+        a["adoptedAsset"] = Web3.to_checksum_address(a["adoptedAsset"])
+        a["decimal"] = int(a["decimal"]) if a.get("decimal", None) else 0
 
     return assets
 
 
 @dataclass
-class Connext():
+class Connext:
     blockchain: str
     block: int | str
     web3: Web3 = None
@@ -122,7 +122,9 @@ class Connext():
         else:
             assert isinstance(self.web3, Web3), "web3 is not a Web3 instance"
 
-        self.diamond_contract = get_contract(self.diamond_adrr, self.blockchain, web3=self.web3, abi=ABI_CONNEXT_DIAMOND, block=self.block)
+        self.diamond_contract = get_contract(
+            self.diamond_adrr, self.blockchain, web3=self.web3, abi=ABI_CONNEXT_DIAMOND, block=self.block
+        )
         self.assets = query_assets(self.subgraph_api_endpoint)
 
     def underlying(self, wallet: str, lptoken_address: str, decimals: bool = True) -> list:
@@ -136,16 +138,19 @@ class Connext():
 
         balances = []
         for asset in self.assets:
-            if lptoken_address == const_call(self.diamond_contract.functions.getSwapLPToken(asset['key'])):
+            if lptoken_address == const_call(self.diamond_contract.functions.getSwapLPToken(asset["key"])):
                 lptoken_balance = int(balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False))
-                amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], lptoken_balance), self.block)
+                amounts = call_contract_method(
+                    self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset["key"], lptoken_balance),
+                    self.block,
+                )
 
                 if amounts:
                     amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
                     if decimals:
-                        amounts = [amount / Decimal(10**asset['decimal']) for amount in amounts]
+                        amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
 
-                    balances = [[asset['id'], amounts[0]], [asset['adoptedAsset'], amounts[1]]]
+                    balances = [[asset["id"], amounts[0]], [asset["adoptedAsset"], amounts[1]]]
                 break
 
         return balances
@@ -160,18 +165,20 @@ class Connext():
 
         balances = []
         for asset in self.assets:
-            lptoken_address = const_call(self.diamond_contract.functions.getSwapLPToken(asset['key']))
+            lptoken_address = const_call(self.diamond_contract.functions.getSwapLPToken(asset["key"]))
             lptoken_balance = int(balance_of(wallet, lptoken_address, self.block, self.blockchain, decimals=False))
-            amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], lptoken_balance), self.block)
+            amounts = call_contract_method(
+                self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset["key"], lptoken_balance), self.block
+            )
 
             if (not amounts) or amounts == [0, 0]:
                 continue
             else:
                 amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
                 if decimals:
-                    amounts = [amount / Decimal(10**asset['decimal']) for amount in amounts]
+                    amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
 
-                balances.append([[asset['id'], amounts[0]], [asset['adoptedAsset'], amounts[1]]])
+                balances.append([[asset["id"], amounts[0]], [asset["adoptedAsset"], amounts[1]]])
 
         return balances
 
@@ -185,32 +192,38 @@ class Connext():
 
         balance = []
         for asset in self.assets:
-            if lptoken_address == const_call(self.diamond_contract.functions.getSwapLPToken(asset['key'])):
+            if lptoken_address == const_call(self.diamond_contract.functions.getSwapLPToken(asset["key"])):
                 lptoken_decimals = get_decimals(lptoken_address, self.blockchain, web3=self.web3)
                 token_amount = int(Decimal(lptoken_amount) * Decimal(10**lptoken_decimals))
-                amounts = call_contract_method(self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset['key'], token_amount), self.block)
+                amounts = call_contract_method(
+                    self.diamond_contract.functions.calculateRemoveSwapLiquidity(asset["key"], token_amount), self.block
+                )
 
                 if amounts:
                     amount = Decimal(amounts[0] + amounts[1])
                     if decimals:
-                        amount = amount / Decimal(10**asset['decimal'])
+                        amount = amount / Decimal(10 ** asset["decimal"])
 
-                    balance = [asset['adoptedAsset'], amount]
+                    balance = [asset["adoptedAsset"], amount]
 
         return balance
 
 
 # Transitional wrapper of underlying method
-def underlying(wallet: str, lptoken_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> list:
+def underlying(
+    wallet: str, lptoken_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True
+) -> list:
     connext = Connext(blockchain, block, web3)
     return connext.underlying(wallet, lptoken_address, decimals)
 
 
-def underlying_all(wallet: str, block: int|str, blockchain: str, web3=None, decimals: bool = True) -> list:
+def underlying_all(wallet: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> list:
     connext = Connext(blockchain, block, web3)
     return connext.underlying_all(wallet, decimals)
 
 
-def unwrap(lptoken_amount: float, lptoken_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> list:
+def unwrap(
+    lptoken_amount: float, lptoken_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True
+) -> list:
     connext = Connext(blockchain, block, web3)
     return connext.unwrap(lptoken_amount, lptoken_address, decimals)

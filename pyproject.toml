@@ -36,3 +36,37 @@ Homepage = "https://github.com/KarpatkeyDAO/defi-protocols"
 [tool.setuptools.packages.find]
 include = ["defi_protocols*"]
 namespaces = false
+
+# Linter configuruation.
+[tool.isort]
+profile = "black"
+atomic = true
+extend_skip_glob = "migrations,scripts"
+line_length = 120
+
+[tool.pytest.ini_options]
+python_files = "test_*.py tests.py"
+
+[tool.black]
+extend-exclude = "migrations,scripts"
+force-exclude = "path/to/somewhere/.*"
+line_length = 120
+
+[tool.flake8]
+extend-exclude = [
+    '.git',
+    '__pycache__',
+    'docs/source/conf.py',
+    'old',
+    'build',
+    'dist',
+]
+extend-ignore = ['E203', 'E266', 'E501', 'W605', 'W503',
+  'E722', 'C901' # Re-enable E722 and C901 after fixing.
+]
+max-line-length = 120
+max-complexity = 18
+# Specify the list of error codes you wish Flake8 to report.
+select = ['B', 'C', 'E', 'F', 'W', 'T4', 'B9']
+# Parallelism
+jobs = 4

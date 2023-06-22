@@ -1,9 +1,17 @@
 from decimal import Decimal
+
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.functions import get_node, get_contract, get_decimals, timestamp_to_block, block_to_timestamp, to_token_amount
-from defi_protocols.constants import XDAI, GnosisTokenAddr, POLYGON, MAI_POL
+from defi_protocols.constants import MAI_POL, POLYGON, XDAI, GnosisTokenAddr
+from defi_protocols.functions import (
+    block_to_timestamp,
+    get_contract,
+    get_decimals,
+    get_node,
+    timestamp_to_block,
+    to_token_amount,
+)
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # QIDAO_VAULTS
@@ -11,22 +19,21 @@ from defi_protocols.constants import XDAI, GnosisTokenAddr, POLYGON, MAI_POL
 # QiDao Vaults List
 QIDAO_VAULTS = {
     GnosisTokenAddr.GNO: {
-        'blockchain': XDAI,
-        'address': '0x014A177E9642d1b4E970418f894985dC1b85657f'  # GNO Vault Address
-        },
-    GnosisTokenAddr.WETH:
-    {
-        'blockchain': XDAI,
-        'address': '0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b'  # WETH Vault Address
-    }
+        "blockchain": XDAI,
+        "address": "0x014A177E9642d1b4E970418f894985dC1b85657f",  # GNO Vault Address
+    },
+    GnosisTokenAddr.WETH: {
+        "blockchain": XDAI,
+        "address": "0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b",  # WETH Vault Address
+    },
 }
 
 
 # 1inch Polygon Oracle Address
-ORACLE_1INCH_POLYGON = '0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9'
+ORACLE_1INCH_POLYGON = "0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9"
 
 # POLYGON - MATIC/USD Pair - Chainlink Price Feed
-CHAINLINK_MATIC_USD = '0xAB594600376Ec9fD91F8e885dADF0CE036862dE0'
+CHAINLINK_MATIC_USD = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -52,8 +59,8 @@ def get_vault_address(collateral_address, blockchain):
     """
     vault_address = None
     try:
-        if QIDAO_VAULTS[collateral_address]['blockchain'] == blockchain:
-            vault_address = QIDAO_VAULTS[collateral_address]['address']
+        if QIDAO_VAULTS[collateral_address]["blockchain"] == blockchain:
+            vault_address = QIDAO_VAULTS[collateral_address]["address"]
     except KeyError:
         pass
 
@@ -87,10 +94,9 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
     vault_address = get_vault_address(collateral_address, blockchain)
 
     if vault_address is not None:
-        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block='latest')
+        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block="latest")
 
         if vault_contract.functions.exists(vault_id).call(block_identifier=block):
-
             debt_address = const_call(vault_contract.functions.mai())
             vault_collateral = vault_contract.functions.vaultCollateral(vault_id).call(block_identifier=block)
             vault_debt = vault_contract.functions.vaultDebt(vault_id).call(block_identifier=block)
@@ -99,63 +105,84 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
             price_source_decimals = vault_contract.functions.priceSourceDecimals().call(block_identifier=block)
 
             # Collateral Address
-            vault_data['collateral_address'] = collateral_address
+            vault_data["collateral_address"] = collateral_address
             # Collateral Amount
-            vault_data['collateral_amount'] = to_token_amount(collateral_address, vault_collateral, blockchain, web3, decimals)
+            vault_data["collateral_amount"] = to_token_amount(
+                collateral_address, vault_collateral, blockchain, web3, decimals
+            )
             # Collateral Token USD Value
-            vault_data['collateral_token_usd_value'] = Decimal(vault_contract.functions.getEthPriceSource().call(block_identifier=block))
-            vault_data['collateral_token_usd_value'] /= Decimal(10 ** price_source_decimals)
+            vault_data["collateral_token_usd_value"] = Decimal(
+                vault_contract.functions.getEthPriceSource().call(block_identifier=block)
+            )
+            vault_data["collateral_token_usd_value"] /= Decimal(10**price_source_decimals)
             # Debt Address
-            vault_data['debt_address'] = debt_address
+            vault_data["debt_address"] = debt_address
             # Debt Amount
-            vault_data['debt_amount'] = to_token_amount(debt_address, vault_debt, blockchain, web3, decimals)
+            vault_data["debt_amount"] = to_token_amount(debt_address, vault_debt, blockchain, web3, decimals)
 
             # Debt Token USD Value
             # getTokenPriceSource() always returns MAI price = 1 USD. This is the price QiDao uses to calculate the Collateral Ratio.
             # MAI price might have depegged from USD so afterwards vault_data['debt_token_usd_value'] is overwritten with the price obtained from 1inch
-            vault_data['debt_token_usd_value'] = Decimal(vault_contract.functions.getTokenPriceSource().call(block_identifier=block))
-            vault_data['debt_token_usd_value'] /= Decimal(10 ** price_source_decimals)
+            vault_data["debt_token_usd_value"] = Decimal(
+                vault_contract.functions.getTokenPriceSource().call(block_identifier=block)
+            )
+            vault_data["debt_token_usd_value"] /= Decimal(10**price_source_decimals)
 
             # Debt USD Value
             if vault_debt != 0:
-                vault_data['debt_usd_value'] = vault_data['debt_token_usd_value'] * Decimal(vault_debt) / Decimal(10 ** debt_decimals)
+                debt_decimals = get_decimals(debt_address, blockchain, web3=web3)
+                vault_data["debt_usd_value"] = (
+                    vault_data["debt_token_usd_value"] * Decimal(vault_debt) / Decimal(10**debt_decimals)
+                )
             else:
-                vault_data['debt_usd_value'] = Decimal(0)
+                vault_data["debt_usd_value"] = Decimal(0)
 
             # Collateral Ratio
             if vault_debt != 0:
-                vault_data['collateral_ratio'] = vault_data['collateral_amount'] * vault_data['collateral_token_usd_value']
-                vault_data['collateral_ratio'] /= vault_data['debt_usd_value'] * 100
+                vault_data["collateral_ratio"] = (
+                    vault_data["collateral_amount"] * vault_data["collateral_token_usd_value"]
+                )
+                vault_data["collateral_ratio"] /= vault_data["debt_usd_value"] * 100
             else:
-                vault_data['collateral_ratio'] = Decimal('infinity')
+                vault_data["collateral_ratio"] = Decimal("infinity")
 
             # Available Debt Amount to Borrow
-            vault_data['available_debt_amount'] = to_token_amount(debt_address,
-                                                                  vault_contract.functions.getDebtCeiling().call(block_identifier=block),
-                                                                  blockchain,
-                                                                  web3,
-                                                                  decimals)
+            vault_data["available_debt_amount"] = to_token_amount(
+                debt_address,
+                vault_contract.functions.getDebtCeiling().call(block_identifier=block),
+                blockchain,
+                web3,
+                decimals,
+            )
             # Liquidation Ratio
-            vault_data['liquidation_ratio'] = vault_contract.functions._minimumCollateralPercentage().call(block_identifier=block)
+            vault_data["liquidation_ratio"] = vault_contract.functions._minimumCollateralPercentage().call(
+                block_identifier=block
+            )
             # Liquidation Price
             if vault_debt != 0:
-                vault_data['liquidation_price'] = Decimal(vault_data['liquidation_ratio'] / 100) * vault_data['debt_usd_value'] / vault_data['collateral_amount']
+                vault_data["liquidation_price"] = (
+                    Decimal(vault_data["liquidation_ratio"] / 100)
+                    * vault_data["debt_usd_value"]
+                    / vault_data["collateral_amount"]
+                )
             else:
-                vault_data['liquidation_price'] = Decimal('nan')
+                vault_data["liquidation_price"] = Decimal("nan")
 
             # Debt Token USD Value from Polygon Chainlink feed
             block_polygon = timestamp_to_block(block_to_timestamp(block, blockchain), POLYGON)
 
-            price_feed_contract = get_contract(CHAINLINK_MATIC_USD, POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon)
+            price_feed_contract = get_contract(
+                CHAINLINK_MATIC_USD, POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon
+            )
             price_feed_decimals = const_call(price_feed_contract.functions.decimals())
             matic_usd_price = Decimal(price_feed_contract.functions.latestAnswer().call(block_identifier=block_polygon))
-            matic_usd_price /= Decimal(10 ** price_feed_decimals)
+            matic_usd_price /= Decimal(10**price_feed_decimals)
 
             oracle_contract = get_contract(ORACLE_1INCH_POLYGON, POLYGON, abi=ABI_ORACLE, block=block_polygon)
             rate = Decimal(oracle_contract.functions.getRateToEth(MAI_POL, False).call(block_identifier=block_polygon))
             rate /= Decimal(10 ** abs(18 + 18 - get_decimals(debt_address, blockchain, web3=web3)))
 
-            vault_data['debt_token_usd_value'] = matic_usd_price * rate
+            vault_data["debt_token_usd_value"] = matic_usd_price * rate
 
     return vault_data
 
@@ -191,11 +218,10 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, decim
         vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
         if vault_contract.functions.exists(vault_id).call(block_identifier=block):
-
             collateral_decimals = get_decimals(collateral_address, blockchain, web3=web3) if decimals else 0
 
             collateral_amount = Decimal(vault_contract.functions.vaultCollateral(vault_id).call(block_identifier=block))
-            collateral_amount /= Decimal(10 ** collateral_decimals)
+            collateral_amount /= Decimal(10**collateral_decimals)
 
             result.append([collateral_address, collateral_amount])
 
@@ -203,7 +229,7 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, decim
             debt_decimals = get_decimals(debt_address, blockchain, web3=web3) if decimals else 0
 
             debt_amount = -1 * Decimal(vault_contract.functions.vaultDebt(vault_id).call(block_identifier=block))
-            debt_amount /= Decimal(10 ** debt_decimals)
+            debt_amount /= Decimal(10**debt_decimals)
 
             result.append([debt_address, debt_amount])
 

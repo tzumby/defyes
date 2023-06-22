@@ -1,35 +1,46 @@
 from web3 import Web3
 
-from defi_protocols.functions import get_node, get_contract, get_decimals, GetNodeIndexError
-from defi_protocols.constants import ETHEREUM, POLYGON, XDAI, BINANCE, KOVAN, OPTIMISM, ARBITRUM, AVAX, MAX_EXECUTIONS, ZERO_ADDRESS
+from defi_protocols.constants import (
+    ARBITRUM,
+    AVAX,
+    BINANCE,
+    ETHEREUM,
+    KOVAN,
+    MAX_EXECUTIONS,
+    OPTIMISM,
+    POLYGON,
+    XDAI,
+    ZERO_ADDRESS,
+)
+from defi_protocols.functions import GetNodeIndexError, get_contract, get_decimals, get_node
 from defi_protocols.prices import Chainlink
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ORACLES
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Ethereum Oracle Address
-ORACLE_ETHEREUM = '0x07D91f5fb9Bf7798734C3f606dB065549F6893bb'
+ORACLE_ETHEREUM = "0x07D91f5fb9Bf7798734C3f606dB065549F6893bb"
 
 # Polygon Oracle Address
-ORACLE_POLYGON = '0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9'
+ORACLE_POLYGON = "0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9"
 
 # Gnosis Chain(xDai) Oracle Address
-ORACLE_XDAI = '0x142DB045195CEcaBe415161e1dF1CF0337A4d02E'
+ORACLE_XDAI = "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E"
 
 # Smart Chain (Binance) Oracle Address
-ORACLE_BINANCE = '0xfbD61B037C325b959c0F6A7e69D8f37770C2c550'
+ORACLE_BINANCE = "0xfbD61B037C325b959c0F6A7e69D8f37770C2c550"
 
 # Kovan Oracle Address
-ORACLE_KOVAN = '0x29BC86Ad68bB3BD3d54841a8522e0020C1882C22'
+ORACLE_KOVAN = "0x29BC86Ad68bB3BD3d54841a8522e0020C1882C22"
 
 # Optimism Oracle Address
-ORACLE_OPTIMISM = '0x11DEE30E710B8d4a8630392781Cc3c0046365d4c'
+ORACLE_OPTIMISM = "0x11DEE30E710B8d4a8630392781Cc3c0046365d4c"
 
 # Arbitrum Oracle Address
-ORACLE_ARBITRUM = '0x735247fb0a604c0adC6cab38ACE16D0DbA31295F'
+ORACLE_ARBITRUM = "0x735247fb0a604c0adC6cab38ACE16D0DbA31295F"
 
 # Avax Oracle Address
-ORACLE_AVAX = '0xBd0c7AaF0bF082712EbE919a9dD94b2d978f79A9'
+ORACLE_AVAX = "0xBd0c7AaF0bF082712EbE919a9dD94b2d978f79A9"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -114,20 +125,36 @@ def get_rate(token_src, block, blockchain, web3=None, execution=1, index=0, use_
 
         if token_dst is None:
             rate = oracle_contract.functions.getRateToEth(token_src, use_wrappers).call(block_identifier=block) / (
-                        10 ** abs(18 + token_dst_decimals - token_src_decimals))
+                10 ** abs(18 + token_dst_decimals - token_src_decimals)
+            )
         else:
             rate = oracle_contract.functions.getRate(token_src, token_dst, use_wrappers).call(
-                block_identifier=block) / (10 ** abs(18 + token_dst_decimals - token_src_decimals))
+                block_identifier=block
+            ) / (10 ** abs(18 + token_dst_decimals - token_src_decimals))
 
         return rate
 
     except GetNodeIndexError:
-        return get_rate(token_src, block, blockchain, use_wrappers=use_wrappers, token_dst=token_dst, index=0,
-                        execution=execution + 1)
+        return get_rate(
+            token_src,
+            block,
+            blockchain,
+            use_wrappers=use_wrappers,
+            token_dst=token_dst,
+            index=0,
+            execution=execution + 1,
+        )
 
     except:
-        return get_rate(token_src, block, blockchain, use_wrappers=use_wrappers, token_dst=token_dst, index=index + 1,
-                        execution=execution)
+        return get_rate(
+            token_src,
+            block,
+            blockchain,
+            use_wrappers=use_wrappers,
+            token_dst=token_dst,
+            index=index + 1,
+            execution=execution,
+        )
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -183,9 +210,23 @@ def get_price(token_src, block, blockchain, web3=None, execution=1, index=0, use
         return token_src_price
 
     except GetNodeIndexError:
-        return get_price(token_src, block, blockchain, use_wrappers=use_wrappers, connector=connector, index=0,
-                         execution=execution + 1)
+        return get_price(
+            token_src,
+            block,
+            blockchain,
+            use_wrappers=use_wrappers,
+            connector=connector,
+            index=0,
+            execution=execution + 1,
+        )
 
     except:
-        return get_price(token_src, block, blockchain, use_wrappers=use_wrappers, connector=connector, index=index + 1,
-                         execution=execution)
+        return get_price(
+            token_src,
+            block,
+            blockchain,
+            use_wrappers=use_wrappers,
+            connector=connector,
+            index=index + 1,
+            execution=execution,
+        )

@@ -23,6 +23,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
 
+      - name: Install development dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Linter -- check black
+        run: black --fast --check defi_protocols tests
+
+      - name: Linter -- check isort
+        run: isort --check defi_protocols tests
+
+      - name: Linter -- check flake8
+        run: flake8 defi_protocols tests
+
       - name: Download cache from latest main artifact
         continue-on-error: true
         run: |
@@ -119,7 +131,6 @@ jobs:
           APIKEYS_OPTIMISM: ${{ secrets.APIKEYS_OPTIMISM }}
           APIKEYS_ARBITRUM: ${{ secrets.APIKEYS_ARBITRUM }}
         run: |
-          pip install -r requirements-dev.txt
           sh ci_secrets_helper.sh
           cat /tmp/tmp_config.json
           PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs --debug-defiproto
