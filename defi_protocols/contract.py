@@ -15,7 +15,7 @@ class ContractFunction:
         self.get_contract = get_contract_func
 
     def _get_contract_func(self, attr, *args, **kwargs):
-        block = kwargs.get('block_identifier', 'latest')
+        block = kwargs.get("block_identifier", "latest")
         contract = self.get_contract(block)
         contract_func = getattr(contract.functions, attr)
         return contract_func
@@ -30,20 +30,21 @@ class ContractFunction:
 
 
 class DefiContract:
-    ABI: str = 'MUST_BE_DEFINED'
+    ABI: str = "MUST_BE_DEFINED"
 
     def __init__(self, blockchain: str, address: str) -> None:
         self.blockchain = blockchain
-        self.address = address
+        self.address = Web3.to_checksum_address(address)
         self.node = None
         self.contract = None
 
-        for method_name in [func['name'] for func in json.loads(self.ABI)]:
+        for method_name in [func["name"] for func in json.loads(self.ABI)]:
             setattr(self, method_name, self.create_method(method_name))
 
     def create_method(self, method_name):
         def method(*args, **kwargs):
             return ContractFunction(method_name, args, kwargs, get_contract_func=self.get_contract)
+
         return method
 
     def must_update(self, block) -> None:
@@ -55,7 +56,7 @@ class DefiContract:
         return self.node
 
     def get_contract(self, block) -> Contract:
-        if self.must_update(block):
+        if self.must_update(block) or self.contract is None:
             self.node = get_node(self.blockchain, block)
             self.contract = self.node.eth.contract(address=self.address, abi=self.ABI)
         return self.contract

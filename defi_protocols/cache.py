@@ -101,6 +101,31 @@ def disk_cache_middleware(make_request, web3):
     return middleware
 
 
+def cache_contract_method(exclude_args=None, validator=None):
+    def decorator(f):
+        @functools.wraps(f)
+        def method_wrapper(*args, **kwargs):
+            cache_args = getcallargs(f, *args, **kwargs)
+            contract = cache_args.pop("self")
+            if exclude_args:
+                for arg in exclude_args:
+                    cache_args.pop(arg)
+            cache_key = generate_cache_key((contract.address, f.__qualname__, cache_args))
+            if cache_key not in _cache or validator is None:
+                result = f(*args, **kwargs)
+                _cache[cache_key] = result
+            else:
+                result = _cache[cache_key]
+                if not validator(contract, **result):
+                    result = f(*args, **kwargs)
+                    _cache[cache_key] = result
+            return result
+
+        return method_wrapper
+
+    return decorator
+
+
 def cache_call(exclude_args=None, filter=None):
     """Decorator to cache the result of a function.
 
