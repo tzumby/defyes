@@ -15,18 +15,6 @@ from defi_protocols.prices.prices import get_price
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Asset:
-    network: str
-    block: int | str
-    id: str
-    amount: Decimal
-    state: str = "balance"
-
-    def __repr__(self):
-        return f"<Asset: {self.network}--[{self.id}@{self.block}]-->{self.state}-->{self.amount}>"
-
-
 # Borrow Module
 # https://docs.angle.money/angle-borrowing-module/borrowing-module
 # https://github.com/AngleProtocol/borrow-contracts/tree/main
@@ -192,15 +180,21 @@ class VaultManager(DefiContract):
 
         interest_rate_per_second = self.interestRate().call(block_identifier=block) / Decimal(10**interest_decimals)
 
-        return {
-            "debt": Asset(self.blockchain, block, self.stable_token, debt),
-            "available_to_borrow": Asset(self.blockchain, block, self.stable_token, available_to_borrow),
-            "collateral_deposit": Asset(self.blockchain, block, self.collateral_token, collateral_amount),
-            "health_factor": health_factor,
-            "loan_to_value": debt / collateral_in_stablecoin,
-            "anual_interest_rate": interest_rate_per_second * 365 * 24 * 3600,
-            "liquidation_price_in_stablecoin_fiat": debt / collateral_factor / collateral_amount,
+        data = {
+            'tokens_key': 'state',
+            'tokens': {
+                "debt": {'add': self.stable_token, 'balance': debt},
+                "available_to_borrow": {'addr': self.stable_token, 'balance': available_to_borrow},
+                "collateral_deposit": {'addr': self.collateral_token, 'balance': collateral_amount},
+            },
+            'financial_metrics': {
+                "health_factor": health_factor,
+                "loan_to_value": debt / collateral_in_stablecoin,
+                "anual_interest_rate": interest_rate_per_second * 365 * 24 * 3600,
+                "liquidation_price_in_stablecoin_fiat": debt / collateral_factor / collateral_amount,
+            }
         }
+        return data
 
     def vault_ids_owned_by(self, wallet: str, block: int | str, vault_ids: List) -> bool:
         if self.vaults_owned_by(wallet, block) != len(vault_ids):
@@ -234,9 +228,7 @@ def underlying(blockchain: str, wallet: str, block: int | str = "latest") -> Non
     wallet = Web3.to_checksum_address(wallet)
     treasury = Treasury(blockchain)
 
-    equivalent_amount = 0
-    equivalent_unit = "USD"  # TODO: make unit a parameter the user can choose
-    assets = {"key": "vault_id", "positions": {}}
+    assets = {"positions_key": "vault_id", "positions": {}}
 
     for vault_addr in treasury.get_all_vault_managers_addrs(block):
         vault_manager = VaultManager(blockchain, vault_addr)
@@ -245,7 +237,4 @@ def underlying(blockchain: str, wallet: str, block: int | str = "latest") -> Non
             for vault_id in vault_ids:
                 vault_data = vault_manager.get_vault_data(vault_id, block)
                 assets["positions"][str(vault_id)] = vault_data
-                equivalent_amount += vault_data["available_to_borrow"].amount * Decimal(
-                    get_price(vault_data["debt"].id, block, blockchain)[0]
-                )
-    return {"equivalent_amount": equivalent_amount, "equivalent_uint": equivalent_unit, "assets": assets, "version": 1}
+    return {"protocol": "angle", "blockchain": blockchain, "block": block, "assets": assets, "underlying_version": 0}

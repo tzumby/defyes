@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 from defi_protocols import Angle
-from defi_protocols.Angle import Asset
 from defi_protocols.constants import ETHEREUM
 
 agEUR = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
@@ -34,33 +33,28 @@ def test_underlying():
     block = 17451062
     underlying = Angle.underlying(ETHEREUM, WALLET, block)
     assert underlying == {
-        "equivalent_amount": Decimal("463952.9475832083686548919674"),
-        "equivalent_uint": "USD",
-        "version": 1,
-        "assets": {
-            "key": "vault_id",
-            "positions": {
-                "19": {
-                    "debt": Asset(
-                        "ethereum",
-                        17451062,
-                        "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
-                        Decimal("235029.284458768826450263"),
-                    ),
-                    "available_to_borrow": Asset(
-                        "ethereum",
-                        17451062,
-                        "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
-                        Decimal("431692.91115667917318028225"),
-                    ),
-                    "collateral_deposit": Asset(
-                        "ethereum", 17451062, "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0", Decimal("475")
-                    ),
-                    "health_factor": Decimal("2.836762223698175089305445941"),
-                    "loan_to_value": Decimal("0.2714362146983829164458752415"),
-                    "anual_interest_rate": Decimal("0.004987542475021200498864000"),
-                    "liquidation_price_in_stablecoin_fiat": Decimal("642.5954462304000723178755981"),
-                }
-            },
-        },
-    }
+            'assets': {
+                'positions': {
+                    '19': {
+                        'financial_metrics': {
+                            'anual_interest_rate': Decimal('0.004987542475021200498864000'),
+                            'health_factor': Decimal('2.836762223698175089305445941'),
+                            'liquidation_price_in_stablecoin_fiat': Decimal('642.5954462304000723178755981'),
+                            'loan_to_value': Decimal('0.2714362146983829164458752415')},
+                        'tokens': {'available_to_borrow': {
+                                        'addr': '0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8',
+                                        'balance': Decimal('431692.91115667917318028225')},
+                                   'collateral_deposit': {
+                                       'addr': '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+                                       'balance': Decimal('475')},
+                                   'debt': {
+                                       'add': '0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8',
+                                       'balance': Decimal('235029.284458768826450263')}},
+                        'tokens_key': 'state'}
+                    },
+                'positions_key': 'vault_id'},
+            'block': 17451062,
+            'blockchain': 'ethereum',
+            'protocol': 'angle',
+            'underlying_version': 0
+            }
