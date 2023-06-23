@@ -1,5 +1,4 @@
 import logging
-from dataclasses import dataclass
 from decimal import Decimal
 from typing import Dict, List
 
@@ -10,7 +9,6 @@ from defi_protocols.cache import cache_contract_method
 from defi_protocols.constants import ETHEREUM
 from defi_protocols.contract import DefiContract
 from defi_protocols.functions import get_decimals
-from defi_protocols.prices.prices import get_price
 
 logger = logging.getLogger(__name__)
 
@@ -181,18 +179,18 @@ class VaultManager(DefiContract):
         interest_rate_per_second = self.interestRate().call(block_identifier=block) / Decimal(10**interest_decimals)
 
         data = {
-            'tokens_key': 'state',
-            'tokens': {
-                "debt": {'add': self.stable_token, 'balance': debt},
-                "available_to_borrow": {'addr': self.stable_token, 'balance': available_to_borrow},
-                "collateral_deposit": {'addr': self.collateral_token, 'balance': collateral_amount},
+            "tokens_key": "state",
+            "tokens": {
+                "debt": {"add": self.stable_token, "balance": debt},
+                "available_to_borrow": {"addr": self.stable_token, "balance": available_to_borrow},
+                "collateral_deposit": {"addr": self.collateral_token, "balance": collateral_amount},
             },
-            'financial_metrics': {
+            "financial_metrics": {
                 "health_factor": health_factor,
                 "loan_to_value": debt / collateral_in_stablecoin,
                 "anual_interest_rate": interest_rate_per_second * 365 * 24 * 3600,
                 "liquidation_price_in_stablecoin_fiat": debt / collateral_factor / collateral_amount,
-            }
+            },
         }
         return data
 
