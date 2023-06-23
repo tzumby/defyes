@@ -20,6 +20,7 @@ bbaUSD_ADDR = "0xA13a9247ea42D743238089903570127DdA72fE44"
 bbaUSDT_ADDR = "0x2f4eb100552ef93840d5adc30560e5513dfffacb"
 bbaUSDC_ADDR = "0x82698aecc9e28e9bb27608bd52cf57f704bd1b83"
 bbaDAI_ADDR = "0xae37d54ae477268b9997d4161b96b8200755935c"
+bbaUSDV3_ADDR = "0xfeBb0bbf162E64fb9D0dfe186E517d84C395f016"
 
 # Gnosis Chain
 WALLET_e6f = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"
@@ -252,6 +253,11 @@ def test_pool_balances2():
     dai = Balancer.pool_balances(bbaDAI_ADDR, block, ETHEREUM, web3=node)[0]
     assert dai == [ETHTokenAddr.DAI, Decimal("13416679.31570410197485793129")]
 
+    dai, usdt, usdc = Balancer.pool_balances(bbaUSDV3_ADDR, block, ETHEREUM, web3=node)
+    assert dai == [ETHTokenAddr.DAI, Decimal("1050266.066617679685909312000")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("765001.8540369999844466201230")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("908244.4675409999892750711044")]
+
 
 def test_pool_balances3():
     block = 27628264
@@ -284,6 +290,13 @@ def test_unwrap():
     dai, weth = Balancer.unwrap(lptoken_amount, B60WETH40DAI_ADDR, block, ETHEREUM, web3=node)
     assert dai == [ETHTokenAddr.DAI, Decimal("0.3998802387901373103114663897")]
     assert weth == [ETHTokenAddr.WETH, Decimal("0.0003284487726480976462916290608")]
+
+    block = 17543299
+    lptoken_amount = 1
+    dai, usdt, usdc = Balancer.unwrap(lptoken_amount, bbaUSDV3_ADDR, block, ETHEREUM, web3=node)
+    assert dai == [ETHTokenAddr.DAI, Decimal("0.3836613819783486198907516245")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("0.2472909112224638002039090849")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("0.3701358752252735701543186308")]
 
 
 def test_swap_fees():
