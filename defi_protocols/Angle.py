@@ -158,7 +158,9 @@ class VaultManager(DefiContract):
 
     def get_vault_data(self, vaultid: int, block: int, decimals: bool = True) -> Dict:
         stablecoin_decimals = get_decimals(self.stable_token, self.blockchain, self.get_node(block)) if decimals else 0
-        collateral_decimals = get_decimals(self.collateral_token, self.blockchain, self.get_node(block)) if decimals else 0
+        collateral_decimals = (
+            get_decimals(self.collateral_token, self.blockchain, self.get_node(block)) if decimals else 0
+        )
         contract_decimals = str(self.BASE_PARAMS().const_call()).count("0")
         interest_decimals = str(self.BASE_INTEREST().const_call()).count("0")
 
@@ -172,7 +174,7 @@ class VaultManager(DefiContract):
         collateral_to_stablecoin = self.get_oracle().rate(block)
         collateral_in_stablecoin = collateral_deposit * collateral_to_stablecoin / Decimal(10**stablecoin_decimals)
 
-        #health_factor = collateral_in_stablecoin * collateral_factor / debt
+        # health_factor = collateral_in_stablecoin * collateral_factor / debt
 
         available_to_borrow = collateral_in_stablecoin * collateral_factor - debt
 
@@ -180,15 +182,14 @@ class VaultManager(DefiContract):
 
         data = {
             "assets": [
-                {"address": self.stable_token, "balance": - debt},
-
+                {"address": self.stable_token, "balance": -debt},
                 {"address": self.collateral_token, "balance": collateral_amount},
             ],
             "financial_metrics": {
-                #"health_factor": health_factor,
-                #"loan_to_value": debt / collateral_in_stablecoin,
+                # "health_factor": health_factor,
+                # "loan_to_value": debt / collateral_in_stablecoin,
                 "collateral_ratio": collateral_in_stablecoin / debt,
-                "liquidation_ratio": 1/ collateral_factor,
+                "liquidation_ratio": 1 / collateral_factor,
                 "anual_interest_rate": interest_rate_per_second * 365 * 24 * 3600,
                 "liquidation_price_in_stablecoin_fiat": debt / collateral_factor / collateral_amount,
                 "available_to_borrow": {"address": self.stable_token, "balance": available_to_borrow},
@@ -237,4 +238,11 @@ def underlying(blockchain: str, wallet: str, block: int | str = "latest", decima
             for vault_id in vault_ids:
                 vault_data = vault_manager.get_vault_data(vault_id, block, decimals=decimals)
                 positions[str(vault_id)] = vault_data
-    return {"protocol": "angle", "blockchain": blockchain, "block": block, "positions_key": "vault_id", "positions": positions, "underlying_version": 0}
+    return {
+        "protocol": "angle",
+        "blockchain": blockchain,
+        "block": block,
+        "positions_key": "vault_id",
+        "positions": positions,
+        "underlying_version": 0,
+    }
