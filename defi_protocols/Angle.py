@@ -156,9 +156,9 @@ class VaultManager(DefiContract):
     def get_oracle(self) -> Oracle:
         return Oracle(self.blockchain, self.oracle().const_call())
 
-    def get_vault_data(self, vaultid: int, block: int) -> Dict:
-        stablecoin_decimals = get_decimals(self.stable_token, self.blockchain, self.get_node(block))
-        collateral_decimals = get_decimals(self.collateral_token, self.blockchain, self.get_node(block))
+    def get_vault_data(self, vaultid: int, block: int, decimals: bool = True) -> Dict:
+        stablecoin_decimals = get_decimals(self.stable_token, self.blockchain, self.get_node(block)) if decimals else 0
+        collateral_decimals = get_decimals(self.collateral_token, self.blockchain, self.get_node(block)) if decimals else 0
         contract_decimals = str(self.BASE_PARAMS().const_call()).count("0")
         interest_decimals = str(self.BASE_INTEREST().const_call()).count("0")
 
@@ -172,24 +172,26 @@ class VaultManager(DefiContract):
         collateral_to_stablecoin = self.get_oracle().rate(block)
         collateral_in_stablecoin = collateral_deposit * collateral_to_stablecoin / Decimal(10**stablecoin_decimals)
 
-        health_factor = collateral_in_stablecoin * collateral_factor / debt
+        #health_factor = collateral_in_stablecoin * collateral_factor / debt
 
         available_to_borrow = collateral_in_stablecoin * collateral_factor - debt
 
         interest_rate_per_second = self.interestRate().call(block_identifier=block) / Decimal(10**interest_decimals)
 
         data = {
-            "tokens_key": "state",
-            "tokens": {
-                "debt": {"add": self.stable_token, "balance": debt},
-                "available_to_borrow": {"addr": self.stable_token, "balance": available_to_borrow},
-                "collateral_deposit": {"addr": self.collateral_token, "balance": collateral_amount},
-            },
+            "assets": [
+                {"address": self.stable_token, "balance": - debt},
+
+                {"address": self.collateral_token, "balance": collateral_amount},
+            ],
             "financial_metrics": {
-                "health_factor": health_factor,
-                "loan_to_value": debt / collateral_in_stablecoin,
+                #"health_factor": health_factor,
+                #"loan_to_value": debt / collateral_in_stablecoin,
+                "collateral_ratio": collateral_in_stablecoin / debt,
+                "liquidation_ratio": 1/ collateral_factor,
                 "anual_interest_rate": interest_rate_per_second * 365 * 24 * 3600,
                 "liquidation_price_in_stablecoin_fiat": debt / collateral_factor / collateral_amount,
+                "available_to_borrow": {"address": self.stable_token, "balance": available_to_borrow},
             },
         }
         return data
@@ -219,20 +221,20 @@ class VaultManager(DefiContract):
         return {"wallet": wallet, "block": block, "vault_ids": vault_ids}
 
 
-def underlying(blockchain: str, wallet: str, block: int | str = "latest") -> None:
+def underlying(blockchain: str, wallet: str, block: int | str = "latest", decimals: bool = True) -> dict:
     """
-    Returns the list of vault_manager contracts in which the wallet owns at least a Vault.
+    TODO: Add documentation
     """
     wallet = Web3.to_checksum_address(wallet)
     treasury = Treasury(blockchain)
 
-    assets = {"positions_key": "vault_id", "positions": {}}
+    positions = {}
 
     for vault_addr in treasury.get_all_vault_managers_addrs(block):
         vault_manager = VaultManager(blockchain, vault_addr)
         if vault_manager.vaults_owned_by(wallet, block) >= 1:
             vault_ids = vault_manager.get_vault_ids_from(wallet, block)["vault_ids"]
             for vault_id in vault_ids:
-                vault_data = vault_manager.get_vault_data(vault_id, block)
-                assets["positions"][str(vault_id)] = vault_data
-    return {"protocol": "angle", "blockchain": blockchain, "block": block, "assets": assets, "underlying_version": 0}
+                vault_data = vault_manager.get_vault_data(vault_id, block, decimals=decimals)
+                positions[str(vault_id)] = vault_data
+    return {"protocol": "angle", "blockchain": blockchain, "block": block, "positions_key": "vault_id", "positions": positions, "underlying_version": 0}
