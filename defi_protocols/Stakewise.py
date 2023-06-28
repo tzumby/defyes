@@ -261,24 +261,3 @@ def underlying(
             )
 
     return result
-
-
-print(check_uniswap_v3_pools("0x05E61adDCef87ad8548236eb5Cbf2f699C834935", 17438389, ETHEREUM))
-print(check_uniswap_v3_pools("0x05E61adDCef87ad8548236eb5Cbf2f699C834935", 17438389, ETHEREUM, reward=True))
-
-
-print(check_curve_pools("0x53811010085382D49eF12bCC55902bbFCEB57790", 28357764, XDAI))
-
-print(check_curve_pools("0x53811010085382D49eF12bCC55902bbFCEB57790", 28357764, XDAI, reward=True))
-
-# print(get_all_rewards('0x05E61adDCef87ad8548236eb5Cbf2f699C834935','latest', ETHEREUM))
-# print(get_all_rewards('0x53811010085382D49eF12bCC55902bbFCEB57790','latest', XDAI))
-
-print(underlying("0x05E61adDCef87ad8548236eb5Cbf2f699C834935", 17438389, ETHEREUM, pools=True, decimals=False))
-print(underlying("0x05E61adDCef87ad8548236eb5Cbf2f699C834935", 17438389, ETHEREUM, pools=False, decimals=False))
-# print(underlying('0x05E61adDCef87ad8548236eb5Cbf2f699C834935','latest', ETHEREUM, reward=True, decimals=False, pools=True))
-
-print(underlying("0x53811010085382D49eF12bCC55902bbFCEB57790", 28357764, XDAI, pools=True, decimals=False))
-print(underlying("0x53811010085382D49eF12bCC55902bbFCEB57790", 28357764, XDAI, pools=False, decimals=False))
-
-# print(underlying('0x53811010085382D49eF12bCC55902bbFCEB57790','latest', XDAI, reward=True, decimals=False, pools=True))
