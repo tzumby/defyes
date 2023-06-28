@@ -239,7 +239,7 @@ def underlying(blockchain: str, wallet: str, block: int | str = "latest", decima
                 vault_data = vault_manager.get_vault_data(vault_id, block, decimals=decimals)
                 positions[str(vault_id)] = vault_data
     return {
-        "protocol": "angle",
+        "protocol": "Angle",
         "blockchain": blockchain,
         "block": block,
         "positions_key": "vault_id",
