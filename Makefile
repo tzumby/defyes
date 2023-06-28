@@ -89,3 +89,8 @@ isort: build-if-no-image  ## Apply isort.
 
 .PHONY: pretty
 pretty: isort black
+
+
+.PHONY: autogenerate
+autogenerate: build-if-no-image
+	@$(docker_user_run) -t $(image) python -m defi_protocols._contract_generator
