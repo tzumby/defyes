@@ -12,8 +12,8 @@ WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 def test_angle_treasury():
     block = 17451062
 
-    t = Angle.Treasury(ETHEREUM)
-    assert t.stable_token == agEUR
+    t = Angle.Treasury(ETHEREUM, block)
+    assert t.stablecoin == agEUR
     assert [
         "0x241D7598BD1eb819c0E9dEd456AcB24acA623679",
         "0x1beCE8193f8Dc2b170135Da9F1fA8b81C7aD18b1",
@@ -28,7 +28,7 @@ def test_angle_treasury():
         "0xe0C8B6c4ea301C8A221E8838ca5B80Ac76E7A10b",
         "0x913E8e1eD659C27613E937a6B6119b91D985094c",
         "0x96de5c30F2BF4683c7903F3e921F720602F8868A",
-    ] == t.get_all_vault_managers_addrs(block)
+    ] == t.get_all_vault_managers_addrs()
 
 
 @pytest.mark.parametrize("decimals", [True, False])
@@ -67,6 +67,6 @@ def test_underlying(decimals):
             }
         },
         "positions_key": "vault_id",
-        "protocol": "angle",
+        "protocol": "Angle",
         "underlying_version": 0,
     }

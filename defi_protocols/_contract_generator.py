@@ -99,6 +99,7 @@ class Base{}:
 
     def __init__(self, block) -> None:
         node = get_node(self.BLOCKCHAIN, block)
+        self.block = block
         self.contract = node.eth.contract(address=self.ADDR, abi=self.ABI)\n
 """
 
@@ -134,3 +135,7 @@ def generate_base_classes():
             init_file_content = isort.code(init_file_content)
             init_file_content = black.format_file_contents(init_file_content, fast=True, mode=black.FileMode())
             ifile.write(init_file_content)
+
+
+if __name__ == "__main__":
+    generate_base_classes()

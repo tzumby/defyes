@@ -27,6 +27,7 @@ class BaseOracle:
 
     def __init__(self, block) -> None:
         node = get_node(self.BLOCKCHAIN, block)
+        self.block = block
         self.contract = node.eth.contract(address=self.ADDR, abi=self.ABI)
 
     @property
@@ -68,6 +69,7 @@ class BaseTreasury:
 
     def __init__(self, block) -> None:
         node = get_node(self.BLOCKCHAIN, block)
+        self.block = block
         self.contract = node.eth.contract(address=self.ADDR, abi=self.ABI)
 
     @property
@@ -185,6 +187,7 @@ class BaseVaultManager:
 
     def __init__(self, block) -> None:
         node = get_node(self.BLOCKCHAIN, block)
+        self.block = block
         self.contract = node.eth.contract(address=self.ADDR, abi=self.ABI)
 
     def balance_of(self, arg0: str) -> int:
