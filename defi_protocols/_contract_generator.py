@@ -1,4 +1,17 @@
+import black
+import glob
+import isort
+import json
 import re
+
+from pathlib import Path
+
+
+def snake_to_camel(snake_case):
+    words = snake_case.split('_')
+    camel_case = ''.join(word.title() for word in words)
+    return camel_case
+
 
 def camel_to_snake(camel_case):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_case)
@@ -9,7 +22,8 @@ def generate_methods_from_abi(abi_string, const_call_methods=[]):
     TYPE_CONVERSION = {
             'uint64': 'int',
             'uint256': 'int',
-            'address': 'str'
+            'address': 'str',
+            'string': 'str'
             }
 
     abi_list = eval(abi_string)
@@ -22,12 +36,14 @@ def generate_methods_from_abi(abi_string, const_call_methods=[]):
 
         args = []
         args_names = []
-        for arg in item['inputs']:
-            arg_name = arg.get('name', '')
-            if arg_name:
-                arg_name = camel_to_snake(arg_name)
-            else:
-                arg_name = 'RENAME'
+        for n, arg in enumerate(item['inputs']):
+            #arg_name = arg.get('name', '')
+            #if arg_name:
+            #    arg_name = camel_to_snake(arg_name)
+            #else:
+            #    arg_name = 'RENAME'
+            #args_names.append(arg_name)
+            arg_name = f'arg{str(n)}'
             args_names.append(arg_name)
 
             try:
@@ -82,7 +98,8 @@ def generate_methods_from_abi(abi_string, const_call_methods=[]):
 
 
 contract_class_template = """
-class {}:
+
+class Base{}:
     ABI: str = {}\n
     BLOCKCHAIN: str
     ADDR: str
@@ -92,9 +109,35 @@ class {}:
         self.contract = node.eth.contract(address=self.ADDR, abi=self.ABI)\n
 """
 
+base_class_imports = """from typing import Tuple
+
+from defi_protocols.cache import const_call
+from defi_protocols.functions import get_node
+"""
+
 def generate_contract_class(class_name, abi_string, const_call_methods=[]):
     result = contract_class_template.format(class_name, abi_string)
     result += generate_methods_from_abi(abi_string, const_call_methods)
 
     return result
+
+
+def generate_base_classes():
+    actual_dir = Path(__file__).resolve().parent
+    setups = actual_dir.glob('**/base_classes_setup.json')
+    for class_setup in setups:
+        protocol_folder = class_setup.parent
+        init_file = protocol_folder / "__init__.py"
+        init_file_content = ''
+        with open(init_file, 'w') as ifile:
+            init_file_content += base_class_imports
+            with open(class_setup, 'r') as json_file:
+                classes_to_process = json.load(json_file)
+            for base_class, content in classes_to_process.items():
+                with open(protocol_folder / f'{base_class}.json', 'r') as json_file:
+                    abi = str(json.load(json_file))
+                init_file_content += generate_contract_class(snake_to_camel(base_class), abi, content['const_call'])
+            init_file_content = isort.code(init_file_content)
+            init_file_content = black.format_file_contents(init_file_content, fast=True, mode=black.FileMode())
+            ifile.write(init_file_content)
 
