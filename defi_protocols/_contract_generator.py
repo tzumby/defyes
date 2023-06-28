@@ -88,7 +88,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
             if len(return_types) == 1:
                 return_str = f" -> {return_types[0]}"
             else:
-                return_str = f' -> Tuple[{", ".join(return_types)}]'
+                return_str = f' -> tuple[{", ".join(return_types)}]'
                 return_comment = f'        # Output: {", ".join(return_names)}\n'
 
         if method_name in const_call_methods:
@@ -117,8 +117,6 @@ from . import abstract
 class SomeContract(abstract.SomeContract):
     ...
 '''
-from typing import Tuple
-
 from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node
 from defi_protocols._contract_generator import load_abi

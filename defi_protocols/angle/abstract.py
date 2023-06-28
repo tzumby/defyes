@@ -9,8 +9,6 @@ from . import abstract
 class SomeContract(abstract.SomeContract):
     ...
 """
-from typing import Tuple
-
 from defi_protocols._contract_generator import load_abi
 from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node
@@ -110,7 +108,7 @@ class VaultManager:
             block_identifier=self.block
         )
 
-    def vault_data(self, arg0: int) -> Tuple[int, int]:
+    def vault_data(self, arg0: int) -> tuple[int, int]:
         # Output: collateralAmount, normalizedDebt
         return self.contract.functions.vaultData(arg0).call(block_identifier=self.block)
 
