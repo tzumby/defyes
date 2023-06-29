@@ -9,7 +9,7 @@ from . import abstract
 class SomeContract(abstract.SomeContract):
     ...
 """
-from defi_protocols._contract_generator import load_abi
+from defi_protocols.generator import load_abi
 from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node
 
