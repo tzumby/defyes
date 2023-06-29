@@ -9,9 +9,9 @@ from . import abstract
 class SomeContract(abstract.SomeContract):
     ...
 """
-from defi_protocols.generator import load_abi
 from defi_protocols.cache import const_call
 from defi_protocols.functions import get_node
+from defi_protocols.generator import load_abi
 
 
 class Oracle:
@@ -54,8 +54,8 @@ class Treasury:
             block_identifier=self.block
         )
 
-    def is_vault_manager(self, arg0: str) -> bool:
-        return self.contract.functions.isVaultManager(arg0).call(
+    def is_vault_manager(self, _vault_manager: str) -> bool:
+        return self.contract.functions.isVaultManager(_vault_manager).call(
             block_identifier=self.block
         )
 
@@ -71,15 +71,19 @@ class VaultManager:
             address=self.ADDR, abi=load_abi(__file__, "vault_manager.json")
         )
 
-    def balance_of(self, arg0: str) -> int:
-        return self.contract.functions.balanceOf(arg0).call(block_identifier=self.block)
+    def balance_of(self, owner: str) -> int:
+        return self.contract.functions.balanceOf(owner).call(
+            block_identifier=self.block
+        )
 
     @property
     def vault_id_count(self) -> int:
         return self.contract.functions.vaultIDCount().call(block_identifier=self.block)
 
-    def owner_of(self, arg0: int) -> str:
-        return self.contract.functions.ownerOf(arg0).call(block_identifier=self.block)
+    def owner_of(self, vault_id: int) -> str:
+        return self.contract.functions.ownerOf(vault_id).call(
+            block_identifier=self.block
+        )
 
     @property
     def oracle(self) -> str:
@@ -103,8 +107,8 @@ class VaultManager:
     def collateral(self) -> str:
         return const_call(self.contract.functions.collateral())
 
-    def get_vault_debt(self, arg0: int) -> int:
-        return self.contract.functions.getVaultDebt(arg0).call(
+    def get_vault_debt(self, vault_id: int) -> int:
+        return self.contract.functions.getVaultDebt(vault_id).call(
             block_identifier=self.block
         )
 
