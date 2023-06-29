@@ -12,7 +12,7 @@ from .protocols import (
     uniswapv3,
     compoundv3 as Compoundv3,
     compoundv3,
-    Angle,
+    angle as Angle,
     angle,
     unit as Unit,
     unit,
