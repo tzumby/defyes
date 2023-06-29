@@ -129,7 +129,7 @@ contract_class_template = """
 class %(name)s:
     default_addresses: dict[str, str]
 
-    def __init__(self, block, blockchain: str, address: str | None = None) -> None:
+    def __init__(self, blockchain: str, block: int, address: str | None = None) -> None:
         self.block = block
         self.blockchain = blockchain
         if address:

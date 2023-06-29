@@ -58,7 +58,7 @@ class VaultManager(VaultManager):
         return self.balance_of(wallet)
 
     def get_oracle(self) -> Oracle:
-        return Oracle(self.BLOCKCHAIN, self.oracle, self.block)
+        return Oracle(self.BLOCKCHAIN, self.block, address=self.oracle)
 
     def vault_ids_owned_by(self, wallet: str, vault_ids: list) -> bool:
         if self.vaults_owned_by(wallet) != len(vault_ids):
@@ -137,7 +137,7 @@ def underlying(blockchain: str, wallet: str, block: int | str = "latest", decima
     positions = {}
 
     for vault_addr in treasury.get_all_vault_managers_addrs():
-        vault_manager = VaultManager(blockchain, vault_addr, block)
+        vault_manager = VaultManager(blockchain, block, vault_addr)
         if vault_manager.vaults_owned_by(wallet) >= 1:
             vault_ids = vault_manager.get_vault_ids_from(wallet)["vault_ids"]
             for vault_id in vault_ids:
