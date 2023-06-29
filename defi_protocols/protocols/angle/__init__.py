@@ -58,7 +58,7 @@ class VaultManager(VaultManager):
         return self.balance_of(wallet)
 
     def get_oracle(self) -> Oracle:
-        return Oracle(self.BLOCKCHAIN, self.block, address=self.oracle)
+        return Oracle(self.blockchain, self.block, address=self.oracle)
 
     def vault_ids_owned_by(self, wallet: str, vault_ids: list) -> bool:
         if self.vaults_owned_by(wallet) != len(vault_ids):
@@ -85,10 +85,10 @@ class VaultManager(VaultManager):
 
     def get_vault_data(self, vaultid: int, decimals: bool = True) -> dict:
         stablecoin_decimals = (
-            get_decimals(self.stablecoin, self.BLOCKCHAIN, get_node(self.BLOCKCHAIN, self.block)) if decimals else 0
+            get_decimals(self.stablecoin, self.blockchain, get_node(self.blockchain, self.block)) if decimals else 0
         )
         collateral_decimals = (
-            get_decimals(self.collateral, self.BLOCKCHAIN, get_node(self.BLOCKCHAIN, self.block)) if decimals else 0
+            get_decimals(self.collateral, self.blockchain, get_node(self.blockchain, self.block)) if decimals else 0
         )
         contract_decimals = str(self.base_params).count("0")
         interest_decimals = str(self.base_interest).count("0")
