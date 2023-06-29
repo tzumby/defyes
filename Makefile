@@ -93,4 +93,4 @@ pretty: isort black
 
 .PHONY: autogenerate
 autogenerate: build-if-no-image
-	@$(docker_user_run) -t $(image) python -m defi_protocols.generator
+	@$(docker_user_run) -t $(image) python defi_protocols/generator.py
