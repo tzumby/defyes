@@ -1,5 +1,6 @@
 import json
 import re
+import itertools
 from pathlib import Path
 
 import black
@@ -30,6 +31,16 @@ def camel_to_snake(camel_case):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
+def args_name_gen(used_names: set, start: int = 0):
+    used_names_ = set(used_names)
+    for index in itertools.count(start=start):
+        name = f"arg{index}"
+        while name in used_names_:
+            name += "_"
+        yield name
+        used_names_.add(name)
+
+
 def generate_methods_from_abi(abi_path, const_call_methods=[]):
     TYPE_CONVERSION = {"uint64": "int", "uint256": "int", "address": "str", "string": "str"}
 
@@ -42,24 +53,14 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
         method_name_snake = camel_to_snake(method_name)
         method_str = ""
 
+        awesome_names = args_name_gen(used_names=set(arg.get("name", "") for arg in item["inputs"]))
         args = []
         args_names = []
-        for n, arg in enumerate(item["inputs"]):
-            # arg_name = arg.get('name', '')
-            # if arg_name:
-            #    arg_name = camel_to_snake(arg_name)
-            # else:
-            #    arg_name = 'RENAME'
-            # args_names.append(arg_name)
-            arg_name = f"arg{str(n)}"
-            args_names.append(arg_name)
-
-            try:
-                arg_type = TYPE_CONVERSION[arg["type"]]
-            except KeyError:
-                arg_type = arg["type"]
-
+        for arg, auto_name in zip(item["inputs"], awesome_names):
+            arg_name = camel_to_snake(arg.get("name") or auto_name)
+            arg_type = TYPE_CONVERSION.get(arg["type"], arg["type"])
             args.append(f"{arg_name}: {arg_type}")
+            args_names.append(arg_name)
 
         if args:
             args_str = ", " + ", ".join(args)
