@@ -67,6 +67,6 @@ def test_underlying(decimals):
             }
         },
         "positions_key": "vault_id",
-        "protocol": "angle",
+        "protocol": "Angle",
         "underlying_version": 0,
     }
