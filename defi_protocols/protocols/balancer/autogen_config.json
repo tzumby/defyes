@@ -1,0 +1,38 @@
+{
+  "gauge": {
+    "const_call": [
+        "decimals"
+    ]
+  },
+  "gauge_factory": {
+    "const_call": [
+        "getPoolGauge"
+    ]
+  },
+  "gauge_reward_helper": {
+    "const_call": [
+    ]
+  },
+  "liquidity_pool": {
+    "const_call": [
+        "decimals",
+        "getPoolId",
+        "POOL_ID",
+        "getBptIndex"
+    ]
+  },
+  "pool_token": {
+    "const_call": [
+        "decimals"
+    ]
+  },
+  "vault": {
+    "const_call": [
+    ]
+  },
+  "vebal": {
+    "const_call": [
+        "token"
+    ]
+  }
+}
