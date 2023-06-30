@@ -178,9 +178,9 @@ def test_underlying2():
     block = 17117344
     node = get_node(ETHEREUM, block)
 
-    steth, weth = Balancer.underlying(WALLET_N4, BstETHSTABLE_ADDR, block, ETHEREUM, web3=node)
+    wsteth, weth = Balancer.underlying(WALLET_N4, BstETHSTABLE_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert steth == [ETHTokenAddr.stETH, Decimal("11.37232115107245169857021374"), Decimal("0"), Decimal("0")]
+    assert wsteth == [ETHTokenAddr.wstETH, Decimal("10.15169431226039997458582647"), Decimal("0"), Decimal("0")]
     assert weth == [ETHTokenAddr.WETH, Decimal("10.93914528430790259522572181"), Decimal("0"), Decimal("0")]
 
     ldo, wsteth = Balancer.underlying(WALLET_N5, B50wstETH50LDO_ADDR, block, ETHEREUM, web3=node)
