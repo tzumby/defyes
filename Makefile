@@ -6,6 +6,8 @@ docker_base_run := docker run --rm -i \
   -v $(PWD):/repo \
   -v $(PWD)/.tmp:/tmp \
   -e HOME=/repo/.home \
+  -e DEFI_PROTO_CACHE_ENABLE=$(DEFI_PROTO_CACHE_ENABLE) \
+  -e DEFI_PROTO_CACHE_CLEAR=$(DEFI_PROTO_CACHE_CLEAR) \
   -e CONFIG_PATH=$(CONFIG_PATH)
 docker_root_run := $(docker_base_run) -e USER=root
 docker_user_run := $(docker_base_run) -e USER=$(USER) --user $$(id -u):$$(id -g)
