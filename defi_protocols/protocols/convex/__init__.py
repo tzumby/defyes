@@ -9,7 +9,7 @@ from defi_protocols.cache import const_call
 from defi_protocols.constants import CVX_ETH, CVXCRV_ETH, ETHEREUM
 from defi_protocols.functions import get_contract, get_contract_creation, get_node, last_block, to_token_amount
 
-from . import curve
+from .. import curve
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ ABI_REWARDS = '[{"inputs":[{"internalType":"address","name":"account","type":"ad
 # CVX ABI - reductionPerCliff, totalCliffs, maxSupply, totalSupply
 ABI_CVX = '[{"inputs":[],"name":"reductionPerCliff","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalCliffs","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"maxSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-DB_FILE = Path(__file__).parent / "db" / "Convex_db.json"
+DB_FILE = Path(__file__).parent / "db.json"
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

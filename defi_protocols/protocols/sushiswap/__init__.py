@@ -25,6 +25,8 @@ from defi_protocols.functions import (
 )
 from defi_protocols.prices.prices import get_price
 
+DB_FILE = Path(__file__).parent / "db.json"
+
 logger = logging.getLogger(__name__)
 
 MASTERCHEF_V1 = "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd"
@@ -108,8 +110,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
     result = {}
 
     if use_db is True:
-        with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/SushiSwap_db.json", "r") as db_file:
-            # Reading from json file
+        with open(DB_FILE) as db_file:
             db_data = json.load(db_file)
 
         if blockchain == ETHEREUM:

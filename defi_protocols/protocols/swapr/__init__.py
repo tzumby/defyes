@@ -1,5 +1,4 @@
 import json
-import os
 from decimal import Decimal
 from pathlib import Path
 
@@ -39,7 +38,7 @@ ABI_LPTOKEN = '[{"type":"function","stateMutability":"view","payable":false,"out
 SWAP_EVENT_SIGNATURE = "Swap(address,uint256,uint256,uint256,uint256,address)"
 
 
-DB_FILE = Path(__file__).parent / "db" / "Swapr_db.json"
+DB_FILE = Path(__file__).parent / "db.json"
 
 
 def get_staking_rewards_contract(web3, block, blockchain):
@@ -58,7 +57,7 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
 
     if campaigns != 0:
         if db is True:
-            with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/Swapr_db.json", "r") as db_file:
+            with open(DB_FILE) as db_file:
                 db_data = json.load(db_file)
 
             try:

@@ -16,7 +16,7 @@ from defi_protocols.functions import (
     to_token_amount,
 )
 
-from . import balancer
+from .. import balancer
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
@@ -91,7 +91,7 @@ ABI_EXTRA_REWARDS_TOKEN = '[{"inputs":[],"name":"baseToken","outputs":[{"interna
 #     "shutdown": bool  # deprecated pool
 #     },
 # }
-DB_FILE = Path(__file__).parent / "db" / "Aura_db.json"
+DB_FILE = Path(__file__).parent / "db.json"
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
