@@ -499,20 +499,23 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                     main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
                     if main_token is None:
                         main_token = token_address
-                        #The previous line can be replaced by the commented code below to have stETH being returned instead of stETH
+                        # The previous line can be replaced by the commented code below to have stETH being returned instead of stETH
                         ##stETH = call_contract_method(token_contract.functions.stETH(), block)
-                        #if stETH is not None:
+                        # if stETH is not None:
                         #    if lptoken_data["scalingFactors"] is not None and lptoken_data["scalingFactors"][i] != (
                         #        10**18
                         #    ):
                         #        main_token = stETH
                         #    else:
                         #        main_token = token_address
-                        #else:
+                        # else:
                         #    main_token = token_address
 
-                #if lptoken_data["scalingFactors"] is not None:
-                if lptoken_data["scalingFactors"] is not None and token_address != '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0':
+                # if lptoken_data["scalingFactors"] is not None:
+                if (
+                    lptoken_data["scalingFactors"] is not None
+                    and token_address != "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0"
+                ):
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / (10 ** (2 * 18 - token_decimals))
                     )
@@ -612,8 +615,10 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
                         #    main_token = token_address
 
                 # if lptoken_data["scalingFactors"] is not None:
-                if lptoken_data[
-                    "scalingFactors"] is not None and token_address != '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0':
+                if (
+                    lptoken_data["scalingFactors"] is not None
+                    and token_address != "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0"
+                ):
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / Decimal(10 ** (2 * 18 - token_decimals))
                     )
@@ -705,8 +710,10 @@ def unwrap(
                         #    main_token = token_address
 
                 # if lptoken_data["scalingFactors"] is not None:
-                if lptoken_data[
-                    "scalingFactors"] is not None and token_address != '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0':
+                if (
+                    lptoken_data["scalingFactors"] is not None
+                    and token_address != "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0"
+                ):
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / (10 ** (2 * 18 - token_decimals))
                     )
