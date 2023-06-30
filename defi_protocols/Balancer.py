@@ -500,7 +500,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                     if main_token is None:
                         main_token = token_address
                         # The previous line can be replaced by the commented code below to have stETH being returned instead of stETH
-                        ##stETH = call_contract_method(token_contract.functions.stETH(), block)
+                        # stETH = call_contract_method(token_contract.functions.stETH(), block)
                         # if stETH is not None:
                         #    if lptoken_data["scalingFactors"] is not None and lptoken_data["scalingFactors"][i] != (
                         #        10**18
@@ -603,7 +603,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
                     if main_token is None:
                         main_token = token_address
                         # The previous line can be replaced by the commented code below to have stETH being returned instead of stETH
-                        ##stETH = call_contract_method(token_contract.functions.stETH(), block)
+                        # stETH = call_contract_method(token_contract.functions.stETH(), block)
                         # if stETH is not None:
                         #    if lptoken_data["scalingFactors"] is not None and lptoken_data["scalingFactors"][i] != (
                         #        10**18
@@ -698,7 +698,7 @@ def unwrap(
                     if main_token is None:
                         main_token = token_address
                         # The previous line can be replaced by the commented code below to have stETH being returned instead of stETH
-                        ##stETH = call_contract_method(token_contract.functions.stETH(), block)
+                        # stETH = call_contract_method(token_contract.functions.stETH(), block)
                         # if stETH is not None:
                         #    if lptoken_data["scalingFactors"] is not None and lptoken_data["scalingFactors"][i] != (
                         #        10**18
