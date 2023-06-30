@@ -135,7 +135,7 @@ To change the directory use the environment variable `DEFI_PROTO_CACHE_DIR=/path
 
 To disable the cache define the `DEFI_PROTO_CACHE_DISABLE` environment variable.
 
-To wipe the cache use the env var `DEFI_PROTO_CLEAN_CACHE` or call `defi_protocols.cache.clean()`.
+To wipe the cache use the env var `DEFI_PROTO_CLEAN_CACHE` or call `defi_protocols.cache.clear()`.
 
 
 ## Docs

@@ -89,3 +89,11 @@ isort: build-if-no-image  ## Apply isort.
 
 .PHONY: pretty
 pretty: isort black
+
+
+.PHONY: cacheclear
+cacheclear: build-if-no-image
+	@echo "Clearing the API requests cache..."
+	@echo "=================================="
+	@echo
+	@$(docker_user_run) $(image) python -c "import defi_protocols.cache as c; c.clear()" 
