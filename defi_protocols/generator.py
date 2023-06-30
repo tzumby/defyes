@@ -146,7 +146,7 @@ class %(name)s:
                     f"{blockchain!r} not defined in default_addresses when trying to guess the address."
                 ) from e
         node = get_node(blockchain, block)
-        self.contract = node.eth.contract(address=address, abi=load_abi(__file__, %(abi)r))\n
+        self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, %(abi)r))\n
 """
 
 

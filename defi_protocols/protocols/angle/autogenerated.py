@@ -35,7 +35,7 @@ class Oracle:
                 ) from e
         node = get_node(blockchain, block)
         self.contract = node.eth.contract(
-            address=address, abi=load_abi(__file__, "oracle.json")
+            address=self.address, abi=load_abi(__file__, "oracle.json")
         )
 
     @property
@@ -68,7 +68,7 @@ class Treasury:
                 ) from e
         node = get_node(blockchain, block)
         self.contract = node.eth.contract(
-            address=address, abi=load_abi(__file__, "treasury.json")
+            address=self.address, abi=load_abi(__file__, "treasury.json")
         )
 
     @property
@@ -107,7 +107,7 @@ class VaultManager:
                 ) from e
         node = get_node(blockchain, block)
         self.contract = node.eth.contract(
-            address=address, abi=load_abi(__file__, "vault_manager.json")
+            address=self.address, abi=load_abi(__file__, "vault_manager.json")
         )
 
     def balance_of(self, owner: str) -> int:
