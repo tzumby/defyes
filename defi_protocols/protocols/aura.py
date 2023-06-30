@@ -5,7 +5,6 @@ from pathlib import Path
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from defi_protocols import Balancer
 from defi_protocols.cache import const_call
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols.functions import (
@@ -16,6 +15,8 @@ from defi_protocols.functions import (
     last_block,
     to_token_amount,
 )
+
+from . import balancer
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
@@ -409,7 +410,7 @@ def underlying(
         lptoken_staked = rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
         if no_balancer_underlying is False:
-            balancer_data = Balancer.underlying(
+            balancer_data = balancer.underlying(
                 wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, aura_staked=lptoken_staked
             )
             for i in range(len(balancer_data)):
@@ -441,7 +442,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    balances = Balancer.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
+    balances = balancer.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
 
     return balances
 
