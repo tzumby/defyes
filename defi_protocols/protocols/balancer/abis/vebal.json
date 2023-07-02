@@ -1,26 +1,41 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IERC20[]",
-        "name": "tokens",
-        "type": "address[]"
-      }
-    ],
-    "name": "claimTokens",
+    "inputs": [],
+    "name": "token",
     "outputs": [
       {
-        "internalType": "uint256[]",
         "name": "",
-        "type": "uint256[]"
+        "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "name": "arg0",
+        "type": "address"
+      }
+    ],
+    "name": "locked",
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {
+            "name": "amount",
+            "type": "int128"
+          },
+          {
+            "name": "end",
+            "type": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]
