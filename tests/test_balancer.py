@@ -20,6 +20,7 @@ bbaUSD_ADDR = "0xA13a9247ea42D743238089903570127DdA72fE44"
 bbaUSDT_ADDR = "0x2f4eb100552ef93840d5adc30560e5513dfffacb"
 bbaUSDC_ADDR = "0x82698aecc9e28e9bb27608bd52cf57f704bd1b83"
 bbaDAI_ADDR = "0xae37d54ae477268b9997d4161b96b8200755935c"
+bbaUSDV3_ADDR = "0xfeBb0bbf162E64fb9D0dfe186E517d84C395f016"
 
 # Gnosis Chain
 WALLET_e6f = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"
@@ -100,6 +101,13 @@ def test_pool_balances():
     dai = Balancer.pool_balances(ETHEREUM, bbaDAI_ADDR, block)
     assert dai[ETHTokenAddr.DAI] == Decimal("13416679.31570410197485793129")
 
+    balances = Balancer.pool_balances(ETHEREUM, bbaUSDV3_ADDR, block)
+    assert balances == {
+        ETHTokenAddr.DAI: Decimal("1050266.066617679685909312000"),
+        ETHTokenAddr.USDT: Decimal("765001.8540369999844466201230"),
+        ETHTokenAddr.USDC: Decimal("908244.4675409999892750711044"),
+    }
+
     block = 27628264
     balances = Balancer.pool_balances(XDAI, bb_ag_WXDAI_ADDR, block)
     assert balances[GnosisTokenAddr.WXDAI] == Decimal("1295439.981731337648045247778")
@@ -141,6 +149,15 @@ def test_unwrap():
         GnosisTokenAddr.USDT: Decimal("1157.485706971609760143788076"),
         GnosisTokenAddr.USDC: Decimal("1926.222064722662625127836312"),
         GnosisTokenAddr.GNO: Decimal("48.76410736953816262713084976"),
+    }
+
+    block = 17543299
+    lptoken_amount = 1
+    unwrap = Balancer.unwrap(ETHEREUM, bbaUSDV3_ADDR, lptoken_amount, block)
+    assert unwrap == {
+        ETHTokenAddr.DAI: Decimal("0.3836613819783486198907516245"),
+        ETHTokenAddr.USDT: Decimal("0.2472909112224638002039090849"),
+        ETHTokenAddr.USDC: Decimal("0.3701358752252735701543186308"),
     }
 
 
@@ -346,55 +363,352 @@ def test_underlying():
         "underlying_version": 0,
     } == underlying
 
+    block = 17117344
+    underlying = Balancer.underlying(ETHEREUM, WALLET_N4, BstETHSTABLE_ADDR, block)
+    assert {
+        "block": 17117344,
+        "blockchain": "ethereum",
+        "positions": {
+            "0x32296969Ef14EB0c6d29669C550D4a0449130230": [
+                {
+                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                    "balance": Decimal("10.15169431226039997458582647"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                    "balance": Decimal("0E-18"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                    "balance": Decimal("0E-18"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    "balance": Decimal("10.93914528430790259522572181"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    "balance": Decimal("0E-16"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    "balance": Decimal("0E-16"),
+                    "state": "locked",
+                },
+            ]
+        },
+        "positions_key": "liquidity_pool_address",
+        "protocol": "Balancer",
+        "underlying_version": 0,
+    } == underlying
 
-# def test_underlying2():
-#    block = 17117344
-#    node = get_node(ETHEREUM, block)
-#
-#    steth, weth = Balancer.underlying(WALLET_N4, BstETHSTABLE_ADDR, block, ETHEREUM, web3=node)
-#    # [token, balance, staked, locked]
-#    assert steth == [ETHTokenAddr.stETH, Decimal('11.37232115107245169857021374'), Decimal('0'), Decimal('0')]
-#    assert weth == [ETHTokenAddr.WETH, Decimal('10.93914528430790259522572181'), Decimal('0'), Decimal('0')]
-#
-#    ldo, wsteth = Balancer.underlying(WALLET_N5, B50wstETH50LDO_ADDR, block, ETHEREUM, web3=node)
-#    # [token, balance, staked, locked]
-#    assert ldo == [ETHTokenAddr.LDO, Decimal('576.5066246253847582651532174'), Decimal('0'), Decimal('0')]
-#    assert wsteth == [ETHTokenAddr.wstETH, Decimal('0.5871242486850998522269758922'), Decimal('0'), Decimal('0')]
-#
-#    usdt, usdc, dai = Balancer.underlying(WALLET_N6, bbaUSD_ADDR, block, ETHEREUM, web3=node)
-#    # [token, balance, staked, locked]
-#    assert usdt == [ETHTokenAddr.USDT, Decimal('34610.41324141304294002886857'), Decimal('0'), Decimal('0')]
-#
-#    assert usdc == [ETHTokenAddr.USDC, Decimal('40468.56976223580477414327278'), Decimal('0'), Decimal('0')]
-#    assert dai == [ETHTokenAddr.DAI, Decimal('40612.73283657301313797645226'), Decimal('0'), Decimal('0')]
-#
-#    usdt, usdc, dai = Balancer.underlying(WALLET_39d, bbaUSD_ADDR, block, ETHEREUM, web3=node)
-#    # [token, balance, staked, locked]
-#    assert usdt == [ETHTokenAddr.USDT, Decimal('8539.128631914474969130263864'), Decimal('0'), Decimal('0')]
-#    assert usdc == [ETHTokenAddr.USDC, Decimal('9984.461044684933239332062933'), Decimal('0'), Decimal('0')]
-#    assert dai == [ETHTokenAddr.DAI, Decimal('10020.02915614176748146463595'), Decimal('0'), Decimal('0')]
-#
-#
-# def test_underlying3():
-#    block = 28275634
-#    node = get_node(XDAI, block)
-#
-#    [[wxdai, usdt, usdc], [bal_rewards]] = Balancer.underlying(WALLET_e6f, bb_ag_USD_ADDR, block, XDAI, web3=node, reward=True)
-#    # [token, balance, staked, locked]
-#    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal('0'), Decimal('225689.5790202310752030943317'), Decimal('0')]
-#    assert usdt == [GnosisTokenAddr.USDT, Decimal('0'), Decimal('157457.9259177606355118786078'), Decimal('0')]
-#    assert usdc == [GnosisTokenAddr.USDC, Decimal('0'), Decimal('193285.0087113081451905116408'), Decimal('0')]
-#    assert bal_rewards == [GnosisTokenAddr.BAL, Decimal('72.028749058272541921')]
-#
-#    [[wxdai, usdt, usdc, gno], [bal_rewards]] = Balancer.underlying(WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, XDAI, web3=node, reward=True)
-#    # [token, balance, staked, locked]
-#    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal('0'), Decimal('333762.1862551265554595821346'), Decimal('0')]
-#    assert usdt == [GnosisTokenAddr.USDT, Decimal('0'), Decimal('232857.4576888133034458734522'), Decimal('0')]
-#    assert usdc == [GnosisTokenAddr.USDC, Decimal('0'), Decimal('285840.5220032092259613956715'), Decimal('0')]
-#    assert gno == [GnosisTokenAddr.GNO, Decimal('0'), Decimal('7325.982201639479819930022796'), Decimal('0')]
-#    assert bal_rewards == [GnosisTokenAddr.BAL, Decimal('422.039676607937704001')]
-#
-#
+    underlying = Balancer.underlying(ETHEREUM, WALLET_N5, B50wstETH50LDO_ADDR, block)
+    assert {
+        "block": 17117344,
+        "blockchain": "ethereum",
+        "positions": {
+            "0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5": [
+                {
+                    "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+                    "balance": Decimal("576.5066246253847582651532174"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+                    "balance": Decimal("0E-18"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+                    "balance": Decimal("0E-18"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                    "balance": Decimal("0.5871242486850998522269758922"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                    "balance": Decimal("0E-18"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                    "balance": Decimal("0E-18"),
+                    "state": "locked",
+                },
+            ]
+        },
+        "positions_key": "liquidity_pool_address",
+        "protocol": "Balancer",
+        "underlying_version": 0,
+    } == underlying
+
+    underlying = Balancer.underlying(ETHEREUM, WALLET_N6, bbaUSD_ADDR, block)
+    assert {
+        "block": 17117344,
+        "blockchain": "ethereum",
+        "positions": {
+            "0xA13a9247ea42D743238089903570127DdA72fE44": [
+                {
+                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                    "balance": Decimal("34610.41324141304294002886857"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                    "balance": Decimal("0E-20"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                    "balance": Decimal("0E-20"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                    "balance": Decimal("40468.56976223580477414327278"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                    "balance": Decimal("0E-20"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                    "balance": Decimal("0E-20"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                    "balance": Decimal("40612.73283657301313797645226"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                    "balance": Decimal("0E-20"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                    "balance": Decimal("0E-20"),
+                    "state": "locked",
+                },
+            ]
+        },
+        "positions_key": "liquidity_pool_address",
+        "protocol": "Balancer",
+        "underlying_version": 0,
+    } == underlying
+
+    underlying = Balancer.underlying(ETHEREUM, WALLET_39d, bbaUSD_ADDR, block)
+    assert {
+        "block": 17117344,
+        "blockchain": "ethereum",
+        "positions": {
+            "0xA13a9247ea42D743238089903570127DdA72fE44": [
+                {
+                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                    "balance": Decimal("8539.128631914474969130263864"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                    "balance": Decimal("0E-20"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                    "balance": Decimal("0E-20"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                    "balance": Decimal("9984.461044684933239332062933"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                    "balance": Decimal("0E-20"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                    "balance": Decimal("0E-20"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                    "balance": Decimal("10020.02915614176748146463595"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                    "balance": Decimal("0E-20"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                    "balance": Decimal("0E-20"),
+                    "state": "locked",
+                },
+            ]
+        },
+        "positions_key": "liquidity_pool_address",
+        "protocol": "Balancer",
+        "underlying_version": 0,
+    } == underlying
+
+    block = 28275634
+    underlying = Balancer.underlying(XDAI, WALLET_e6f, bb_ag_USD_ADDR, block, reward=True)
+    assert {
+        "block": 28275634,
+        "blockchain": "xdai",
+        "positions": {
+            "0xfedb19ec000d38d92af4b21436870f115db22725": [
+                {
+                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                    "balance": Decimal("0E-21"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                    "balance": Decimal("225689.5790202310752030943317"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                    "balance": Decimal("0E-21"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                    "balance": Decimal("0E-21"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                    "balance": Decimal("157457.9259177606355118786078"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                    "balance": Decimal("0E-21"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                    "balance": Decimal("0E-21"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                    "balance": Decimal("193285.0087113081451905116408"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                    "balance": Decimal("0E-21"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
+                    "balance": Decimal("72.028749058272541921"),
+                    "state": "bal_reward",
+                },
+            ]
+        },
+        "positions_key": "liquidity_pool_address",
+        "protocol": "Balancer",
+        "underlying_version": 0,
+    } == underlying
+
+    underlying = Balancer.underlying(XDAI, WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, reward=True)
+    assert {
+        "block": 28275634,
+        "blockchain": "xdai",
+        "positions": {
+            "0xB973Ca96a3f0D61045f53255E319AEDb6ED49240": [
+                {
+                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                    "balance": Decimal("0E-22"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                    "balance": Decimal("333762.1862551265554595821346"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                    "balance": Decimal("0E-22"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                    "balance": Decimal("0E-22"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                    "balance": Decimal("232857.4576888133034458734522"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                    "balance": Decimal("0E-22"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                    "balance": Decimal("0E-22"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                    "balance": Decimal("285840.5220032092259613956715"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                    "balance": Decimal("0E-22"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+                    "balance": Decimal("0E-24"),
+                    "state": "balance",
+                },
+                {
+                    "address": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+                    "balance": Decimal("7325.982201639479819930022796"),
+                    "state": "staked",
+                },
+                {
+                    "address": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+                    "balance": Decimal("0E-24"),
+                    "state": "locked",
+                },
+                {
+                    "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
+                    "balance": Decimal("422.039676607937704001"),
+                    "state": "bal_reward",
+                },
+            ]
+        },
+        "positions_key": "liquidity_pool_address",
+        "protocol": "Balancer",
+        "underlying_version": 0,
+    } == underlying
+
+
 def test_swap_fees():
     blockstart = date_to_block("2023-02-20 18:25:00", ETHEREUM)
     blockend = date_to_block("2023-02-20 18:30:00", ETHEREUM)

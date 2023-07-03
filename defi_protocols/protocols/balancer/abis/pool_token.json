@@ -50,5 +50,18 @@
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs":[],
+    "name":"UNDERLYING",
+    "outputs": [
+      {
+        "internalType":"contract IERC20Upgradeable",
+        "name":"",
+        "type":"address"
+      }
+    ],
+    "stateMutability":"view",
+    "type":"function"
   }
 ]

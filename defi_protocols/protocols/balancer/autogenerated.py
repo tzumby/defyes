@@ -210,6 +210,10 @@ class PoolToken:
     def st_eth(self) -> str:
         return self.contract.functions.stETH().call(block_identifier=self.block)
 
+    @property
+    def underlying(self) -> str:
+        return self.contract.functions.UNDERLYING().call(block_identifier=self.block)
+
 
 class Vault:
     default_addresses: dict[str, str]
