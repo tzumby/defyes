@@ -389,7 +389,7 @@ def get_compounded(wallet, block, blockchain, web3=None, reward=False, decimals=
 # underlying
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(
-    wallet, lptoken_address, block, blockchain, web3=None, reward=False, no_balancer_underlying=False, decimals=True
+    wallet, lptoken_address, block, blockchain, web3=None, reward=False, return_balancer_underlying=False, decimals=True
 ):
     result = {}
     balances = {}
@@ -407,17 +407,16 @@ def underlying(
 
     for rewarder in rewarders:
         rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
-        lptoken_staked = rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
+        lptoken_staked = Decimal(rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block))
 
-        if no_balancer_underlying is False:
+        if not return_balancer_underlying:
             balancer_data = balancer.underlying(
-                wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, aura_staked=lptoken_staked
+                blockchain, wallet, lptoken_address, block, aura_staked=lptoken_staked, decimals=decimals
             )
-            for i in range(len(balancer_data)):
-                if balancer_data[i][0] in balances.keys():
-                    balances[balancer_data[i][0]] += balancer_data[i][2]
-                else:
-                    balances[balancer_data[i][0]] = balancer_data[i][2]
+            positions = balancer_data["positions"][lptoken_address]
+            for position in positions:
+                if position["state"] == "staked":
+                    balances[position["address"]] = balances.get(position["address"], 0) + position["balance"]
         else:
             balances[lptoken_address] = to_token_amount(lptoken_address, lptoken_staked, blockchain, web3, decimals)
 
@@ -433,18 +432,8 @@ def underlying(
     return result
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# pool_balances
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
-    if web3 is None:
-        web3 = get_node(blockchain, block=block)
-
-    lptoken_address = Web3.to_checksum_address(lptoken_address)
-
-    balances = balancer.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
-
-    return balances
+def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: bool = True) -> None:
+    return balancer.pool_balances(blockchain, lp_address, block, decimals=decimals)
 
 
 def update_db(output_file=DB_FILE, block="latest"):
