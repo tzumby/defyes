@@ -413,10 +413,9 @@ def underlying(
             balancer_data = balancer.underlying(
                 blockchain, wallet, lptoken_address, block, aura_staked=lptoken_staked, decimals=decimals
             )
-            positions = balancer_data["positions"][lptoken_address]
+            positions = balancer_data["positions"][lptoken_address]["staked"]
             for position in positions:
-                if position["state"] == "staked":
-                    balances[position["address"]] = balances.get(position["address"], 0) + position["balance"]
+                balances[position["address"]] = balances.get(position["address"], 0) + position["balance"]
         else:
             balances[lptoken_address] = to_token_amount(lptoken_address, lptoken_staked, blockchain, web3, decimals)
 

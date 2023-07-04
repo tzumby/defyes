@@ -195,58 +195,36 @@ def test_underlying():
         "block": 16978206,
         "blockchain": "ethereum",
         "positions": {
-            "0x0b09deA16768f0799065C475bE02919503cB2a35": [
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("0E-17"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("0.4064524767585684232500351728"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("0E-17"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0E-18"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0.0003249882874596042694139236462"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0E-18"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("0.000001267800098374"),
-                    "state": "bal_reward",
-                },
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("0"),
-                    "state": "vebal_reward",
-                },
-                {
-                    "address": "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2",
-                    "balance": Decimal("0"),
-                    "state": "vebal_reward",
-                },
-                {
-                    "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
-                    "balance": Decimal("0"),
-                    "state": "vebal_reward",
-                },
-            ]
+            "0x0b09deA16768f0799065C475bE02919503cB2a35": {
+                "holdings": [
+                    {
+                        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                        "balance": Decimal("490641.01456184334243234"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("392.303140459421026549"),
+                    },
+                ],
+                "locked": [],
+                "staked": [
+                    {
+                        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                        "balance": Decimal("0.4064524767585684232500351728"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("0.0003249882874596042694139236462"),
+                    },
+                ],
+                "unclaimed_rewards": [
+                    {
+                        "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+                        "balance": Decimal("0.000001267800098374"),
+                    }
+                ],
+                "underlyings": [],
+            }
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
@@ -258,105 +236,93 @@ def test_underlying():
         "block": 16978206,
         "blockchain": "ethereum",
         "positions": {
-            "0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56": [
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("0E-18"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("1.381597279600636357432913945"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("1.000114468622601307282666145"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0E-18"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0.001299296197959105460435983484"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0.0009405381335007070147710888177"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("0.000019372013715193"),
-                    "state": "vebal_reward",
-                },
-                {
-                    "address": "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2",
-                    "balance": Decimal("0"),
-                    "state": "vebal_reward",
-                },
-                {
-                    "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
-                    "balance": Decimal("0.000210261212072964"),
-                    "state": "vebal_reward",
-                },
-            ],
-            "0x96646936b91d6B9D7D0c47C496AfBF3D6ec7B6f8": [
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("10.24608281454370054240898545"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("10.58962966563745330384918783"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("0.000000"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0.005458806906415149638057440356"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0.005641838408050662404836892297"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0E-18"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("0.002255938639324377"),
-                    "state": "bal_reward",
-                },
-                {
-                    "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                    "balance": Decimal("0.000019372013715193"),
-                    "state": "vebal_reward",
-                },
-                {
-                    "address": "0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2",
-                    "balance": Decimal("0"),
-                    "state": "vebal_reward",
-                },
-                {
-                    "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
-                    "balance": Decimal("0.000210261212072964"),
-                    "state": "vebal_reward",
-                },
-            ],
+            "0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56": {
+                "holdings": [
+                    {
+                        "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+                        "balance": Decimal("29457600.022323929554870281"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("27702.825038182648218688"),
+                    },
+                ],
+                "locked": [
+                    {
+                        "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+                        "balance": Decimal("1.000114468622601307282666145"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("0.0009405381335007070147710888177"),
+                    },
+                ],
+                "staked": [
+                    {
+                        "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+                        "balance": Decimal("1.381597279600636357432913945"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("0.001299296197959105460435983484"),
+                    },
+                ],
+                "unclaimed_rewards": [
+                    {
+                        "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+                        "balance": Decimal("0.000019372013715193"),
+                    },
+                    {
+                        "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
+                        "balance": Decimal("0.000210261212072964"),
+                    },
+                ],
+                "underlyings": [],
+            },
+            "0x96646936b91d6B9D7D0c47C496AfBF3D6ec7B6f8": {
+                "holdings": [
+                    {"address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "balance": Decimal("1129072.214823")},
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("601.535954342344676691"),
+                    },
+                ],
+                "locked": [],
+                "staked": [
+                    {
+                        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "balance": Decimal("10.58962966563745330384918783"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("0.005641838408050662404836892297"),
+                    },
+                ],
+                "unclaimed_rewards": [
+                    {
+                        "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+                        "balance": Decimal("0.002255938639324377"),
+                    },
+                    {
+                        "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+                        "balance": Decimal("0.000019372013715193"),
+                    },
+                    {
+                        "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
+                        "balance": Decimal("0.000210261212072964"),
+                    },
+                ],
+                "underlyings": [
+                    {
+                        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "balance": Decimal("10.24608281454370054240898545"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("0.005458806906415149638057440356"),
+                    },
+                ],
+            },
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
@@ -369,38 +335,31 @@ def test_underlying():
         "block": 17117344,
         "blockchain": "ethereum",
         "positions": {
-            "0x32296969Ef14EB0c6d29669C550D4a0449130230": [
-                {
-                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                    "balance": Decimal("10.15169431226039997458582647"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                    "balance": Decimal("0E-18"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                    "balance": Decimal("0E-18"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("10.93914528430790259522572181"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0E-16"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                    "balance": Decimal("0E-16"),
-                    "state": "locked",
-                },
-            ]
+            "0x32296969Ef14EB0c6d29669C550D4a0449130230": {
+                "holdings": [
+                    {
+                        "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "balance": Decimal("52328.066084017444291864"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("56387.0719243982421398"),
+                    },
+                ],
+                "locked": [],
+                "staked": [],
+                "unclaimed_rewards": [],
+                "underlyings": [
+                    {
+                        "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "balance": Decimal("10.15169431226039997458582647"),
+                    },
+                    {
+                        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "balance": Decimal("10.93914528430790259522572181"),
+                    },
+                ],
+            }
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
@@ -412,38 +371,31 @@ def test_underlying():
         "block": 17117344,
         "blockchain": "ethereum",
         "positions": {
-            "0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5": [
-                {
-                    "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
-                    "balance": Decimal("576.5066246253847582651532174"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
-                    "balance": Decimal("0E-18"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
-                    "balance": Decimal("0E-18"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                    "balance": Decimal("0.5871242486850998522269758922"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                    "balance": Decimal("0E-18"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                    "balance": Decimal("0E-18"),
-                    "state": "locked",
-                },
-            ]
+            "0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5": {
+                "holdings": [
+                    {
+                        "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+                        "balance": Decimal("378120.933296055908010702"),
+                    },
+                    {
+                        "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "balance": Decimal("385.084853132111425825"),
+                    },
+                ],
+                "locked": [],
+                "staked": [],
+                "unclaimed_rewards": [],
+                "underlyings": [
+                    {
+                        "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+                        "balance": Decimal("576.5066246253847582651532174"),
+                    },
+                    {
+                        "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "balance": Decimal("0.5871242486850998522269758922"),
+                    },
+                ],
+            }
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
@@ -455,53 +407,43 @@ def test_underlying():
         "block": 17117344,
         "blockchain": "ethereum",
         "positions": {
-            "0xA13a9247ea42D743238089903570127DdA72fE44": [
-                {
-                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                    "balance": Decimal("34610.41324141304294002886857"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                    "balance": Decimal("0E-20"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                    "balance": Decimal("0E-20"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("40468.56976223580477414327278"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("0E-20"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("0E-20"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("40612.73283657301313797645226"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("0E-20"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("0E-20"),
-                    "state": "locked",
-                },
-            ]
+            "0xA13a9247ea42D743238089903570127DdA72fE44": {
+                "holdings": [
+                    {
+                        "address": "0x2F4eb100552ef93840d5aDC30560E5513DFfFACb",
+                        "balance": Decimal("11332029.814825419341412989"),
+                    },
+                    {
+                        "address": "0x82698aeCc9E28e9Bb27608Bd52cF57f704BD1B83",
+                        "balance": Decimal("13325220.002583953736459274"),
+                    },
+                    {
+                        "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
+                        "balance": Decimal("2596148364817756.943379851079"),
+                    },
+                    {
+                        "address": "0xae37D54Ae477268B9997d4161B96b8200755935c",
+                        "balance": Decimal("13378302.414586698594765439"),
+                    },
+                ],
+                "locked": [],
+                "staked": [],
+                "unclaimed_rewards": [],
+                "underlyings": [
+                    {
+                        "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "balance": Decimal("34610.41324141304294002886857"),
+                    },
+                    {
+                        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "balance": Decimal("40468.56976223580477414327278"),
+                    },
+                    {
+                        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                        "balance": Decimal("40612.73283657301313797645226"),
+                    },
+                ],
+            }
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
@@ -513,53 +455,43 @@ def test_underlying():
         "block": 17117344,
         "blockchain": "ethereum",
         "positions": {
-            "0xA13a9247ea42D743238089903570127DdA72fE44": [
-                {
-                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                    "balance": Decimal("8539.128631914474969130263864"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                    "balance": Decimal("0E-20"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                    "balance": Decimal("0E-20"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("9984.461044684933239332062933"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("0E-20"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                    "balance": Decimal("0E-20"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("10020.02915614176748146463595"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("0E-20"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                    "balance": Decimal("0E-20"),
-                    "state": "locked",
-                },
-            ]
+            "0xA13a9247ea42D743238089903570127DdA72fE44": {
+                "holdings": [
+                    {
+                        "address": "0x2F4eb100552ef93840d5aDC30560E5513DFfFACb",
+                        "balance": Decimal("11332029.814825419341412989"),
+                    },
+                    {
+                        "address": "0x82698aeCc9E28e9Bb27608Bd52cF57f704BD1B83",
+                        "balance": Decimal("13325220.002583953736459274"),
+                    },
+                    {
+                        "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
+                        "balance": Decimal("2596148364817756.943379851079"),
+                    },
+                    {
+                        "address": "0xae37D54Ae477268B9997d4161B96b8200755935c",
+                        "balance": Decimal("13378302.414586698594765439"),
+                    },
+                ],
+                "locked": [],
+                "staked": [],
+                "unclaimed_rewards": [],
+                "underlyings": [
+                    {
+                        "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "balance": Decimal("8539.128631914474969130263864"),
+                    },
+                    {
+                        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "balance": Decimal("9984.461044684933239332062933"),
+                    },
+                    {
+                        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                        "balance": Decimal("10020.02915614176748146463595"),
+                    },
+                ],
+            }
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
@@ -572,58 +504,48 @@ def test_underlying():
         "block": 28275634,
         "blockchain": "xdai",
         "positions": {
-            "0xfedb19ec000d38d92af4b21436870f115db22725": [
-                {
-                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                    "balance": Decimal("0E-21"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                    "balance": Decimal("225689.5790202310752030943317"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                    "balance": Decimal("0E-21"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
-                    "balance": Decimal("0E-21"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
-                    "balance": Decimal("157457.9259177606355118786078"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
-                    "balance": Decimal("0E-21"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-                    "balance": Decimal("0E-21"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-                    "balance": Decimal("193285.0087113081451905116408"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-                    "balance": Decimal("0E-21"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
-                    "balance": Decimal("72.028749058272541921"),
-                    "state": "bal_reward",
-                },
-            ]
+            "0xfedb19ec000d38d92af4b21436870f115db22725": {
+                "holdings": [
+                    {
+                        "address": "0x41211BBa6d37F5a74b22e667533F080C7C7f3F13",
+                        "balance": Decimal("2619480.507926786960725886"),
+                    },
+                    {
+                        "address": "0xd16f72b02dA5f51231fDe542A8B9E2777a478c88",
+                        "balance": Decimal("1826631.941902284018190099"),
+                    },
+                    {
+                        "address": "0xE7f88d7d4EF2eb18FCF9Dd7216BA7Da1c46f3dD6",
+                        "balance": Decimal("2243330.603237051628643657"),
+                    },
+                    {
+                        "address": "0xFEdb19Ec000d38d92Af4B21436870F115db22725",
+                        "balance": Decimal("2596148429231805.855823796753"),
+                    },
+                ],
+                "locked": [],
+                "staked": [
+                    {
+                        "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                        "balance": Decimal("225689.5790202310752030943317"),
+                    },
+                    {
+                        "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                        "balance": Decimal("157457.9259177606355118786078"),
+                    },
+                    {
+                        "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                        "balance": Decimal("193285.0087113081451905116408"),
+                    },
+                ],
+                "unclaimed_rewards": [
+                    {
+                        "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
+                        "balance": Decimal("72.028749058272541921"),
+                    }
+                ],
+                "underlyings": [],
+            }
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
@@ -635,73 +557,44 @@ def test_underlying():
         "block": 28275634,
         "blockchain": "xdai",
         "positions": {
-            "0xB973Ca96a3f0D61045f53255E319AEDb6ED49240": [
-                {
-                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                    "balance": Decimal("0E-22"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                    "balance": Decimal("333762.1862551265554595821346"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                    "balance": Decimal("0E-22"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
-                    "balance": Decimal("0E-22"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
-                    "balance": Decimal("232857.4576888133034458734522"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
-                    "balance": Decimal("0E-22"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-                    "balance": Decimal("0E-22"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-                    "balance": Decimal("285840.5220032092259613956715"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-                    "balance": Decimal("0E-22"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
-                    "balance": Decimal("0E-24"),
-                    "state": "balance",
-                },
-                {
-                    "address": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
-                    "balance": Decimal("7325.982201639479819930022796"),
-                    "state": "staked",
-                },
-                {
-                    "address": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
-                    "balance": Decimal("0E-24"),
-                    "state": "locked",
-                },
-                {
-                    "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
-                    "balance": Decimal("422.039676607937704001"),
-                    "state": "bal_reward",
-                },
-            ]
+            "0xB973Ca96a3f0D61045f53255E319AEDb6ED49240": {
+                "holdings": [
+                    {
+                        "address": "0xFEdb19Ec000d38d92Af4B21436870F115db22725",
+                        "balance": Decimal("854876.917107917613140742"),
+                    },
+                    {
+                        "address": "0xFFFf76A3280e95dC855696111C2562Da09db2Ac0",
+                        "balance": Decimal("7349.079929627107612354"),
+                    },
+                ],
+                "locked": [],
+                "staked": [
+                    {
+                        "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                        "balance": Decimal("333762.1862551265554595821346"),
+                    },
+                    {
+                        "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+                        "balance": Decimal("232857.4576888133034458734522"),
+                    },
+                    {
+                        "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+                        "balance": Decimal("285840.5220032092259613956715"),
+                    },
+                    {
+                        "address": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+                        "balance": Decimal("7325.982201639479819930022796"),
+                    },
+                ],
+                "unclaimed_rewards": [
+                    {
+                        "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
+                        "balance": Decimal("422.039676607937704001"),
+                    }
+                ],
+                "underlyings": [],
+            }
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
