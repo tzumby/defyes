@@ -13,27 +13,6 @@ from defi_protocols.constants import (
 from defi_protocols.functions import GetNodeIndexError, block_to_timestamp, get_node, timestamp_to_block
 from defi_protocols.prices import Chainlink, CoinGecko, Zapper, _1inch
 
-"""
-The algorithm of the function consists of:
-first checking if there's a Chainlink price feed contract among these https://docs.chain.link/data-feeds/price-feeds/addresses
-if there's no Chainlink price feed, use 1inch to get the rate to the native token, and use the Chainlink price feed for the native token. 
-Here, we hardcoded some connectors for some tokens that act as middlemen.
- In other cases, try to use Coingecko
-"""
-
-
-"""
-elif price_feed_data["source"] == "zapper":
-    price_zapper = Zapper.get_price(
-        token_address_mapping,
-        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
-        price_feed_data["blockchain"],
-    )
-
-    # returns price, source and blockchain:
-    return price_zapper[1][1], "zapper", price_feed_data["blockchain"]
-"""
-
 ONEINCH_CONNECTOR_DICT = {
     "0x6aC78efae880282396a335CA2F79863A1e6831D4": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
     "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
@@ -45,7 +24,7 @@ ONEINCH_CONNECTOR_DICT = {
     "0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
 }
 
-SOURCES_LIST = ["chainlink", "1inch", "coingecko", "zapper"]
+SOURCES_LIST = ["chainlink", "1inch", "coingecko"]
 
 
 def get_price(token_address, block, blockchain, web3=None, source: str = "chainlink"):
@@ -67,11 +46,20 @@ def get_price(token_address, block, blockchain, web3=None, source: str = "chainl
 
     price = _get_price_from_source(source, token_address, block, blockchain)
 
-    while price is None:
+    # Created this flag to avoid returning None.
+    flag_zero = False
+
+    # Go to the next source in case price is None or 0.
+    while price is None or price == 0:
+        if price == 0:
+            flag_zero = True
         try:
             source = SOURCES_LIST[SOURCES_LIST.index(source) + 1]
             price = _get_price_from_source(source, token_address, block, blockchain)
+            print(source, price, type(0.0))
         except IndexError:
+            if flag_zero:
+                price = 0.0
             return (price, source, blockchain)
 
     return (price, source, blockchain)
@@ -99,7 +87,8 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
 
     elif source == 'coingecko':
         price = CoinGecko.get_price(token_address, block, blockchain)
-        # in case there are too many requests
+
+        # In case there is the error for too many requests
         while price[0] == 429:
             sleep(1)
             price = CoinGecko.get_price(token_address, block, blockchain)
