@@ -342,7 +342,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 12: total_supply(token_address, block, blockchain, execution=1, web3=None, index=0, decimals=True)
 
-  > Description: fucntion returns total suppy for a given token contract address
+  > Description: function returns total suppy for a given token contract address
 
   - <details><summary><b>Example</b></summary>
 
@@ -369,7 +369,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 15: get_contract_abi(contract_address, blockchain)
 
-  > fucntion returns abi for given contract address
+  > function returns abi for given contract address
 
   ### 16: get_contract(contract_address, blockchain, web3=None, abi=None, block='latest', index=0)
 
@@ -2145,7 +2145,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 2: get_pool_address(web3, token0, token1, block, blockchain)
 
-  > Description: function returns pool addres based on given token pair on Elk protocol
+  > Description: function returns pool address based on given token pair on Elk protocol
 
 
   - <details><summary><b>Example</b></summary>
@@ -2462,7 +2462,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 4: swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, execution=1, index=0, decimals=True)
 
-  > Description: fucntion returns swap fees for given lp token for give reange of blocks
+  > Description: function returns swap fees for given lp token for give reange of blocks
 
   - <details><summary><b>Example</b></summary>
 
@@ -2657,7 +2657,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 1: lptoken_underlying(lptoken_address, amount, block, blockchain)
 
-  > Description: fucntion returns underlying tokens for given lp token on Reflexer protocol
+  > Description: function returns underlying tokens for given lp token on Reflexer protocol
 
   - <details><summary><b>Example</b></summary>
 
@@ -2686,7 +2686,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 2: pool_balance(lptoken_address, block, blockchain)
 
-  > Description: fucntion returns pool balance for given lp token
+  > Description: function returns pool balance for given lp token
 
   - <details><summary><b>Example</b></summary>
 
@@ -2714,7 +2714,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 3: balance_of_lptoken_underlying(address, lptoken_address, block, blockchain)
 
-  > Description: fucntion returns balance of underlying tokens for given lp token
+  > Description: function returns balance of underlying tokens for given lp token
 
   - <details><summary><b>Example</b></summary>
 
@@ -3026,7 +3026,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defi_protoco
 
   ### 9: underlying(wallet, lptoken_address, block, blockchain, web3=None, execution=1, index=0, decimals=True, reward=False)
 
-  > Description: fucntion returns undrlying tokens for given wallet and lptoken
+  > Description: function returns undrlying tokens for given wallet and lptoken
 
     ```
     # Output: a list with 2 elements:
@@ -4201,7 +4201,7 @@ formatting.  It includes executing `black`, `isort` and `flake8` just in checkin
 and `isort` changes automatically to your working-copy code, use `make pretty`.
 
 `flake8` just check the code, but it doesn't apply chages automatically. You shoud decide how to make the changes
-yourself base on the `flake8` output. Anyway, many code formating rules `flake8` checks are sanitized automatically
+yourself base on the `flake8` output. Anyway, many code formatting rules `flake8` checks are sanitized automatically
 by `black`.
 
 > To change the default path where the linter checks, you could specify `make lint path=...`.
