@@ -1,12 +1,6 @@
-import json
-import os
-from datetime import datetime
-from pathlib import Path
 from time import sleep
 
-import pandas as pd
 import requests
-from tqdm import tqdm
 from web3 import Web3
 
 from defi_protocols.constants import (
@@ -105,7 +99,6 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
 
     elif source == 'coingecko':
         price = CoinGecko.get_price(token_address, block, blockchain)
-
         # in case there are too many requests
         while price[0] == 429:
             sleep(1)
@@ -132,62 +125,6 @@ def get_etherscan_price(token_address):
     return price, "etherscan", ETHEREUM
 
 
-def get_today_prices_data(file_name, return_type="df", web3=None):
-    file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/" + file_name, "r")
-    token_file = json.load(file)
-
-    price = []
-    source = []
-    time_stamp = []
-    blockchain = []
-    token_address_data = []
-    date_stamp = []
-
-    for j in tqdm((token_file.keys())):  # Recorro las blockchain
-        for k in tqdm((token_file[j].keys())):
-            token_address = k
-            token_blokchain = j
-            # token_symbol = token_file[j][token_address]["symbol"]
-            # print(token_address,token_blokchain,token_symbol)
-
-            now = datetime(
-                datetime.now().year,
-                datetime.now().month,
-                datetime.now().day,
-                datetime.now().hour,
-                datetime.now().minute,
-            )
-
-            # Use reference_block just if latest not needed.
-            # reference_block = (date_to_block(now.strftime('%Y-%m-%d %H:%M:%S'), token_blokchain))
-
-            data = get_price(token_address, "latest", token_blokchain, web3=web3)
-            # print('Price Of',token_symbol,data,)
-            price.append(data[0])
-            source.append(data[1])
-            time_stamp.append(now.strftime("%Y-%m-%d %H:%M:00"))
-            date_stamp.append(now.strftime("%Y-%m-%d"))
-            blockchain.append(data[2])
-            token_address_data.append(token_address)
-
-    # token_address.append(token_address[0])
-
-    data_raw = {
-        "Price_Datetime": time_stamp,
-        "Price_Date": date_stamp,  # .strftime("%Y-%m-%d")
-        "Price": price,
-        "Source": source,
-        "Token_Address": token_address_data,
-        "Blockchain": blockchain,
-    }
-
-    if return_type == "df":
-        df = pd.DataFrame(data_raw)
-        return df
-    else:
-        return data_raw
-
-
 if __name__ == "__main__":
     # print(Chainlink.get_mainnet_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203))
     # print(_1inch.get_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203, 'ethereum'))
@@ -199,4 +136,4 @@ if __name__ == "__main__":
     #         'ethereum',
     #     )
     # )
-    print(get_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203, 'ethereum'))
+    print(get_price('0xBFAbdE619ed5C4311811cF422562709710DB587d', 17628203, 'ethereum'))
