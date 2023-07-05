@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+from time import sleep
 
 import pandas as pd
 import requests
@@ -18,163 +19,111 @@ from defi_protocols.constants import (
 from defi_protocols.functions import GetNodeIndexError, block_to_timestamp, get_node, timestamp_to_block
 from defi_protocols.prices import Chainlink, CoinGecko, Zapper, _1inch
 
+"""
+The algorithm of the function consists of:
+first checking if there's a Chainlink price feed contract among these https://docs.chain.link/data-feeds/price-feeds/addresses
+if there's no Chainlink price feed, use 1inch to get the rate to the native token, and use the Chainlink price feed for the native token. 
+Here, we hardcoded some connectors for some tokens that act as middlemen.
+ In other cases, try to use Coingecko
+"""
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_price
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'token_mapping_data' = /db/token_mapping.json data
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_price(token_address, block, blockchain, web3=None, execution=1, index=0, token_mapping_data=None):
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
 
-    token_price = None
+"""
+elif price_feed_data["source"] == "zapper":
+    price_zapper = Zapper.get_price(
+        token_address_mapping,
+        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
+        price_feed_data["blockchain"],
+    )
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    # returns price, source and blockchain:
+    return price_zapper[1][1], "zapper", price_feed_data["blockchain"]
+"""
 
-        token_address = Web3.to_checksum_address(token_address)
+ONEINCH_CONNECTOR_DICT = {
+    "0x6aC78efae880282396a335CA2F79863A1e6831D4": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x532801ED6f82FFfD2DAB70A19fC2d7B2772C4f4b": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x4f4F9b8D5B4d0Dc10506e5551B0513B61fD59e75": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x177127622c4A00F3d409B75571e12cB3c8973d3c": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x6cAcDB97e3fC8136805a9E7c342d866ab77D0957": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0xf6537FE0df7F0Cc0985Cf00792CC98249E73EFa0": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+}
 
-        if token_address == ZERO_ADDRESS:
-            # returns price, source and blockchain:
-            return Chainlink.get_native_token_price(web3, block, blockchain), "Chainlink", blockchain
+SOURCES_LIST = ["chainlink", "1inch", "coingecko", "zapper"]
 
+
+def get_price(token_address, block, blockchain, web3=None, source: str = "chainlink"):
+    # Checks
+    assert source in SOURCES_LIST, 'Please input an existing oracle.'
+
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    token_address = Web3.to_checksum_address(token_address)
+
+    # Get price directly from Chainlink in case of native token.
+    if token_address == ZERO_ADDRESS:
+        return Chainlink.get_native_token_price(web3, block, blockchain), "chainlink", blockchain
+
+    # As chainlink is just for eth, we switch to 1inch in case of xdai and other blockchains.
+    if blockchain != ETHEREUM and source == "chainlink":
+        source = "1inch"
+
+    price = _get_price_from_source(source, token_address, block, blockchain)
+
+    while price is None:
         try:
-            if token_mapping_data is None:
-                with open(
-                    str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/token_mapping.json", "r"
-                ) as token_mapping_file:
-                    # Reading from json file
-                    token_mapping_data = json.load(token_mapping_file)
-                    token_mapping_file.close()
+            source = SOURCES_LIST[SOURCES_LIST.index(source) + 1]
+            price = _get_price_from_source(source, token_address, block, blockchain)
+        except IndexError:
+            return (price, source, blockchain)
 
-            try:
-                price_feed_data = token_mapping_data[blockchain][token_address]["price_feed"]
-
-                try:
-                    price_feed_data["source"]
-                    price_feed_data["blockchain"]
-                except:
-                    raise Exception
-
-                if blockchain == price_feed_data["blockchain"]:
-                    token_address_mapping = token_address
-                    block_price_feed = block
-                else:
-                    try:
-                        token_address_mapping = token_mapping_data[blockchain][token_address][
-                            price_feed_data["blockchain"]
-                        ]
-                    except:
-                        token_address_mapping = token_address
-
-                    block_price_feed = timestamp_to_block(
-                        block_to_timestamp(block, blockchain), price_feed_data["blockchain"]
-                    )
-
-                if price_feed_data["source"] == "1inch":
-                    try:
-                        connector = price_feed_data["connector"]
-
-                    except:
-                        connector = None
-
-                    # returns price, source and blockchain:
-                    return (
-                        _1inch.get_price(
-                            token_address_mapping, block_price_feed, price_feed_data["blockchain"], connector=connector
-                        ),
-                        "1inch",
-                        price_feed_data["blockchain"],
-                    )
-
-                elif price_feed_data["source"] == "coingecko":
-                    price_coingecko = CoinGecko.get_price(
-                        token_address_mapping,
-                        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
-                        price_feed_data["blockchain"],
-                    )
-
-                    while price_coingecko[0] == 429:
-                        price_coingecko = CoinGecko.get_price(
-                            token_address_mapping,
-                            block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
-                            price_feed_data["blockchain"],
-                        )
-
-                    # returns price, source and blockchain:
-                    return price_coingecko[1][1], "coingecko", price_feed_data["blockchain"]
-
-                elif price_feed_data["source"] == "zapper":
-                    price_zapper = Zapper.get_price(
-                        token_address_mapping,
-                        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
-                        price_feed_data["blockchain"],
-                    )
-
-                    # returns price, source and blockchain:
-                    return price_zapper[1][1], "zapper", price_feed_data["blockchain"]
-
-            except:
-                raise Exception
-
-        except:
-            if blockchain != ETHEREUM:
-                block_eth = timestamp_to_block(block_to_timestamp(block, blockchain), ETHEREUM)
-
-                try:
-                    token_address_eth = token_mapping_data[blockchain][token_address][ETHEREUM]
-                except:
-                    token_address_eth = None
-
-            else:
-                token_address_eth = token_address
-                block_eth = block
-
-            if token_address_eth is not None:
-                token_price = Chainlink.get_mainnet_price(token_address_eth, block_eth)
-                source = "Chainlink"
-                final_blockchain = "ETHEREUM"
-
-                if token_price is None:
-                    token_price = _1inch.get_price(token_address_eth, block_eth, ETHEREUM)
-                    source = "1inch"
-                    final_blockchain = "ETHEREUM"  # redundant but to stay clear
-
-            else:
-                token_price = _1inch.get_price(token_address, block, blockchain)
-                source = "1inch"
-                final_blockchain = blockchain
-
-            return token_price, source, final_blockchain
-
-    except GetNodeIndexError:
-        return get_price(
-            token_address, block, blockchain, token_mapping_data=token_mapping_data, index=0, execution=execution + 1
-        )
-
-    except:
-        return get_price(
-            token_address,
-            block,
-            blockchain,
-            token_mapping_data=token_mapping_data,
-            index=index + 1,
-            execution=execution,
-        )
+    return (price, source, blockchain)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_etherscan_price
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_etherscan_price(token_address):
+def _get_price_from_source(source: str, token_address: str, block: int, blockchain: str):
+    """Get the price from the selected source.
+    Used by the get_price function, it helps with the logic of choosing the source.
+
+    Returns:
+        float: price.
     """
+    if source == "chainlink":
+        try:
+            price = Chainlink.get_mainnet_price(token_address, block)
+        except Exception:
+            price = None
 
-    :param token_address:
+    elif source == "1inch":
+        connector = ONEINCH_CONNECTOR_DICT.get(token_address, None)
+        try:
+            price = _1inch.get_price(token_address, block, blockchain, connector=connector)
+        except Exception:
+            price = None
+
+    elif source == 'coingecko':
+        price = CoinGecko.get_price(token_address, block, blockchain)
+
+        # in case there are too many requests
+        while price[0] == 429:
+            sleep(1)
+            price = CoinGecko.get_price(token_address, block, blockchain)
+
+        price = price[1][1]
+
+    return price
+
+
+def get_etherscan_price(token_address):
+    """Get token price from etherscan.
+
+    Args:
+        token_address (str).
+
+    Returns:
+        float, str, str: price, source(etherscan), blockchain
     """
     price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()["result"][0][
         "tokenPriceUSD"
@@ -183,9 +132,6 @@ def get_etherscan_price(token_address):
     return price, "etherscan", ETHEREUM
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_today_prices_data
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_today_prices_data(file_name, return_type="df", web3=None):
     file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/" + file_name, "r")
     token_file = json.load(file)
@@ -240,3 +186,17 @@ def get_today_prices_data(file_name, return_type="df", web3=None):
         return df
     else:
         return data_raw
+
+
+if __name__ == "__main__":
+    # print(Chainlink.get_mainnet_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203))
+    # print(_1inch.get_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203, 'ethereum'))
+    # print(CoinGecko.get_price('0xae7ab96520de3a18e5e111b5eaab095312d7fe84', 17628203, 'ethereum'))
+    # print(
+    #     Zapper.get_price(
+    #         '0x4da27a545c0c5B758a6BA100e3a049001de870f5',
+    #         block_to_timestamp(17628203, 'ethereum'),
+    #         'ethereum',
+    #     )
+    # )
+    print(get_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203, 'ethereum'))
