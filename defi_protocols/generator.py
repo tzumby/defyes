@@ -188,7 +188,7 @@ def generate_classes():
             abi_path = protocol_path / "abis" / f"{abi_name}.json"
             class_name = snake_to_camel(abi_name)
             classes_name.append(class_name)
-            content += generate_contract_class(class_name, abi_path, config["const_call"])
+            content += generate_contract_class(class_name, abi_path, config.get("const_call", []))
 
         if not content:
             continue
