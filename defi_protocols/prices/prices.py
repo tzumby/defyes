@@ -1,18 +1,14 @@
 from time import sleep
+from typing import Tuple
 
 import requests
 from web3 import Web3
 
-from defi_protocols.constants import (
-    API_ETHERSCAN_GETTOKENINFO,
-    API_KEY_ETHERSCAN,
-    ETHEREUM,
-    MAX_EXECUTIONS,
-    ZERO_ADDRESS,
-)
-from defi_protocols.functions import GetNodeIndexError, block_to_timestamp, get_node, timestamp_to_block
-from defi_protocols.prices import Chainlink, CoinGecko, Zapper, _1inch
+from defi_protocols.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, ETHEREUM, ZERO_ADDRESS
+from defi_protocols.functions import get_node
+from defi_protocols.prices import Chainlink, CoinGecko, _1inch
 
+# Taken from token_mappings although all of them have the same value
 ONEINCH_CONNECTOR_DICT = {
     "0x6aC78efae880282396a335CA2F79863A1e6831D4": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
     "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
@@ -27,9 +23,24 @@ ONEINCH_CONNECTOR_DICT = {
 SOURCES_LIST = ["chainlink", "1inch", "coingecko"]
 
 
-def get_price(token_address, block, blockchain, web3=None, source: str = "chainlink"):
+def get_price(token_address, block, blockchain, web3=None, source: str = "chainlink") -> Tuple[int, str, str]:
+    """Function to get token prices.
+    You can specify the source. In case it is not specified, chainlink is the first oracle to check the price.
+    In case it doesn't work (price is Null), 1inch and then coingecko are used.
+    In case the price is 0, the other oracles will be checked.
+
+    Args:
+        token_address (str)
+        block (int)
+        blockchain (str)
+        web3 (web3, optional): web3 node. Defaults to None.
+        source (str, optional): Where to get the prices [chainlink, 1inch, coingecko]. Defaults to "chainlink".
+
+    Returns:
+        (float, str, str): price, source, blockchain
+    """
     # Checks
-    assert source in SOURCES_LIST, 'Please input an existing oracle.'
+    assert source in SOURCES_LIST, "Please input an existing oracle."
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -46,7 +57,7 @@ def get_price(token_address, block, blockchain, web3=None, source: str = "chainl
 
     price = _get_price_from_source(source, token_address, block, blockchain)
 
-    # Created this flag to avoid returning None.
+    # Created this flag to avoid returning None when 0s appear.
     flag_zero = False
 
     # Go to the next source in case price is None or 0.
@@ -85,7 +96,7 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
         except Exception:
             price = None
 
-    elif source == 'coingecko':
+    elif source == "coingecko":
         price = CoinGecko.get_price(token_address, block, blockchain)
 
         # In case there is the error for too many requests
@@ -125,4 +136,4 @@ if __name__ == "__main__":
     #         'ethereum',
     #     )
     # )
-    print(get_price('0xBFAbdE619ed5C4311811cF422562709710DB587d', 17628203, 'ethereum'))
+    print(get_price("0xBFAbdE619ed5C4311811cF422562709710DB587d", 17628203, "ethereum"))
