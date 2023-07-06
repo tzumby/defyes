@@ -281,7 +281,7 @@ class Gauge(Gauge):
 
     @property
     def decimals(self):
-        return 18 if self.address == ZERO_ADDRESS else super().decimals()
+        return 18 if self.address == ZERO_ADDRESS else super().decimals
 
     def balance_of(self, wallet: str) -> Decimal:
         wallet = Web3.to_checksum_address(wallet)
