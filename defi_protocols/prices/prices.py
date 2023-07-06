@@ -5,7 +5,7 @@ import requests
 from web3 import Web3
 
 from defi_protocols.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, ETHEREUM, ZERO_ADDRESS
-from defi_protocols.functions import get_node
+from defi_protocols.functions import block_to_timestamp, get_node
 from defi_protocols.prices import Chainlink, CoinGecko, _1inch
 
 # Taken from token_mappings although all of them have the same value
@@ -67,7 +67,6 @@ def get_price(token_address, block, blockchain, web3=None, source: str = "chainl
         try:
             source = SOURCES_LIST[SOURCES_LIST.index(source) + 1]
             price = _get_price_from_source(source, token_address, block, blockchain)
-            print(source, price, type(0.0))
         except IndexError:
             if flag_zero:
                 price = 0.0
@@ -97,7 +96,8 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
             price = None
 
     elif source == "coingecko":
-        price = CoinGecko.get_price(token_address, block, blockchain)
+        unix_timestamp = block_to_timestamp(block, blockchain)
+        price = CoinGecko.get_price(token_address, unix_timestamp, blockchain)
 
         # In case there is the error for too many requests
         while price[0] == 429:
@@ -128,7 +128,7 @@ def get_etherscan_price(token_address):
 if __name__ == "__main__":
     # print(Chainlink.get_mainnet_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203))
     # print(_1inch.get_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203, 'ethereum'))
-    # print(CoinGecko.get_price('0xae7ab96520de3a18e5e111b5eaab095312d7fe84', 17628203, 'ethereum'))
+    # print(    .get_price('0xae7ab96520de3a18e5e111b5eaab095312d7fe84', 17628203, 'ethereum'))
     # print(
     #     Zapper.get_price(
     #         '0x4da27a545c0c5B758a6BA100e3a049001de870f5',
@@ -136,4 +136,18 @@ if __name__ == "__main__":
     #         'ethereum',
     #     )
     # )
-    print(get_price("0xBFAbdE619ed5C4311811cF422562709710DB587d", 17628203, "ethereum"))
+
+    x = get_price('0x1f9840a85d5af5bf1d1762f925bdaddc4201f984', 17628203, 'ethereum', source='coingecko')
+    print(x)
+    # from pandas import read_csv
+
+    # from defi_protocols.functions import date_to_block
+
+    # data = read_csv("./data.csv")[['token_blockchain', 'token_addres']]
+    # for token in data.iterrows():
+    #     print(token[1]['token_addres'], token[1]['token_blockchain'])
+    #     try:
+    #         block = date_to_block('2023-06-07 00:00:00', blockchain=token[1]['token_blockchain'])
+    #         print(get_price(token[1]['token_addres'], block, token[1]['token_blockchain']))
+    #     except:
+    #         print(f"Could not get price for : {token[1]['token_addres']} {token[1]['token_blockchain']}")
