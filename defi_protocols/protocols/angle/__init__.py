@@ -128,7 +128,7 @@ class VaultManager(VaultManager):
         return data
 
 
-def underlying(blockchain: str, wallet: str, block: int | str = "latest", decimals: bool = True) -> dict:
+def get_protocol_data_for(blockchain: str, wallet: str, block: int | str = "latest", decimals: bool = True) -> dict:
     """
     TODO: Add documentation
     """
@@ -150,5 +150,5 @@ def underlying(blockchain: str, wallet: str, block: int | str = "latest", decima
         "block": block,
         "positions_key": "vault_id",
         "positions": positions,
-        "underlying_version": 0,
+        "version": 0,
     }

@@ -410,7 +410,7 @@ def underlying(
         lptoken_staked = Decimal(rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block))
 
         if not return_balancer_underlying:
-            balancer_data = balancer.underlying(
+            balancer_data = balancer.get_protocol_data_for(
                 blockchain, wallet, lptoken_address, block, aura_staked=lptoken_staked, decimals=decimals
             )
             positions = balancer_data["positions"][lptoken_address]["staked"]

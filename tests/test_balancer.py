@@ -188,9 +188,9 @@ def test_vebal_rewards():
     }
 
 
-def test_underlying():
+def test_protocol_data():
     block = 16978206
-    underlying = Balancer.underlying(ETHEREUM, WALLET_N1, B60WETH40DAI_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N1, B60WETH40DAI_ADDR, block, reward=True)
     assert {
         "block": 16978206,
         "blockchain": "ethereum",
@@ -228,10 +228,12 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
-    underlying = Balancer.underlying(ETHEREUM, WALLET_N2, [B50USDC50WETH_ADDR, B80BAL20WETH_ADDR], block, reward=True)
+    underlying = Balancer.get_protocol_data_for(
+        ETHEREUM, WALLET_N2, [B50USDC50WETH_ADDR, B80BAL20WETH_ADDR], block, reward=True
+    )
     assert {
         "block": 16978206,
         "blockchain": "ethereum",
@@ -326,11 +328,11 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
     block = 17117344
-    underlying = Balancer.underlying(ETHEREUM, WALLET_N4, BstETHSTABLE_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N4, BstETHSTABLE_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -363,10 +365,10 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
-    underlying = Balancer.underlying(ETHEREUM, WALLET_N5, B50wstETH50LDO_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N5, B50wstETH50LDO_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -399,10 +401,10 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
-    underlying = Balancer.underlying(ETHEREUM, WALLET_N6, bbaUSD_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N6, bbaUSD_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -447,10 +449,10 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
-    underlying = Balancer.underlying(ETHEREUM, WALLET_39d, bbaUSD_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_39d, bbaUSD_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -495,11 +497,11 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
     block = 28275634
-    underlying = Balancer.underlying(XDAI, WALLET_e6f, bb_ag_USD_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(XDAI, WALLET_e6f, bb_ag_USD_ADDR, block, reward=True)
     assert {
         "block": 28275634,
         "blockchain": "xdai",
@@ -549,10 +551,10 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
-    underlying = Balancer.underlying(XDAI, WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(XDAI, WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, reward=True)
     assert {
         "block": 28275634,
         "blockchain": "xdai",
@@ -598,7 +600,7 @@ def test_underlying():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
-        "underlying_version": 0,
+        "version": 0,
     } == underlying
 
 

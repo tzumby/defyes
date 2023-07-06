@@ -32,9 +32,9 @@ def test_angle_treasury():
 
 
 @pytest.mark.parametrize("decimals", [True, False])
-def test_underlying(decimals):
+def test_protocol_data(decimals):
     block = 17451062
-    underlying = Angle.underlying(ETHEREUM, WALLET, block, decimals=decimals)
+    underlying = Angle.get_protocol_data_for(ETHEREUM, WALLET, block, decimals=decimals)
     assert underlying == {
         "block": 17451062,
         "blockchain": "ethereum",
@@ -68,5 +68,5 @@ def test_underlying(decimals):
         },
         "positions_key": "vault_id",
         "protocol": "Angle",
-        "underlying_version": 0,
+        "version": 0,
     }

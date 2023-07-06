@@ -423,7 +423,7 @@ def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: 
     return balances
 
 
-def underlying(
+def get_protocol_data_for(
     blockchain: str,
     wallet: str,
     lp_addrs: str | list,
@@ -509,7 +509,7 @@ def underlying(
         "block": block,
         "positions": positions,
         "positions_key": "liquidity_pool_address",
-        "underlying_version": 0,
+        "version": 0,
     }
 
 
