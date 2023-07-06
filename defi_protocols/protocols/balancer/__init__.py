@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
+from functools import cached_property
 
 from defi_protocols.constants import ZERO_ADDRESS
 from defi_protocols.functions import block_to_date, date_to_block, get_logs_web3, get_node, last_block, to_token_amount
@@ -121,12 +122,8 @@ class PoolToken(PoolToken):
 
 
 class LiquidityPool(LiquidityPool):
-    def __init__(self, blockchain: str, block: int, address: str | None = None) -> None:
-        super().__init__(blockchain, block, address)
-        self.poolid = self._pool_id()
-        self.bpt_index = self._bpt_index()
-
-    def _pool_id(self):
+    @cached_property
+    def poolid(self):
         try:
             pool_id = self.get_pool_id
         except ContractLogicError:
@@ -136,7 +133,8 @@ class LiquidityPool(LiquidityPool):
                 raise (e)
         return pool_id
 
-    def _bpt_index(self) -> int | None:
+    @cached_property
+    def bpt_index(self) -> int | None:
         try:
             bpt_index = self.get_bpt_index
         except Exception as e:
@@ -147,7 +145,7 @@ class LiquidityPool(LiquidityPool):
 
         return bpt_index
 
-    @property
+    @cached_property
     def supply(self) -> int:
         try:
             supply = self.get_actual_supply
@@ -165,7 +163,7 @@ class LiquidityPool(LiquidityPool):
 
         return supply
 
-    @property
+    @cached_property
     def scaling_factors(self) -> int | None:
         try:
             scaling_factors = self.get_scaling_factors
