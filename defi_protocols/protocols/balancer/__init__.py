@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
+from functools import cached_property
 
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
-from functools import cached_property
 
 from defi_protocols.constants import ZERO_ADDRESS
 from defi_protocols.functions import block_to_date, date_to_block, get_logs_web3, get_node, last_block, to_token_amount
