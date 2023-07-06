@@ -8,7 +8,7 @@ from web3.middleware.cache import generate_cache_key
 
 logger = logging.getLogger(__name__)
 
-VERSION = 4
+VERSION = 5
 VERSION_CACHE_KEY = "VERSION"
 
 _cache = None
