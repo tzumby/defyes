@@ -95,15 +95,15 @@ def test_underlying(decimals):
         "staked": [
             {
                 "token": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
-                "balance": Decimal('0.07686806695505101814029978496')
+                "balance": Decimal("0.07686806695505101814029978496")
                 if decimals
-                else Decimal('76868066955051018.14029978496'),
+                else Decimal("76868066955051018.14029978496"),
             },
             {
                 "token": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                "balance": Decimal('2.371126678438365204394926979')
+                "balance": Decimal("2.371126678438365204394926979")
                 if decimals
-                else Decimal('2371126678438365204.394926979'),
+                else Decimal("2371126678438365204.394926979"),
             },
         ],
     }
@@ -128,15 +128,15 @@ def test_underlying(decimals):
         "staked": [
             {
                 "token": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
-                "balance": Decimal('0.07686806695505101814029978496')
+                "balance": Decimal("0.07686806695505101814029978496")
                 if decimals
-                else Decimal('76868066955051018.14029978496'),
+                else Decimal("76868066955051018.14029978496"),
             },
             {
                 "token": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-                "balance": Decimal('2.371126678438365204394926979')
+                "balance": Decimal("2.371126678438365204394926979")
                 if decimals
-                else Decimal('2371126678438365204.394926979'),
+                else Decimal("2371126678438365204.394926979"),
             },
         ],
         "rewards": [
@@ -184,11 +184,11 @@ def test_pool_balances(decimals):
         "pool_balances": [
             {
                 "token": "0x3a97704a1b25F08aa230ae53B352e2e72ef52843",
-                "balance": Decimal('55.621541945592597257') if decimals else Decimal('55621541945592597257'),
+                "balance": Decimal("55.621541945592597257") if decimals else Decimal("55621541945592597257"),
             },
             {
                 "token": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
-                "balance": Decimal('24.02974971951759389') if decimals else Decimal('24029749719517593890'),
+                "balance": Decimal("24.02974971951759389") if decimals else Decimal("24029749719517593890"),
             },
         ],
     }
