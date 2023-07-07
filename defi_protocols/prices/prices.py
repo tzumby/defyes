@@ -126,7 +126,7 @@ def get_etherscan_price(token_address):
 
 
 if __name__ == "__main__":
-    x = get_price('0x1f9840a85d5af5bf1d1762f925bdaddc4201f984', 17628203, 'ethereum', source='coingecko')
+    x = get_price("0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", 17628203, "ethereum", source="coingecko")
     print(x)
     # from pandas import read_csv
 
