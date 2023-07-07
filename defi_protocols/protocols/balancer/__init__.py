@@ -213,6 +213,12 @@ class LiquidityPool(LiquidityPool):
 
         return swaps
 
+    def calc_balance(self, wallet: str, decimals: bool = True) -> Decimal:
+        token_amount = Decimal(self.balance_of(wallet))
+        if decimals:
+            token_amount = token_amount / Decimal(10**self.decimals)
+        return token_amount
+
 
 class GaugeFactory(GaugeFactory):
     default_addresses: dict[str, str] = {
@@ -251,7 +257,7 @@ class GaugeFactory(GaugeFactory):
             gauge_created_event = Web3.keccak(text=gauge_created_event_signature).hex()
 
             gauge_address = ZERO_ADDRESS
-            if self.block >= block_from:
+            if self.block == "latest" or self.block >= block_from:
                 logs = get_logs_web3(
                     address=self.address,
                     blockchain=self.blockchain,
@@ -300,9 +306,12 @@ class Gauge(Gauge):
         rewards = {}
         if self.address != ZERO_ADDRESS:
             wallet = Web3.to_checksum_address(wallet)
-            tokens = [self.reward_tokens(n) for n in range(self.reward_count)]
 
-            rewards = {}
+            # BAL rewards
+            bal_decimals = Decimal(10**18) if decimals else 1
+            rewards = {self.BAL_ADDRS[self.blockchain]: self.claimable_tokens(wallet) / bal_decimals}
+
+            tokens = [self.reward_tokens(n) for n in range(self.reward_count)]
             for token_address in tokens:
                 if self.blockchain == "ethereum":
                     token_reward = self.claimable_reward(wallet, token_address)
@@ -317,14 +326,11 @@ class Gauge(Gauge):
 
         return rewards
 
-    def get_bal_rewards(self, wallet: str, decimals: bool = True) -> dict:
-        rewards = {}
-        if self.address != ZERO_ADDRESS:
-            wallet = Web3.to_checksum_address(wallet)
-            reward_decimals = Decimal(10**18) if decimals else 1
-            rewards = {self.BAL_ADDRS[self.blockchain]: self.claimable_tokens(wallet) / reward_decimals}
-
-        return rewards
+    def calc_balance(self, wallet: str, decimals: bool = True) -> Decimal:
+        token_amount = Decimal(self.balance_of(wallet))
+        if decimals:
+            token_amount = token_amount / Decimal(10**self.decimals)
+        return token_amount
 
 
 class GaugeRewardHelper(GaugeRewardHelper):
@@ -354,6 +360,12 @@ class Vebal(Vebal):
                 pass
 
         return balance
+
+    def calc_balance(self, wallet: str, token_address: str, decimals: bool = True) -> Decimal:
+        token_amount = Decimal(self.balance_of(wallet, token_address))
+        if decimals:
+            token_amount = token_amount / Decimal(10**18)
+        return token_amount
 
 
 class VebalFeeDistributor(VebalFeeDistributor):
@@ -427,46 +439,52 @@ def get_protocol_data_for(
     lp_addrs: str | list,
     block: int | str = "latest",
     reward: bool = False,
-    aura_staked: Decimal = None,
     decimals: bool = True,
+    aura_staked: Decimal = None,
 ) -> None:
     if isinstance(lp_addrs, str):
         lp_addrs = [lp_addrs]
 
     positions = {}
     for lp_address in lp_addrs:
-        positions[lp_address] = {}
+        positions[lp_address] = {"liquidity": {}, "staked": {}, "locked": {}, "financial_metrics": {}}
         gauge_address = GaugeFactory(blockchain, block, lp_address).gauge_address
         gauge = Gauge(blockchain, block, gauge_address)
         lp = LiquidityPool(blockchain, block, lp_address)
 
-        pool_balance_fraction = lp.balance_of(wallet) / Decimal(lp.supply)
-        pool_staked_fraction = gauge.balance_of(wallet) / Decimal(lp.supply)
+        lp_balance = lp.balance_of(wallet)
+        pool_balance_fraction = lp_balance / Decimal(lp.supply)
+        if lp_balance:
+            positions[lp_address]["liquidity"] = {
+                "holdings": [{"address": lp_address, "balance": lp.calc_balance(wallet, decimals)}]
+            }
+
+        lp_balance_staked = gauge.balance_of(wallet)
+        pool_staked_fraction = lp_balance_staked / Decimal(lp.supply)
+        if lp_balance_staked:
+            positions[lp_address]["staked"] = {
+                "holdings": [{"address": lp_address, "balance": gauge.calc_balance(wallet, decimals)}]
+            }
 
         if blockchain == "ethereum":
             vebal = Vebal(blockchain, block)
-            pool_locked_fraction = vebal.balance_of(wallet, lp.address) / Decimal(lp.supply)
+            lp_balance_locked = vebal.balance_of(wallet, lp.address)
+            pool_locked_fraction = lp_balance_locked / Decimal(lp.supply)
+            if lp_balance_locked:
+                positions[lp_address]["locked"] = {
+                    "holdings": [{"address": lp_address, "balance": vebal.calc_balance(wallet, lp_address, decimals)}]
+                }
         else:
             pool_locked_fraction = Decimal(0)
 
-        pool_tokens = Vault(blockchain, block).get_pool_data(lp.poolid)
-        positions[lp_address]["holdings"] = []
-        for token_addr, balance in pool_tokens:
-            token = PoolToken(blockchain, block, token_addr)
-            positions[lp_address]["holdings"].append(
-                {"address": token.address, "balance": token.calc_amount(balance, decimals)}
-            )
-
         balances = pool_balances(blockchain, lp_address, block, decimals)
-
-        positions[lp_address]["underlyings"] = []
-        positions[lp_address]["staked"] = []
-        positions[lp_address]["locked"] = []
-        positions[lp_address]["unclaimed_rewards"] = []
         for addr, amount in balances.items():
             balance = amount * pool_balance_fraction
             if balance:
-                positions[lp_address]["underlyings"].append({"address": addr, "balance": balance})
+                positions[lp_address]["liquidity"]["underlyings"] = positions[lp_address]["liquidity"].get(
+                    "underlyings", []
+                )
+                positions[lp_address]["liquidity"]["underlyings"].append({"address": addr, "balance": balance})
 
             if aura_staked is None:
                 balance_staked = amount * pool_staked_fraction
@@ -474,32 +492,34 @@ def get_protocol_data_for(
                 aura_pool_fraction = aura_staked / Decimal(lp.supply)
                 balance_staked = amount * aura_pool_fraction
             if balance_staked:
-                positions[lp_address]["staked"].append({"address": addr, "balance": balance_staked})
+                positions[lp_address]["staked"]["underlyings"] = positions[lp_address]["staked"].get("underlyings", [])
+                positions[lp_address]["staked"]["underlyings"].append({"address": addr, "balance": balance_staked})
 
             balance_locked = amount * pool_locked_fraction
             if balance_locked:
-                positions[lp_address]["locked"].append({"address": addr, "balance": balance_locked})
+                positions[lp_address]["locked"]["underlyings"] = positions[lp_address]["locked"].get("underlyings", [])
+                positions[lp_address]["locked"]["underlyings"].append({"address": addr, "balance": balance_locked})
 
         if reward:
-            bal_reward = gauge.get_bal_rewards(wallet)
-            for addr, reward in bal_reward.items():
-                # bal_rewards
-                if reward:
-                    positions[lp_address]["unclaimed_rewards"].append({"address": addr, "balance": reward})
-
             rewards = gauge.get_rewards(wallet)
             for addr, reward in rewards.items():
-                # reward
                 if reward:
-                    positions[lp_address]["unclaimed_rewards"].append({"address": addr, "balance": reward})
+                    positions[lp_address]["staked"]["unclaimed_rewards"] = positions[lp_address]["staked"].get(
+                        "unclaimed_rewards", []
+                    )
+                    positions[lp_address]["staked"]["unclaimed_rewards"].append({"address": addr, "balance": reward})
 
             if blockchain == "ethereum":
                 vebal_distributor = VebalFeeDistributor(blockchain, block)
                 vebal_rewards = vebal_distributor.get_rewards(wallet)
                 for addr, reward in vebal_rewards.items():
-                    # vebal_rewards
                     if reward:
-                        positions[lp_address]["unclaimed_rewards"].append({"address": addr, "balance": reward})
+                        positions[lp_address]["locked"]["unclaimed_rewards"] = positions[lp_address]["locked"].get(
+                            "unclaimed_rewards", []
+                        )
+                        positions[lp_address]["locked"]["unclaimed_rewards"].append(
+                            {"address": addr, "balance": reward}
+                        )
 
     return {
         "protocol": "Balancer",

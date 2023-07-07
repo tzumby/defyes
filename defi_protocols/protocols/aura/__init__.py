@@ -413,7 +413,7 @@ def underlying(
             balancer_data = balancer.get_protocol_data_for(
                 blockchain, wallet, lptoken_address, block, aura_staked=lptoken_staked, decimals=decimals
             )
-            positions = balancer_data["positions"][lptoken_address]["staked"]
+            positions = balancer_data["positions"][lptoken_address]["staked"].get("underlyings", [])
             for position in positions:
                 balances[position["address"]] = balances.get(position["address"], 0) + position["balance"]
         else:

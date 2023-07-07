@@ -34,24 +34,12 @@ def test_angle_treasury():
 @pytest.mark.parametrize("decimals", [True, False])
 def test_protocol_data(decimals):
     block = 17451062
-    underlying = Angle.get_protocol_data_for(ETHEREUM, WALLET, block, decimals=decimals)
-    assert underlying == {
+    underlying = Angle.get_protocol_data(ETHEREUM, WALLET, block, decimals=decimals)
+    assert {
         "block": 17451062,
         "blockchain": "ethereum",
         "positions": {
             "19": {
-                "assets": [
-                    {
-                        "address": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
-                        "balance": Decimal("-235029.284458768826450263")
-                        if decimals
-                        else Decimal("-235029284458768826450263"),
-                    },
-                    {
-                        "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                        "balance": Decimal("475") if decimals else Decimal("475000000000000000000"),
-                    },
-                ],
                 "financial_metrics": {
                     "anual_interest_rate": Decimal("0.004987542475021200498864000"),
                     "available_to_borrow": {
@@ -64,9 +52,25 @@ def test_protocol_data(decimals):
                     "liquidation_price_in_stablecoin_fiat": Decimal("642.5954462304000723178755981"),
                     "liquidation_ratio": Decimal("1.298701298701298701298701299"),
                 },
+                "liquidity": {
+                    "underlyings": [
+                        {
+                            "address": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
+                            "balance": Decimal("-235029.284458768826450263")
+                            if decimals
+                            else Decimal("-235029284458768826450263"),
+                        },
+                        {
+                            "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                            "balance": Decimal("475") if decimals else Decimal("475000000000000000000"),
+                        },
+                    ]
+                },
+                "locked": {},
+                "staked": {},
             }
         },
         "positions_key": "vault_id",
         "protocol": "Angle",
         "version": 0,
-    }
+    } == underlying
