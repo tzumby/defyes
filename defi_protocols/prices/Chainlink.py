@@ -127,4 +127,4 @@ def get_mainnet_price(token_address, block, web3=None, execution=1, index=0):
         return get_mainnet_price(token_address, block, index=0, execution=execution + 1)
 
     except:
-        return get_mainnet_price(token_address, block, index=index + 1, execution=execution)
+        return get_mainnet_price(token_address, block, index=index + 1, execution=execution + 1)

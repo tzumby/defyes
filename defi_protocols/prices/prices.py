@@ -126,17 +126,6 @@ def get_etherscan_price(token_address):
 
 
 if __name__ == "__main__":
-    # print(Chainlink.get_mainnet_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203))
-    # print(_1inch.get_price('0x4da27a545c0c5B758a6BA100e3a049001de870f5', 17628203, 'ethereum'))
-    # print(    .get_price('0xae7ab96520de3a18e5e111b5eaab095312d7fe84', 17628203, 'ethereum'))
-    # print(
-    #     Zapper.get_price(
-    #         '0x4da27a545c0c5B758a6BA100e3a049001de870f5',
-    #         block_to_timestamp(17628203, 'ethereum'),
-    #         'ethereum',
-    #     )
-    # )
-
     x = get_price('0x1f9840a85d5af5bf1d1762f925bdaddc4201f984', 17628203, 'ethereum', source='coingecko')
     print(x)
     # from pandas import read_csv

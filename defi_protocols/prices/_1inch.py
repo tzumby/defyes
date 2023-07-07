@@ -12,7 +12,7 @@ from defi_protocols.constants import (
     XDAI,
     ZERO_ADDRESS,
 )
-from defi_protocols.functions import GetNodeIndexError, get_contract, get_decimals, get_node
+from defi_protocols.functions import get_contract, get_decimals, get_node
 from defi_protocols.prices import Chainlink
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ def get_oracle_address(blockchain):
 # 'use_wrappers' = True / False -> To handle wrapped tokens, such as wETH, cDAI, aDAI etc., the 1inch spot price aggregator uses custom wrapper smart contracts that
 #                                  wrap/unwrap tokens at the current wrapping exchange rate
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_rate(token_src, block, blockchain, web3=None, execution=1, index=0, use_wrappers=False, token_dst=None):
+def get_rate(token_src, block, blockchain, web3=None, use_wrappers=False, token_dst=None):
     """
 
     :param token_src:
@@ -100,61 +100,34 @@ def get_rate(token_src, block, blockchain, web3=None, execution=1, index=0, use_
     :param token_dst:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    token_src = Web3.to_checksum_address(token_src)
 
-        token_src = Web3.to_checksum_address(token_src)
+    if token_dst is not None:
+        token_dst = Web3.to_checksum_address(token_dst)
 
-        if token_dst is not None:
-            token_dst = Web3.to_checksum_address(token_dst)
+    oracle_address = get_oracle_address(blockchain)
+    oracle_contract = get_contract(oracle_address, blockchain, web3=web3, abi=ABI_ORACLE, block=block)
 
-        oracle_address = get_oracle_address(blockchain)
-        oracle_contract = get_contract(oracle_address, blockchain, web3=web3, abi=ABI_ORACLE, block=block)
+    token_src_decimals = get_decimals(token_src, blockchain, web3=web3)
 
-        token_src_decimals = get_decimals(token_src, blockchain, web3=web3)
+    if token_dst is not None:
+        token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
+    else:
+        token_dst_decimals = 18
 
-        if token_dst is not None:
-            token_dst_decimals = get_decimals(token_dst, blockchain, web3=web3)
-        else:
-            token_dst_decimals = 18
-
-        if token_dst is None:
-            rate = oracle_contract.functions.getRateToEth(token_src, use_wrappers).call(block_identifier=block) / (
-                10 ** abs(18 + token_dst_decimals - token_src_decimals)
-            )
-        else:
-            rate = oracle_contract.functions.getRate(token_src, token_dst, use_wrappers).call(
-                block_identifier=block
-            ) / (10 ** abs(18 + token_dst_decimals - token_src_decimals))
-
-        return rate
-
-    except GetNodeIndexError:
-        return get_rate(
-            token_src,
-            block,
-            blockchain,
-            use_wrappers=use_wrappers,
-            token_dst=token_dst,
-            index=0,
-            execution=execution + 1,
+    if token_dst is None:
+        rate = oracle_contract.functions.getRateToEth(token_src, use_wrappers).call(block_identifier=block) / (
+            10 ** abs(18 + token_dst_decimals - token_src_decimals)
+        )
+    else:
+        rate = oracle_contract.functions.getRate(token_src, token_dst, use_wrappers).call(block_identifier=block) / (
+            10 ** abs(18 + token_dst_decimals - token_src_decimals)
         )
 
-    except:
-        return get_rate(
-            token_src,
-            block,
-            blockchain,
-            use_wrappers=use_wrappers,
-            token_dst=token_dst,
-            index=index + 1,
-            execution=execution,
-        )
+    return rate
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -167,7 +140,7 @@ def get_rate(token_src, block, blockchain, web3=None, execution=1, index=0, use_
 # 'use_wrappers' = True / False -> To handle wrapped tokens, such as wETH, cDAI, aDAI etc., the 1inch spot price aggregator uses custom wrapper smart contracts that
 #                                  wrap/unwrap tokens at the current wrapping exchange rate
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_price(token_src, block, blockchain, web3=None, execution=1, index=0, use_wrappers=False, connector=None):
+def get_price(token_src, block, blockchain, web3=None, use_wrappers=False, connector=None):
     """
 
     :param token_src:
@@ -181,52 +154,25 @@ def get_price(token_src, block, blockchain, web3=None, execution=1, index=0, use
     :return:
     """
 
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    token_src = Web3.to_checksum_address(token_src)
 
-        token_src = Web3.to_checksum_address(token_src)
+    native_token_price = Chainlink.get_native_token_price(web3, block, blockchain)
 
-        native_token_price = Chainlink.get_native_token_price(web3, block, blockchain)
+    if token_src == ZERO_ADDRESS:
+        return native_token_price
 
-        if token_src == ZERO_ADDRESS:
-            return native_token_price
-
+    else:
+        if connector is None:
+            rate = get_rate(token_src, block, blockchain, use_wrappers=use_wrappers)
+            token_src_price = native_token_price * rate
         else:
-            if connector is None:
-                rate = get_rate(token_src, block, blockchain, use_wrappers=use_wrappers)
-                token_src_price = native_token_price * rate
-            else:
-                connector = Web3.to_checksum_address(connector)
+            connector = Web3.to_checksum_address(connector)
 
-                rate = get_rate(token_src, block, blockchain, token_dst=connector, use_wrappers=use_wrappers)
-                connector_price = get_price(connector, block, blockchain, use_wrappers=use_wrappers)
-                token_src_price = connector_price * rate
+            rate = get_rate(token_src, block, blockchain, token_dst=connector, use_wrappers=use_wrappers)
+            connector_price = get_price(connector, block, blockchain, use_wrappers=use_wrappers)
+            token_src_price = connector_price * rate
 
-        return token_src_price
-
-    except GetNodeIndexError:
-        return get_price(
-            token_src,
-            block,
-            blockchain,
-            use_wrappers=use_wrappers,
-            connector=connector,
-            index=0,
-            execution=execution + 1,
-        )
-
-    except:
-        return get_price(
-            token_src,
-            block,
-            blockchain,
-            use_wrappers=use_wrappers,
-            connector=connector,
-            index=index + 1,
-            execution=execution,
-        )
+    return token_src_price
