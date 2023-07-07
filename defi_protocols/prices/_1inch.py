@@ -78,12 +78,10 @@ def get_oracle_address(blockchain):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_rate(token_src, block, blockchain, web3=None, use_wrappers=False, token_dst=None):
     """
-
     :param token_src:
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
     :param index:
     :param use_wrappers:
     :param token_dst:
@@ -131,13 +129,10 @@ def get_rate(token_src, block, blockchain, web3=None, use_wrappers=False, token_
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_price(token_src, block, blockchain, web3=None, use_wrappers=False, connector=None):
     """
-
     :param token_src:
     :param block:
     :param blockchain:
     :param web3:
-    :param execution:
-    :param index:
     :param use_wrappers:
     :param connector:
     :return:
