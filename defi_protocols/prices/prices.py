@@ -123,20 +123,3 @@ def get_etherscan_price(token_address):
     ]
 
     return price, "etherscan", ETHEREUM
-
-
-if __name__ == "__main__":
-    x = get_price("0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", 17628203, "ethereum", source="coingecko")
-    print(x)
-    # from pandas import read_csv
-
-    # from defi_protocols.functions import date_to_block
-
-    # data = read_csv("./data.csv")[['token_blockchain', 'token_addres']]
-    # for token in data.iterrows():
-    #     print(token[1]['token_addres'], token[1]['token_blockchain'])
-    #     try:
-    #         block = date_to_block('2023-06-07 00:00:00', blockchain=token[1]['token_blockchain'])
-    #         print(get_price(token[1]['token_addres'], block, token[1]['token_blockchain']))
-    #     except:
-    #         print(f"Could not get price for : {token[1]['token_addres']} {token[1]['token_blockchain']}")
