@@ -258,10 +258,10 @@ def underlying(
         try:
             # Checking if it's a pool from the old vault
             vault_contract = web3.eth.contract(address=VAULT_OLD_XDAI, abi=ABI_VAULT)
-            pool_tokens_data = const_call(vault_contract.functions.getPoolTokens(pool_id))
+            pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
         except ContractLogicError:
             vault_contract = web3.eth.contract(address=VAULT_XDAI, abi=ABI_VAULT)
-            pool_tokens_data = const_call(vault_contract.functions.getPoolTokens(pool_id))
+            pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
         pool_tokens = pool_tokens_data[0]
         pool_balances = pool_tokens_data[1]
         total_supply = lptoken_contract.functions.totalSupply().call(block_identifier=block)
@@ -376,10 +376,10 @@ def pool_balances(
     try:
         # Checking if it's a pool from the old vault
         vault_contract = web3.eth.contract(address=VAULT_OLD_XDAI, abi=ABI_VAULT)
-        pool_tokens_data = const_call(vault_contract.functions.getPoolTokens(pool_id))
+        pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
     except ContractLogicError:
         vault_contract = web3.eth.contract(address=VAULT_XDAI, abi=ABI_VAULT)
-        pool_tokens_data = const_call(vault_contract.functions.getPoolTokens(pool_id))
+        pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
 
     pool_tokens = pool_tokens_data[0]
     pool_balances = pool_tokens_data[1]
