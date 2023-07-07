@@ -1,17 +1,6 @@
 from web3 import Web3
 
-from defi_protocols.constants import (
-    ARBITRUM,
-    AVAX,
-    BINANCE,
-    ETHEREUM,
-    KOVAN,
-    MAX_EXECUTIONS,
-    OPTIMISM,
-    POLYGON,
-    XDAI,
-    ZERO_ADDRESS,
-)
+from defi_protocols.constants import ARBITRUM, AVAX, BINANCE, ETHEREUM, KOVAN, OPTIMISM, POLYGON, XDAI, ZERO_ADDRESS
 from defi_protocols.functions import get_contract, get_decimals, get_node
 from defi_protocols.prices import Chainlink
 
