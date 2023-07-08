@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defi_protocols import Aave_v3
-from defi_protocols.constants import ETHEREUM, ETHTokenAddr
+from defi_protocols.constants import ETHEREUM
 
 TEST_ADDRESS = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 
