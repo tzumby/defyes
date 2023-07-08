@@ -6,15 +6,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defi_protocols.cache import const_call
-from defi_protocols.constants import (
-    ARBITRUM,
-    AVALANCHE,
-    ETHEREUM,
-    FANTOM,
-    OPTIMISM,
-    POLYGON,
-    STKAAVE_ETH,
-)
+from defi_protocols.constants import ARBITRUM, AVALANCHE, ETHEREUM, FANTOM, OPTIMISM, POLYGON, STKAAVE_ETH
 from defi_protocols.functions import get_contract, get_node, last_block, to_token_amount
 
 logger = logging.getLogger(__name__)
