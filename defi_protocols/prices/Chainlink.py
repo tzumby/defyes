@@ -1,8 +1,8 @@
 from web3 import Web3
 
 from defi_protocols.cache import const_call
-from defi_protocols.constants import ETHEREUM, MAX_EXECUTIONS, POLYGON, XDAI
-from defi_protocols.functions import GetNodeIndexError, get_contract, get_node
+from defi_protocols.constants import ETHEREUM, POLYGON, XDAI
+from defi_protocols.functions import get_contract, get_node
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS
@@ -69,62 +69,49 @@ def get_native_token_price(web3, block, blockchain):
 # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
 # 'web3' = web3 (Node) -> Improves performance
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_mainnet_price(token_address, block, web3=None, execution=1, index=0):
+def get_mainnet_price(token_address, block, web3=None, index=0):
     """
-
     :param token_address:
     :param block:
     :param web3:
-    :param execution:
     :param index:
     :return:
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+    if web3 is None:
+        web3 = get_node(ETHEREUM, block=block)
 
-    try:
-        if web3 is None:
-            web3 = get_node(ETHEREUM, block=block)
+    token_address = Web3.to_checksum_address(token_address)
 
-        token_address = Web3.to_checksum_address(token_address)
+    feed_registry_contract = get_contract(
+        CHAINLINK_FEED_REGISTRY, ETHEREUM, web3=web3, abi=ABI_CHAINLINK_FEED_REGISTRY, block=block
+    )
 
-        feed_registry_contract = get_contract(
-            CHAINLINK_FEED_REGISTRY, ETHEREUM, web3=web3, abi=ABI_CHAINLINK_FEED_REGISTRY, block=block
-        )
+    for quote in CHAINLINK_ETH_QUOTES:
+        try:
+            price_feed_address = feed_registry_contract.functions.getFeed(token_address, quote).call(
+                block_identifier=block
+            )
+            price_feed_contract = get_contract(
+                price_feed_address, ETHEREUM, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block
+            )
+            price_feed_decimals = const_call(price_feed_contract.functions.decimals())
 
-        for quote in CHAINLINK_ETH_QUOTES:
-            try:
-                price_feed_address = feed_registry_contract.functions.getFeed(token_address, quote).call(
-                    block_identifier=block
+            if quote == CHAINLINK_ETH_QUOTES[0]:
+                return (
+                    price_feed_contract.functions.latestAnswer().call(block_identifier=block)
+                    / 10**price_feed_decimals
                 )
-                price_feed_contract = get_contract(
-                    price_feed_address, ETHEREUM, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block
+            else:
+                return (
+                    price_feed_contract.functions.latestAnswer().call(block_identifier=block)
+                    / 10**price_feed_decimals
+                    * get_native_token_price(web3, block, ETHEREUM)
                 )
-                price_feed_decimals = const_call(price_feed_contract.functions.decimals())
 
-                if quote == CHAINLINK_ETH_QUOTES[0]:
-                    return (
-                        price_feed_contract.functions.latestAnswer().call(block_identifier=block)
-                        / 10**price_feed_decimals
-                    )
-                else:
-                    return (
-                        price_feed_contract.functions.latestAnswer().call(block_identifier=block)
-                        / 10**price_feed_decimals
-                        * get_native_token_price(web3, block, ETHEREUM)
-                    )
+        except Exception as ex:
+            if "Feed not found" in ex.args[0]:
+                continue
+            else:
+                raise Exception
 
-            except Exception as ex:
-                if "Feed not found" in ex.args[0]:
-                    continue
-                else:
-                    raise Exception
-
-        return None
-
-    except GetNodeIndexError:
-        return get_mainnet_price(token_address, block, index=0, execution=execution + 1)
-
-    except:
-        return get_mainnet_price(token_address, block, index=index + 1, execution=execution)
+    return None

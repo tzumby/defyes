@@ -31,7 +31,7 @@ if not os.environ.get("DEFI_PROTO_CACHE_DISABLE"):
     MIN_FILE_SIZE_BYTES = 250 * 1024 * 1024
     _cache = diskcache.Cache(directory=cache_dir, disk_min_file_size=MIN_FILE_SIZE_BYTES)
     check_version()
-    if os.environ.get("DEFI_PROTO_CLEAN_CACHE"):
+    if os.environ.get("DEFI_PROTO_CACHE_CLEAR"):
         _cache.clear()
 else:
     logger.debug("Cache is disabled")
