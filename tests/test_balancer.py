@@ -60,7 +60,10 @@ def test_liquidity_pool():
 
 def test_gauge_address():
     block = 16978206
-    assert Balancer.GaugeFactory(ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address == "0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1"
+    assert (
+        Balancer.GaugeFactory(ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address
+        == "0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1"
+    )
 
 
 def test_pool_balances():
