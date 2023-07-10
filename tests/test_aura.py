@@ -171,11 +171,11 @@ def test_underlying():
 
 def test_pool_balances():
     block = 17030603
-    node = get_node(ETHEREUM, block)
-
-    ohm, steth = Aura.pool_balances(balancer_50OHM50wstETH_ADDR, block, ETHEREUM, web3=node)
-    assert ohm == [ETHTokenAddr.OHM, Decimal("23962.880591594")]
-    assert steth == [ETHTokenAddr.wstETH, Decimal("117.903822869058127723")]
+    balances = Aura.pool_balances(ETHEREUM, balancer_50OHM50wstETH_ADDR, block)
+    assert balances == {
+        ETHTokenAddr.OHM: Decimal("23962.880591594"),
+        ETHTokenAddr.wstETH: Decimal("117.903822869058127723"),
+    }
 
 
 def test_get_compounded():

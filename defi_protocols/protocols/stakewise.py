@@ -5,9 +5,10 @@ from decimal import Decimal
 import requests
 from web3 import Web3
 
-from defi_protocols import Curve, UniswapV3
 from defi_protocols.constants import ETHEREUM, XDAI
 from defi_protocols.functions import balance_of, get_node, to_token_amount
+
+from . import curve, uniswapv3
 
 logger = logging.getLogger(__name__)
 
@@ -64,17 +65,17 @@ def check_curve_pools(
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    # FIXME: this will change once we change Curve.underlying so that it returns a dictionary
+    # FIXME: this will change once we change curve.underlying so that it returns a dictionary
     result = {}
 
     for item in Pools["xdai"]["curve"]:
-        balances = Curve.underlying(wallet, item["LPtoken"], block, blockchain, web3=web3, decimals=decimals)
+        balances = curve.underlying(wallet, item["LPtoken"], block, blockchain, web3=web3, decimals=decimals)
 
         result[item["name"]] = {"LP token": item["LPtoken"], "balances": []}
         for element in balances:
             result[item["name"]]["balances"].append({"token": element[0], "unstaked": element[1], "staked": element[2]})
         if reward:
-            rewards = Curve.get_all_rewards(wallet, item["LPtoken"], block, blockchain, web3=web3, decimals=decimals)
+            rewards = curve.get_all_rewards(wallet, item["LPtoken"], block, blockchain, web3=web3, decimals=decimals)
             result[item["name"]]["rewards"] = []
 
             for element in rewards:
@@ -92,16 +93,16 @@ def check_uniswap_v3_pools(
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    nft_ids = UniswapV3.allnfts(wallet, block, blockchain, web3=web3)
+    nft_ids = uniswapv3.allnfts(wallet, block, blockchain, web3=web3)
     result = {}
 
     for nft_id in nft_ids:
-        nft = UniswapV3.NFTPosition(nft_id, blockchain, block, web3, decimals)
+        nft = uniswapv3.NFTPosition(nft_id, blockchain, block, web3, decimals)
         tokens = [nft.token0, nft.token1]
         for item in Pools["ethereum"]["uniswap v3"]:
             if set(tokens) == set(item["tokens"]) and nft.fee == item["fee"]:
                 result[item["name"]] = {"NFT ID": nft_id, "balances": []}
-                balances = UniswapV3.underlying(wallet, nft_id, block, blockchain, web3=web3, decimals=decimals)
+                balances = uniswapv3.underlying(wallet, nft_id, block, blockchain, web3=web3, decimals=decimals)
                 for element in balances:
                     result[item["name"]]["balances"].append(
                         {
@@ -111,7 +112,7 @@ def check_uniswap_v3_pools(
                     )
                 if reward:
                     result[item["name"]]["fees"] = []
-                    fees = UniswapV3.get_fee(nft_id, block, blockchain, web3=web3, decimals=decimals)
+                    fees = uniswapv3.get_fee(nft_id, block, blockchain, web3=web3, decimals=decimals)
                     for element in fees:
                         result[item["name"]]["fees"].append(
                             {

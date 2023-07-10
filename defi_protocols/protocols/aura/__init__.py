@@ -5,7 +5,6 @@ from pathlib import Path
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from defi_protocols import Balancer
 from defi_protocols.cache import const_call
 from defi_protocols.constants import AURA_ETH, ETHEREUM
 from defi_protocols.functions import (
@@ -16,6 +15,8 @@ from defi_protocols.functions import (
     last_block,
     to_token_amount,
 )
+
+from .. import balancer
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
@@ -90,7 +91,7 @@ ABI_EXTRA_REWARDS_TOKEN = '[{"inputs":[],"name":"baseToken","outputs":[{"interna
 #     "shutdown": bool  # deprecated pool
 #     },
 # }
-DB_FILE = Path(__file__).parent / "db" / "Aura_db.json"
+DB_FILE = Path(__file__).parent / "db.json"
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -388,7 +389,7 @@ def get_compounded(wallet, block, blockchain, web3=None, reward=False, decimals=
 # underlying
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying(
-    wallet, lptoken_address, block, blockchain, web3=None, reward=False, no_balancer_underlying=False, decimals=True
+    wallet, lptoken_address, block, blockchain, web3=None, reward=False, return_balancer_underlying=False, decimals=True
 ):
     result = {}
     balances = {}
@@ -406,17 +407,15 @@ def underlying(
 
     for rewarder in rewarders:
         rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
-        lptoken_staked = rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
+        lptoken_staked = Decimal(rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block))
 
-        if no_balancer_underlying is False:
-            balancer_data = Balancer.underlying(
-                wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, aura_staked=lptoken_staked
+        if not return_balancer_underlying:
+            balancer_data = balancer.get_protocol_data_for(
+                blockchain, wallet, lptoken_address, block, aura_staked=lptoken_staked, decimals=decimals
             )
-            for i in range(len(balancer_data)):
-                if balancer_data[i][0] in balances.keys():
-                    balances[balancer_data[i][0]] += balancer_data[i][2]
-                else:
-                    balances[balancer_data[i][0]] = balancer_data[i][2]
+            positions = balancer_data["positions"][lptoken_address]["staked"].get("underlyings", [])
+            for position in positions:
+                balances[position["address"]] = balances.get(position["address"], 0) + position["balance"]
         else:
             balances[lptoken_address] = to_token_amount(lptoken_address, lptoken_staked, blockchain, web3, decimals)
 
@@ -432,18 +431,8 @@ def underlying(
     return result
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# pool_balances
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
-    if web3 is None:
-        web3 = get_node(blockchain, block=block)
-
-    lptoken_address = Web3.to_checksum_address(lptoken_address)
-
-    balances = Balancer.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
-
-    return balances
+def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: bool = True) -> None:
+    return balancer.pool_balances(blockchain, lp_address, block, decimals=decimals)
 
 
 def update_db(output_file=DB_FILE, block="latest"):

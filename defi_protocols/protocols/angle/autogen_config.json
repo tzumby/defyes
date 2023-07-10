@@ -1,0 +1,21 @@
+{
+  "oracle": {
+    "const_call": [
+      "DESCRIPTION"
+    ]
+  },
+  "treasury": {
+    "const_call": [
+      "stablecoin"
+    ]
+  },
+  "vault_manager": {
+    "const_call": [
+      "BASE_PARAMS",
+      "BASE_INTEREST",
+      "stablecoin",
+      "collateral",
+      "oracle"
+    ]
+  }
+}

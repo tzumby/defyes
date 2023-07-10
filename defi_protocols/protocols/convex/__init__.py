@@ -5,10 +5,11 @@ from pathlib import Path
 
 from web3 import Web3
 
-from defi_protocols import Curve
 from defi_protocols.cache import const_call
 from defi_protocols.constants import CVX_ETH, CVXCRV_ETH, ETHEREUM
 from defi_protocols.functions import get_contract, get_contract_creation, get_node, last_block, to_token_amount
+
+from .. import curve
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ ABI_REWARDS = '[{"inputs":[{"internalType":"address","name":"account","type":"ad
 # CVX ABI - reductionPerCliff, totalCliffs, maxSupply, totalSupply
 ABI_CVX = '[{"inputs":[],"name":"reductionPerCliff","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalCliffs","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"maxSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
-DB_FILE = Path(__file__).parent / "db" / "Convex_db.json"
+DB_FILE = Path(__file__).parent / "db.json"
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -290,7 +291,7 @@ def underlying(
         lptoken_staked = rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
         if no_curve_underlying is False:
-            curve_data = Curve.underlying(
+            curve_data = curve.underlying(
                 wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, convex_staked=lptoken_staked
             )
             for i in range(len(curve_data)):
@@ -323,7 +324,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    balances = Curve.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
+    balances = curve.pool_balances(lptoken_address, block, blockchain, web3=web3, decimals=decimals)
 
     return balances
 

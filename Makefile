@@ -93,6 +93,11 @@ isort: build-if-no-image  ## Apply isort.
 pretty: isort black
 
 
+.PHONY: autogenerate
+autogenerate: build-if-no-image
+	@$(docker_user_run) -t $(image) python defi_protocols/generator.py
+
+
 .PHONY: cacheclear
 cacheclear: build-if-no-image
 	@echo "Clearing the API requests cache..."

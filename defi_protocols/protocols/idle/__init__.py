@@ -1,5 +1,4 @@
 import json
-import os
 import re
 from decimal import Decimal
 from pathlib import Path
@@ -11,6 +10,8 @@ from defi_protocols.cache import const_call
 from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
 from defi_protocols.functions import get_contract, get_node, to_token_amount
 from defi_protocols.util.topic import decode_address_hexor
+
+DB_FILE = Path(__file__).parent / "db.json"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # IDLE Deployer
@@ -193,8 +194,8 @@ def underlying(
     token_address = Web3.to_checksum_address(token_address)
 
     if db:
-        file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/Idle_db.json")
-        data = json.load(file)
+        with open(DB_FILE) as db_file:
+            data = json.load(db_file)
         tranches_list = data["tranches"]
         addresses = [x for x in tranches_list if x["underlying_token"] == token_address][0]
     else:
@@ -232,8 +233,8 @@ def underlying_all(
 ) -> list:
     balances_all = []
     if db:
-        file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/Idle_db.json")
-        data = json.load(file)
+        with open(DB_FILE) as db_file:
+            data = json.load(db_file)
         addresses = data["tranches"]
     else:
         addresses = get_addresses(block, blockchain, web3=web3)
@@ -269,7 +270,7 @@ def update_db(block="latest") -> dict:
 
     :return:
     """
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/Idle_db.json", "w") as db_file:
+    with open(DB_FILE, "w") as db_file:
         addresses = get_addresses(block, ETHEREUM)
         json.dump(addresses, db_file, indent=4)
 

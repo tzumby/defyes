@@ -8,7 +8,7 @@ from web3.middleware.cache import generate_cache_key
 
 logger = logging.getLogger(__name__)
 
-VERSION = 4
+VERSION = 5
 VERSION_CACHE_KEY = "VERSION"
 
 _cache = None
@@ -106,17 +106,17 @@ def cache_contract_method(exclude_args=None, validator=None):
         @functools.wraps(f)
         def method_wrapper(*args, **kwargs):
             cache_args = getcallargs(f, *args, **kwargs)
-            contract = cache_args.pop("self")
+            obj = cache_args.pop("self")
             if exclude_args:
                 for arg in exclude_args:
                     cache_args.pop(arg)
-            cache_key = generate_cache_key((contract.address, f.__qualname__, cache_args))
+            cache_key = generate_cache_key((obj.contract.address, f.__qualname__, cache_args))
             if cache_key not in _cache or validator is None:
                 result = f(*args, **kwargs)
                 _cache[cache_key] = result
             else:
                 result = _cache[cache_key]
-                if not validator(contract, **result):
+                if not validator(obj, **result):
                     result = f(*args, **kwargs)
                     _cache[cache_key] = result
             return result
