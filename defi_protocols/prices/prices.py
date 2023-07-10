@@ -1,242 +1,125 @@
-import json
-import os
-from datetime import datetime
-from pathlib import Path
+from time import sleep
+from typing import Tuple
 
-import pandas as pd
 import requests
-from tqdm import tqdm
 from web3 import Web3
 
-from defi_protocols.constants import (
-    API_ETHERSCAN_GETTOKENINFO,
-    API_KEY_ETHERSCAN,
-    ETHEREUM,
-    MAX_EXECUTIONS,
-    ZERO_ADDRESS,
-)
-from defi_protocols.functions import GetNodeIndexError, block_to_timestamp, get_node, timestamp_to_block
-from defi_protocols.prices import Chainlink, CoinGecko, Zapper, _1inch
+from defi_protocols.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, ETHEREUM, ZERO_ADDRESS
+from defi_protocols.functions import block_to_timestamp, get_node
+from defi_protocols.prices import Chainlink, CoinGecko, _1inch
+
+# Taken from token_mappings although all of them have the same value
+ONEINCH_CONNECTOR_DICT = {
+    "0x6aC78efae880282396a335CA2F79863A1e6831D4": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x532801ED6f82FFfD2DAB70A19fC2d7B2772C4f4b": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x4f4F9b8D5B4d0Dc10506e5551B0513B61fD59e75": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x177127622c4A00F3d409B75571e12cB3c8973d3c": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0x6cAcDB97e3fC8136805a9E7c342d866ab77D0957": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0xf6537FE0df7F0Cc0985Cf00792CC98249E73EFa0": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+    "0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+}
+
+SOURCES_LIST = ["chainlink", "1inch", "coingecko"]
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_price
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'token_mapping_data' = /db/token_mapping.json data
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_price(token_address, block, blockchain, web3=None, execution=1, index=0, token_mapping_data=None):
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-    if execution > MAX_EXECUTIONS:
-        return None
+def get_price(token_address, block, blockchain, web3=None, source: str = "chainlink") -> Tuple[int, str, str]:
+    """Function to get token prices.
+    You can specify the source. In case it is not specified, chainlink is the first oracle to check the price.
+    In case it doesn't work (price is Null), 1inch and then coingecko are used.
+    In case the price is 0, the other oracles will be checked.
 
-    token_price = None
+    Args:
+        token_address (str)
+        block (int)
+        blockchain (str)
+        web3 (web3, optional): web3 node. Defaults to None.
+        source (str, optional): Where to get the prices [chainlink, 1inch, coingecko]. Defaults to "chainlink".
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
-
-        token_address = Web3.to_checksum_address(token_address)
-
-        if token_address == ZERO_ADDRESS:
-            # returns price, source and blockchain:
-            return Chainlink.get_native_token_price(web3, block, blockchain), "Chainlink", blockchain
-
-        try:
-            if token_mapping_data is None:
-                with open(
-                    str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/token_mapping.json", "r"
-                ) as token_mapping_file:
-                    # Reading from json file
-                    token_mapping_data = json.load(token_mapping_file)
-                    token_mapping_file.close()
-
-            try:
-                price_feed_data = token_mapping_data[blockchain][token_address]["price_feed"]
-
-                try:
-                    price_feed_data["source"]
-                    price_feed_data["blockchain"]
-                except:
-                    raise Exception
-
-                if blockchain == price_feed_data["blockchain"]:
-                    token_address_mapping = token_address
-                    block_price_feed = block
-                else:
-                    try:
-                        token_address_mapping = token_mapping_data[blockchain][token_address][
-                            price_feed_data["blockchain"]
-                        ]
-                    except:
-                        token_address_mapping = token_address
-
-                    block_price_feed = timestamp_to_block(
-                        block_to_timestamp(block, blockchain), price_feed_data["blockchain"]
-                    )
-
-                if price_feed_data["source"] == "1inch":
-                    try:
-                        connector = price_feed_data["connector"]
-
-                    except:
-                        connector = None
-
-                    # returns price, source and blockchain:
-                    return (
-                        _1inch.get_price(
-                            token_address_mapping, block_price_feed, price_feed_data["blockchain"], connector=connector
-                        ),
-                        "1inch",
-                        price_feed_data["blockchain"],
-                    )
-
-                elif price_feed_data["source"] == "coingecko":
-                    price_coingecko = CoinGecko.get_price(
-                        token_address_mapping,
-                        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
-                        price_feed_data["blockchain"],
-                    )
-
-                    while price_coingecko[0] == 429:
-                        price_coingecko = CoinGecko.get_price(
-                            token_address_mapping,
-                            block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
-                            price_feed_data["blockchain"],
-                        )
-
-                    # returns price, source and blockchain:
-                    return price_coingecko[1][1], "coingecko", price_feed_data["blockchain"]
-
-                elif price_feed_data["source"] == "zapper":
-                    price_zapper = Zapper.get_price(
-                        token_address_mapping,
-                        block_to_timestamp(block_price_feed, price_feed_data["blockchain"]),
-                        price_feed_data["blockchain"],
-                    )
-
-                    # returns price, source and blockchain:
-                    return price_zapper[1][1], "zapper", price_feed_data["blockchain"]
-
-            except:
-                raise Exception
-
-        except:
-            if blockchain != ETHEREUM:
-                block_eth = timestamp_to_block(block_to_timestamp(block, blockchain), ETHEREUM)
-
-                try:
-                    token_address_eth = token_mapping_data[blockchain][token_address][ETHEREUM]
-                except:
-                    token_address_eth = None
-
-            else:
-                token_address_eth = token_address
-                block_eth = block
-
-            if token_address_eth is not None:
-                token_price = Chainlink.get_mainnet_price(token_address_eth, block_eth)
-                source = "Chainlink"
-                final_blockchain = "ETHEREUM"
-
-                if token_price is None:
-                    token_price = _1inch.get_price(token_address_eth, block_eth, ETHEREUM)
-                    source = "1inch"
-                    final_blockchain = "ETHEREUM"  # redundant but to stay clear
-
-            else:
-                token_price = _1inch.get_price(token_address, block, blockchain)
-                source = "1inch"
-                final_blockchain = blockchain
-
-            return token_price, source, final_blockchain
-
-    except GetNodeIndexError:
-        return get_price(
-            token_address, block, blockchain, token_mapping_data=token_mapping_data, index=0, execution=execution + 1
-        )
-
-    except:
-        return get_price(
-            token_address,
-            block,
-            blockchain,
-            token_mapping_data=token_mapping_data,
-            index=index + 1,
-            execution=execution,
-        )
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_etherscan_price
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_etherscan_price(token_address):
+    Returns:
+        (float, str, str): price, source, blockchain
     """
+    # Checks
+    assert source in SOURCES_LIST, "Please input an existing oracle."
 
-    :param token_address:
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
+
+    token_address = Web3.to_checksum_address(token_address)
+
+    # Get price directly from Chainlink in case of native token.
+    if token_address == ZERO_ADDRESS:
+        return Chainlink.get_native_token_price(web3, block, blockchain), "chainlink", blockchain
+
+    # As chainlink is just for eth, we switch to 1inch in case of xdai and other blockchains.
+    if blockchain != ETHEREUM and source == "chainlink":
+        source = "1inch"
+
+    price = _get_price_from_source(source, token_address, block, blockchain)
+
+    # Created this flag to avoid returning None when 0s appear.
+    flag_zero = False
+
+    # Go to the next source in case price is None or 0.
+    while price is None or price == 0:
+        if price == 0:
+            flag_zero = True
+        try:
+            source = SOURCES_LIST[SOURCES_LIST.index(source) + 1]
+            price = _get_price_from_source(source, token_address, block, blockchain)
+        except IndexError:
+            if flag_zero:
+                price = 0.0
+            return (price, source, blockchain)
+
+    return (price, source, blockchain)
+
+
+def _get_price_from_source(source: str, token_address: str, block: int, blockchain: str):
+    """Get the price from the selected source.
+    Used by the get_price function, it helps with the logic of choosing the source.
+
+    Returns:
+        float: price.
+    """
+    if source == "chainlink":
+        try:
+            price = Chainlink.get_mainnet_price(token_address, block)
+        except Exception:
+            price = None
+
+    elif source == "1inch":
+        connector = ONEINCH_CONNECTOR_DICT.get(token_address, None)
+        try:
+            price = _1inch.get_price(token_address, block, blockchain, connector=connector)
+        except Exception:
+            price = None
+
+    elif source == "coingecko":
+        unix_timestamp = block_to_timestamp(block, blockchain)
+        price = CoinGecko.get_price(token_address, unix_timestamp, blockchain)
+
+        # In case there is the error for too many requests
+        while price[0] == 429:
+            sleep(1)
+            price = CoinGecko.get_price(token_address, block, blockchain)
+
+        price = price[1][1]
+
+    return price
+
+
+def get_etherscan_price(token_address):
+    """Get token price from etherscan.
+
+    Args:
+        token_address (str).
+
+    Returns:
+        float, str, str: price, source(etherscan), blockchain
     """
     price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()["result"][0][
         "tokenPriceUSD"
     ]
 
     return price, "etherscan", ETHEREUM
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_today_prices_data
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_today_prices_data(file_name, return_type="df", web3=None):
-    file = open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/" + file_name, "r")
-    token_file = json.load(file)
-
-    price = []
-    source = []
-    time_stamp = []
-    blockchain = []
-    token_address_data = []
-    date_stamp = []
-
-    for j in tqdm((token_file.keys())):  # Recorro las blockchain
-        for k in tqdm((token_file[j].keys())):
-            token_address = k
-            token_blokchain = j
-            # token_symbol = token_file[j][token_address]["symbol"]
-            # print(token_address,token_blokchain,token_symbol)
-
-            now = datetime(
-                datetime.now().year,
-                datetime.now().month,
-                datetime.now().day,
-                datetime.now().hour,
-                datetime.now().minute,
-            )
-
-            # Use reference_block just if latest not needed.
-            # reference_block = (date_to_block(now.strftime('%Y-%m-%d %H:%M:%S'), token_blokchain))
-
-            data = get_price(token_address, "latest", token_blokchain, web3=web3)
-            # print('Price Of',token_symbol,data,)
-            price.append(data[0])
-            source.append(data[1])
-            time_stamp.append(now.strftime("%Y-%m-%d %H:%M:00"))
-            date_stamp.append(now.strftime("%Y-%m-%d"))
-            blockchain.append(data[2])
-            token_address_data.append(token_address)
-
-    # token_address.append(token_address[0])
-
-    data_raw = {
-        "Price_Datetime": time_stamp,
-        "Price_Date": date_stamp,  # .strftime("%Y-%m-%d")
-        "Price": price,
-        "Source": source,
-        "Token_Address": token_address_data,
-        "Blockchain": blockchain,
-    }
-
-    if return_type == "df":
-        df = pd.DataFrame(data_raw)
-        return df
-    else:
-        return data_raw
