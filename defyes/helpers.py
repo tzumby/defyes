@@ -29,10 +29,6 @@ def listify(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        raw = func(*args, **kwargs)
-        try:
-            return list(raw)
-        except TypeError:
-            return raw
+        return list(func(*args, **kwargs))
 
     return wrapper
