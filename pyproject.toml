@@ -3,9 +3,9 @@ requires = ["setuptools>=65.5.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "defi-protocols"
+name = "defyes"
 version = "0.0.9"
-description = "A simple defi_protocols package"
+description = "A simple defyes package"
 readme = "README.md"
 license = {text = "MIT License"}
 requires-python = ">=3.10"
@@ -31,10 +31,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/KarpatkeyDAO/defi-protocols"
+Homepage = "https://github.com/KarpatkeyDAO/defyes"
 
 [tool.setuptools.packages.find]
-include = ["defi_protocols*"]
+include = ["defyes*"]
 namespaces = false
 
 # Linter configuruation.
