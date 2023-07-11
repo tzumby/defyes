@@ -1,4 +1,4 @@
-from defi_protocols.prices.prices import get_price
+from defyes.prices.prices import get_price
 
 
 def test_get_price():
