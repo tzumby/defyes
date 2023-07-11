@@ -23,8 +23,7 @@ def call_contract_method(method, block) -> Any | None:
 
 def listify(func):
     """
-    Decorator to try to cast the returned iterable into a list.
-    Otherwise returns the original returned value on TypeError.
+    Decorator to cast the returned iterable into a list.
     """
 
     @wraps(func)
