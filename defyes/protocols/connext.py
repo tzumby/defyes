@@ -4,11 +4,11 @@ from decimal import Decimal
 from gql import Client, gql  # thegraph queries
 from gql.transport.requests import RequestsHTTPTransport
 from web3 import Web3
-from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.cache import const_call
 from defyes.constants import ETHEREUM, XDAI
 from defyes.functions import balance_of, get_contract, get_decimals, get_node
+from defyes.helpers import call_contract_method
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SUBGRAPH API ENDPOINTS
@@ -34,20 +34,6 @@ CONNEXT_DIAMOND_GC = "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109"
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Connext Diamond ABI - getSwapLPToken, getSwapTokenIndex, getSwapToken, calculateRemoveSwapLiquidity
 ABI_CONNEXT_DIAMOND = '[{"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"}],"name":"getSwapLPToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"address","name":"tokenAddress","type":"address"}],"name":"getSwapTokenIndex","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getSwapToken","outputs":[{"internalType":"contractIERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"calculateRemoveSwapLiquidity","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
-
-
-def call_contract_method(method, block):
-    try:
-        return method.call(block_identifier=block)
-    except Exception as e:
-        if (
-            type(e) == ContractLogicError
-            or type(e) == BadFunctionCallOutput
-            or (type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015))
-        ):
-            return None
-        else:
-            raise e
 
 
 def query_assets(subgraph_api_endpoint: str) -> list:
