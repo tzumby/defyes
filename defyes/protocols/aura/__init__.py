@@ -93,15 +93,11 @@ DB_FILE = Path(__file__).parent / "db.json"
 def call_contract_method(method, block):
     try:
         return method.call(block_identifier=block)
-    except Exception as e:
-        if (
-            type(e) == ContractLogicError
-            or type(e) == BadFunctionCallOutput
-            or (type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015))
-        ):
-            return None
-        else:
-            raise e
+    except (ContractLogicError, BadFunctionCallOutput):
+        pass
+    except ValueError as e:
+        if e.args[0]["code"] not in {-32000, -32015}:
+            raise
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
