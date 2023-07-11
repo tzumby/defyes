@@ -46,22 +46,22 @@ class Vault(Vault):
 
 class PoolToken(PoolToken):
     @property
-    def rate(self) -> str:
+    def rate(self) -> str | None:
         with suppress_some_contract_method_errors():
             return self.get_rate
 
     @property
-    def underlying(self) -> str:
+    def underlying(self) -> str | None:
         with suppress_some_contract_method_errors():
             return super().underlying
 
     @property
-    def underlying_asset_address(self) -> str:
+    def underlying_asset_address(self) -> str | None:
         with suppress_some_contract_method_errors():
             return super().underlying_asset_address
 
     @property
-    def steth(self) -> str:
+    def steth(self) -> str | None:
         with suppress_some_contract_method_errors():
             return self.st_eth
 
