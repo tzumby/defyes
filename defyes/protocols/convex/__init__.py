@@ -227,7 +227,7 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
                 rewards.append(
                     [
                         cvx_locker_reward[0],
-                        to_token_amount(cvx_locker_contract[0], cvx_locker_reward[1], blockchain, web3, decimals),
+                        to_token_amount(cvx_locker_reward[0], cvx_locker_reward[1], blockchain, web3, decimals),
                     ]
                 )
 
