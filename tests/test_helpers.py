@@ -67,5 +67,5 @@ def test_listify():
         yield 2
 
     ret_value = seq()
-    assert type(ret_value) is list
+    assert isinstance(ret_value, list)
     assert ret_value == [1, 2]
