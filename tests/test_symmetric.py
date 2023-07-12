@@ -4,7 +4,7 @@ import pytest
 
 from defyes import Symmetric
 from defyes.constants import XDAI
-from defyes.functions import get_node
+from defyes.node import get_node
 
 
 @pytest.mark.parametrize("decimals", [True, False])

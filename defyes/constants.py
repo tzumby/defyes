@@ -23,74 +23,6 @@ HARMONY = "harmony"
 METIS = "metis"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# NODES
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-if "CONFIG_PATH" in os.environ:
-    config_path = os.environ["CONFIG_PATH"]
-    with open(config_path, "r") as config_file:
-        config_data = json.load(config_file)
-else:
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/config.json", "r") as config_file:
-        config_data = json.load(config_file)
-
-NODE_ETH = {"latest": config_data["nodes"][ETHEREUM]["latest"], "archival": config_data["nodes"][ETHEREUM]["archival"]}
-
-NODE_POL = {"latest": config_data["nodes"][POLYGON]["latest"], "archival": config_data["nodes"][POLYGON]["archival"]}
-
-NODE_XDAI = {"latest": config_data["nodes"][XDAI]["latest"], "archival": config_data["nodes"][XDAI]["archival"]}
-
-NODE_BINANCE = {
-    "latest": config_data["nodes"][BINANCE]["latest"],
-    "archival": config_data["nodes"][BINANCE]["archival"],
-}
-
-NODE_AVALANCHE = {
-    "latest": config_data["nodes"][AVALANCHE]["latest"],
-    "archival": config_data["nodes"][AVALANCHE]["archival"],
-}
-
-NODE_FANTOM = {"latest": config_data["nodes"][FANTOM]["latest"], "archival": config_data["nodes"][FANTOM]["archival"]}
-
-NODE_OPTIMISM = {
-    "latest": config_data["nodes"][OPTIMISM]["latest"],
-    "archival": config_data["nodes"][OPTIMISM]["archival"],
-}
-
-NODE_ARBITRUM = {
-    "latest": config_data["nodes"][ARBITRUM]["latest"],
-    "archival": config_data["nodes"][ARBITRUM]["archival"],
-}
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# TESTNETS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-NODE_ROPSTEN = {
-    "latest": config_data["nodes"][ROPSTEN]["latest"],
-    "archival": config_data["nodes"][ROPSTEN]["archival"],
-}
-
-NODE_KOVAN = {"latest": config_data["nodes"][KOVAN]["latest"], "archival": config_data["nodes"][KOVAN]["archival"]}
-
-NODE_GOERLI = {"latest": config_data["nodes"][GOERLI]["latest"], "archival": config_data["nodes"][GOERLI]["archival"]}
-
-NODES_ENDPOINTS = {
-    ETHEREUM: NODE_ETH,
-    POLYGON: NODE_POL,
-    XDAI: NODE_XDAI,
-    BINANCE: NODE_BINANCE,
-    AVALANCHE: NODE_AVALANCHE,
-    FANTOM: NODE_FANTOM,
-    OPTIMISM: NODE_OPTIMISM,
-    ROPSTEN: NODE_ROPSTEN,
-    KOVAN: NODE_KOVAN,
-    GOERLI: NODE_GOERLI,
-    ARBITRUM: NODE_ARBITRUM,
-}
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # TESTNET HEADER
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -249,41 +181,38 @@ class PolygonTokenAddr:
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAL_ARB = "0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8"
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# PROTOCOLS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-AAVE = "Aave"
-AGAVE = "Agave"
-AURA = "Aura"
-BALANCER = "Balancer"
-CONVEX = "Convex"
-CURVE = "Curve"
-ELK = "Elk"
-HONEYSWAP = "Honeyswap"
-MAKER = "Maker"
-QIDAO = "QiDao"
-SUSHISWAP = "SushiSwap"
-SWAPR = "Swapr"
-SYMMETRIC = "Symmetric"
-UNIT = "Unit"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # API KEYS
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-API_KEY_ETHERSCAN = config_data["apikeys"]["etherscan"]
-API_KEY_POLSCAN = config_data["apikeys"]["polscan"]
-API_KEY_GNOSISSCAN = config_data["apikeys"]["gnosisscan"]
-API_KEY_BINANCE = config_data["apikeys"]["binance"]
-API_KEY_AVALANCHE = config_data["apikeys"]["avalanche"]
-API_KEY_FANTOM = config_data["apikeys"]["fantom"]
-API_KEY_OPTIMISM = config_data["apikeys"]["optimism"]
-API_KEY_ARBITRUM = config_data["apikeys"]["arbitrum"]
-API_KEY_ZAPPER = config_data["apikeys"]["zapper"]
-API_KEY_ETHPLORER = config_data["apikeys"]["ethplorer"]
+def get_api_keys_from_config():
+    config_path = os.environ.get("CONFIG_PATH")
+
+    if config_path and Path(config_path).exists():
+        config_file = Path(config_path)
+    else:
+        current_dir = Path(__file__).resolve().parent
+        config_file = current_dir / "config.json"
+
+    with open(config_file) as json_file:
+        config = json.load(json_file)
+    return config["apikeys"]
+
+
+config_data = get_api_keys_from_config()
+
+API_KEY_ETHERSCAN = config_data["etherscan"]
+API_KEY_POLSCAN = config_data["polscan"]
+API_KEY_GNOSISSCAN = config_data["gnosisscan"]
+API_KEY_BINANCE = config_data["binance"]
+API_KEY_AVALANCHE = config_data["avalanche"]
+API_KEY_FANTOM = config_data["fantom"]
+API_KEY_OPTIMISM = config_data["optimism"]
+API_KEY_ARBITRUM = config_data["arbitrum"]
+API_KEY_ZAPPER = config_data["zapper"]
+API_KEY_ETHPLORER = config_data["ethplorer"]
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

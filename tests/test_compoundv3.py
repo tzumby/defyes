@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from defyes import Compoundv3
 from defyes.constants import ETHEREUM, ETHTokenAddr
-from defyes.functions import get_node
+from defyes.node import get_node
 
 WALLET_N1 = "0x616dE58c011F8736fa20c7Ae5352F7f6FB9F0669"
 TOKEN_ADDRESS = "0xc3d688B66703497DAA19211EEdff47f25384cdc3"

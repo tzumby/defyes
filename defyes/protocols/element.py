@@ -5,7 +5,8 @@ from web3 import Web3
 
 from defyes.api import RequestFromScan
 from defyes.cache import const_call
-from defyes.functions import get_contract, get_node, to_token_amount
+from defyes.functions import get_contract, to_token_amount
+from defyes.node import get_node
 from defyes.topic import decode_address_hexor
 
 from .curve import unwrap

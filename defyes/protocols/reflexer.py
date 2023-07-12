@@ -6,7 +6,8 @@ from typing import Union
 from web3 import Web3
 
 from defyes.constants import ETHTokenAddr
-from defyes.functions import balance_of, get_node, total_supply
+from defyes.functions import balance_of, total_supply
+from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 

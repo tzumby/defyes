@@ -17,7 +17,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import AGVE_XDAI, STKAGAVE_XDAI
-from defyes.functions import balance_of, get_contract, get_node, to_token_amount
+from defyes.functions import balance_of, get_contract, to_token_amount
+from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 
