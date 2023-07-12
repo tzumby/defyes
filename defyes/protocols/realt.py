@@ -4,7 +4,8 @@ from typing import Union
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.functions import get_contract, get_node
+from defyes.functions import get_contract
+from defyes.node import get_node
 
 # RealT Token Address
 TOKEN_CONTRACT_XDAI: str = "0x7349C9eaA538e118725a6130e0f8341509b9f8A0"

@@ -4,7 +4,8 @@ import pytz
 from pytest import raises
 
 from defyes.constants import ETHEREUM, STETH_ETH, USDC_ETH, XDAI, ETHTokenAddr
-from defyes.functions import date_to_block, get_node, get_symbol, search_proxy_impl_address
+from defyes.functions import date_to_block, get_symbol, search_proxy_impl_address
+from defyes.node import get_node
 
 
 def test_get_node():

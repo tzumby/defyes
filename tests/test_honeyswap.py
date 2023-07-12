@@ -4,7 +4,7 @@ import pytest
 
 from defyes import Honeyswap
 from defyes.constants import GNO_XDAI, WETH_XDAI, XDAI
-from defyes.functions import get_node
+from defyes.node import get_node
 
 TEST_BLOCK = 27450341
 TEST_WALLET = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"

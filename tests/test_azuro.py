@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from defyes import Azuro
 from defyes.constants import WXDAI, XDAI
-from defyes.functions import get_node
+from defyes.node import get_node
 
 WALLET_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
 NFT_ID = 1099511627781

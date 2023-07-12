@@ -2,7 +2,8 @@ from decimal import Decimal
 
 from defyes import Elk
 from defyes.constants import ETHEREUM, POLYGON, XDAI, ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
-from defyes.functions import get_contract, get_node
+from defyes.functions import get_contract
+from defyes.node import get_node
 
 WALLET_N1 = "0x61BEC4cAa9493Df4D8600B63bfC0Ec5FE5A52caC"
 WALLET_N2 = "0x7A05B87F0e95c3ABE3f296017C69b5A62C82e286"

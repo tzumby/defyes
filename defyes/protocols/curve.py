@@ -16,9 +16,9 @@ from defyes.functions import (
     get_contract_abi,
     get_decimals,
     get_logs_web3,
-    get_node,
     to_token_amount,
 )
+from defyes.node import get_node
 from defyes.prices.prices import get_price
 
 logger = logging.getLogger(__name__)

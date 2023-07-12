@@ -8,7 +8,8 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.cache import const_call
 from defyes.constants import ETHEREUM, XDAI
-from defyes.functions import balance_of, get_contract, get_decimals, get_node
+from defyes.functions import balance_of, get_contract, get_decimals
+from defyes.node import get_node
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SUBGRAPH API ENDPOINTS

@@ -4,7 +4,7 @@ import pytest
 
 from defyes import Lido
 from defyes.constants import ETHEREUM, ZERO_ADDRESS, ETHTokenAddr
-from defyes.functions import get_node
+from defyes.node import get_node
 
 WALLET_N1 = "0x3591D9351C736Daa7867fA6629D3A10880d78b83"
 

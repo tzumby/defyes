@@ -4,7 +4,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import COMP_ETH, ETHEREUM, ZERO_ADDRESS
-from defyes.functions import balance_of, get_contract, get_decimals, get_node, to_token_amount
+from defyes.functions import balance_of, get_contract, get_decimals, to_token_amount
+from defyes.node import get_node
 from defyes.prices import prices
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

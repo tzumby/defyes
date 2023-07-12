@@ -2,7 +2,8 @@ from decimal import Decimal
 from typing import Union
 
 from defyes.constants import DAI_ETH, ETHEREUM, ETHTokenAddr
-from defyes.functions import balance_of, get_contract, get_node
+from defyes.functions import balance_of, get_contract
+from defyes.node import get_node
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CDP MANAGER
