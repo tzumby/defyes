@@ -207,7 +207,6 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     1 - List of Tuples: [cvx_token_address, locked_balance]
     2 - List of Tuples: [reward_token_address, balance]
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 

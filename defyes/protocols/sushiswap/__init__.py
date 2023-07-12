@@ -704,57 +704,40 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block="latest")
     return result
 
 
-# #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# # get_apr
-# # 'web3' = web3 (Node) -> Improves performance
-# # 'block' = block identifier
-# #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # def get_apr(lptoken_address, blockchain, web3=None, block='latest'):
+#     if web3 is None:
+#         web3 = get_node(blockchain, block=block)
 
-#     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-#     if execution > MAX_EXECUTIONS:
-#         return None
+#     data = get_rewards_per_unit(lptoken_address, blockchain, web3=web3, block=block)
+
+#     sushi_price = Prices.get_price(data[0]['sushi_address'], block, blockchain, web3=web3)
+#     sushi_decimals = get_decimals(data[0]['sushi_address'], blockchain, web3=web3)
 
 #     try:
-#         if web3 is None:
-#             web3 = get_node(blockchain, block=block)
-
-#         data = get_rewards_per_unit(lptoken_address, blockchain, web3=web3, block=block)
-
-#         sushi_price = Prices.get_price(data[0]['sushi_address'], block, blockchain, web3=web3)
-#         sushi_decimals = get_decimals(data[0]['sushi_address'], blockchain, web3=web3)
-
-#         try:
-#             sushi_per_block = data[0]['sushiPerBlock']
-#             blocks_per_year = get_blocks_per_year(blockchain)
-#             sushi_per_year = sushi_per_block * blocks_per_year / (10**sushi_decimals)
-#         except:
-#             sushi_per_second = data[0]['sushiPerSecond']
-#             sushi_per_year = sushi_per_second * (3600 * 24 * 365) / (10**sushi_decimals)
-
-#         try:
-#             reward_price = Prices.get_price(data[1]['reward_address'], block, blockchain, web3=web3)
-#             reward_decimals = get_decimals(data[1]['reward_address'], blockchain, web3=web3)
-
-#             reward_per_year = data[1]['rewardPerSecond'] * (3600 * 24 * 365) / (10**reward_decimals)
-#         except:
-#             reward_price = 0
-#             reward_per_year = 0
-
-#         balances = pool_balances(lptoken_address, block, blockchain)
-#         token_addresses = [balances[i][0] for i in range(len(balances))]
-#         token_prices = [Prices.get_price(token_addresses[i], block, blockchain) for i in range(len(token_addresses))]
-#         tvl = sum([balances[i][1] * token_prices[i] for i in range(len(token_addresses))])
-
-#         apr = ((sushi_per_year * sushi_price + reward_per_year * reward_price) / tvl) * 100
-
-#         return apr
-
-#     except GetNodeIndexError:
-#         return get_apr(lptoken_address, blockchain, block=block, index=0, execution=execution + 1)
-
+#         sushi_per_block = data[0]['sushiPerBlock']
+#         blocks_per_year = get_blocks_per_year(blockchain)
+#         sushi_per_year = sushi_per_block * blocks_per_year / (10**sushi_decimals)
 #     except:
-#         return get_apr(lptoken_address, blockchain, block=block, index=index + 1, execution=execution)
+#         sushi_per_second = data[0]['sushiPerSecond']
+#         sushi_per_year = sushi_per_second * (3600 * 24 * 365) / (10**sushi_decimals)
+
+#     try:
+#         reward_price = Prices.get_price(data[1]['reward_address'], block, blockchain, web3=web3)
+#         reward_decimals = get_decimals(data[1]['reward_address'], blockchain, web3=web3)
+
+#         reward_per_year = data[1]['rewardPerSecond'] * (3600 * 24 * 365) / (10**reward_decimals)
+#     except:
+#         reward_price = 0
+#         reward_per_year = 0
+
+#     balances = pool_balances(lptoken_address, block, blockchain)
+#     token_addresses = [balances[i][0] for i in range(len(balances))]
+#     token_prices = [Prices.get_price(token_addresses[i], block, blockchain) for i in range(len(token_addresses))]
+#     tvl = sum([balances[i][1] * token_prices[i] for i in range(len(token_addresses))])
+
+#     apr = ((sushi_per_year * sushi_price + reward_per_year * reward_price) / tvl) * 100
+
+#     return apr
 
 
 def get_swap_fees_APR(

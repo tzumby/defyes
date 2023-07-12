@@ -346,60 +346,42 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
 
 # #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# # get_apr
-# # **kwargs:
-# # 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# # 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# # 'web3' = web3 (Node) -> Improves performance
-# #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# def get_apr(lptoken_address, blockchain, block, web3=None, execution=1, index=0):
+# def get_apr(lptoken_address, blockchain, block, web3=None, index=0):
+#     if web3 is None:
+#         web3 = get_node(blockchain, block=block)
 
-#     # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
-#     if execution > MAX_EXECUTIONS:
+#     lptoken_address = Web3.to_checksum_address(lptoken_address)
+#     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
+
+#     pool_address = get_pool_address(web3, lptoken_data['token0'], lptoken_data['token1'], block, blockchain)
+
+#     if pool_address is None:
+#         print('Error: Cannot find Elk Pool Address for LPToken Address: ', lptoken_address)
 #         return None
 
-#     try:
-#         if web3 is None:
-#             web3 = get_node(blockchain, block=block)
+#     pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
 
-#         lptoken_address = Web3.to_checksum_address(lptoken_address)
-#         lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
+#     booster_token = pool_contract.functions.boosterToken().call()
+#     if booster_token is not None and booster_token != ZERO_ADDRESS:
+#         booster_token_decimals = get_decimals(booster_token, blockchain, web3=web3)
+#         booster_reward_per_token = pool_contract.functions.boosterRewardPerToken().call(block_identifier=block) / (10**booster_token_decimals)
+#         booster_token_price = Prices.get_price(booster_token, block, blockchain)
+#     else:
+#         booster_reward_per_token = 0
+#         booster_token_price = 0
 
-#         pool_address = get_pool_address(web3, lptoken_data['token0'], lptoken_data['token1'], block, blockchain)
+#     rewards_token = pool_contract.functions.rewardsToken().call()
+#     rewards_token_decimals = get_decimals(rewards_token, blockchain, web3=web3)
+#     reward_per_token = pool_contract.functions.rewardPerToken().call(block_identifier=block) / (10**rewards_token_decimals)
+#     rewards_token_price = Prices.get_price(rewards_token, block, blockchain)
 
-#         if pool_address is None:
-#             print('Error: Cannot find Elk Pool Address for LPToken Address: ', lptoken_address)
-#             return None
+#     total_rewards = (booster_reward_per_token * booster_token_price + reward_per_token * rewards_token_price) * (lptoken_data['totalSupply'] / (10**lptoken_data['decimals']))
 
-#         pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
+#     balances = pool_balances(lptoken_address, block, blockchain)
+#     token_addresses = [balances[i][0] for i in range(len(balances))]
+#     token_prices = [Prices.get_price(token_addresses[i], block, blockchain) for i in range(len(token_addresses))]
+#     tvl = sum([balances[i][1] * token_prices[i] for i in range(len(token_addresses))])
 
-#         booster_token = pool_contract.functions.boosterToken().call()
-#         if booster_token is not None and booster_token != ZERO_ADDRESS:
-#             booster_token_decimals = get_decimals(booster_token, blockchain, web3=web3)
-#             booster_reward_per_token = pool_contract.functions.boosterRewardPerToken().call(block_identifier=block) / (10**booster_token_decimals)
-#             booster_token_price = Prices.get_price(booster_token, block, blockchain)
-#         else:
-#             booster_reward_per_token = 0
-#             booster_token_price = 0
+#     apr = ((total_rewards) / tvl) * 100
 
-#         rewards_token = pool_contract.functions.rewardsToken().call()
-#         rewards_token_decimals = get_decimals(rewards_token, blockchain, web3=web3)
-#         reward_per_token = pool_contract.functions.rewardPerToken().call(block_identifier=block) / (10**rewards_token_decimals)
-#         rewards_token_price = Prices.get_price(rewards_token, block, blockchain)
-
-#         total_rewards = (booster_reward_per_token * booster_token_price + reward_per_token * rewards_token_price) * (lptoken_data['totalSupply'] / (10**lptoken_data['decimals']))
-
-#         balances = pool_balances(lptoken_address, block, blockchain)
-#         token_addresses = [balances[i][0] for i in range(len(balances))]
-#         token_prices = [Prices.get_price(token_addresses[i], block, blockchain) for i in range(len(token_addresses))]
-#         tvl = sum([balances[i][1] * token_prices[i] for i in range(len(token_addresses))])
-
-#         apr = ((total_rewards) / tvl) * 100
-
-#         return apr
-
-#     except GetNodeIndexError:
-#         return get_apr(lptoken_address, blockchain, block, index=0, execution=execution + 1)
-
-#     except:
-#         return get_apr(lptoken_address, blockchain, block, index=index + 1, execution=execution)
+#     return apr

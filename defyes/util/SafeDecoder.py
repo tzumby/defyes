@@ -2,77 +2,67 @@ from typing import Union
 
 from web3 import Web3
 
-from defyes.constants import MAX_EXECUTIONS
-from defyes.functions import GetNodeIndexError, get_node
+from defyes.functions import get_node
 from defyes.util.api import RequestFromScan
 
 
 def get_safe_functions(
     tx_hash: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0
 ) -> list:
-    if execution > MAX_EXECUTIONS:
-        return None
 
-    try:
-        if web3 is None:
-            web3 = get_node(blockchain, block=block)
+    if web3 is None:
+        web3 = get_node(blockchain, block=block)
 
-        tx_receipt = web3.eth.get_transaction(tx_hash)
-        tx_to = tx_receipt["to"]
-        tx_input_data = tx_receipt["input"]
+    tx_receipt = web3.eth.get_transaction(tx_hash)
+    tx_to = tx_receipt["to"]
+    tx_input_data = tx_receipt["input"]
 
-        tx_to_impl_code = bytes.fromhex(Web3.toHex(web3.eth.get_storage_at(tx_to, 0))[2:])
-        proxy_address = Web3.to_checksum_address(tx_to_impl_code[-20:].hex())
-        proxy_address_abi = RequestFromScan(
-            blockchain=blockchain, module="contract", action="getabi", kwargs={"address": proxy_address}
-        ).request()["result"]
-        proxy_contract = web3.eth.contract(address=proxy_address, abi=proxy_address_abi)
+    tx_to_impl_code = bytes.fromhex(Web3.toHex(web3.eth.get_storage_at(tx_to, 0))[2:])
+    proxy_address = Web3.to_checksum_address(tx_to_impl_code[-20:].hex())
+    proxy_address_abi = RequestFromScan(
+        blockchain=blockchain, module="contract", action="getabi", kwargs={"address": proxy_address}
+    ).request()["result"]
+    proxy_contract = web3.eth.contract(address=proxy_address, abi=proxy_address_abi)
 
+    input_data = proxy_contract.decode_function_input(tx_input_data)
+    functions, params = input_data
+    if "execTransaction" in str(functions):
         input_data = proxy_contract.decode_function_input(tx_input_data)
-        functions, params = input_data
-        if "execTransaction" in str(functions):
-            input_data = proxy_contract.decode_function_input(tx_input_data)
-            input_data_contract_address = params["to"]
-            input_data_abi = RequestFromScan(
-                blockchain=blockchain,
-                module="contract",
-                action="getabi",
-                kwargs={"address": input_data_contract_address},
-            ).request()["result"]
+        input_data_contract_address = params["to"]
+        input_data_abi = RequestFromScan(
+            blockchain=blockchain,
+            module="contract",
+            action="getabi",
+            kwargs={"address": input_data_contract_address},
+        ).request()["result"]
 
-            input_data_contract = web3.eth.contract(address=input_data_contract_address, abi=input_data_abi)
-            input_data_bytes = input_data_contract.decode_function_input(params["data"].hex())
-            functions2, params2 = input_data_bytes
-            if "multiSend" in str(functions2):
-                transaction = params2["transactions"].hex()
-                function_list = decode_multisend_transaction(transaction, web3, blockchain)
-                return function_list
-            elif "execTransactionWithRole" in str(functions2):
-                data_output = decode_function_input(params2["to"], params2["data"], blockchain, web3)
-                decode_dict = {
-                    "operation": params2["operation"],
-                    "to_address": params2["to"],
-                    "value": params2["value"],
-                    "role": params2["role"],
-                    "data_output": data_output,
-                }
-                return decode_dict
-            else:
-                decode_dict = {
-                    "operation": params["operation"],
-                    "to_address": params["to"],
-                    "value": params["value"],
-                    "data_output": input_data_bytes,
-                }
-                return decode_dict
+        input_data_contract = web3.eth.contract(address=input_data_contract_address, abi=input_data_abi)
+        input_data_bytes = input_data_contract.decode_function_input(params["data"].hex())
+        functions2, params2 = input_data_bytes
+        if "multiSend" in str(functions2):
+            transaction = params2["transactions"].hex()
+            function_list = decode_multisend_transaction(transaction, web3, blockchain)
+            return function_list
+        elif "execTransactionWithRole" in str(functions2):
+            data_output = decode_function_input(params2["to"], params2["data"], blockchain, web3)
+            decode_dict = {
+                "operation": params2["operation"],
+                "to_address": params2["to"],
+                "value": params2["value"],
+                "role": params2["role"],
+                "data_output": data_output,
+            }
+            return decode_dict
         else:
-            print("not a safe transaction")
-
-    except GetNodeIndexError:
-        return get_safe_functions(tx_hash, block, blockchain, web3, index=0, execution=execution + 1)
-
-    except:
-        return get_safe_functions(tx_hash, block, blockchain, web3, index=index + 1, execution=execution)
+            decode_dict = {
+                "operation": params["operation"],
+                "to_address": params["to"],
+                "value": params["value"],
+                "data_output": input_data_bytes,
+            }
+            return decode_dict
+    else:
+        print("not a safe transaction")
 
 
 def decode_multisend_transaction(input_data: str, web3, blockchain: str) -> list:

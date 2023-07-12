@@ -105,7 +105,6 @@ from defyes.constants import (
     IMPLEMENTATION_SLOT_EIP_1967,
     IMPLEMENTATION_SLOT_UNSTRUCTURED,
     KOVAN,
-    MAX_EXECUTIONS,
     NODES_ENDPOINTS,
     OPTIMISM,
     POLYGON,
@@ -170,7 +169,7 @@ class ProviderManager(JSONBaseProvider):
             self.providers.append((provider, errors))
 
     def make_request(self, method, params):
-        for _ in range(MAX_EXECUTIONS):
+        for _ in range(self.max_executions):
             for provider, errors in self.providers:
                 if len(errors) > self.max_fails_per_provider:
                     continue
