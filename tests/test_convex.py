@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Convex
-from defyes.constants import CRV_ETH, CVX_ETH, DAI_ETH, ETHEREUM, LDO_ETH, USDC_ETH, USDT_ETH, X3CRV_ETH
+from defyes.constants import CRV_ETH, CVX_ETH, CVXCRV_ETH, DAI_ETH, ETHEREUM, LDO_ETH, USDC_ETH, USDT_ETH, X3CRV_ETH
 from defyes.functions import get_contract, get_node
 
 web3 = get_node(ETHEREUM)
@@ -59,6 +59,16 @@ def test_get_locked():
         "0x99e703dA6A29f68a603724BAc8B68d26d235ebf6", 17499865, ETHEREUM, web3, reward=False, decimals=False
     )
     assert locked == [[CVX_ETH, Decimal("2269137508655082138108")]]
+
+    locked = Convex.get_locked(
+        wallet="0x849d52316331967b6ff1198e5e32a0eb168d039d", block=17499865, blockchain="ethereum", reward=True
+    )
+    assert locked == [
+        [CVX_ETH, Decimal("15141.040500434822549545")],
+        [CVXCRV_ETH, Decimal("498.957290776022003025")],
+        ["0xFEEf77d3f69374f66429C91d732A244f074bdf74", Decimal("0.706414240457270942")],
+        ["0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0", Decimal("5.806260846190998503")],
+    ]
 
 
 def test_get_staked():
