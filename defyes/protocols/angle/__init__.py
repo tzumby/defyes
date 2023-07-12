@@ -1,6 +1,7 @@
 import itertools
 import logging
 from decimal import Decimal
+from typing import Iterator
 
 from web3 import Web3
 from web3.exceptions import ContractCustomError, ContractLogicError
@@ -31,10 +32,19 @@ class Treasury(Treasury):
         """
         Returns all vault manager addresses from treasury.
         """
+        yield from self.vault_managers_addrs
+
+    @property
+    def vault_managers_addrs(self) -> Iterator[str]:
         with suppress_value(ContractLogicError, "execution revered"):
             for nvault in itertools.count():
                 yield self.vault_manager_list(nvault)
         logger.debug("End of vault manager list reachead")
+
+    @property
+    def vault_managers(self) -> Iterator[VaultManager]:
+        for vault_addr in self.vault_managers_addrs:
+            yield VaultManager(self.blockchain, self.block, vault_addr)
 
 
 class Oracle(Oracle):
@@ -134,8 +144,7 @@ def get_protocol_data(blockchain: str, wallet: str, block: int | str = "latest",
 
     positions = {}
 
-    for vault_addr in treasury.get_all_vault_managers_addrs():
-        vault_manager = VaultManager(blockchain, block, vault_addr)
+    for vault_manager in treasury.vault_managers:
         if vault_manager.vaults_owned_by(wallet) >= 1:
             vault_ids = vault_manager.get_vault_ids_from(wallet)["vault_ids"]
             for vault_id in vault_ids:
