@@ -2,14 +2,13 @@ from typing import Union
 
 from web3 import Web3
 
+from defyes.api import RequestFromScan
 from defyes.functions import get_node
-from defyes.util.api import RequestFromScan
 
 
 def get_safe_functions(
     tx_hash: str, block: Union[int, str], blockchain: str, web3=None, execution: int = 1, index: int = 0
 ) -> list:
-
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 

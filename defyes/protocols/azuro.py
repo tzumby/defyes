@@ -5,7 +5,7 @@ from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import get_contract, get_logs_web3, get_node, to_token_amount
-from defyes.util.topic import address_hexor, topic_creator
+from defyes.topic import address_hexor, topic_creator
 
 POOL_ADDR_V1 = "0xac004b512c33D029cf23ABf04513f1f380B3FD0a"
 POOL_ADDR_V2 = "0x204e7371Ade792c5C006fb52711c50a7efC843ed"

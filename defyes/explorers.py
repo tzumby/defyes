@@ -9,7 +9,7 @@ from defyes.constants import (
     API_KEY_GNOSISSCAN,
     API_KEY_POLSCAN,
 )
-from defyes.util.enums import Chain, Explorer
+from defyes.enums import Chain, Explorer
 
 blockexplorers = {
     Chain.ETHEREUM.value: [Explorer.ETHERSCAN.value, API_KEY_ETHERSCAN],

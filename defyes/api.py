@@ -4,8 +4,8 @@ from typing import Optional
 import requests
 from web3 import Web3
 
+from defyes.explorers import Explorer
 from defyes.functions import get_node
-from defyes.util.explorers import Explorer
 
 
 @dataclass
