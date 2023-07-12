@@ -7,7 +7,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import CVX_ETH, CVXCRV_ETH, ETHEREUM
-from defyes.functions import get_contract, get_contract_creation, get_node, last_block, to_token_amount
+from defyes.functions import get_contract, get_contract_creation, last_block, to_token_amount
+from defyes.node import get_node
 
 from .. import curve
 

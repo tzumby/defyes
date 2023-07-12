@@ -3,7 +3,8 @@ from typing import Union
 from web3 import Web3
 
 from defyes.constants import MAX_EXECUTIONS
-from defyes.functions import GetNodeIndexError, get_node
+from defyes.functions import GetNodeIndexError
+from defyes.node import get_node
 from defyes.util.api import RequestFromScan
 
 

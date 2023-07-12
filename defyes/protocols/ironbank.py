@@ -5,7 +5,8 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.cache import const_call
 from defyes.constants import OPTIMISM, ZERO_ADDRESS
-from defyes.functions import get_contract, get_decimals, get_node, last_block, to_token_amount
+from defyes.functions import get_contract, get_decimals, last_block, to_token_amount
+from defyes.node import get_node
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # UNITROLLER

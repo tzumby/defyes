@@ -32,7 +32,7 @@
 
   ```
   from defyes.constants import XDAI
-  from defyes.functions import get_node
+  from defyes.node import get_node
   from defyes import Agave
 
   web3 = get_node(XDAI, 'latest', 0)

@@ -6,7 +6,8 @@ import requests
 from web3 import Web3
 
 from defyes.constants import ETHEREUM, XDAI
-from defyes.functions import balance_of, get_node, to_token_amount
+from defyes.functions import balance_of, to_token_amount
+from defyes.node import get_node
 
 from . import curve, uniswapv3
 

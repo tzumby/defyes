@@ -7,7 +7,8 @@ from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
 from defyes.constants import ARBITRUM, AVALANCHE, ETHEREUM, FANTOM, OPTIMISM, POLYGON, STKAAVE_ETH
-from defyes.functions import get_contract, get_node, last_block, to_token_amount
+from defyes.functions import get_contract, last_block, to_token_amount
+from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 
