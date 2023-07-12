@@ -69,3 +69,23 @@ def test_listify():
     ret_value = seq()
     assert isinstance(ret_value, list)
     assert ret_value == [1, 2]
+
+
+def test_suppress_value():
+    with helpers.suppress_value(ValueError, "something"):
+        raise ValueError("something")
+
+
+@pytest.mark.parametrize(
+    "exception",
+    [
+        ValueError("different"),
+        ValueError(),
+        ValueError,
+        TypeError,
+    ],
+)
+def test_suppress_value_doesnt_match(exception):
+    with pytest.raises(Exception):
+        with helpers.suppress_value(ValueError, "something"):
+            raise exception

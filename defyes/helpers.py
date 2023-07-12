@@ -16,6 +16,15 @@ def suppress_error_codes():
             raise
 
 
+@contextmanager
+def suppress_value(exception, value):
+    try:
+        yield
+    except exception as e:
+        if e.args[0] != value:
+            raise
+
+
 def call_contract_method(method, block) -> Any | None:
     with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
         return method.call(block_identifier=block)
