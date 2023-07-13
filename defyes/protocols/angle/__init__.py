@@ -77,15 +77,14 @@ class VaultManager(VaultManager):
     @cache_contract_method(validator=vault_ids_owned_by)
     def get_vault_ids_from(self, wallet: str) -> list:
         wallet = Web3.to_checksum_address(wallet)
-        vault_ids = []
-        for vault_id in range(self.vault_id_count + 1):
-            try:
-                if wallet == self.owner_of(vault_id):
-                    vault_ids.append(vault_id)
-            except ContractCustomError as error:
-                if error != "0x0c5473ba":
-                    raise
-        return {"wallet": wallet, "vault_ids": vault_ids}
+
+        def vault_ids():
+            for vault_id in range(self.vault_id_count + 1):
+                with suppress_value(ContractCustomError, "0x0c5473ba"):
+                    if wallet == self.owner_of(vault_id):
+                        yield vault_id
+
+        return {"wallet": wallet, "vault_ids": list(vault_ids())}
 
     def get_vault_data(self, vaultid: int, decimals: bool = True) -> dict:
         stablecoin_decimals = (
