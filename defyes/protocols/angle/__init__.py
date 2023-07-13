@@ -36,7 +36,7 @@ class Treasury(Treasury):
 
     @property
     def vault_managers_addrs(self) -> Iterator[str]:
-        with suppress_value(ContractLogicError, "execution revered"):
+        with suppress_value(ContractLogicError, "execution reverted"):
             for nvault in itertools.count():
                 yield self.vault_manager_list(nvault)
         logger.debug("End of vault manager list reachead")
