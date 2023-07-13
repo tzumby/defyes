@@ -30,11 +30,6 @@ bb_ag_WXDAI_ADDR = "0x41211bba6d37f5a74b22e667533f080c7c7f3f13"
 bb_ag_GNO_ADDR = "0xffff76a3280e95dc855696111c2562da09db2ac0"
 
 
-def test_get_gauge_factory_address():
-    gauge_address = Balancer.get_gauge_factory_address(ETHEREUM)
-    assert Balancer.LIQUIDITY_GAUGE_FACTORY_ETHEREUM == gauge_address
-
-
 def test_get_bal_address():
     assert ETHTokenAddr.BAL == Balancer.get_bal_address(ETHEREUM)
     assert BAL_POL == Balancer.get_bal_address(POLYGON)

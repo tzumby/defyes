@@ -17,6 +17,7 @@ from defi_protocols.constants import (
     BB_A_USD_ETH,
     BB_A_USD_OLD_ETH,
     ETHEREUM,
+    OPTIMISM,
     POLYGON,
     XDAI,
     ZERO_ADDRESS,
@@ -48,25 +49,30 @@ LIQUIDITY_GAUGE_FACTORY_ETHEREUM = "0x4E7bBd911cf1EFa442BC1b2e9Ea01ffE785412EC" 
 LIQUIDITY_GAUGE_FACTORY_ETHEREUM_V2 = "0xf1665E19bc105BE4EDD3739F88315cC699cc5b65"
 
 # Polygon Liquidity Gauge Factory Contract Address
-# LIQUIDITY_GAUGE_FACTORY_POLYGON = '0x3b8cA519122CdD8efb272b0D3085453404B25bD0' # DEPRECATED
-LIQUIDITY_GAUGE_FACTORY_POLYGON = "0x22625eEDd92c81a219A83e1dc48f88d54786B017"
+LIQUIDITY_GAUGE_FACTORY_POLYGON = "0x3b8cA519122CdD8efb272b0D3085453404B25bD0"  # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_POLYGON_V2 = "0x22625eEDd92c81a219A83e1dc48f88d54786B017"
 
 # Arbitrum Liquidity Gauge Factory Contract Address
-# LIQUIDITY_GAUGE_FACTORY_ARBITRUM = '0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2' # DEPRECATED
-LIQUIDITY_GAUGE_FACTORY_ARBITRUM = "0x6817149cb753BF529565B4D023d7507eD2ff4Bc0"
+LIQUIDITY_GAUGE_FACTORY_ARBITRUM = "0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2"  # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_ARBITRUM_V2 = "0x6817149cb753BF529565B4D023d7507eD2ff4Bc0"
 
 # GC Liquidity Gauge Factory Contract Address
-# LIQUIDITY_GAUGE_FACTORY_XDAI = '0x809B79b53F18E9bc08A961ED4678B901aC93213a' # DEPRECATED
-LIQUIDITY_GAUGE_FACTORY_XDAI = "0x83E443EF4f9963C77bd860f94500075556668cb8"
+LIQUIDITY_GAUGE_FACTORY_XDAI = "0x809B79b53F18E9bc08A961ED4678B901aC93213a"  # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_XDAI_V2 = "0x83E443EF4f9963C77bd860f94500075556668cb8"
 
-# Block number of gauge factory creation
-BLOCKCHAIN_START_BLOCK = {
-    "ethereumv1": 14457664,
-    ETHEREUM: 15399251,
-    POLYGON: 40687417,
-    ARBITRUM: 72942741,
-    XDAI: 27088528,
+# Optimism Liquidity Gauge Factory Contract Address
+LIQUIDITY_GAUGE_FACTORY_OPTIMISM = "0x2E96068b3D5B5BAE3D7515da4A1D2E52d08A2647"  # DEPRECATED
+LIQUIDITY_GAUGE_FACTORY_OPTIMISM_V2 = "0x83E443EF4f9963C77bd860f94500075556668cb8"
+
+# This dict holds the block in which each deployed Liquidity Gauge Factory was created
+GAUGE_FACTORIES = {
+    ETHEREUM: {"14457664": LIQUIDITY_GAUGE_FACTORY_ETHEREUM, "15399251": LIQUIDITY_GAUGE_FACTORY_ETHEREUM_V2},
+    POLYGON: {"27098624": LIQUIDITY_GAUGE_FACTORY_POLYGON, "40687417": LIQUIDITY_GAUGE_FACTORY_POLYGON_V2},
+    ARBITRUM: {"9756975": LIQUIDITY_GAUGE_FACTORY_ARBITRUM, "72942741": LIQUIDITY_GAUGE_FACTORY_ARBITRUM_V2},
+    XDAI: {"26615210": LIQUIDITY_GAUGE_FACTORY_XDAI, "27088528": LIQUIDITY_GAUGE_FACTORY_XDAI_V2},
+    OPTIMISM: {"60740": LIQUIDITY_GAUGE_FACTORY_OPTIMISM, "641824": LIQUIDITY_GAUGE_FACTORY_OPTIMISM_V2},
 }
+
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # veBAL
@@ -151,62 +157,51 @@ def call_contract_method(method, block):
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_gauge_factory_address
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_gauge_factory_address(blockchain):
-    if blockchain == ETHEREUM:
-        return LIQUIDITY_GAUGE_FACTORY_ETHEREUM
-
-    elif blockchain == POLYGON:
-        return LIQUIDITY_GAUGE_FACTORY_POLYGON
-
-    elif blockchain == ARBITRUM:
-        return LIQUIDITY_GAUGE_FACTORY_ARBITRUM
-
-    elif blockchain == XDAI:
-        return LIQUIDITY_GAUGE_FACTORY_XDAI
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_gauge_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_gauge_address(blockchain, block, web3, lptoken_addr):
     if isinstance(block, str):
         if block == "latest":
-            block = last_block(ETHEREUM)
+            block = last_block(blockchain)
         else:
             raise ValueError("Incorrect block.")
 
-    gauge_factory_address = get_gauge_factory_address(blockchain)
-
     gauge_address = ZERO_ADDRESS
-    if blockchain == ETHEREUM:
-        gauge_factory_contract = get_contract(
-            gauge_factory_address, blockchain, web3=web3, abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block
-        )
-        gauge_address = const_call(gauge_factory_contract.functions.getPoolGauge(lptoken_addr))
-        if gauge_address == ZERO_ADDRESS:
-            gauge_factory_address = LIQUIDITY_GAUGE_FACTORY_ETHEREUM_V2
 
-    if gauge_factory_address != LIQUIDITY_GAUGE_FACTORY_ETHEREUM:
-        block_from = BLOCKCHAIN_START_BLOCK[blockchain]
-        gauge_created_event = web3.keccak(text=GAUGE_CREATED_EVENT_SIGNATURE).hex()
+    blocks = list(GAUGE_FACTORIES[blockchain].keys())[::-1]
+    for iblock in blocks:
+        if block >= int(iblock):
+            gauge_factory_address = GAUGE_FACTORIES[blockchain][iblock]
 
-        if block >= block_from:
-            logs = get_logs_web3(
-                address=gauge_factory_address,
-                blockchain=blockchain,
-                block_start=block_from,
-                block_end=block,
-                topics=[gauge_created_event],
-            )
-            for log in logs:
-                tx = web3.eth.get_transaction(log["transactionHash"])
-                if lptoken_addr[2 : len(lptoken_addr)].lower() in tx["input"]:
-                    gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
+            if iblock == blocks[-1]:
+                gauge_factory_contract = get_contract(
+                    gauge_factory_address, blockchain, web3=web3, abi=ABI_LIQUIDITY_GAUGE_FACTORY, block=block
+                )
+                gauge_address = call_contract_method(gauge_factory_contract.functions.getPoolGauge(lptoken_addr), block)
+                if gauge_address != ZERO_ADDRESS:
                     break
+            else:
+                block_from = int(iblock)
+                gauge_created_event = web3.keccak(text=GAUGE_CREATED_EVENT_SIGNATURE).hex()
 
-        return gauge_address
+                if block >= block_from:
+                    logs = get_logs_web3(
+                        address=gauge_factory_address,
+                        blockchain=blockchain,
+                        block_start=block_from,
+                        block_end=block,
+                        topics=[gauge_created_event],
+                    )
+                    for log in logs:
+                        tx = web3.eth.get_transaction(log["transactionHash"])
+                        if lptoken_addr[2 : len(lptoken_addr)].lower() in tx["input"]:
+                            gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
+                            break
+
+                if gauge_address == ZERO_ADDRESS:
+                    continue
+                else:
+                    break
 
     return gauge_address
 
@@ -809,9 +804,6 @@ def get_swap_fees_APR(
         ),
         blockchain,
     )
-
-    if block_start < BLOCKCHAIN_START_BLOCK[blockchain]:
-        block_start = BLOCKCHAIN_START_BLOCK[blockchain]
 
     fees = swap_fees(lptoken_address, block_start, block_end, blockchain, web3)
     # create a dictionary to store the total amountIn for each tokenIn
