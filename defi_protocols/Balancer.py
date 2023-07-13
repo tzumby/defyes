@@ -30,6 +30,7 @@ from defi_protocols.functions import (
     get_decimals,
     get_logs_web3,
     get_node,
+    get_symbol,
     last_block,
     to_token_amount,
 )
@@ -495,8 +496,8 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                     main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
                     if main_token is None:
                         main_token = token_address
-                        stETH = call_contract_method(token_contract.functions.stETH(), block)
-                        if stETH is not None:
+                        main_token_symbol = get_symbol(main_token, blockchain, web3=web3)
+                        if "wsteth" in main_token_symbol.lower():
                             is_wsteth = True
                         # The previous 4 lines can be replaced by the commented code below to have stETH being returned instead of stETH
                         # stETH = call_contract_method(token_contract.functions.stETH(), block)
@@ -599,8 +600,8 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
                     main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
                     if main_token is None:
                         main_token = token_address
-                        stETH = call_contract_method(token_contract.functions.stETH(), block)
-                        if stETH is not None:
+                        main_token_symbol = get_symbol(main_token, blockchain, web3=web3)
+                        if "wsteth" in main_token_symbol.lower():
                             is_wsteth = True
                         # The previous 4 lines can be replaced by the commented code below to have stETH being returned instead of stETH
                         # stETH = call_contract_method(token_contract.functions.stETH(), block)
@@ -695,8 +696,8 @@ def unwrap(
                     main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
                     if main_token is None:
                         main_token = token_address
-                        stETH = call_contract_method(token_contract.functions.stETH(), block)
-                        if stETH is not None:
+                        main_token_symbol = get_symbol(main_token, blockchain, web3=web3)
+                        if "wsteth" in main_token_symbol.lower():
                             is_wsteth = True
                         # The previous 4 lines can be replaced by the commented code below to have stETH being returned instead of stETH
                         # stETH = call_contract_method(token_contract.functions.stETH(), block)
