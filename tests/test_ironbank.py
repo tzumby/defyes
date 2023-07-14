@@ -4,7 +4,7 @@ import pytest
 
 from defyes import IronBank
 from defyes.constants import OPTIMISM
-from defyes.functions import get_node
+from defyes.node import get_node
 
 # 2023.04.27
 TEST_BLOCK = 94882677

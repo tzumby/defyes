@@ -4,7 +4,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import BINANCE, ETHEREUM, FANTOM
-from defyes.functions import get_contract, get_decimals, get_node
+from defyes.functions import get_contract, get_decimals
+from defyes.node import get_node
 
 # VAULT
 # Vault Address - Ethereum

@@ -4,14 +4,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import MAI_POL, POLYGON, XDAI, GnosisTokenAddr
-from defyes.functions import (
-    block_to_timestamp,
-    get_contract,
-    get_decimals,
-    get_node,
-    timestamp_to_block,
-    to_token_amount,
-)
+from defyes.functions import block_to_timestamp, get_contract, get_decimals, timestamp_to_block, to_token_amount
+from defyes.node import get_node
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # QIDAO_VAULTS

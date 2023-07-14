@@ -6,14 +6,11 @@ import re
 from contextlib import suppress
 from datetime import datetime
 from decimal import Decimal
-from typing import List
 
 import requests
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
-from web3.providers import HTTPProvider, JSONBaseProvider
 
-from defyes import cache
 from defyes.cache import cache_call, const_call
 from defyes.constants import (
     ABI_TOKEN_SIMPLIFIED,
@@ -106,8 +103,6 @@ from defyes.constants import (
     IMPLEMENTATION_SLOT_EIP_1967,
     IMPLEMENTATION_SLOT_UNSTRUCTURED,
     KOVAN,
-    MAX_EXECUTIONS,
-    NODES_ENDPOINTS,
     OPTIMISM,
     POLYGON,
     ROPSTEN,
@@ -116,6 +111,7 @@ from defyes.constants import (
     ZERO_ADDRESS,
 )
 from defyes.helpers import suppress_error_codes
+from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 
@@ -143,113 +139,12 @@ class abiNotVerified(Exception):
         super().__init__(self.message)
 
 
-class AllProvidersDownError(Exception):
-    pass
-
-
 def to_token_amount(
     token_address: str, amount: int | Decimal, blockchain: str, web3: Web3, decimals: bool = True
 ) -> Decimal:
     # This function provides support for correctly rounded decimal floating point arithmetic.
     decimals = get_decimals(token_address, blockchain=blockchain, web3=web3) if decimals else 0
     return amount / Decimal(10**decimals)
-
-
-class ProviderManager(JSONBaseProvider):
-    def __init__(self, endpoints: List, max_fails_per_provider: int = 2, max_executions: int = 2):
-        super().__init__()
-        self.endpoints = endpoints
-        self.max_fails_per_provider = max_fails_per_provider
-        self.max_executions = max_executions
-        self.providers = []
-
-        for url in endpoints:
-            if "://" not in url:
-                logger.warning(f"Skipping invalid endpoint URI '{url}'.")
-                continue
-            provider = HTTPProvider(url)
-            errors = []
-            self.providers.append((provider, errors))
-
-    def make_request(self, method, params):
-        for _ in range(MAX_EXECUTIONS):
-            for provider, errors in self.providers:
-                if len(errors) > self.max_fails_per_provider:
-                    continue
-                try:
-                    response = provider.make_request(method, params)
-                    return response
-                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                    errors.append(e)
-                    logger.error("Error when making request: %s", e)
-                except Exception as e:
-                    errors.append(e)
-                    logger.exception("Unexpected exception when making request.")
-        raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
-
-
-def get_web3_provider(provider):
-    web3 = Web3(provider)
-
-    class CallCounterMiddleware:
-        call_count = 0
-
-        def __init__(self, make_request, w3):
-            self.w3 = w3
-            self.make_request = make_request
-
-        @classmethod
-        def increment(cls):
-            cls.call_count += 1
-
-        def __call__(self, method, params):
-            self.increment()
-            logger.debug("Web3 call count: %d", self.call_count)
-            response = self.make_request(method, params)
-            return response
-
-    web3.middleware_onion.add(CallCounterMiddleware, "call_counter")
-    if cache.is_enabled():
-        # adding the cache after to get only effective calls counted by the counter
-        web3.middleware_onion.add(cache.disk_cache_middleware, "disk_cache")
-    return web3
-
-
-def get_web3_call_count(web3):
-    """Obtain the total number of calls that have been made by a web3 instance."""
-    return web3.middleware_onion["call_counter"].call_count
-
-
-# store latest and archival ProviderManagers as they are used
-_nodes_providers = dict()
-
-
-def get_node(blockchain, block="latest"):
-    """
-    If block is 'latest'  it retrieves a Full Node, in other case it retrieves an Archival Node.
-    """
-    if blockchain not in NODES_ENDPOINTS:
-        raise ValueError(f"Unknown blockchain '{blockchain}'")
-    node = NODES_ENDPOINTS[blockchain]
-
-    if isinstance(block, str):
-        if block != "latest":
-            raise ValueError("Incorrect block.")
-
-        providers = _nodes_providers.get((blockchain, "latest"), None)
-        if not providers:
-            providers = ProviderManager(endpoints=node["latest"] + node["archival"])
-            _nodes_providers[(blockchain, "latest")] = providers
-    else:
-        providers = _nodes_providers.get((blockchain, "archival"), None)
-        if not providers:
-            providers = ProviderManager(endpoints=node["archival"])
-            _nodes_providers[(blockchain, "archival")] = providers
-
-    web3 = get_web3_provider(providers)
-    web3._network_name = blockchain
-    web3._called_with_block = block
-    return web3
 
 
 def last_block(blockchain, web3=None, block="latest"):

@@ -6,7 +6,8 @@ from typing import ClassVar, Union
 
 from web3 import Web3
 
-from defyes.functions import get_contract, get_decimals, get_node
+from defyes.functions import get_contract, get_decimals
+from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,8 @@
 from web3 import Web3
 
 from defyes.constants import ARBITRUM, AVAX, BINANCE, ETHEREUM, KOVAN, OPTIMISM, POLYGON, XDAI, ZERO_ADDRESS
-from defyes.functions import get_contract, get_decimals, get_node
+from defyes.functions import get_contract, get_decimals
+from defyes.node import get_node
 from defyes.prices import Chainlink
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -3,7 +3,8 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.functions import get_contract, get_node
+from defyes.functions import get_contract
+from defyes.node import get_node
 
 BASIC_META_VAULT = "0x6d68f5b8c22a549334ca85960978f9de4deba2d3"
 

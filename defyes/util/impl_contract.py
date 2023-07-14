@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from web3 import Web3
 
-from defyes.functions import get_node
+from defyes.node import get_node
 
 
 @dataclass

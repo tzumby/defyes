@@ -7,7 +7,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import ETHEREUM, XDAI
-from defyes.functions import get_contract, get_decimals, get_logs_web3, get_node
+from defyes.functions import get_contract, get_decimals, get_logs_web3
+from defyes.node import get_node
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # STAKING REWARDS CONTRACT ADDRESSES

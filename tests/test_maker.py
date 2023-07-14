@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from defyes import Maker
 from defyes.constants import DAI_ETH, ETHEREUM, ETHTokenAddr
-from defyes.functions import get_node
+from defyes.node import get_node
 
 TEST_BLOCK = 17070386
 WEB3 = get_node(blockchain=ETHEREUM, block=TEST_BLOCK)

@@ -4,7 +4,8 @@ from typing import Union
 from web3 import Web3
 
 from defyes.constants import ETHEREUM, ZERO_ADDRESS, ETHTokenAddr
-from defyes.functions import get_contract, get_node, to_token_amount
+from defyes.functions import get_contract, to_token_amount
+from defyes.node import get_node
 
 STETH_ABI = '[{"constant":true,"inputs":[{"name":"_account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
 WSTETH_ABI = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"stEthPerToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'

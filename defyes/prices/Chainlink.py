@@ -2,7 +2,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import ETHEREUM, POLYGON, XDAI
-from defyes.functions import get_contract, get_node
+from defyes.functions import get_contract
+from defyes.node import get_node
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS

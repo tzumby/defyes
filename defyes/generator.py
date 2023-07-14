@@ -132,8 +132,8 @@ class %(first_class)s(%(first_class)s):
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.functions import get_node
 from defyes.generator import load_abi
+from defyes.node import get_node
 
 
 """

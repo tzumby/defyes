@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from defyes import Compound
 from defyes.constants import ETHEREUM, ZERO_ADDRESS, ETHTokenAddr
-from defyes.functions import get_node
+from defyes.node import get_node
 
 CTOKEN_CONTRACTS = {
     "cbat_contract": "0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E",

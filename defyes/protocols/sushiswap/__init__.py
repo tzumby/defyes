@@ -17,12 +17,12 @@ from defyes.functions import (
     get_contract,
     get_decimals,
     get_logs_web3,
-    get_node,
     get_token_tx,
     get_tx_list,
     last_block,
     to_token_amount,
 )
+from defyes.node import get_node
 from defyes.prices.prices import get_price
 
 DB_FILE = Path(__file__).parent / "db.json"
