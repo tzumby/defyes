@@ -6,8 +6,8 @@ import requests
 from web3 import Web3
 
 from defi_protocols import Curve, UniswapV3
-from defi_protocols.constants import ETHEREUM, XDAI
-from defi_protocols.functions import balance_of, get_node, to_token_amount
+from defi_protocols.constants import ETHEREUM, XDAI, ZERO_ADDRESS
+from defi_protocols.functions import balance_of, get_node, last_block, to_token_amount
 
 logger = logging.getLogger(__name__)
 
@@ -18,15 +18,17 @@ SWISE_eth = "0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2"
 SWISE_gno = "0xfdA94F056346d2320d4B5E468D6Ad099b2277746"
 sGNO = "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445"
 rGNO = "0x6aC78efae880282396a335CA2F79863A1e6831D4"
-
+GNO = "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb"
 
 tokens = {
     "ethereum": {
+        "underlying": ZERO_ADDRESS,
         "staking": sETH2,
         "rewards": rETH2,
     },
     # FIXME: 'xdai' should eventually be replaced by 'gnosis'
     "xdai": {
+        "underlying": GNO,
         "staking": sGNO,
         "rewards": rGNO,
     },
@@ -195,31 +197,36 @@ def underlying(
     ----------
     dict
         {
-            'protocol': 'Stakewise',
             'blockchain': 'ethereum',
-            'block': 'latest',
-            'balances': [
-                    {
-                        'token': '0xFe2e637202056d30016725477c5da089Ab0A043A',
-                        'balance': Decimal('0.849414886512576674')
-                    },
-                    {
-                        'token': '0x20BC832ca081b91433ff6c17f85701B6e92486c5',
-                        'balance': Decimal('0.000345620720353667')
-                    }
-            ],
-            'rewards': [
-                {
+            'block': 17693094,
+            'protocol': 'Stakewise',
+            'positions_key': None,
+            'decimals': False,
+            'version': 0,
+            'wallet': '0x05E61adDCef87ad8548236eb5Cbf2f699C834935',
+            'positions': {
+                'staking_ETH': {
+                    'holdings': [{
+                            'token': '0xFe2e637202056d30016725477c5da089Ab0A043A',
+                            'balance': Decimal('0.849414886512576674')
+                        }
+                    ],
+                    'underlying': [{
+                            'token': '0x0000000000000000000000000000000000000000',
+                            'balance': Decimal('0.849414886512576674')
+                        }
+                    ]
+                }
+            },
+            'unclaimed_rewards': [{
                     'token': '0x20BC832ca081b91433ff6c17f85701B6e92486c5',
-                    'balance': Decimal('0.000070178274377674')
-                },
-                {
+                    'balance': Decimal('854744963544512')
+                }, {
                     'token': '0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2',
-                    'balance': Decimal('0.014540601677227434')
+                    'balance': Decimal('203099406601438885')
                 }
             ]
         }
-
     """
     # FIXME: the current code uses an API to fetch the latest unclaimed rewards. We need to find a way to be able to get historical unclaimed rewards
     if reward:
@@ -234,29 +241,43 @@ def underlying(
     wallet = Web3.to_checksum_address(wallet)
 
     staking_balance = balance_of(wallet, tokens[blockchain]["staking"], block, blockchain, web3=web3)
-    rewards_balance = balance_of(wallet, tokens[blockchain]["rewards"], block, blockchain, web3=web3)
+    # We are removing the balance of rewards held by the wallet
+    # rewards_balance = balance_of(wallet, tokens[blockchain]["rewards"], block, blockchain, web3=web3)
+
+    if isinstance(block, str):
+        block_result = last_block(blockchain)
+    else:
+        block_result = block
 
     result = {
-        "protocol": "Stakewise",
         "blockchain": blockchain,
-        "block": block,
-        "balances": [
-            {"token": tokens[blockchain]["staking"], "balance": staking_balance},
-            {"token": tokens[blockchain]["rewards"], "balance": rewards_balance},
-        ],
+        "block": block_result,
+        "protocol": "Stakewise",
+        "positions_key": None,
+        "decimals": decimals,
+        "version": 0,
+        "wallet": wallet,
+        "positions": {
+            "staking_ETH": {
+                "holdings": [
+                    {"token": tokens[blockchain]["staking"], "balance": staking_balance},
+                ],
+                "underlying": [{"token": tokens[blockchain]["underlying"], "balance": staking_balance}],
+            }
+        },
     }
 
     if reward:
         rewards_data = get_all_rewards(wallet, block, blockchain, decimals=decimals, web3=web3)
-        result["rewards"] = rewards_data["rewards"]
+        result["unclaimed_rewards"] = rewards_data["rewards"]
 
     if pools:
         if blockchain == XDAI:
-            result["Curve pools"] = check_curve_pools(
+            result["Curve_pools"] = check_curve_pools(
                 wallet, block, blockchain, web3=web3, decimals=decimals, reward=reward
             )
         if blockchain == ETHEREUM:
-            result["Uniswap V3 pools"] = check_uniswap_v3_pools(
+            result["Uniswap_V3_pools"] = check_uniswap_v3_pools(
                 wallet, block, blockchain, web3=web3, decimals=decimals, reward=reward
             )
 
