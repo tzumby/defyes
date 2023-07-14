@@ -53,7 +53,7 @@ def test_const_cache_disabled():
         assert centinel.call_count == 2
 
 
-def test_cache_contract_method(disable_cache):
+def test_cache_contract_method_when_disable_cache(disable_cache):
     class Contract:
         @cache_contract_method()
         def method(self):
@@ -66,7 +66,7 @@ def test_cache_contract_method(disable_cache):
     contract.method()
 
 
-def test_cache_middleware(disable_cache):
+def test_cache_middleware_when_disable_cache(disable_cache):
     web3 = mock.Mock()
     web3._network_name = "network_name"
     middleware = disk_cache_middleware(mock.Mock(), web3)
