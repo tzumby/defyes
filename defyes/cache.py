@@ -134,6 +134,9 @@ def cache_call(exclude_args=None, filter=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
+            if not is_enabled():
+                logger.debug("The cache is disabled")
+                return f(*args, **kwargs)
             cache_args = getcallargs(f, *args, **kwargs)
             if filter is None or filter(cache_args):
                 if exclude_args:
