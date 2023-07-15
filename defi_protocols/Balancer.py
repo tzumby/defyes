@@ -10,17 +10,16 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 from defi_protocols.cache import const_call
 from defi_protocols.constants import (
     ARBITRUM,
-    BAL_ARB,
-    BAL_ETH,
-    BAL_POL,
-    BAL_XDAI,
-    BB_A_USD_ETH,
-    BB_A_USD_OLD_ETH,
     ETHEREUM,
     OPTIMISM,
     POLYGON,
     XDAI,
     ZERO_ADDRESS,
+    ArbitrumTokenAddr,
+    ETHTokenAddr,
+    GnosisTokenAddr,
+    OptimismTokenAddr,
+    PolygonTokenAddr,
 )
 from defi_protocols.functions import (
     balance_of,
@@ -82,11 +81,19 @@ GAUGE_FACTORIES = {
 VEBAL = "0xC128a9954e6c874eA3d62ce62B468bA073093F25"
 
 # veBAL Fee Distributor Contract
-VEBAL_FEE_DISTRIBUTOR = "0xD3cf852898b21fc233251427c2DC93d3d604F3BB"
-# VEBAL_FEE_DISTRIBUTOR = '0x26743984e3357eFC59f2fd6C1aFDC310335a61c9' #DEPRECATED
+VEBAL_FEE_DISTRIBUTOR = "0x26743984e3357eFC59f2fd6C1aFDC310335a61c9"  # DEPRECATED
+VEBAL_FEE_DISTRIBUTOR_V2 = "0xD3cf852898b21fc233251427c2DC93d3d604F3BB"
 
-# veBAL Reward Tokens - BAL, bb-a-USD old deployment, bb-a-USD
-VEBAL_REWARD_TOKENS = [BAL_ETH, BB_A_USD_OLD_ETH, BB_A_USD_ETH]
+VEBAL_FEE_DISTRIBUTORS = {
+    "14623899": VEBAL_FEE_DISTRIBUTOR,
+    "15149500": VEBAL_FEE_DISTRIBUTOR_V2,
+}
+
+# veBAL Reward Tokens - BAL, bb-a-USD old deployment, bb-a-USD, bb-a-USDv3
+VEBAL_REWARD_TOKENS = {
+    "14623899": [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD],
+    "16981440": [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD, ETHTokenAddr.BB_A_USD_V3],
+}
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHILD CHAIN GAUGE REWARD HELPER
@@ -158,19 +165,20 @@ def call_contract_method(method, block):
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_gauge_address
+# get_gauge_addresses
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_gauge_address(blockchain, block, web3, lptoken_addr):
+def get_gauge_addresses(blockchain, block, web3, lptoken_addr):
     if isinstance(block, str):
         if block == "latest":
             block = last_block(blockchain)
         else:
             raise ValueError("Incorrect block.")
 
-    gauge_address = ZERO_ADDRESS
+    gauge_addresses = []
 
     blocks = list(GAUGE_FACTORIES[blockchain].keys())[::-1]
     for iblock in blocks:
+        gauge_address = ZERO_ADDRESS
         if block >= int(iblock):
             gauge_factory_address = GAUGE_FACTORIES[blockchain][iblock]
 
@@ -180,7 +188,7 @@ def get_gauge_address(blockchain, block, web3, lptoken_addr):
                 )
                 gauge_address = call_contract_method(gauge_factory_contract.functions.getPoolGauge(lptoken_addr), block)
                 if gauge_address != ZERO_ADDRESS:
-                    break
+                    gauge_addresses.append(Web3.to_checksum_address(gauge_address))
             else:
                 block_from = int(iblock)
                 gauge_created_event = web3.keccak(text=GAUGE_CREATED_EVENT_SIGNATURE).hex()
@@ -202,9 +210,9 @@ def get_gauge_address(blockchain, block, web3, lptoken_addr):
                 if gauge_address == ZERO_ADDRESS:
                     continue
                 else:
-                    break
+                    gauge_addresses.append(gauge_address)
 
-    return gauge_address
+    return gauge_addresses
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -265,13 +273,15 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_bal_address(blockchain):
     if blockchain == ETHEREUM:
-        return BAL_ETH
+        return ETHTokenAddr.BAL
     elif blockchain == POLYGON:
-        return BAL_POL
+        return PolygonTokenAddr.BAL
     elif blockchain == ARBITRUM:
-        return BAL_ARB
+        return ArbitrumTokenAddr.BAL
     elif blockchain == XDAI:
-        return BAL_XDAI
+        return GnosisTokenAddr.BAL
+    elif blockchain == OPTIMISM:
+        return OptimismTokenAddr.BAL
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -289,19 +299,19 @@ def get_child_chain_reward_helper_address(blockchain):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_bal_rewards
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_bal_rewards(web3, gauge_contract, wallet, block, blockchain, decimals=True):
-    """
+def get_bal_rewards(web3, gauge_addresses, wallet, block, blockchain, decimals=True):
+    bal_rewards = Decimal(0)
+    for gauge_address in gauge_addresses:
+        gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
+        bal_address = get_bal_address(blockchain)
+        bal_rewards_aux = call_contract_method(gauge_contract.functions.claimable_tokens(wallet), block)
+        if bal_rewards_aux is None:
+            bal_rewards_aux = call_contract_method(
+                gauge_contract.functions.claimable_reward(wallet, bal_address), block
+            )
 
-    :param web3:
-    :param gauge_contract:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
-    bal_address = get_bal_address(blockchain)
-    bal_rewards = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
+        if bal_rewards_aux is not None:
+            bal_rewards += bal_rewards_aux
 
     return [bal_address, to_token_amount(bal_address, bal_rewards, blockchain, web3, decimals)]
 
@@ -309,46 +319,39 @@ def get_bal_rewards(web3, gauge_contract, wallet, block, blockchain, decimals=Tr
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_rewards
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_rewards(web3, gauge_contract, wallet, block, blockchain, decimals=True):
-    """
-
-    :param web3:
-    :param gauge_contract:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
+def get_rewards(web3, gauge_addresses, wallet, block, blockchain, decimals=True):
     rewards = []
+    rewards_dict = {}
 
-    # if blockchain == ETHEREUM:
-    reward_count = gauge_contract.functions.reward_count().call(block_identifier=block)
-    # else:
-    # child_chain_streamer_contract = get_contract(gauge_contract.functions.reward_contract().call(), blockchain,
-    #                                              web3=web3, abi=ABI_CHILD_CHAIN_STREAMER, block=block)
-    # reward_count = child_chain_streamer_contract.functions.reward_count().call(block_identifier=block)
+    for gauge_address in gauge_addresses:
+        gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
+        reward_count = call_contract_method(gauge_contract.functions.reward_count(), block) or 0
 
-    for i in range(reward_count):
-        token_address = const_call(gauge_contract.functions.reward_tokens(i))
+        for i in range(reward_count):
+            token_address = const_call(gauge_contract.functions.reward_tokens(i))
 
-        if blockchain == ETHEREUM:
-            token_rewards = gauge_contract.functions.claimable_reward(wallet, token_address).call(
-                block_identifier=block
-            )
-        else:
-            child_chain_reward_helper_contract = get_contract(
-                get_child_chain_reward_helper_address(blockchain),
-                blockchain,
-                web3=web3,
-                abi=ABI_CHILD_CHAIN_GAUGE_REWARD_HELPER,
-                block=block,
-            )
-            token_rewards = child_chain_reward_helper_contract.functions.getPendingRewards(
-                gauge_contract.address, wallet, token_address
-            ).call(block_identifier=block)
+            if blockchain == ETHEREUM:
+                token_rewards = gauge_contract.functions.claimable_reward(wallet, token_address).call(
+                    block_identifier=block
+                )
+            else:
+                child_chain_reward_helper_contract = get_contract(
+                    get_child_chain_reward_helper_address(blockchain),
+                    blockchain,
+                    web3=web3,
+                    abi=ABI_CHILD_CHAIN_GAUGE_REWARD_HELPER,
+                    block=block,
+                )
+                token_rewards = child_chain_reward_helper_contract.functions.getPendingRewards(
+                    gauge_address, wallet, token_address
+                ).call(block_identifier=block)
 
-        rewards.append([token_address, to_token_amount(token_address, token_rewards, blockchain, web3, decimals)])
+            if token_address in rewards_dict.keys():
+                rewards_dict[token_address] += to_token_amount(token_address, token_rewards, blockchain, web3, decimals)
+            else:
+                rewards_dict[token_address] = to_token_amount(token_address, token_rewards, blockchain, web3, decimals)
+
+    rewards = list(map(list, rewards_dict.items()))
 
     return rewards
 
@@ -357,20 +360,53 @@ def get_rewards(web3, gauge_contract, wallet, block, blockchain, decimals=True):
 # get_vebal_rewards
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vebal_rewards(web3, wallet, block, blockchain, decimals=True):
+    if isinstance(block, str):
+        if block == "latest":
+            block = last_block(blockchain)
+        else:
+            raise ValueError("Incorrect block.")
+
     vebal_rewards = []
+    vebal_rewards_dict = {}
 
-    fee_distributor_contract = get_contract(
-        VEBAL_FEE_DISTRIBUTOR, blockchain, web3=web3, abi=ABI_VEBAL_FEE_DISTRIBUTOR, block=block
-    )
-    claim_tokens = fee_distributor_contract.functions.claimTokens(wallet, VEBAL_REWARD_TOKENS).call(
-        block_identifier=block
-    )
+    fee_distributor_blocks = list(VEBAL_FEE_DISTRIBUTORS.keys())[::-1]
+    # Continues only if the block is greater than the first fee distributor block
+    if block >= int(fee_distributor_blocks[-1]):
+        vebal_reward_tokens_blocks = list(VEBAL_REWARD_TOKENS.keys())
 
-    for i in range(len(VEBAL_REWARD_TOKENS)):
-        token_address = VEBAL_REWARD_TOKENS[i]
-        token_rewards = claim_tokens[i]
+        i = 0
+        # Obtains the block to determine the reward tokens
+        while i < len(vebal_reward_tokens_blocks):
+            if block >= int(vebal_reward_tokens_blocks[i]):
+                vebal_reward_tokens_block = vebal_reward_tokens_blocks[i]
+            i += 1
 
-        vebal_rewards.append([token_address, to_token_amount(token_address, token_rewards, blockchain, web3, decimals)])
+        for fee_distributor_block in fee_distributor_blocks:
+            if block >= int(fee_distributor_block):
+                fee_distributor_contract = get_contract(
+                    VEBAL_FEE_DISTRIBUTORS[fee_distributor_block],
+                    blockchain,
+                    web3=web3,
+                    abi=ABI_VEBAL_FEE_DISTRIBUTOR,
+                    block=block,
+                )
+                claim_tokens = fee_distributor_contract.functions.claimTokens(
+                    wallet, VEBAL_REWARD_TOKENS[vebal_reward_tokens_block]
+                ).call(block_identifier=block)
+
+                for i in range(len(VEBAL_REWARD_TOKENS[vebal_reward_tokens_block])):
+                    token_address = VEBAL_REWARD_TOKENS[vebal_reward_tokens_block][i]
+                    token_rewards = claim_tokens[i]
+                    if token_address in vebal_rewards_dict.keys():
+                        vebal_rewards_dict[token_address] += to_token_amount(
+                            token_address, token_rewards, blockchain, web3, decimals
+                        )
+                    else:
+                        vebal_rewards_dict[token_address] = to_token_amount(
+                            token_address, token_rewards, blockchain, web3, decimals
+                        )
+
+    vebal_rewards = list(map(list, vebal_rewards_dict.items()))
 
     return vebal_rewards
 
@@ -378,7 +414,7 @@ def get_vebal_rewards(web3, wallet, block, blockchain, decimals=True):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_all_rewards
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, gauge_address=None):
+def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, gauge_addresses=None):
     all_rewards = []
 
     if web3 is None:
@@ -388,8 +424,8 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    if gauge_address is None:
-        gauge_address = get_gauge_address(blockchain, block, web3, lptoken_address)
+    if gauge_addresses is None:
+        gauge_addresses = get_gauge_addresses(blockchain, block, web3, lptoken_address)
 
     # veBAL Rewards
     if blockchain == ETHEREUM:
@@ -402,15 +438,11 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
                 for vebal_reward in vebal_rewards:
                     all_rewards.append(vebal_reward)
 
-    if gauge_address != ZERO_ADDRESS:
-        gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
-
-        # if blockchain == ETHEREUM:
-        bal_rewards = get_bal_rewards(web3, gauge_contract, wallet, block, blockchain)
+    if gauge_addresses != []:
+        bal_rewards = get_bal_rewards(web3, gauge_addresses, wallet, block, blockchain)
         all_rewards.append(bal_rewards)
 
-        # In side-chains, BAL rewards are retrieved with the get_rewards function too
-        rewards = get_rewards(web3, gauge_contract, wallet, block, blockchain)
+        rewards = get_rewards(web3, gauge_addresses, wallet, block, blockchain)
 
         if len(rewards) > 0:
             for reward in rewards:
@@ -435,17 +467,17 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
     vault_contract = get_contract(VAULT, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
-    gauge_address = get_gauge_address(blockchain, block, web3, lptoken_address)
+    gauge_addresses = get_gauge_addresses(blockchain, block, web3, lptoken_address)
 
     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
     lptoken_data["balanceOf"] = Decimal(
         lptoken_data["contract"].functions.balanceOf(wallet).call(block_identifier=block)
     )
 
-    if gauge_address != ZERO_ADDRESS:
+    pool_staked_fraction = Decimal(0)
+    for gauge_address in gauge_addresses:
         lptoken_data["staked"] = balance_of(wallet, gauge_address, block, blockchain, web3=web3, decimals=False)
-    else:
-        lptoken_data["staked"] = Decimal(0)
+        pool_staked_fraction += lptoken_data["staked"] / lptoken_data["totalSupply"]
 
     lptoken_data["locked"] = Decimal(0)
     if blockchain == ETHEREUM:
@@ -465,7 +497,6 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
         pool_balances = [Decimal(balance) for balance in pool_tokens_data[1]]
 
         pool_balance_fraction = lptoken_data["balanceOf"] / lptoken_data["totalSupply"]
-        pool_staked_fraction = lptoken_data["staked"] / lptoken_data["totalSupply"]
         pool_locked_fraction = lptoken_data["locked"] / lptoken_data["totalSupply"]
         for i in range(len(pool_tokens)):
             if i == lptoken_data["bptIndex"]:
@@ -540,7 +571,13 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
         if reward is True:
             all_rewards = get_all_rewards(
-                wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals, gauge_address=gauge_address
+                wallet,
+                lptoken_address,
+                block,
+                blockchain,
+                web3=web3,
+                decimals=decimals,
+                gauge_addresses=gauge_addresses,
             )
 
             result.append(balances)
