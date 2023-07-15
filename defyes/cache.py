@@ -6,6 +6,8 @@ from inspect import getcallargs
 import diskcache
 from web3.middleware.cache import generate_cache_key
 
+from .helpers import suppressed_error_codes
+
 logger = logging.getLogger(__name__)
 
 VERSION = 5
@@ -73,7 +75,7 @@ def disk_cache_middleware(make_request, web3):
                 if "error" not in response and "result" in response and response["result"] is not None:
                     _cache[cache_key] = ("result", response["result"])
                 elif "error" in response:
-                    if response["error"]["code"] in [-32000, -32015]:
+                    if response["error"]["code"] in suppressed_error_codes:
                         _cache[cache_key] = ("error", response["error"])
                 return response
             else:

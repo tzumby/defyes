@@ -3,6 +3,7 @@ import json
 import logging
 import math
 import re
+from contextlib import suppress
 from datetime import datetime
 from decimal import Decimal
 
@@ -109,6 +110,7 @@ from defyes.constants import (
     XDAI,
     ZERO_ADDRESS,
 )
+from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
@@ -381,27 +383,27 @@ def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
         elif blockchain is BINANCE:
             symbol = "BNB"
     else:
-        token_contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
-
-        try:
-            symbol = const_call(token_contract.functions.symbol())
-        except:
-            try:
-                symbol = const_call(token_contract.functions.SYMBOL())
-            except:
-                try:
-                    token_contract = web3.eth.contract(
-                        address=token_address, abi=get_contract_abi(token_address, blockchain)
-                    )
-                    symbol = const_call(token_contract.functions.symbol())
-                except:
-                    raise ValueError("Token %s has no symbol()" % token_address)
+        symbol = infer_symbol(web3, blockchain, token_address)
 
         if not isinstance(symbol, str):
             symbol = symbol.hex()
             symbol = bytes.fromhex(symbol).decode("utf-8").rstrip("\x00")
 
     return symbol
+
+
+def infer_symbol(web3, blockchain, token_address):
+    contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
+    for method_name in ("symbol", "SYMBOL"):
+        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
+            return const_call(getattr(contract.functions, method_name)())
+
+    abi = get_contract_abi(token_address, blockchain)
+    contract = web3.eth.contract(address=token_address, abi=abi)
+    with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
+        return const_call(contract.functions.symbol())
+
+    raise ValueError(f"Token {token_address} has no symbol()")
 
 
 # CONTRACTS AND ABIS

@@ -3,11 +3,11 @@ from decimal import Decimal
 from pathlib import Path
 
 from web3 import Web3
-from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.cache import const_call
 from defyes.constants import AURA_ETH, ETHEREUM
 from defyes.functions import get_contract, get_contract_creation, get_decimals, last_block, to_token_amount
+from defyes.helpers import call_contract_method
 from defyes.node import get_node
 
 from .. import balancer
@@ -86,23 +86,6 @@ ABI_EXTRA_REWARDS_TOKEN = '[{"inputs":[],"name":"baseToken","outputs":[{"interna
 #     },
 # }
 DB_FILE = Path(__file__).parent / "db.json"
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# call_contract_method
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def call_contract_method(method, block):
-    try:
-        return method.call(block_identifier=block)
-    except Exception as e:
-        if (
-            type(e) == ContractLogicError
-            or type(e) == BadFunctionCallOutput
-            or (type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015))
-        ):
-            return None
-        else:
-            raise e
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
