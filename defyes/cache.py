@@ -55,6 +55,10 @@ def disk_cache_middleware(make_request, web3):
     RPC_WHITELIST = {"eth_chainId", "eth_call", "eth_getTransactionReceipt", "eth_getLogs", "eth_getTransactionByHash"}
 
     def middleware(method, params):
+        if not is_enabled():
+            logger.debug("The cache is disabled")
+            return make_request(method, params)
+
         do_cache = False
         if method in RPC_WHITELIST and "latest" not in params:
             do_cache = True
@@ -86,6 +90,10 @@ def cache_contract_method(exclude_args=None, validator=None):
     def decorator(f):
         @functools.wraps(f)
         def method_wrapper(*args, **kwargs):
+            if not is_enabled():
+                logger.debug("The cache is disabled")
+                return f(*args, **kwargs)
+
             cache_args = getcallargs(f, *args, **kwargs)
             obj = cache_args.pop("self")
             if exclude_args:

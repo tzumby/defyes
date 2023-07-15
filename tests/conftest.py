@@ -19,3 +19,8 @@ def debug_defi_proto(request):
 @pytest.fixture
 def temporary_cache(monkeypatch):
     monkeypatch.setattr("defyes.cache._cache", diskcache.Cache())
+
+
+@pytest.fixture
+def disable_cache(monkeypatch):
+    monkeypatch.setattr("defyes.cache._cache", None)
