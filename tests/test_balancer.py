@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from defi_protocols import Balancer
 from defi_protocols.constants import BAL_POL, ETHEREUM, POLYGON, XDAI, ETHTokenAddr, GnosisTokenAddr
-from defi_protocols.functions import date_to_block, get_contract, get_node
+from defi_protocols.functions import date_to_block, get_node
 
 WALLET_N1 = "0x31cD267D34EC6368eac930Be4f412dfAcc71A844"
 WALLET_N2 = "0x4b0429F3db75dbA6B82c32a200C9C298ffC05839"
@@ -79,10 +79,9 @@ def test_bal_rewards():
     block = 16978206
     node = get_node(ETHEREUM, block)
 
-    gauge_address = Balancer.get_gauge_address(ETHEREUM, block, node, B60WETH40DAI_ADDR)
-    gauge_contract = get_contract(gauge_address, ETHEREUM, web3=node, abi=Balancer.ABI_GAUGE, block=block)
+    gauge_addresses = Balancer.get_gauge_addresses(ETHEREUM, block, node, B60WETH40DAI_ADDR)
 
-    bal_rewards = Balancer.get_bal_rewards(node, gauge_contract, WALLET_N1, block, ETHEREUM)
+    bal_rewards = Balancer.get_bal_rewards(node, gauge_addresses, WALLET_N1, block, ETHEREUM)
     assert bal_rewards[0] == ETHTokenAddr.BAL
     assert bal_rewards[1] == Decimal("0.000001267800098374")
 
@@ -105,10 +104,9 @@ def test_get_rewards():
     block = 16978206
     node = get_node(ETHEREUM, block)
 
-    gauge_address = Balancer.get_gauge_address(ETHEREUM, block, node, BstETHSTABLE_ADDR)
-    gauge_contract = get_contract(gauge_address, ETHEREUM, web3=node, abi=Balancer.ABI_GAUGE, block=block)
+    gauge_addresses = Balancer.get_gauge_addresses(ETHEREUM, block, node, BstETHSTABLE_ADDR)
 
-    rewards = Balancer.get_rewards(node, gauge_contract, WALLET_N3, block, ETHEREUM)
+    rewards = Balancer.get_rewards(node, gauge_addresses, WALLET_N3, block, ETHEREUM)
     assert len(rewards) == 1
 
     ldo_reward = rewards[0]
@@ -319,3 +317,10 @@ def test_swap_fees_apr():
     assert apr == Decimal("0.596125086010151913782740200")
     apy = Balancer.get_swap_fees_APR(B80BAL20WETH_ADDR, ETHEREUM, blockend, apy=True)
     assert apy == Decimal("0.815071898400229530363657020")
+
+
+test_bal_rewards()
+test_vebal_rewards()
+test_get_rewards()
+test_all_rewards()
+test_underlying()
