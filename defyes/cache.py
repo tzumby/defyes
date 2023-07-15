@@ -46,25 +46,6 @@ def clear():
         _cache.clear()
 
 
-class TemporaryCache:
-    """Provides a context with a temporary cache.
-
-    Useful for tests. Not thread safe!
-    """
-
-    def __init__(self):
-        self.original_cache = _cache
-
-    def __enter__(self):
-        global _cache
-        _cache = diskcache.Cache()
-        return _cache
-
-    def __exit__(self, *args, **kwargs):
-        global _cache
-        _cache = self.original_cache
-
-
 def disk_cache_middleware(make_request, web3):
     """
     Cache middleware that supports multiple blockchains.
