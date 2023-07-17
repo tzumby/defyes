@@ -1,3 +1,4 @@
+from contextlib import suppress
 from datetime import datetime, timedelta
 from decimal import Decimal
 from functools import cached_property
@@ -7,6 +8,7 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.constants import ZERO_ADDRESS
 from defyes.functions import block_to_date, date_to_block, get_logs_web3, last_block, to_token_amount
+from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
 from defyes.prices.prices import get_price
 
@@ -45,41 +47,25 @@ class Vault(Vault):
 
 
 class PoolToken(PoolToken):
-    def handle_exceptions(method):
-        def wrapper(self):
-            try:
-                return method(self)
-            except Exception as e:
-                if (
-                    type(e) == ContractLogicError
-                    or type(e) == BadFunctionCallOutput
-                    or (type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015))
-                ):
-                    return None
-                else:
-                    raise e
-
-        return wrapper
+    @property
+    def rate(self) -> str | None:
+        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
+            return self.get_rate
 
     @property
-    @handle_exceptions
-    def rate(self) -> str:
-        return self.get_rate
+    def underlying(self) -> str | None:
+        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
+            return super().underlying
 
     @property
-    @handle_exceptions
-    def underlying(self) -> str:
-        return super().underlying
+    def underlying_asset_address(self) -> str | None:
+        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
+            return super().underlying_asset_address
 
     @property
-    @handle_exceptions
-    def underlying_asset_address(self) -> str:
-        return super().underlying_asset_address
-
-    @property
-    @handle_exceptions
-    def steth(self) -> str:
-        return self.st_eth
+    def steth(self) -> str | None:
+        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
+            return self.st_eth
 
     @property
     def is_wsteth(self) -> bool:
@@ -126,52 +112,29 @@ class LiquidityPool(LiquidityPool):
     @cached_property
     def poolid(self):
         try:
-            pool_id = self.get_pool_id
+            return self.get_pool_id
         except ContractLogicError:
-            try:
-                pool_id = self.pool_id
-            except Exception as e:
-                raise (e)
-        return pool_id
+            return self.pool_id
 
     @cached_property
     def bpt_index(self) -> int | None:
-        try:
-            bpt_index = self.get_bpt_index
-        except Exception as e:
-            if type(e) == ContractLogicError or (
-                type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015)
-            ):
-                bpt_index = None
-
-        return bpt_index
+        with suppress(ContractLogicError), suppress_error_codes():
+            return self.get_bpt_index
 
     @cached_property
     def supply(self) -> int:
-        try:
-            supply = self.get_actual_supply
-        except Exception as e:
-            if type(e) == ContractLogicError or (
-                type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015)
-            ):
-                try:
-                    supply = self.get_virtual_supply
-                except Exception as e:
-                    if type(e) == ContractLogicError or (
-                        type(e) == ValueError and (e.args[0]["code"] == -32000 or e.args[0]["code"] == -32015)
-                    ):
-                        supply = self.total_supply
-
-        return supply
+        """
+        Return the first valid attribure: get_actual_supply or get_virtual_supply, otherwise total_supply.
+        """
+        for attr in ("get_actual_supply", "get_virtual_supply"):
+            with suppress(ContractLogicError), suppress_error_codes():
+                return getattr(self, attr)
+        return self.total_supply
 
     @cached_property
     def scaling_factors(self) -> int | None:
-        try:
-            scaling_factors = self.get_scaling_factors
-        except ContractLogicError:
-            scaling_factors = None
-
-        return scaling_factors
+        with suppress(ContractLogicError):
+            return self.get_scaling_factors
 
     def balance_of(self, wallet: str) -> int:
         wallet = Web3.to_checksum_address(wallet)
@@ -292,16 +255,12 @@ class Gauge(Gauge):
 
     def balance_of(self, wallet: str) -> Decimal:
         wallet = Web3.to_checksum_address(wallet)
-        balance = Decimal(0)
         if self.address == ZERO_ADDRESS:
-            balance = Decimal(self.contract.w3.eth.get_balance(wallet, self.block))
+            return Decimal(self.contract.w3.eth.get_balance(wallet, self.block))
         else:
-            try:
-                balance = super().balance_of(wallet)
-            except ContractLogicError:
-                pass
-
-        return balance
+            with suppress(ContractLogicError):
+                return super().balance_of(wallet)
+        return Decimal(0)
 
     def get_rewards(self, wallet: str, decimals: bool = True) -> dict:
         rewards = {}
@@ -353,14 +312,10 @@ class Vebal(Vebal):
 
     def balance_of(self, wallet: str, token_address: str) -> Decimal:
         wallet = Web3.to_checksum_address(wallet)
-        balance = Decimal(0)
         if token_address == self.token:
-            try:
-                balance = Decimal(self.locked(wallet)[0])
-            except ContractLogicError:
-                pass
-
-        return balance
+            with suppress(ContractLogicError):
+                return Decimal(self.locked(wallet)[0])
+        return Decimal(0)
 
     def calc_balance(self, wallet: str, token_address: str, decimals: bool = True) -> Decimal:
         token_amount = Decimal(self.balance_of(wallet, token_address))

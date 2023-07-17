@@ -6,6 +6,8 @@ from inspect import getcallargs
 import diskcache
 from web3.middleware.cache import generate_cache_key
 
+from .helpers import suppressed_error_codes
+
 logger = logging.getLogger(__name__)
 
 VERSION = 5
@@ -46,25 +48,6 @@ def clear():
         _cache.clear()
 
 
-class TemporaryCache:
-    """Provides a context with a temporary cache.
-
-    Useful for tests. Not thread safe!
-    """
-
-    def __init__(self):
-        self.original_cache = _cache
-
-    def __enter__(self):
-        global _cache
-        _cache = diskcache.Cache()
-        return _cache
-
-    def __exit__(self, *args, **kwargs):
-        global _cache
-        _cache = self.original_cache
-
-
 def disk_cache_middleware(make_request, web3):
     """
     Cache middleware that supports multiple blockchains.
@@ -74,6 +57,10 @@ def disk_cache_middleware(make_request, web3):
     RPC_WHITELIST = {"eth_chainId", "eth_call", "eth_getTransactionReceipt", "eth_getLogs", "eth_getTransactionByHash"}
 
     def middleware(method, params):
+        if not is_enabled():
+            logger.debug("The cache is disabled")
+            return make_request(method, params)
+
         do_cache = False
         if method in RPC_WHITELIST and "latest" not in params:
             do_cache = True
@@ -88,7 +75,7 @@ def disk_cache_middleware(make_request, web3):
                 if "error" not in response and "result" in response and response["result"] is not None:
                     _cache[cache_key] = ("result", response["result"])
                 elif "error" in response:
-                    if response["error"]["code"] in [-32000, -32015]:
+                    if response["error"]["code"] in suppressed_error_codes:
                         _cache[cache_key] = ("error", response["error"])
                 return response
             else:
@@ -105,6 +92,10 @@ def cache_contract_method(exclude_args=None, validator=None):
     def decorator(f):
         @functools.wraps(f)
         def method_wrapper(*args, **kwargs):
+            if not is_enabled():
+                logger.debug("The cache is disabled")
+                return f(*args, **kwargs)
+
             cache_args = getcallargs(f, *args, **kwargs)
             obj = cache_args.pop("self")
             if exclude_args:
@@ -145,6 +136,9 @@ def cache_call(exclude_args=None, filter=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
+            if not is_enabled():
+                logger.debug("The cache is disabled")
+                return f(*args, **kwargs)
             cache_args = getcallargs(f, *args, **kwargs)
             if filter is None or filter(cache_args):
                 if exclude_args:
