@@ -20,8 +20,8 @@ def test_get_pool_address():
     addr = Elk.get_pool_address(node, PolygonTokenAddr.USDC, PolygonTokenAddr.ELK, block, Chain.POLYGON)
     assert addr == "0xd7D71e4BC981B50696fa536D330bf745aE563E25"
 
-    node = get_node(Chain.XDAI, block)
-    addr = Elk.get_pool_address(node, GnosisTokenAddr.XGT, GnosisTokenAddr.ELK, block, Chain.XDAI)
+    node = get_node(Chain.GNOSIS, block)
+    addr = Elk.get_pool_address(node, GnosisTokenAddr.XGT, GnosisTokenAddr.ELK, block, Chain.GNOSIS)
     assert addr == "0xc35EcbcA23597747a11E34e733EFe54c2D774F1a"
 
 

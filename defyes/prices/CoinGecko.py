@@ -23,7 +23,7 @@ def get_price(token_address, timestamp, blockchain):
     """
     if (
         blockchain != Chain.ETHEREUM
-        and blockchain != Chain.XDAI
+        and blockchain != Chain.GNOSIS
         and blockchain != Chain.POLYGON
         and blockchain != Chain.AVALANCHE
         and blockchain != Chain.OPTIMISM
@@ -135,7 +135,7 @@ def get_price_range(token_address, start_timestamp, end_timestamp, blockchain):
     """
     result = []
 
-    if blockchain != Chain.ETHEREUM and blockchain != Chain.XDAI and blockchain != Chain.POLYGON:
+    if blockchain != Chain.ETHEREUM and blockchain != Chain.GNOSIS and blockchain != Chain.POLYGON:
         return None
 
     if token_address == ZERO_ADDRESS:

@@ -31,12 +31,12 @@ def update_token_mapping(
     if token_address_pol is not None and len(str(token_address_pol)) > 0:
         token_address_pol = Web3.to_checksum_address(token_address_pol)
 
-    # Chain.XDAI Node
+    # Chain.GNOSIS Node
     if token_address_xdai is not None and len(str(token_address_xdai)) > 0:
-        token_symbol = get_symbol(token_address_xdai, Chain.XDAI)
+        token_symbol = get_symbol(token_address_xdai, Chain.GNOSIS)
 
         try:
-            token_data = db_data[Chain.XDAI][token_address_xdai]
+            token_data = db_data[Chain.GNOSIS][token_address_xdai]
 
             if token_address_eth is not None and len(str(token_address_eth)) > 0:
                 token_data[Chain.ETHEREUM] = token_address_eth
@@ -47,7 +47,7 @@ def update_token_mapping(
             token_data["symbol"] = token_symbol
 
             try:
-                price_feed_data = db_data[Chain.XDAI][token_address_xdai]["price_feed"]
+                price_feed_data = db_data[Chain.GNOSIS][token_address_xdai]["price_feed"]
 
                 if price_feed_source is not None and len(str(price_feed_source)) > 0:
                     price_feed_data["source"] = price_feed_source
@@ -71,7 +71,7 @@ def update_token_mapping(
                     price_feed_data["connector"] = price_feed_connector
 
                 if price_feed_data != {}:
-                    db_data[Chain.XDAI][token_address_xdai]["price_feed"] = price_feed_data
+                    db_data[Chain.GNOSIS][token_address_xdai]["price_feed"] = price_feed_data
 
         except:
             token_data = {}
@@ -97,7 +97,7 @@ def update_token_mapping(
             if price_feed_data != {}:
                 token_data["price_feed"] = price_feed_data
 
-            db_data[Chain.XDAI][token_address_xdai] = token_data
+            db_data[Chain.GNOSIS][token_address_xdai] = token_data
 
     # ETHREUM Node
     if token_address_eth is not None and len(str(token_address_eth)) > 0:
@@ -107,7 +107,7 @@ def update_token_mapping(
             token_data = db_data[Chain.ETHEREUM][token_address_eth]
 
             if token_address_xdai is not None and len(str(token_address_xdai)) > 0:
-                token_data[Chain.XDAI] = token_address_xdai
+                token_data[Chain.GNOSIS] = token_address_xdai
 
             if token_address_pol is not None and len(str(token_address_pol)) > 0:
                 token_data[Chain.POLYGON] = token_address_pol
@@ -146,7 +146,7 @@ def update_token_mapping(
             price_feed_data = {}
 
             if token_address_xdai is not None and len(str(token_address_xdai)) > 0:
-                token_data[Chain.XDAI] = token_address_xdai
+                token_data[Chain.GNOSIS] = token_address_xdai
 
             if token_address_pol is not None and len(str(token_address_pol)) > 0:
                 token_data[Chain.POLYGON] = token_address_pol
@@ -178,7 +178,7 @@ def update_token_mapping(
                 token_data[Chain.ETHEREUM] = token_address_eth
 
             if token_address_xdai is not None and len(str(token_address_xdai)) > 0:
-                token_data[Chain.XDAI] = token_address_xdai
+                token_data[Chain.GNOSIS] = token_address_xdai
 
             token_data["symbol"] = token_symbol
 
@@ -217,7 +217,7 @@ def update_token_mapping(
                 token_data[Chain.ETHEREUM] = token_address_eth
 
             if token_address_xdai is not None and len(str(token_address_xdai)) > 0:
-                token_data[Chain.XDAI] = token_address_xdai
+                token_data[Chain.GNOSIS] = token_address_xdai
 
             token_data["symbol"] = token_symbol
 

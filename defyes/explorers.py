@@ -17,7 +17,7 @@ blockexplorers = {
     Chain.POLYGON: [Explorer.POLYSCAN.value, API_KEY_POLSCAN],
     Chain.GNOSIS: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
     # FIXME: XDAI should be eventually removed
-    Chain.XDAI: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
+    Chain.GNOSIS: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
     Chain.BINANCE: [Explorer.BSCSCAN.value, API_KEY_BINANCE],
     Chain.AVALANCHE: [Explorer.AVAXSCAN.value, API_KEY_AVALANCHE],
     Chain.FANTOM: [Explorer.FTMSCAN.value, API_KEY_FANTOM],

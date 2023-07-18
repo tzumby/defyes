@@ -15,7 +15,7 @@ TEST_BLOCK = 27187881
 # 2023.04.14
 # TEST_BLOCK = 27450341
 
-WEB3 = get_node(blockchain=Chain.XDAI, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.GNOSIS, block=TEST_BLOCK)
 
 # 2023.03.29
 TOP_WALLET_ADDRESS = "0xb4c575308221caa398e0dd2cdeb6b2f10d7b000a"
@@ -95,30 +95,30 @@ RESERVES_TOKENS = [
 
 
 def test_get_reserves_tokens():
-    pdp_contract = get_contract(Agave.PDP_XDAI, Chain.XDAI, web3=WEB3, abi=Agave.ABI_PDP, block=TEST_BLOCK)
+    pdp_contract = get_contract(Agave.PDP_XDAI, Chain.GNOSIS, web3=WEB3, abi=Agave.ABI_PDP, block=TEST_BLOCK)
     reserves_tokens = Agave.get_reserves_tokens(pdp_contract, TEST_BLOCK)
     assert reserves_tokens == [e[1] for e in RESERVES_TOKENS]
 
 
 def test_get_reserves_tokens_balances():
-    balances = Agave.get_reserves_tokens_balances(WEB3, TOP_WALLET_ADDRESS, TEST_BLOCK, Chain.XDAI, decimals=False)
+    balances = Agave.get_reserves_tokens_balances(WEB3, TOP_WALLET_ADDRESS, TEST_BLOCK, Chain.GNOSIS, decimals=False)
     assert balances == TOP_WALLET_W
 
 
 def test_get_data():
-    data = Agave.get_data(GNOSIS_SAFE_IN_GNO, TEST_BLOCK, Chain.XDAI, web3=WEB3)
+    data = Agave.get_data(GNOSIS_SAFE_IN_GNO, TEST_BLOCK, Chain.GNOSIS, web3=WEB3)
     assert data == GNOSIS_SAFE_DATA
 
 
 def test_get_all_rewards():
-    all_rewards = Agave.get_all_rewards(TEST_WALLET_ADDRESS, TEST_BLOCK, Chain.XDAI, web3=WEB3, decimals=True)
+    all_rewards = Agave.get_all_rewards(TEST_WALLET_ADDRESS, TEST_BLOCK, Chain.GNOSIS, web3=WEB3, decimals=True)
     assert all_rewards == [["0x3a97704a1b25F08aa230ae53B352e2e72ef52843", Decimal("14.334056377962964551")]]
 
 
 @pytest.mark.parametrize("reward", [True, False])
 def test_underlying_all(reward, decimals=False):
     # TODO: maybe test for decimals=True
-    ua = Agave.underlying_all(GNOSIS_SAFE_IN_GNO, TEST_BLOCK, Chain.XDAI, web3=WEB3, reward=reward, decimals=decimals)
+    ua = Agave.underlying_all(GNOSIS_SAFE_IN_GNO, TEST_BLOCK, Chain.GNOSIS, web3=WEB3, reward=reward, decimals=decimals)
     # print(f'for {reward = } and {decimals = }: {ua}')
     expected = GNOSIS_SAFE_UNDERLYING_ALL_WITH_REWARDS
     if not reward:
@@ -129,7 +129,7 @@ def test_underlying_all(reward, decimals=False):
 @pytest.mark.parametrize("apy", [True, False])
 def test_get_apr(apy):
     TOKEN_ADDRESS = "0x3a97704a1b25F08aa230ae53B352e2e72ef52843"
-    apr = Agave.get_apr(TOKEN_ADDRESS, TEST_BLOCK, Chain.XDAI, web3=WEB3, apy=apy)
+    apr = Agave.get_apr(TOKEN_ADDRESS, TEST_BLOCK, Chain.GNOSIS, web3=WEB3, apy=apy)
     # FIXME: make this more interesting:
     assert (
         apr
@@ -151,7 +151,7 @@ def test_get_apr(apy):
 # FIXME: This test seems to depend on fluctuating values
 @pytest.mark.parametrize("apy", [True, False])
 def test_get_staking_apr(apy):
-    stk_apr = Agave.get_staking_apr(TEST_BLOCK, Chain.XDAI, web3=WEB3, apy=apy)
+    stk_apr = Agave.get_staking_apr(TEST_BLOCK, Chain.GNOSIS, web3=WEB3, apy=apy)
     assert (
         stk_apr
         == {
@@ -169,12 +169,12 @@ def test_get_staked(wallet_address, decimals):
         UNUSED_ADDRESS: 0,
     }[wallet_address]
 
-    data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=Chain.XDAI, web3=WEB3, decimals=decimals)
+    data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=Chain.GNOSIS, web3=WEB3, decimals=decimals)
     assert data == [[GnosisTokenAddr.AGVE, expected]]
 
 
 def test_get_agave_tokens():
-    blockchain = "xdai"
+    blockchain = Chain.GNOSIS
     block = 28471737
     assert Agave.get_agave_tokens(blockchain, block) == [
         {
@@ -243,7 +243,7 @@ def test_get_agave_tokens():
 @pytest.mark.parametrize("decimals", [True, False])
 def test_get_extra_rewards(decimals):
     block = 25830991
-    blockchain = "xdai"
+    blockchain = Chain.GNOSIS
     wallet = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
     assert Agave.get_extra_rewards(wallet, block, blockchain, decimals=decimals) == [
         [

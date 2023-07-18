@@ -21,7 +21,6 @@ class Chain(ConstantList):
     POLYGON = "polygon"
     # FIXME: XDAI should be eventually removed
     GNOSIS = "gnosis"
-    XDAI = "xdai"
     ARBITRUM = "arbitrum"
     BINANCE = "binance"
     AVALANCHE = "avalanche"

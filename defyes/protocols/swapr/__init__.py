@@ -46,7 +46,7 @@ def get_staking_rewards_contract(web3, block, blockchain):
     if blockchain == Chain.ETHEREUM:
         staking_rewards_contract = get_contract(SRC_ETHEREUM, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         staking_rewards_contract = get_contract(SRC_XDAI, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
     return staking_rewards_contract
@@ -338,7 +338,7 @@ def update_db(output_file=DB_FILE, block="latest"):
         with open(DB_FILE, "r") as db_file:
             db_data = json.load(db_file)
     except:
-        db_data = {Chain.ETHEREUM: {}, Chain.XDAI: {}}
+        db_data = {Chain.ETHEREUM: {}, Chain.GNOSIS: {}}
 
     blockchain = ""
     for blockchain in tqdm(db_data, desc="Fetching data from blockchains..."):

@@ -13,7 +13,7 @@
   from defyes.constants import Chain
   from defyes import Agave
 
-  pdp_contract = Agave.get_contract(Agave.PDP_Chain.XDAI, Chain.XDAI)
+  pdp_contract = Agave.get_contract(Agave.PDP_Chain.GNOSIS, Chain.GNOSIS)
   tokens = Agave.get_reserves_tokens(pdp_contract, 'latest')
   print(tokens)
   ```
@@ -35,8 +35,8 @@
   from defyes.node import get_node
   from defyes import Agave
 
-  web3 = get_node(Chain.XDAI, 'latest', 0)
-  f2 = Agave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
+  f2 = Agave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS)
 
   print(f2)
 
@@ -58,7 +58,7 @@
   from defyes.constants import Chain
   from defyes import Agave
 
-  f3 = Agave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
+  f3 = Agave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS)
   print(f3)
   ```
 
@@ -78,7 +78,7 @@
   from defyes.constants import Chain
   from defyes import Agave
 
-  f4 = Agave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
+  f4 = Agave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS)
   print(f4)
   ```
 
@@ -102,7 +102,7 @@ FIXME: this function does not exist anymore
 
   from defyes import Agave
 
-  f5 = Agave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI, reward=True)
+  f5 = Agave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS, reward=True)
 
   print(f5)
 

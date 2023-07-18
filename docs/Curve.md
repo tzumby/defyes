@@ -48,11 +48,11 @@
 
   from defyes import Curve
 
-  web3 = get_node(Chain.XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
   
-  web3 = get_node(Chain.XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
   
-  f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
+  f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
 
   print(f2)
 
@@ -78,7 +78,7 @@
 
   from defyes import Curve
 
-  f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', Chain.XDAI)
+  f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', Chain.GNOSIS)
 
   print(f3)
 
@@ -104,9 +104,9 @@
 
   from defyes import Curve
 
-  web3 = get_node(Chain.XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
   
-  f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
+  f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
   
   print(f4)
 
@@ -228,7 +228,7 @@
 
   from defyes import Curve
 
-  f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI )
+  f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS )
 
   print(f8)
 
@@ -284,7 +284,7 @@
 
   from defyes import Curve
 
-  f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
+  f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
 
   print(f10)
 
@@ -312,7 +312,7 @@
 
   from defyes import Curve
 
-  f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', Chain.XDAI)
+  f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', Chain.GNOSIS)
 
   print(f11)
 

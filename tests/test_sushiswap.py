@@ -18,8 +18,8 @@ def test_get_lptoken_data():
 
 
 def test_get_lptoken_data_on_gnosis_differ_to_ethereum_when_using_const_call():
-    web3 = get_node(Chain.XDAI, block=16836190)
-    contract = SushiSwap.get_chef_contract(web3=web3, block="latest", blockchain=Chain.XDAI)
+    web3 = get_node(Chain.GNOSIS, block=16836190)
+    contract = SushiSwap.get_chef_contract(web3=web3, block="latest", blockchain=Chain.GNOSIS)
     gnosis_lptoken0_address = const_call(contract.functions.lpToken(0))
     web3 = get_node(Chain.ETHEREUM, block=16836190)
     contract = SushiSwap.get_chef_contract(web3=web3, block="latest", blockchain=Chain.ETHEREUM)

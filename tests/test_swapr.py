@@ -8,7 +8,7 @@ from defyes.functions import get_contract, get_node
 
 TEST_BLOCK = 27450341
 TEST_WALLET = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"
-WEB3 = get_node(blockchain=Chain.XDAI, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.GNOSIS, block=TEST_BLOCK)
 
 # DXS is the lptoken for BER+GNO pair
 DXS = "0x1Ad6A0cFF3870b252492597B557F3e61F130663D"
@@ -24,15 +24,17 @@ BER_XDAI = "0x05698e7346Ea67Cfb088f64Ad8962B18137d17c0"
 @pytest.mark.parametrize("campaigns", [0, 1, "all"])
 @pytest.mark.parametrize("db", [True])
 def test_get_distribution_contracts(campaigns, db):
-    staking_rewards_contract = get_contract(Swapr.SRC_XDAI, Chain.XDAI, web3=WEB3, abi=Swapr.ABI_SRC, block=TEST_BLOCK)
+    staking_rewards_contract = get_contract(
+        Swapr.SRC_XDAI, Chain.GNOSIS, web3=WEB3, abi=Swapr.ABI_SRC, block=TEST_BLOCK
+    )
     x = Swapr.get_distribution_contracts(
-        WEB3, GnosisTokenAddr.GNO, staking_rewards_contract, campaigns, TEST_BLOCK, Chain.XDAI, db=db
+        WEB3, GnosisTokenAddr.GNO, staking_rewards_contract, campaigns, TEST_BLOCK, Chain.GNOSIS, db=db
     )
     assert x == []
 
 
 def test_get_lptoken_data():
-    x = Swapr.get_lptoken_data(DXS, TEST_BLOCK, Chain.XDAI, WEB3)
+    x = Swapr.get_lptoken_data(DXS, TEST_BLOCK, Chain.GNOSIS, WEB3)
     expected = {
         "decimals": 18,
         "totalSupply": 94233751915117971705,
@@ -53,7 +55,7 @@ def test_get_all_rewards(campaigns, db):
         TEST_WALLET,
         DXS,
         TEST_BLOCK,
-        Chain.XDAI,
+        Chain.GNOSIS,
         WEB3,
         decimals=True,
         campaigns=campaigns,
@@ -71,7 +73,7 @@ def test_get_all_rewards(campaigns, db):
 @pytest.mark.parametrize("reward", [True, False])
 def test_underlying(campaigns, db, decimals, reward):
     x = Swapr.underlying(
-        TEST_WALLET, DXS, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals, reward=reward, campaigns=campaigns, db=db
+        TEST_WALLET, DXS, TEST_BLOCK, Chain.GNOSIS, WEB3, decimals=decimals, reward=reward, campaigns=campaigns, db=db
     )
     y = Decimal(10**18 if decimals else 1)
     assert x == [
@@ -82,7 +84,7 @@ def test_underlying(campaigns, db, decimals, reward):
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_pool_balances(decimals):
-    x = Swapr.pool_balances(DXS, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals)
+    x = Swapr.pool_balances(DXS, TEST_BLOCK, Chain.GNOSIS, WEB3, decimals=decimals)
     y = Decimal(10**18 if decimals else 1)
     assert x == [
         [BER_XDAI, Decimal("1071822921647535396369") / y],
@@ -92,7 +94,7 @@ def test_pool_balances(decimals):
 
 @pytest.mark.parametrize("decimals", [False, True])
 def test_swap_fees(decimals):
-    x = Swapr.swap_fees(DXS, TEST_BLOCK - 100, 27568826, Chain.XDAI, WEB3, decimals=decimals)
+    x = Swapr.swap_fees(DXS, TEST_BLOCK - 100, 27568826, Chain.GNOSIS, WEB3, decimals=decimals)
     y = Decimal(10**18 if decimals else 1)
     assert x["swaps"] == [
         {"block": 27494581, "token": BER_XDAI, "amount": Decimal("249999999999999999.8900") / y},

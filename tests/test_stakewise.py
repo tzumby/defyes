@@ -65,7 +65,7 @@ def test_check_uniswap_v3_pools(reward):
 @pytest.mark.parametrize("reward", [True, False])
 def test_check_curve_pools(reward):
     block = 28357764
-    blockchain = Chain.XDAI
+    blockchain = Chain.GNOSIS
     node = get_node(blockchain, block)
     pools = Stakewise.check_curve_pools(WALLET_N2, block, blockchain, web3=node, reward=reward)
     assert (
@@ -185,14 +185,14 @@ def test_underlying(pools):
     )
 
     block = 28357764
-    blockchain = Chain.XDAI
+    blockchain = Chain.GNOSIS
     node = get_node(blockchain, block)
     underlying = Stakewise.underlying(WALLET_N2, block, blockchain, web3=node, pools=pools, decimals=False)
     assert (
         underlying
         == {
             "protocol": "Stakewise",
-            "blockchain": "xdai",
+            "blockchain": Chain.GNOSIS,
             "block": 28357764,
             "balances": [
                 {"token": "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445", "balance": Decimal("0")},
@@ -234,7 +234,7 @@ def test_underlying(pools):
         if pools
         else {
             "protocol": "Stakewise",
-            "blockchain": "xdai",
+            "blockchain": Chain.GNOSIS,
             "block": 28357764,
             "balances": [
                 {"token": "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445", "balance": Decimal("0")},

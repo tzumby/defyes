@@ -13,10 +13,10 @@ ADDRESS_N4 = "0xD6A6372e371AF57c773176C41DD4a26f6084b37E"
 ABI_N4 = "Contract source code not verified"
 
 test_cases = [
-    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N1}, ABI_N1),
-    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N2}, ABI_N2),
-    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N3}, ABI_N3),
-    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N4}, ABI_N4),
+    (Chain.GNOSIS, "contract", "getabi", {"address": ADDRESS_N1}, ABI_N1),
+    (Chain.GNOSIS, "contract", "getabi", {"address": ADDRESS_N2}, ABI_N2),
+    (Chain.GNOSIS, "contract", "getabi", {"address": ADDRESS_N3}, ABI_N3),
+    (Chain.GNOSIS, "contract", "getabi", {"address": ADDRESS_N4}, ABI_N4),
     (Chain.ETHEREUM, "block", "getblockreward", {"blockno": 2165403}, "blockReward"),
 ]
 

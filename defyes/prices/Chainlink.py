@@ -50,7 +50,7 @@ def get_native_token_price(web3, block, blockchain):
     elif blockchain == Chain.POLYGON:
         price_feed_address = CHAINLINK_MATIC_USD
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         price_feed_address = CHAINLINK_XDAI_USD
 
     price_feed_contract = get_contract(

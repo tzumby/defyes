@@ -36,8 +36,8 @@ def test_get_symbol():
     symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.ETHEREUM, block=17380523)
     assert symbol == "ETH"
 
-    symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.XDAI, block=17380523)
-    assert symbol == "Chain.XDAI"
+    symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.GNOSIS, block=17380523)
+    assert symbol == "Chain.GNOSIS"
 
 
 def test_search_proxy_impl_address():
@@ -56,7 +56,7 @@ def test_search_proxy_impl_address():
     assert implementation == "0x1E5e5CF3652989A57736901D95749A326F5Cb60F"
 
     # OpenZeppelins' EIP-1167
-    implementation = search_proxy_impl_address("0x793fAF861a78B07c0C8c0ed1450D3919F3473226", Chain.XDAI)
+    implementation = search_proxy_impl_address("0x793fAF861a78B07c0C8c0ed1450D3919F3473226", Chain.GNOSIS)
     assert implementation == "0x45fFd460cC6642B8D8Fb12373DFd77Ceb0f4932B"
 
     # Custom proxy implementation (similar to EIP-1167)

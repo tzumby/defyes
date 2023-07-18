@@ -81,7 +81,7 @@ def get_chef_contract(web3, block, blockchain, v1=False):
     elif blockchain == Chain.POLYGON:
         chef_contract = get_contract(MINICHEF_POLYGON, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         chef_contract = get_contract(MINICHEF_XDAI, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
 
     return chef_contract
@@ -801,7 +801,7 @@ def update_db():
         db_data = {
             Chain.ETHEREUM: {"poolsv2": {}, "poolsv1": {}},
             Chain.POLYGON: {"pools": {}},
-            Chain.XDAI: {"pools": {}},
+            Chain.GNOSIS: {"pools": {}},
         }
 
     web3 = get_node(Chain.ETHEREUM)
@@ -841,10 +841,10 @@ def update_db():
             lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call(block_identifier="latest")
             db_data[Chain.POLYGON]["pools"][lptoken_address] = db_pool_length + i
 
-    web3 = get_node(Chain.XDAI)
+    web3 = get_node(Chain.GNOSIS)
 
-    mini_chef = get_chef_contract(web3, "latest", Chain.XDAI)
-    db_pool_length = len(db_data[Chain.XDAI]["pools"])
+    mini_chef = get_chef_contract(web3, "latest", Chain.GNOSIS)
+    db_pool_length = len(db_data[Chain.GNOSIS]["pools"])
     pools_delta = mini_chef.functions.poolLength().call(block_identifier="latest") - db_pool_length
 
     if pools_delta > 0:
@@ -852,7 +852,7 @@ def update_db():
 
         for i in range(pools_delta):
             lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call(block_identifier="latest")
-            db_data[Chain.XDAI]["pools"][lptoken_address] = db_pool_length + i
+            db_data[Chain.GNOSIS]["pools"][lptoken_address] = db_pool_length + i
 
     if update is True:
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/SushiSwap_db.json", "w") as db_file:

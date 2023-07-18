@@ -10,15 +10,15 @@ from defyes.node import get_node
 @pytest.mark.parametrize("decimals", [True, False])
 def test_get_all_rewards(decimals):
     block = 27444181
-    node = get_node(Chain.XDAI, block)
+    node = get_node(Chain.GNOSIS, block)
     wallet_v1 = "0x9b04a9eee500302980a117f514bc2de0fd1f683d"
     lptoken_address_v1 = "0x53ED0C2C6bB944D9421528E1ABD1e042B330696b"
     rewards_v1 = Symmetric.get_all_rewards(
-        wallet_v1, lptoken_address_v1, block, Chain.XDAI, web3=node, decimals=decimals
+        wallet_v1, lptoken_address_v1, block, Chain.GNOSIS, web3=node, decimals=decimals
     )
     assert rewards_v1 == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x53ED0C2C6bB944D9421528E1ABD1e042B330696b",
         "block": 27444181,
         "rewards": [],
@@ -26,11 +26,11 @@ def test_get_all_rewards(decimals):
     wallet_v2 = "0x2c640AC98E293Daa246F98D2828E328A06FA6936"
     lptoken_address_v2 = "0x650f5d96E83d3437bf5382558cB31F0ac5536684"
     rewards_v1 = Symmetric.get_all_rewards(
-        wallet_v2, lptoken_address_v2, block, Chain.XDAI, web3=node, decimals=decimals
+        wallet_v2, lptoken_address_v2, block, Chain.GNOSIS, web3=node, decimals=decimals
     )
     assert rewards_v1 == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x650f5d96E83d3437bf5382558cB31F0ac5536684",
         "block": 27444181,
         "rewards": [
@@ -49,15 +49,15 @@ def test_get_all_rewards(decimals):
 @pytest.mark.parametrize("decimals", [True, False])
 def test_underlying(decimals):
     block = 27443088
-    node = get_node(Chain.XDAI, block)
+    node = get_node(Chain.GNOSIS, block)
     wallet_v1 = "0x9b04a9eee500302980a117f514bc2de0fd1f683d"
     lptoken_address_v1 = "0x53ED0C2C6bB944D9421528E1ABD1e042B330696b"
     underlying_v1 = Symmetric.underlying(
-        wallet_v1, lptoken_address_v1, block, Chain.XDAI, node, reward=False, decimals=decimals
+        wallet_v1, lptoken_address_v1, block, Chain.GNOSIS, node, reward=False, decimals=decimals
     )
     assert underlying_v1 == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x53ED0C2C6bB944D9421528E1ABD1e042B330696b",
         "block": 27443088,
         "unstaked": [
@@ -79,11 +79,11 @@ def test_underlying(decimals):
     wallet_v2 = "0x2c640AC98E293Daa246F98D2828E328A06FA6936"
     lptoken_address_v2 = "0x650f5d96E83d3437bf5382558cB31F0ac5536684"
     underlying_v2 = Symmetric.underlying(
-        wallet_v2, lptoken_address_v2, block, Chain.XDAI, node, reward=False, decimals=decimals
+        wallet_v2, lptoken_address_v2, block, Chain.GNOSIS, node, reward=False, decimals=decimals
     )
     assert underlying_v2 == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x650f5d96E83d3437bf5382558cB31F0ac5536684",
         "block": 27444181,
         "unstaked": [
@@ -112,11 +112,11 @@ def test_underlying(decimals):
         ],
     }
     underlying_v2_reward = Symmetric.underlying(
-        wallet_v2, lptoken_address_v2, block, Chain.XDAI, node, reward=True, decimals=decimals
+        wallet_v2, lptoken_address_v2, block, Chain.GNOSIS, node, reward=True, decimals=decimals
     )
     assert underlying_v2_reward == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x650f5d96E83d3437bf5382558cB31F0ac5536684",
         "block": 27444181,
         "unstaked": [
@@ -159,12 +159,12 @@ def test_underlying(decimals):
 @pytest.mark.parametrize("decimals", [True, False])
 def test_pool_balances(decimals):
     block = 25502427
-    node = get_node(Chain.XDAI, block)
+    node = get_node(Chain.GNOSIS, block)
     lptoken_address_v1 = "0x53ED0C2C6bB944D9421528E1ABD1e042B330696b"
-    pool_balances_v1 = Symmetric.pool_balances(lptoken_address_v1, block, Chain.XDAI, web3=node, decimals=decimals)
+    pool_balances_v1 = Symmetric.pool_balances(lptoken_address_v1, block, Chain.GNOSIS, web3=node, decimals=decimals)
     assert pool_balances_v1 == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x53ED0C2C6bB944D9421528E1ABD1e042B330696b",
         "block": 25502427,
         "pool_balances": [
@@ -179,10 +179,10 @@ def test_pool_balances(decimals):
         ],
     }
     lptoken_address_v2 = "0x870Bb2C024513B5c9A69894dCc65fB5c47e422f3"
-    pool_balances_v2 = Symmetric.pool_balances(lptoken_address_v2, block, Chain.XDAI, web3=node, decimals=decimals)
+    pool_balances_v2 = Symmetric.pool_balances(lptoken_address_v2, block, Chain.GNOSIS, web3=node, decimals=decimals)
     assert pool_balances_v2 == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x870Bb2C024513B5c9A69894dCc65fB5c47e422f3",
         "block": 25502427,
         "pool_balances": [
@@ -201,12 +201,12 @@ def test_pool_balances(decimals):
 @pytest.mark.parametrize("decimals", [True, False])
 def test_get_rewards_per_second(decimals):
     block = 24502427
-    node = get_node(Chain.XDAI, block)
+    node = get_node(Chain.GNOSIS, block)
     lptoken_address = "0x650f5d96E83d3437bf5382558cB31F0ac5536684"
-    rewards = Symmetric.get_rewards_per_second(lptoken_address, block, Chain.XDAI, web3=node, decimals=decimals)
+    rewards = Symmetric.get_rewards_per_second(lptoken_address, block, Chain.GNOSIS, web3=node, decimals=decimals)
     assert rewards == {
         "protocol": "Symmetric",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "lptoken_address": "0x650f5d96E83d3437bf5382558cB31F0ac5536684",
         "block": 24502427,
         "reward_rates": [

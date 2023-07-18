@@ -49,7 +49,7 @@ def get_oracle_address(blockchain):
     elif blockchain == Chain.POLYGON:
         return ORACLE_POLYGON
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         return ORACLE_XDAI
 
     elif blockchain == Chain.BINANCE:
