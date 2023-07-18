@@ -5,7 +5,7 @@ import requests
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import Chain, ZERO_ADDRESS
+from defyes.constants import ZERO_ADDRESS, Chain
 from defyes.functions import ABI_TOKEN_SIMPLIFIED, get_contract, get_decimals, get_logs_web3, to_token_amount
 from defyes.node import get_node
 

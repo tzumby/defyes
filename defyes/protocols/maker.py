@@ -51,8 +51,12 @@ def get_vault_data(vault_id, block, web3=None):
     if web3 is None:
         web3 = get_node(Chain.ETHEREUM, block=block)
 
-    cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
-    ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY, block=block)
+    cpd_manager_contract = get_contract(
+        CDP_MANAGER_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block
+    )
+    ilk_registry_contract = get_contract(
+        ILK_REGISTRY_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY, block=block
+    )
     vat_contract = get_contract(VAT_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_VAT, block=block)
     spot_contract = get_contract(SPOT_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_SPOT, block=block)
 

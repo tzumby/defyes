@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Lido
-from defyes.constants import Chain, ZERO_ADDRESS, ETHTokenAddr
+from defyes.constants import ZERO_ADDRESS, Chain, ETHTokenAddr
 from defyes.node import get_node
 
 WALLET_N1 = "0x3591D9351C736Daa7867fA6629D3A10880d78b83"

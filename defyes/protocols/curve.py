@@ -7,7 +7,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import ETHTokenAddr, E_ADDRESS, Chain, ZERO_ADDRESS, GnosisTokenAddr
+from defyes.constants import E_ADDRESS, ZERO_ADDRESS, Chain, ETHTokenAddr, GnosisTokenAddr
 from defyes.functions import (
     balance_of,
     block_to_date,

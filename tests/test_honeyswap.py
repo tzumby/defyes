@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Honeyswap
-from defyes.constants import GnosisTokenAddr, Chain
+from defyes.constants import Chain, GnosisTokenAddr
 from defyes.node import get_node
 
 TEST_BLOCK = 27450341
@@ -54,5 +54,9 @@ def test_swap_fees(decimals):
             "token": GnosisTokenAddr.GNO,
             "amount": Decimal("18914160864473196") / Decimal(10**18 if decimals else 1),
         },
-        {"block": 27450198, "token": GnosisTokenAddr.GNO, "amount": Decimal("2825275064344436") / (10**18 if decimals else 1)},
+        {
+            "block": 27450198,
+            "token": GnosisTokenAddr.GNO,
+            "amount": Decimal("2825275064344436") / (10**18 if decimals else 1),
+        },
     ]

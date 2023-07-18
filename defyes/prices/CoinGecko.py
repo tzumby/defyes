@@ -5,8 +5,8 @@ import requests
 from defyes.constants import (
     API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE,
     API_COINGECKO_COINID_PRICE_RANGE,
-    Chain,
     ZERO_ADDRESS,
+    Chain,
 )
 
 

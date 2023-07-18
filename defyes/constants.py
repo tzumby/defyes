@@ -1,14 +1,19 @@
 import json
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
-from dataclasses import dataclass, asdict
 
 @dataclass(frozen=True)
 class ConstantList:
     @classmethod
     def to_dict(self):
-        return {attr: getattr(self, attr) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")}
+        return {
+            attr: getattr(self, attr)
+            for attr in dir(self)
+            if not callable(getattr(self, attr)) and not attr.startswith("__")
+        }
+
 
 @dataclass(frozen=True)
 class Chain(ConstantList):
@@ -27,6 +32,7 @@ class Chain(ConstantList):
     KOVAN = "kovan"
     GOERLI = "goerli"
 
+
 # Etherscan blocks requests that don't provide a User-Agent Hearder for Testnets.
 TESTNET_HEADER = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Mobile Safari/537.36"
@@ -40,6 +46,7 @@ ABI_TOKEN_SIMPLIFIED = '[{"constant":true,"inputs":[],"name":"name","outputs":[{
 ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 E_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+
 
 # ETHEREUM - Token Addresses
 @dataclass(frozen=True)

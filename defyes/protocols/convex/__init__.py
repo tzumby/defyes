@@ -6,7 +6,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ETHTokenAddr, Chain
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import get_contract, get_contract_creation, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -257,7 +257,12 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
         cvx_staked_rewards = cvx_staking_contract.functions.earned(wallet).call(block_identifier=block)
 
         if cvx_staked_rewards > 0:
-            rewards.append([ETHTokenAddr.CVXCRV, to_token_amount(ETHTokenAddr.CVXCRV, cvx_staked_rewards, blockchain, web3, decimals)])
+            rewards.append(
+                [
+                    ETHTokenAddr.CVXCRV,
+                    to_token_amount(ETHTokenAddr.CVXCRV, cvx_staked_rewards, blockchain, web3, decimals),
+                ]
+            )
 
         result += rewards
 

@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import Compound
-from defyes.constants import Chain, ZERO_ADDRESS, ETHTokenAddr
+from defyes.constants import ZERO_ADDRESS, Chain, ETHTokenAddr
 from defyes.node import get_node
 
 CTOKEN_CONTRACTS = {
@@ -113,7 +113,9 @@ def test_all_comp_rewards():
 def test_unwrap():
     block = 16924820
     node = get_node(Chain.ETHEREUM, block)
-    wallet1_cdai = Compound.get_ctoken_data(CTOKEN_CONTRACTS["cdai_contract"], WALLET_N1, block, Chain.ETHEREUM, web3=node)
+    wallet1_cdai = Compound.get_ctoken_data(
+        CTOKEN_CONTRACTS["cdai_contract"], WALLET_N1, block, Chain.ETHEREUM, web3=node
+    )
     ctoken_amount = wallet1_cdai["balanceOf"]
     ctoken_address = CTOKEN_CONTRACTS["cdai_contract"]
     unwrapped_data = Compound.unwrap(ctoken_amount, ctoken_address, block, Chain.ETHEREUM, web3=node)

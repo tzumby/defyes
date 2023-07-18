@@ -284,7 +284,9 @@ def get_staking_apr(block: Union[int, str], blockchain: str, web3=None, apy: boo
     stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
     emission_per_second = stkagave_contract.functions.assets(GnosisTokenAddr.STKAGAVE).call(block_identifier=block)[0]
     agave_token_address = const_call(stkagave_contract.functions.REWARD_TOKEN())
-    current_stakes = balance_of(GnosisTokenAddr.STKAGAVE, agave_token_address, block, blockchain, web3=web3, decimals=False)
+    current_stakes = balance_of(
+        GnosisTokenAddr.STKAGAVE, agave_token_address, block, blockchain, web3=web3, decimals=False
+    )
 
     staking_apr = emission_per_second * seconds_per_year / current_stakes
     staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1

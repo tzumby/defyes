@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from defyes.constants import (
-    Chain,
     API_KEY_ARBITRUM,
     API_KEY_AVALANCHE,
     API_KEY_BINANCE,
@@ -9,6 +8,7 @@ from defyes.constants import (
     API_KEY_FANTOM,
     API_KEY_GNOSISSCAN,
     API_KEY_POLSCAN,
+    Chain,
 )
 from defyes.enums import Explorer
 

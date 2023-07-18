@@ -13,7 +13,9 @@ def test_get_all_rewards(decimals):
     node = get_node(Chain.XDAI, block)
     wallet_v1 = "0x9b04a9eee500302980a117f514bc2de0fd1f683d"
     lptoken_address_v1 = "0x53ED0C2C6bB944D9421528E1ABD1e042B330696b"
-    rewards_v1 = Symmetric.get_all_rewards(wallet_v1, lptoken_address_v1, block, Chain.XDAI, web3=node, decimals=decimals)
+    rewards_v1 = Symmetric.get_all_rewards(
+        wallet_v1, lptoken_address_v1, block, Chain.XDAI, web3=node, decimals=decimals
+    )
     assert rewards_v1 == {
         "protocol": "Symmetric",
         "blockchain": "xdai",
@@ -23,7 +25,9 @@ def test_get_all_rewards(decimals):
     }
     wallet_v2 = "0x2c640AC98E293Daa246F98D2828E328A06FA6936"
     lptoken_address_v2 = "0x650f5d96E83d3437bf5382558cB31F0ac5536684"
-    rewards_v1 = Symmetric.get_all_rewards(wallet_v2, lptoken_address_v2, block, Chain.XDAI, web3=node, decimals=decimals)
+    rewards_v1 = Symmetric.get_all_rewards(
+        wallet_v2, lptoken_address_v2, block, Chain.XDAI, web3=node, decimals=decimals
+    )
     assert rewards_v1 == {
         "protocol": "Symmetric",
         "blockchain": "xdai",

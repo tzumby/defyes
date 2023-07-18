@@ -28,7 +28,9 @@ def test_underlying_all():
     block = 27795362
     node = get_node(Chain.XDAI, block)
 
-    [next_dai, wxdai], [next_usdc, usdc], [next_usdt, usdt] = Connext.underlying_all(WALLET_969, block, Chain.XDAI, web3=node)
+    [next_dai, wxdai], [next_usdc, usdc], [next_usdt, usdt] = Connext.underlying_all(
+        WALLET_969, block, Chain.XDAI, web3=node
+    )
     assert next_dai == [GnosisTokenAddr.nextDAI, Decimal("599315.782399033321427464")]
     assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("601284.983369595820396222")]
     assert next_usdc == [GnosisTokenAddr.nextUSDC, Decimal("1064967.162791")]

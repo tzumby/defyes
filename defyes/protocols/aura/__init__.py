@@ -5,7 +5,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ETHTokenAddr, Chain
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import get_contract, get_contract_creation, get_decimals, last_block, to_token_amount
 from defyes.helpers import call_contract_method
 from defyes.node import get_node
@@ -183,10 +183,15 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
         EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block
     )
 
-    extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, ETHTokenAddr.AURA).call(block_identifier=block)
+    extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, ETHTokenAddr.AURA).call(
+        block_identifier=block
+    )
 
     if extra_reward > 0:
-        extra_rewards_airdrop = [ETHTokenAddr.AURA, to_token_amount(ETHTokenAddr.AURA, extra_reward, blockchain, web3, decimals)]
+        extra_rewards_airdrop = [
+            ETHTokenAddr.AURA,
+            to_token_amount(ETHTokenAddr.AURA, extra_reward, blockchain, web3, decimals),
+        ]
 
     return extra_rewards_airdrop
 

@@ -25,7 +25,9 @@ BER_XDAI = "0x05698e7346Ea67Cfb088f64Ad8962B18137d17c0"
 @pytest.mark.parametrize("db", [True])
 def test_get_distribution_contracts(campaigns, db):
     staking_rewards_contract = get_contract(Swapr.SRC_XDAI, Chain.XDAI, web3=WEB3, abi=Swapr.ABI_SRC, block=TEST_BLOCK)
-    x = Swapr.get_distribution_contracts(WEB3, GnosisTokenAddr.GNO, staking_rewards_contract, campaigns, TEST_BLOCK, Chain.XDAI, db=db)
+    x = Swapr.get_distribution_contracts(
+        WEB3, GnosisTokenAddr.GNO, staking_rewards_contract, campaigns, TEST_BLOCK, Chain.XDAI, db=db
+    )
     assert x == []
 
 
@@ -48,7 +50,15 @@ def test_get_lptoken_data():
 @pytest.mark.parametrize("db", [True])
 def test_get_all_rewards(campaigns, db):
     x = Swapr.get_all_rewards(
-        TEST_WALLET, DXS, TEST_BLOCK, Chain.XDAI, WEB3, decimals=True, campaigns=campaigns, distribution_contracts=None, db=db
+        TEST_WALLET,
+        DXS,
+        TEST_BLOCK,
+        Chain.XDAI,
+        WEB3,
+        decimals=True,
+        campaigns=campaigns,
+        distribution_contracts=None,
+        db=db,
     )
     # FIXME: find a better wallet
     assert x == []
@@ -74,7 +84,10 @@ def test_underlying(campaigns, db, decimals, reward):
 def test_pool_balances(decimals):
     x = Swapr.pool_balances(DXS, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals)
     y = Decimal(10**18 if decimals else 1)
-    assert x == [[BER_XDAI, Decimal("1071822921647535396369") / y], [GnosisTokenAddr.GNO, Decimal("8286413444006866465") / y]]
+    assert x == [
+        [BER_XDAI, Decimal("1071822921647535396369") / y],
+        [GnosisTokenAddr.GNO, Decimal("8286413444006866465") / y],
+    ]
 
 
 @pytest.mark.parametrize("decimals", [False, True])

@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from defyes import SushiSwap
 from defyes.cache import const_call
-from defyes.constants import Chain, ETHTokenAddr, ZERO_ADDRESS
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.node import get_node
 
 SUSHISWAP_POOL_USDC_WETH = "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0"
@@ -44,7 +44,9 @@ def test_underlying_of_empty_address_with_rewards():
 
 def test_get_pool_info_v1():
     web3 = get_node(Chain.ETHEREUM)
-    data = SushiSwap.get_pool_info(web3, SUSHISWAP_POOL_USDC_WETH, block=TEST_BLOCK, blockchain=Chain.ETHEREUM, use_db=True)
+    data = SushiSwap.get_pool_info(
+        web3, SUSHISWAP_POOL_USDC_WETH, block=TEST_BLOCK, blockchain=Chain.ETHEREUM, use_db=True
+    )
     assert data["pool_info"] == {"poolId": 1, "allocPoint": 8300}
     assert data["totalAllocPoint"] == 1639550
 
@@ -82,13 +84,18 @@ def test_get_rewarder_contract():
 def test_get_rewards():
     web3 = get_node(Chain.ETHEREUM)
     contract = SushiSwap.get_chef_contract(web3, TEST_BLOCK, Chain.ETHEREUM)
-    rewards = SushiSwap.get_rewards(web3, UNUSED_ADDRESS, contract, pool_id=1, block=TEST_BLOCK, blockchain=Chain.ETHEREUM)
+    rewards = SushiSwap.get_rewards(
+        web3, UNUSED_ADDRESS, contract, pool_id=1, block=TEST_BLOCK, blockchain=Chain.ETHEREUM
+    )
     assert rewards == [[ETHTokenAddr.CVX, Decimal("0")]]
 
 
 def test_pool_balances():
     balances = SushiSwap.pool_balances(SUSHISWAP_POOL_USDC_WETH, block=TEST_BLOCK, blockchain=Chain.ETHEREUM)
-    assert balances == [[ETHTokenAddr.USDC, Decimal("16413544.906577")], [ETHTokenAddr.WETH, Decimal("9860.137476763535111002")]]
+    assert balances == [
+        [ETHTokenAddr.USDC, Decimal("16413544.906577")],
+        [ETHTokenAddr.WETH, Decimal("9860.137476763535111002")],
+    ]
 
 
 def test_get_rewards_per_unit():

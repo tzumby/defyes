@@ -45,10 +45,14 @@ def test_search_proxy_impl_address():
     implementation = search_proxy_impl_address("0xE95A203B1a91a908F9B9CE46459d101078c2c3cb", Chain.ETHEREUM)
     assert implementation == "0x3eD1DFBCCF893b7d2D730EAd3e5eDBF1f8f95a48"
 
-    implementation = search_proxy_impl_address("0xE95A203B1a91a908F9B9CE46459d101078c2c3cb", Chain.ETHEREUM, block=16477000)
+    implementation = search_proxy_impl_address(
+        "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb", Chain.ETHEREUM, block=16477000
+    )
     assert implementation == "0x89632e27427109d64fFe1CdD98027139477E020F"
 
-    implementation = search_proxy_impl_address("0xE95A203B1a91a908F9B9CE46459d101078c2c3cb", Chain.ETHEREUM, block=16475978)
+    implementation = search_proxy_impl_address(
+        "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb", Chain.ETHEREUM, block=16475978
+    )
     assert implementation == "0x1E5e5CF3652989A57736901D95749A326F5Cb60F"
 
     # OpenZeppelins' EIP-1167

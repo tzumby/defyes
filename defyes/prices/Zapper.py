@@ -4,7 +4,7 @@ from datetime import datetime
 import requests
 from dateutil.relativedelta import relativedelta
 
-from defyes.constants import API_KEY_ZAPPER, API_ZAPPER_PRICE, Chain.BINANCE
+from defyes.constants import API_KEY_ZAPPER, API_ZAPPER_PRICE, Chain
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

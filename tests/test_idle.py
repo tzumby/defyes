@@ -30,7 +30,11 @@ def test_get_amounts():
 
 def test_underlying():
     underlying = Idle.underlying(
-        token_address=LIDO_STAKED_TOKEN_ETH, wallet=TEST_WALLET, block=TEST_BLOCK, blockchain=Chain.ETHEREUM, rewards=True
+        token_address=LIDO_STAKED_TOKEN_ETH,
+        wallet=TEST_WALLET,
+        block=TEST_BLOCK,
+        blockchain=Chain.ETHEREUM,
+        rewards=True,
     )
 
     assert underlying == [

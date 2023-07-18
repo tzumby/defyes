@@ -11,6 +11,7 @@ class ExtendedEnum(Enum):
 
 class Chain(ExtendedEnum):
     """Enum for the blockchain"""
+
     ETHEREUM = "ethereum"
     POLYGON = "polygon"
     # FIXME: XDAI should be eventually removed

@@ -10,7 +10,7 @@ from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound
 
 from defyes.cache import const_call
-from defyes.constants import Chain, ZERO_ADDRESS
+from defyes.constants import ZERO_ADDRESS, Chain
 from defyes.functions import (
     block_to_date,
     date_to_block,
@@ -798,7 +798,11 @@ def update_db():
             # Reading from json file
             db_data = json.load(db_file)
     except:
-        db_data = {Chain.ETHEREUM: {"poolsv2": {}, "poolsv1": {}}, Chain.POLYGON: {"pools": {}}, Chain.XDAI: {"pools": {}}}
+        db_data = {
+            Chain.ETHEREUM: {"poolsv2": {}, "poolsv1": {}},
+            Chain.POLYGON: {"pools": {}},
+            Chain.XDAI: {"pools": {}},
+        }
 
     web3 = get_node(Chain.ETHEREUM)
 

@@ -63,14 +63,18 @@ def test_get_pool_data():
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_get_all_rewards(decimals):
-    rewards = Curve.get_all_rewards(TEST_WALLET, ETHTokenAddr.X3CRV, TEST_BLOCK, Chain.ETHEREUM, web3=WEB3, decimals=decimals)
+    rewards = Curve.get_all_rewards(
+        TEST_WALLET, ETHTokenAddr.X3CRV, TEST_BLOCK, Chain.ETHEREUM, web3=WEB3, decimals=decimals
+    )
     assert rewards == [[ETHTokenAddr.CRV, Decimal("120624446582848732188") / Decimal(10**18 if decimals else 1)]]
 
 
 @pytest.mark.parametrize("reward", [True, False])
 @pytest.mark.parametrize("decimals", [True, False])
 def test_underlying(reward, decimals):
-    u = Curve.underlying(TEST_WALLET, ETHTokenAddr.X3CRV, TEST_BLOCK, Chain.ETHEREUM, web3=WEB3, reward=reward, decimals=decimals)
+    u = Curve.underlying(
+        TEST_WALLET, ETHTokenAddr.X3CRV, TEST_BLOCK, Chain.ETHEREUM, web3=WEB3, reward=reward, decimals=decimals
+    )
     expected = [
         [ETHTokenAddr.DAI, Decimal("0"), Decimal("0")],
         [ETHTokenAddr.USDC, Decimal("0"), Decimal("0")],

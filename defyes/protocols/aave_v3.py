@@ -6,7 +6,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import Chain
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import get_contract, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -107,7 +107,7 @@ def get_all_rewards(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    stkaave_contract = get_contract(STKAAVE_ETH, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+    stkaave_contract = get_contract(ETHTokenAddr.STKAAVE, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
 
     reward_token = const_call(stkaave_contract.functions.REWARD_TOKEN())
 

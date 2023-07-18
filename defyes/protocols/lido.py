@@ -3,7 +3,7 @@ from typing import Union
 
 from web3 import Web3
 
-from defyes.constants import Chain, ZERO_ADDRESS, ETHTokenAddr
+from defyes.constants import ZERO_ADDRESS, Chain, ETHTokenAddr
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 

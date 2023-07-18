@@ -5,7 +5,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import Chain, ZERO_ADDRESS
+from defyes.constants import ZERO_ADDRESS, Chain
 from defyes.functions import BlockchainError, get_contract, last_block, to_token_amount
 from defyes.node import get_node
 

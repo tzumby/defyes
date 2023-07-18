@@ -4,7 +4,7 @@ from typing import Tuple
 import requests
 from web3 import Web3
 
-from defyes.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, Chain, ZERO_ADDRESS
+from defyes.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, ZERO_ADDRESS, Chain
 from defyes.functions import block_to_timestamp
 from defyes.node import get_node
 from defyes.prices import Chainlink, CoinGecko, _1inch
