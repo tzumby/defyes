@@ -27,7 +27,6 @@ tokens = {
         "staking": sETH2,
         "rewards": rETH2,
     },
-    # FIXME: 'xdai' should eventually be replaced by 'gnosis'
     Chain.GNOSIS: {
         "staking": sGNO,
         "rewards": rGNO,
@@ -46,7 +45,6 @@ Pools = {
             },
         ]
     },
-    # FIXME: 'xdai' should eventually be replaced by gnosis
     "ethereum": {
         "uniswap v3": [
             {"name": "WETH-sETH2", "tokens": [WETH, sETH2], "fee": 3000},
@@ -136,7 +134,7 @@ def get_all_rewards(
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    chain = "mainnet" if blockchain is Chain.ETHEREUM else "gnosis"
+    chain = "mainnet" if blockchain is Chain.ETHEREUM else Chain.GNOSIS
     response = requests.get(f"https://api.stakewise.io/distributor-claims/{wallet}/?network={chain}")
     data = json.loads(response.text, parse_float=Decimal)
 
