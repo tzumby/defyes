@@ -7,7 +7,7 @@ from typing import Union
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
+from defyes.constants import ABI_TOKEN_SIMPLIFIED, Chain
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 from defyes.topic import decode_address_hexor
@@ -272,25 +272,25 @@ def update_db(block="latest") -> dict:
     :return:
     """
     with open(DB_FILE, "w") as db_file:
-        addresses = get_addresses(block, ETHEREUM)
+        addresses = get_addresses(block, Chain.ETHEREUM)
         json.dump(addresses, db_file, indent=4)
 
 
 # wallet = '0x849d52316331967b6ff1198e5e32a0eb168d039d'
 # gauge = '0x675eC042325535F6e176638Dd2d4994F645502B9'
-# rewors = get_all_rewards(wallet, gauge, 'latest', ETHEREUM)
+# rewors = get_all_rewards(wallet, gauge, 'latest', Chain.ETHEREUM)
 # print(rewors)
 
 # CDO_address = '0xae7ab96520de3a18e5e111b5eaab095312d7fe84'
 # wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
 
-# haha = underlying(token_address=CDO_address, wallet=wallet,block='latest',blockchain=ETHEREUM,rewards=True)
+# haha = underlying(token_address=CDO_address, wallet=wallet,block='latest',blockchain=Chain.ETHEREUM,rewards=True)
 # print(haha)
 
-# yo = get_gauges('latest',ETHEREUM)
+# yo = get_gauges('latest',Chain.ETHEREUM)
 # print(yo)
 
-# aabhar = get_addresses('latest',ETHEREUM)
+# aabhar = get_addresses('latest',Chain.ETHEREUM)
 # print(aabhar)
 
 # aabhar2 = update_db()

@@ -3,18 +3,18 @@ from decimal import Decimal
 import pytest
 
 from defyes import Honeyswap
-from defyes.constants import GNO_XDAI, WETH_XDAI, XDAI
+from defyes.constants import GNO_XDAI, WETH_XDAI, Chain
 from defyes.node import get_node
 
 TEST_BLOCK = 27450341
 TEST_WALLET = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"
-WEB3 = get_node(blockchain=XDAI, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.XDAI, block=TEST_BLOCK)
 
 UNIv2 = "0x28dbd35fd79f48bfa9444d330d14683e7101d817"
 
 
 def test_get_lptoken_data():
-    data = Honeyswap.get_lptoken_data(UNIv2, TEST_BLOCK, XDAI, WEB3)
+    data = Honeyswap.get_lptoken_data(UNIv2, TEST_BLOCK, Chain.XDAI, WEB3)
     expected = {
         "decimals": 18,
         "totalSupply": 2780438593422870570963,
@@ -29,7 +29,7 @@ def test_get_lptoken_data():
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_underlying(decimals):
-    x = Honeyswap.underlying(TEST_WALLET, UNIv2, TEST_BLOCK, XDAI, WEB3, decimals=decimals)
+    x = Honeyswap.underlying(TEST_WALLET, UNIv2, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals)
     assert x == [
         [WETH_XDAI, Decimal("697386974825513061735.0076492") / (10**18 if decimals else 1)],
         [GNO_XDAI, Decimal("11931071995026019072977.21406") / (10**18 if decimals else 1)],
@@ -38,7 +38,7 @@ def test_underlying(decimals):
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_pool_balances(decimals):
-    x = Honeyswap.pool_balances(UNIv2, TEST_BLOCK, XDAI, WEB3, decimals=decimals)
+    x = Honeyswap.pool_balances(UNIv2, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals)
     assert x == [
         [WETH_XDAI, Decimal("697389190335766422886") / (10**18 if decimals else 1)],
         [GNO_XDAI, Decimal("11931109898533386964234") / (10**18 if decimals else 1)],
@@ -47,7 +47,7 @@ def test_pool_balances(decimals):
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_swap_fees(decimals):
-    x = Honeyswap.swap_fees(UNIv2, TEST_BLOCK - 1000, TEST_BLOCK, XDAI, WEB3, decimals=decimals)
+    x = Honeyswap.swap_fees(UNIv2, TEST_BLOCK - 1000, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals)
     assert x["swaps"] == [
         {
             "block": 27449397,

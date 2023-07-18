@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import MAI_POL, POLYGON, XDAI, GnosisTokenAddr
+from defyes.constants import MAI_POL, Chain, GnosisTokenAddr
 from defyes.functions import block_to_timestamp, get_contract, get_decimals, timestamp_to_block, to_token_amount
 from defyes.node import get_node
 
@@ -13,11 +13,11 @@ from defyes.node import get_node
 # QiDao Vaults List
 QIDAO_VAULTS = {
     GnosisTokenAddr.GNO: {
-        "blockchain": XDAI,
+        "blockchain": Chain.XDAI,
         "address": "0x014A177E9642d1b4E970418f894985dC1b85657f",  # GNO Vault Address
     },
     GnosisTokenAddr.WETH: {
-        "blockchain": XDAI,
+        "blockchain": Chain.XDAI,
         "address": "0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b",  # WETH Vault Address
     },
 }
@@ -163,16 +163,16 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
                 vault_data["liquidation_price"] = Decimal("nan")
 
             # Debt Token USD Value from Polygon Chainlink feed
-            block_polygon = timestamp_to_block(block_to_timestamp(block, blockchain), POLYGON)
+            block_polygon = timestamp_to_block(block_to_timestamp(block, blockchain), Chain.POLYGON)
 
             price_feed_contract = get_contract(
-                CHAINLINK_MATIC_USD, POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon
+                CHAINLINK_MATIC_USD, Chain.POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon
             )
             price_feed_decimals = const_call(price_feed_contract.functions.decimals())
             matic_usd_price = Decimal(price_feed_contract.functions.latestAnswer().call(block_identifier=block_polygon))
             matic_usd_price /= Decimal(10**price_feed_decimals)
 
-            oracle_contract = get_contract(ORACLE_1INCH_POLYGON, POLYGON, abi=ABI_ORACLE, block=block_polygon)
+            oracle_contract = get_contract(ORACLE_1INCH_POLYGON, Chain.POLYGON, abi=ABI_ORACLE, block=block_polygon)
             rate = Decimal(oracle_contract.functions.getRateToEth(MAI_POL, False).call(block_identifier=block_polygon))
             rate /= Decimal(10 ** abs(18 + 18 - get_decimals(debt_address, blockchain, web3=web3)))
 

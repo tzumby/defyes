@@ -7,7 +7,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import CRV_ETH, CRV_XDAI, E_ADDRESS, ETHEREUM, X3CRV_ETH, X3CRV_XDAI, XDAI, ZERO_ADDRESS
+from defyes.constants import CRV_ETH, CRV_XDAI, E_ADDRESS, Chain, X3CRV_ETH, X3CRV_XDAI, ZERO_ADDRESS
 from defyes.functions import (
     balance_of,
     block_to_date,
@@ -132,7 +132,7 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
             gauge_address = const_call(registry_contract.functions.get_gauge(pool_address))
 
     # Pools which don't have their gauge registered in none of the registries
-    if gauge_address == ZERO_ADDRESS and blockchain != ETHEREUM:
+    if gauge_address == ZERO_ADDRESS and blockchain != Chain.ETHEREUM:
         x_chain_factory_contract = get_contract(
             X_CHAIN_GAUGE_FACTORY_ADDRESS, blockchain, web3=web3, abi=ABI_X_CHAIN_GAUGE_FACTORY_ADDRESS, block=block
         )
@@ -155,7 +155,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
     try:
         const_call(gauge_contract.functions.version())
 
-        if blockchain != ETHEREUM:
+        if blockchain != Chain.ETHEREUM:
             if only_version:
                 return "ChildGauge"
             else:
@@ -384,9 +384,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
                 break
 
         # CRV rewards
-        if blockchain == ETHEREUM:
+        if blockchain == Chain.ETHEREUM:
             token_address = CRV_ETH
-        elif blockchain == XDAI:
+        elif blockchain == Chain.XDAI:
             token_address = CRV_XDAI
 
         token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
@@ -409,9 +409,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
         if gauge_version == "LiquidityGaugeV3":
             # CRV rewards
-            if blockchain == ETHEREUM:
+            if blockchain == Chain.ETHEREUM:
                 token_address = CRV_ETH
-            elif blockchain == XDAI:
+            elif blockchain == Chain.XDAI:
                 token_address = CRV_XDAI
 
             token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
@@ -816,7 +816,7 @@ def get_swap_fees_APR(
     else:
         return apr
 
-    # blockchain = ETHEREUM
+    # blockchain = Chain.ETHEREUM
 
 
 # lptoken = '0xd51a44d3fae010294c616388b506acda1bfaae46'

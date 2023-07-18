@@ -1,11 +1,11 @@
 from decimal import Decimal
 
 from defyes import Maker
-from defyes.constants import DAI_ETH, ETHEREUM, ETHTokenAddr
+from defyes.constants import DAI_ETH, Chain, ETHTokenAddr
 from defyes.node import get_node
 
 TEST_BLOCK = 17070386
-WEB3 = get_node(blockchain=ETHEREUM, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.ETHEREUM, block=TEST_BLOCK)
 # TEST_WALLET = '0xf929122994e177079c924631ba13fb280f5cd1f9'
 # TEST_WALLET = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
 TEST_WALLET = "0x4971DD016127F390a3EF6b956Ff944d0E2e1e462"

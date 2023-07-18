@@ -4,7 +4,7 @@ from datetime import datetime
 import requests
 from dateutil.relativedelta import relativedelta
 
-from defyes.constants import API_KEY_ZAPPER, API_ZAPPER_PRICE, BINANCE
+from defyes.constants import API_KEY_ZAPPER, API_ZAPPER_PRICE, Chain.BINANCE
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ def get_price(token_address, timestamp, blockchain):
     :return:
     """
 
-    if blockchain == BINANCE:
+    if blockchain == Chain.BINANCE:
         blockchain_id = "binance-smart-chain"
     else:
         blockchain_id = blockchain

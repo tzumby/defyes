@@ -6,7 +6,7 @@ from tqdm import tqdm
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ETHEREUM, XDAI
+from defyes.constants import Chain
 from defyes.functions import get_contract, get_decimals, get_logs_web3
 from defyes.node import get_node
 
@@ -43,10 +43,10 @@ DB_FILE = Path(__file__).parent / "db.json"
 
 
 def get_staking_rewards_contract(web3, block, blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         staking_rewards_contract = get_contract(SRC_ETHEREUM, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
-    elif blockchain == XDAI:
+    elif blockchain == Chain.XDAI:
         staking_rewards_contract = get_contract(SRC_XDAI, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
     return staking_rewards_contract
@@ -338,7 +338,7 @@ def update_db(output_file=DB_FILE, block="latest"):
         with open(DB_FILE, "r") as db_file:
             db_data = json.load(db_file)
     except:
-        db_data = {ETHEREUM: {}, XDAI: {}}
+        db_data = {Chain.ETHEREUM: {}, Chain.XDAI: {}}
 
     blockchain = ""
     for blockchain in tqdm(db_data, desc="Fetching data from blockchains..."):

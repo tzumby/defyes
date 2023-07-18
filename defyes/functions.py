@@ -93,21 +93,11 @@ from defyes.constants import (
     API_ROPSTEN_GETLOGS,
     API_ROPSTEN_TOKENTX,
     API_ROPSTEN_TXLIST,
-    ARBITRUM,
-    AVALANCHE,
-    BINANCE,
     E_ADDRESS,
-    ETHEREUM,
-    FANTOM,
-    GOERLI,
+    Chain,
     IMPLEMENTATION_SLOT_EIP_1967,
     IMPLEMENTATION_SLOT_UNSTRUCTURED,
-    KOVAN,
-    OPTIMISM,
-    POLYGON,
-    ROPSTEN,
     TESTNET_HEADER,
-    XDAI,
     ZERO_ADDRESS,
 )
 from defyes.helpers import suppress_error_codes
@@ -163,13 +153,13 @@ def timestamp_to_block(timestamp, blockchain) -> int:
     data = None
 
     while data is None:
-        if blockchain == ETHEREUM:
+        if blockchain == Chain.ETHEREUM:
             data = requests.get(API_ETHERSCAN_GETBLOCKNOBYTIME % (timestamp, API_KEY_ETHERSCAN)).json()["result"]
 
-        elif blockchain == POLYGON:
+        elif blockchain == Chain.POLYGON:
             data = requests.get(API_POLYGONSCAN_GETBLOCKNOBYTIME % (timestamp, API_KEY_POLSCAN)).json()["result"]
 
-        elif blockchain == XDAI:
+        elif blockchain == Chain.XDAI:
             data = requests.get(API_GNOSISSCAN_GETBLOCKNOBYTIME % (timestamp, API_KEY_GNOSISSCAN)).json()["result"]
             # For BLOCKSCOUT
             # if data is None:
@@ -177,20 +167,20 @@ def timestamp_to_block(timestamp, blockchain) -> int:
             # else:
             #     data = data['blockNumber']
 
-        elif blockchain == BINANCE:
-            data = requests.get(API_BINANCE_GETBLOCKNOBYTIME % (timestamp, API_KEY_BINANCE)).json()["result"]
+        elif blockchain == Chain.BINANCE:
+            data = requests.get(API_BINANCE_GETBLOCKNOBYTIME % (timestamp, API_KEY_Chain.BINANCE)).json()["result"]
 
-        elif blockchain == AVALANCHE:
-            data = requests.get(API_AVALANCHE_GETBLOCKNOBYTIME % (timestamp, API_KEY_AVALANCHE)).json()["result"]
+        elif blockchain == Chain.AVALANCHE:
+            data = requests.get(API_AVALANCHE_GETBLOCKNOBYTIME % (timestamp, API_KEY_Chain.AVALANCHE)).json()["result"]
 
-        elif blockchain == FANTOM:
-            data = requests.get(API_FANTOM_GETBLOCKNOBYTIME % (timestamp, API_KEY_FANTOM)).json()["result"]
+        elif blockchain == Chain.FANTOM:
+            data = requests.get(API_FANTOM_GETBLOCKNOBYTIME % (timestamp, API_KEY_Chain.FANTOM)).json()["result"]
 
-        elif blockchain == OPTIMISM:
-            data = requests.get(API_OPTIMISM_GETBLOCKNOBYTIME % (timestamp, API_KEY_OPTIMISM)).json()["result"]
+        elif blockchain == Chain.OPTIMISM:
+            data = requests.get(API_OPTIMISM_GETBLOCKNOBYTIME % (timestamp, API_KEY_Chain.OPTIMISM)).json()["result"]
 
-        elif blockchain == ARBITRUM:
-            data = requests.get(API_ARBITRUM_GETBLOCKNOBYTIME % (timestamp, API_KEY_ARBITRUM)).json()["result"]
+        elif blockchain == Chain.ARBITRUM:
+            data = requests.get(API_ARBITRUM_GETBLOCKNOBYTIME % (timestamp, API_KEY_Chain.ARBITRUM)).json()["result"]
 
         elif blockchain == ROPSTEN:
             data = requests.get(
@@ -243,31 +233,31 @@ def block_to_timestamp(block, blockchain):
             return math.floor(datetime.now().timestamp())
 
     while data is None:
-        if blockchain == ETHEREUM:
+        if blockchain == Chain.ETHEREUM:
             data = requests.get(API_ETHERSCAN_GETBLOCKREWARD % (block, API_KEY_ETHERSCAN)).json()["result"]["timeStamp"]
 
-        elif blockchain == POLYGON:
+        elif blockchain == Chain.POLYGON:
             data = requests.get(API_POLYGONSCAN_GETBLOCKREWARD % (block, API_KEY_POLSCAN)).json()["result"]["timeStamp"]
 
-        elif blockchain == XDAI:
+        elif blockchain == Chain.XDAI:
             data = requests.get(API_GNOSISSCAN_GETBLOCKREWARD % (block, API_KEY_GNOSISSCAN)).json()["result"][
                 "timeStamp"
             ]
 
-        elif blockchain == BINANCE:
-            data = requests.get(API_BINANCE_GETBLOCKREWARD % (block, API_KEY_BINANCE)).json()["result"]["timeStamp"]
+        elif blockchain == Chain.BINANCE:
+            data = requests.get(API_BINANCE_GETBLOCKREWARD % (block, API_KEY_Chain.BINANCE)).json()["result"]["timeStamp"]
 
-        elif blockchain == AVALANCHE:
-            data = requests.get(API_AVALANCHE_GETBLOCKREWARD % (block, API_KEY_AVALANCHE)).json()["result"]["timeStamp"]
+        elif blockchain == Chain.AVALANCHE:
+            data = requests.get(API_AVALANCHE_GETBLOCKREWARD % (block, API_KEY_Chain.AVALANCHE)).json()["result"]["timeStamp"]
 
-        elif blockchain == FANTOM:
-            data = requests.get(API_FANTOM_GETBLOCKREWARD % (block, API_KEY_FANTOM)).json()["result"]["timeStamp"]
+        elif blockchain == Chain.FANTOM:
+            data = requests.get(API_FANTOM_GETBLOCKREWARD % (block, API_KEY_Chain.FANTOM)).json()["result"]["timeStamp"]
 
-        elif blockchain == OPTIMISM:
-            data = requests.get(API_OPTIMISM_GETBLOCKREWARD % (block, API_KEY_OPTIMISM)).json()["result"]["timeStamp"]
+        elif blockchain == Chain.OPTIMISM:
+            data = requests.get(API_OPTIMISM_GETBLOCKREWARD % (block, API_KEY_Chain.OPTIMISM)).json()["result"]["timeStamp"]
 
-        elif blockchain == ARBITRUM:
-            data = requests.get(API_ARBITRUM_GETBLOCKREWARD % (block, API_KEY_ARBITRUM)).json()["result"]["timeStamp"]
+        elif blockchain == Chain.ARBITRUM:
+            data = requests.get(API_ARBITRUM_GETBLOCKREWARD % (block, API_KEY_Chain.ARBITRUM)).json()["result"]["timeStamp"]
 
         elif blockchain == ROPSTEN:
             data = requests.get(API_ROPSTEN_GETBLOCKREWARD % (block, API_KEY_ETHERSCAN), headers=TESTNET_HEADER).json()[
@@ -304,11 +294,11 @@ def get_blocks_per_year(blockchain):
 # ERC20 TOKENS
 # token_info
 @cache_call()
-def token_info(token_address, blockchain):  # NO ESTÁ POLYGON
-    if blockchain.lower() == ETHEREUM:
+def token_info(token_address, blockchain):  # NO ESTÁ Chain.POLYGON
+    if blockchain.lower() == Chain.ETHEREUM:
         data = requests.get(API_ETHPLORER_GETTOKENINFO % (token_address, API_KEY_ETHPLORER)).json()
 
-    elif blockchain.lower() == XDAI:
+    elif blockchain.lower() == Chain.XDAI:
         data = requests.get(API_BLOCKSCOUT_GETTOKENCONTRACT % token_address).json()["result"]
 
     return data
@@ -370,17 +360,17 @@ def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
     token_address = Web3.to_checksum_address(token_address)
 
     if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
-        if blockchain is ETHEREUM or blockchain is OPTIMISM or blockchain is ARBITRUM:
+        if blockchain is Chain.ETHEREUM or blockchain is Chain.OPTIMISM or blockchain is Chain.ARBITRUM:
             symbol = "ETH"
-        elif blockchain is POLYGON:
+        elif blockchain is Chain.POLYGON:
             symbol = "MATIC"
-        elif blockchain is XDAI:
-            symbol = "XDAI"
-        elif blockchain is FANTOM:
+        elif blockchain is Chain.XDAI:
+            symbol = "Chain.XDAI"
+        elif blockchain is Chain.FANTOM:
             symbol = "FTM"
-        elif blockchain is AVALANCHE:
+        elif blockchain is Chain.AVALANCHE:
             symbol = "AVAX"
-        elif blockchain is BINANCE:
+        elif blockchain is Chain.BINANCE:
             symbol = "BNB"
     else:
         symbol = infer_symbol(web3, blockchain, token_address)
@@ -412,45 +402,45 @@ def get_contract_abi(contract_address, blockchain):
     data = None
 
     while data is None:
-        if blockchain == ETHEREUM:
+        if blockchain == Chain.ETHEREUM:
             data = requests.get(API_ETHERSCAN_GETABI % (contract_address, API_KEY_ETHERSCAN)).json()["result"]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
-        elif blockchain == POLYGON:
+        elif blockchain == Chain.POLYGON:
             data = requests.get(API_POLYGONSCAN_GETABI % (contract_address, API_KEY_POLSCAN)).json()["result"]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
-        elif blockchain == XDAI:
+        elif blockchain == Chain.XDAI:
             data = requests.get(API_GNOSISSCAN_GETABI % (contract_address, API_KEY_GNOSISSCAN)).json()["result"]
             if data == "Contract source code not verified":
                 data = requests.get(API_BLOCKSCOUT_GETABI % contract_address).json()["result"]
                 if data == "Contract source code not verified":
                     raise abiNotVerified
 
-        elif blockchain == BINANCE:
-            data = requests.get(API_BINANCE_GETABI % (contract_address, API_KEY_BINANCE)).json()["result"]
+        elif blockchain == Chain.BINANCE:
+            data = requests.get(API_BINANCE_GETABI % (contract_address, API_KEY_Chain.BINANCE)).json()["result"]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
-        elif blockchain == AVALANCHE:
-            data = requests.get(API_AVALANCHE_GETABI % (contract_address, API_KEY_AVALANCHE)).json()["result"]
+        elif blockchain == Chain.AVALANCHE:
+            data = requests.get(API_AVALANCHE_GETABI % (contract_address, API_KEY_Chain.AVALANCHE)).json()["result"]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
-        elif blockchain == FANTOM:
-            data = requests.get(API_FANTOM_GETABI % (contract_address, API_KEY_FANTOM)).json()["result"]
+        elif blockchain == Chain.FANTOM:
+            data = requests.get(API_FANTOM_GETABI % (contract_address, API_KEY_Chain.FANTOM)).json()["result"]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
-        elif blockchain == OPTIMISM:
-            data = requests.get(API_OPTIMISM_GETABI % (contract_address, API_KEY_OPTIMISM)).json()["result"]
+        elif blockchain == Chain.OPTIMISM:
+            data = requests.get(API_OPTIMISM_GETABI % (contract_address, API_KEY_Chain.OPTIMISM)).json()["result"]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
-        elif blockchain == ARBITRUM:
-            data = requests.get(API_ARBITRUM_GETABI % (contract_address, API_KEY_ARBITRUM)).json()["result"]
+        elif blockchain == Chain.ARBITRUM:
+            data = requests.get(API_ARBITRUM_GETABI % (contract_address, API_KEY_Chain.ARBITRUM)).json()["result"]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
@@ -565,7 +555,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
     if proxy_impl_address == ZERO_ADDRESS:
         contract_custom_abi = get_contract(
             contract_address,
-            ETHEREUM,
+            Chain.ETHEREUM,
             abi='[{"inputs":[{"internalType":"uint256","name":"offset","type":"uint256"},{"internalType":"uint256","name":"length","type":"uint256"}],"name":"getStorageAt","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"}]',
         )
         try:
@@ -667,44 +657,44 @@ def get_data(contract_address, function_name, parameters, blockchain, web3=None,
 def get_token_tx(token_address, contract_address, block_start, block_end, blockchain):
     data = None
 
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         data = requests.get(
             API_ETHERSCAN_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_ETHERSCAN)
         ).json()["result"]
 
-    elif blockchain == POLYGON:
+    elif blockchain == Chain.POLYGON:
         data = requests.get(
             API_POLYGONSCAN_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_POLSCAN)
         ).json()["result"]
 
-    elif blockchain == XDAI:
+    elif blockchain == Chain.XDAI:
         data = requests.get(
             API_GNOSISSCAN_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_GNOSISSCAN)
         ).json()["result"]
 
-    elif blockchain == BINANCE:
+    elif blockchain == Chain.BINANCE:
         data = requests.get(
-            API_BINANCE_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_BINANCE)
+            API_BINANCE_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_Chain.BINANCE)
         ).json()["result"]
 
-    elif blockchain == AVALANCHE:
+    elif blockchain == Chain.AVALANCHE:
         data = requests.get(
-            API_AVALANCHE_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_AVALANCHE)
+            API_AVALANCHE_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_Chain.AVALANCHE)
         ).json()["result"]
 
-    elif blockchain == FANTOM:
+    elif blockchain == Chain.FANTOM:
         data = requests.get(
-            API_FANTOM_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_FANTOM)
+            API_FANTOM_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_Chain.FANTOM)
         ).json()["result"]
 
-    elif blockchain == OPTIMISM:
+    elif blockchain == Chain.OPTIMISM:
         data = requests.get(
-            API_OPTIMISM_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_OPTIMISM)
+            API_OPTIMISM_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_Chain.OPTIMISM)
         ).json()["result"]
 
-    elif blockchain == ARBITRUM:
+    elif blockchain == Chain.ARBITRUM:
         data = requests.get(
-            API_ARBITRUM_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_ARBITRUM)
+            API_ARBITRUM_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_Chain.ARBITRUM)
         ).json()["result"]
 
     elif blockchain == ROPSTEN:
@@ -732,43 +722,43 @@ def get_token_tx(token_address, contract_address, block_start, block_end, blockc
 def get_tx_list(contract_address, block_start, block_end, blockchain):
     data = None
 
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         data = requests.get(
             API_ETHERSCAN_TXLIST % (contract_address, block_start, block_end, API_KEY_ETHERSCAN)
         ).json()["result"]
 
-    elif blockchain == POLYGON:
+    elif blockchain == Chain.POLYGON:
         data = requests.get(
             API_POLYGONSCAN_TXLIST % (contract_address, block_start, block_end, API_KEY_POLSCAN)
         ).json()["result"]
 
-    elif blockchain == XDAI:
+    elif blockchain == Chain.XDAI:
         data = requests.get(
             API_GNOSISSCAN_TXLIST % (contract_address, block_start, block_end, API_KEY_GNOSISSCAN)
         ).json()["result"]
 
-    elif blockchain == BINANCE:
-        data = requests.get(API_BINANCE_TXLIST % (contract_address, block_start, block_end, API_KEY_BINANCE)).json()[
+    elif blockchain == Chain.BINANCE:
+        data = requests.get(API_BINANCE_TXLIST % (contract_address, block_start, block_end, API_KEY_Chain.BINANCE)).json()[
             "result"
         ]
 
-    elif blockchain == AVALANCHE:
+    elif blockchain == Chain.AVALANCHE:
         data = requests.get(
-            API_AVALANCHE_TXLIST % (contract_address, block_start, block_end, API_KEY_AVALANCHE)
+            API_AVALANCHE_TXLIST % (contract_address, block_start, block_end, API_KEY_Chain.AVALANCHE)
         ).json()["result"]
 
-    elif blockchain == FANTOM:
-        data = requests.get(API_FANTOM_TXLIST % (contract_address, block_start, block_end, API_KEY_FANTOM)).json()[
+    elif blockchain == Chain.FANTOM:
+        data = requests.get(API_FANTOM_TXLIST % (contract_address, block_start, block_end, API_KEY_Chain.FANTOM)).json()[
             "result"
         ]
 
-    elif blockchain == OPTIMISM:
-        data = requests.get(API_OPTIMISM_TXLIST % (contract_address, block_start, block_end, API_KEY_OPTIMISM)).json()[
+    elif blockchain == Chain.OPTIMISM:
+        data = requests.get(API_OPTIMISM_TXLIST % (contract_address, block_start, block_end, API_KEY_Chain.OPTIMISM)).json()[
             "result"
         ]
 
-    elif blockchain == ARBITRUM:
-        data = requests.get(API_ARBITRUM_TXLIST % (contract_address, block_start, block_end, API_KEY_ARBITRUM)).json()[
+    elif blockchain == Chain.ARBITRUM:
+        data = requests.get(API_ARBITRUM_TXLIST % (contract_address, block_start, block_end, API_KEY_Chain.ARBITRUM)).json()[
             "result"
         ]
 
@@ -797,7 +787,7 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
 def get_contract_creation(contract_addresses, blockchain):
     data = None
 
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         data = requests.get(API_ETHERSCAN_GETCONTRACTCREATION % (contract_addresses, API_KEY_ETHERSCAN)).json()[
             "result"
         ]
@@ -838,44 +828,44 @@ def get_logs_http(block_start, block_end, address, topic0, blockchain, **kwargs)
         if key in KEYS_WHITELIST and value:
             optional_parameters += f"&{key}={value}"
 
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         data = requests.get(
             API_ETHERSCAN_GETLOGS % (block_start, block_end, address, topic0, API_KEY_ETHERSCAN) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == POLYGON:
+    elif blockchain == Chain.POLYGON:
         data = requests.get(
             API_POLYGONSCAN_GETLOGS % (block_start, block_end, address, topic0, API_KEY_POLSCAN) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == XDAI:
+    elif blockchain == Chain.XDAI:
         data = requests.get(
             API_GNOSISSCAN_GETLOGS % (block_start, block_end, address, topic0, API_KEY_GNOSISSCAN) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == AVALANCHE:
+    elif blockchain == Chain.AVALANCHE:
         data = requests.get(
-            API_AVALANCHE_GETLOGS % (block_start, block_end, address, topic0, API_KEY_AVALANCHE) + optional_parameters
+            API_AVALANCHE_GETLOGS % (block_start, block_end, address, topic0, API_KEY_Chain.AVALANCHE) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == BINANCE:
+    elif blockchain == Chain.BINANCE:
         data = requests.get(
-            API_BINANCE_GETLOGS % (block_start, block_end, address, topic0, API_KEY_BINANCE) + optional_parameters
+            API_BINANCE_GETLOGS % (block_start, block_end, address, topic0, API_KEY_Chain.BINANCE) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == FANTOM:
+    elif blockchain == Chain.FANTOM:
         data = requests.get(
-            API_FANTOM_GETLOGS % (block_start, block_end, address, topic0, API_KEY_FANTOM) + optional_parameters
+            API_FANTOM_GETLOGS % (block_start, block_end, address, topic0, API_KEY_Chain.FANTOM) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == OPTIMISM:
+    elif blockchain == Chain.OPTIMISM:
         data = requests.get(
-            API_OPTIMISM_GETLOGS % (block_start, block_end, address, topic0, API_KEY_OPTIMISM) + optional_parameters
+            API_OPTIMISM_GETLOGS % (block_start, block_end, address, topic0, API_KEY_Chain.OPTIMISM) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == ARBITRUM:
+    elif blockchain == Chain.ARBITRUM:
         data = requests.get(
-            API_ARBITRUM_GETLOGS % (block_start, block_end, address, topic0, API_KEY_ARBITRUM) + optional_parameters
+            API_ARBITRUM_GETLOGS % (block_start, block_end, address, topic0, API_KEY_Chain.ARBITRUM) + optional_parameters
         ).json()["result"]
 
     elif blockchain == ROPSTEN:

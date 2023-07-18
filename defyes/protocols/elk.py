@@ -5,7 +5,7 @@ import requests
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import POLYGON, ZERO_ADDRESS
+from defyes.constants import Chain, ZERO_ADDRESS
 from defyes.functions import ABI_TOKEN_SIMPLIFIED, get_contract, get_decimals, get_logs_web3, to_token_amount
 from defyes.node import get_node
 
@@ -94,7 +94,7 @@ def get_pool_address(web3, token0, token1, block, blockchain):
 
         symbols.append(symbol)
 
-    pool_blockchain = "matic" if blockchain == POLYGON else blockchain
+    pool_blockchain = "matic" if blockchain == Chain.POLYGON else blockchain
     pool_ids = ["-".join(symbols), "-".join(symbols[::-1])]
     pool_address = None
     for pool_id in pool_ids:

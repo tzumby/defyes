@@ -4,7 +4,7 @@ from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import OPTIMISM, ZERO_ADDRESS
+from defyes.constants import Chain, ZERO_ADDRESS
 from defyes.functions import get_contract, get_decimals, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -68,27 +68,27 @@ def call_contract_method(method, block):
 
 
 def get_comptoller_address(blockchain):
-    if blockchain == OPTIMISM:
+    if blockchain == Chain.OPTIMISM:
         return UNITROLLER_OPTIMISM
 
 
 def get_staking_rewards_factory_address(blockchain):
-    if blockchain == OPTIMISM:
+    if blockchain == Chain.OPTIMISM:
         return STAKING_REWARDS_FACTORY_OPTIMISM
 
 
 def get_veib_address(blockchain):
-    if blockchain == OPTIMISM:
+    if blockchain == Chain.OPTIMISM:
         return VEIB_OPTIMISM
 
 
 def get_ve_dist_address(blockchain):
-    if blockchain == OPTIMISM:
+    if blockchain == Chain.OPTIMISM:
         return VE_DIST_OPTIMISM
 
 
 def get_fee_dist_address(blockchain):
-    if blockchain == OPTIMISM:
+    if blockchain == Chain.OPTIMISM:
         return FEE_DIST_OPTIMISM
 
 
@@ -452,27 +452,27 @@ def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals
     return [underlying_token, underlying_token_balance]
 
 
-# print(underlying_all('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', OPTIMISM, reward=True))
-# print(underlying_all('0x1a4c5e704b65b3406e5432ea2a1136461a60b174', 'latest', OPTIMISM, reward=True))
-# print(underlying('0x1a4c5e704b65b3406e5432ea2a1136461a60b174', '0x4200000000000000000000000000000000000042', 'latest', OPTIMISM, reward=True))
+# print(underlying_all('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', Chain.OPTIMISM, reward=True))
+# print(underlying_all('0x1a4c5e704b65b3406e5432ea2a1136461a60b174', 'latest', Chain.OPTIMISM, reward=True))
+# print(underlying('0x1a4c5e704b65b3406e5432ea2a1136461a60b174', '0x4200000000000000000000000000000000000042', 'latest', Chain.OPTIMISM, reward=True))
 
-# print(underlying('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 'latest', OPTIMISM, reward=True))
+# print(underlying('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 'latest', Chain.OPTIMISM, reward=True))
 # 0xE173cC94d4755b72eB9196Cf50DbcD2Cba54e348
 
-# print(unwrap(198489.26169641, '0x1d073cf59Ae0C169cbc58B6fdD518822ae89173a', 'latest', OPTIMISM))
+# print(unwrap(198489.26169641, '0x1d073cf59Ae0C169cbc58B6fdD518822ae89173a', 'latest', Chain.OPTIMISM))
 # 0x49F4D0222C880D4780b636662F5F18f572f2f88a
 
-# print(underlying('0x49F4D0222C880D4780b636662F5F18f572f2f88a', '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', 'latest', OPTIMISM))
+# print(underlying('0x49F4D0222C880D4780b636662F5F18f572f2f88a', '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', 'latest', Chain.OPTIMISM))
 
-# comptroller_contract = get_contract(get_comptoller_address(OPTIMISM), OPTIMISM, abi=ABI_UNITROLLER)
+# comptroller_contract = get_contract(get_comptoller_address(Chain.OPTIMISM), Chain.OPTIMISM, abi=ABI_UNITROLLER)
 
-# all_rewards('0x49F4D0222C880D4780b636662F5F18f572f2f88a', 'latest', OPTIMISM)
+# all_rewards('0x49F4D0222C880D4780b636662F5F18f572f2f88a', 'latest', Chain.OPTIMISM)
 
-# print(underlying_all('0x49F4D0222C880D4780b636662F5F18f572f2f88a', 'latest', OPTIMISM, reward=True))
+# print(underlying_all('0x49F4D0222C880D4780b636662F5F18f572f2f88a', 'latest', Chain.OPTIMISM, reward=True))
 
 # block = date_to_block('2022-02-10 15:00:00', 'optimism')
-# print(get_locked('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', OPTIMISM))
-# print(get_locked('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', OPTIMISM, reward=True))
+# print(get_locked('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', Chain.OPTIMISM))
+# print(get_locked('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', Chain.OPTIMISM, reward=True))
 
 # block = date_to_block('2023-02-10 15:00:00', 'optimism')
 # x = underlying(

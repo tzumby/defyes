@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import COMP_ETH, ETHEREUM, ZERO_ADDRESS
+from defyes.constants import COMP_ETH, Chain, ZERO_ADDRESS
 from defyes.functions import balance_of, get_contract, get_decimals, to_token_amount
 from defyes.node import get_node
 from defyes.prices import prices
@@ -12,13 +12,13 @@ from defyes.prices import prices
 # COMPTROLLER
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Ethereum - Comptroller Address
-COMPTROLLER_ETHEREUM = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
+COMPTROLLER_Chain = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # COMPOUND LENS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Ethereum - Compound Lens Address
-COMPOUND_LENS_ETHEREUM = "0xdCbDb7306c6Ff46f77B349188dC18cEd9DF30299"
+COMPOUND_LENS_Chain = "0xdCbDb7306c6Ff46f77B349188dC18cEd9DF30299"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -45,23 +45,23 @@ https://docs.compound.finance/v2/
 # get_comptoller_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_comptoller_address(blockchain):
-    if blockchain == ETHEREUM:
-        return COMPTROLLER_ETHEREUM
+    if blockchain == Chain.ETHEREUM:
+        return COMPTROLLER_Chain
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_compound_lens_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_compound_lens_address(blockchain):
-    if blockchain == ETHEREUM:
-        return COMPOUND_LENS_ETHEREUM
+    if blockchain == Chain.ETHEREUM:
+        return COMPOUND_LENS_Chain
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_compound_token_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_compound_token_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return COMP_ETH
 
 
@@ -457,7 +457,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
             underlying_token_price = Decimal(prices.get_price(underlying_token, block, blockchain, web3=web3)[0])
 
             ctoken_decimals = const_call(ctoken_contract.functions.decimals())
-            underlying_decimals = get_decimals(underlying_token, ETHEREUM, web3=web3)
+            underlying_decimals = get_decimals(underlying_token, Chain.ETHEREUM, web3=web3)
             underlying_mantissa = 18 - ctoken_decimals + underlying_decimals
 
             exchange_rate = ctoken_contract.functions.exchangeRateStored().call(block_identifier=block)

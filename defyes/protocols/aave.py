@@ -6,7 +6,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import AAVE_ETH, ABPT_ETH, ETHEREUM, STKAAVE_ETH
+from defyes.constants import AAVE_ETH, ABPT_ETH, Chain, STKAAVE_ETH
 from defyes.functions import balance_of, get_contract, to_token_amount
 from defyes.node import get_node
 
@@ -65,7 +65,7 @@ ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"c
 # get_protocol_data_provider
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_protocol_data_provider(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return PDP_ETHEREUM
 
 
@@ -73,7 +73,7 @@ def get_protocol_data_provider(blockchain):
 # get_lpapr_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_lpapr_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return LPAPR_ETHEREUM
 
 
@@ -81,7 +81,7 @@ def get_lpapr_address(blockchain):
 # get_stkaave_address
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_stkaave_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return STKAAVE_ETH
 
 

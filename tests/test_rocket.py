@@ -1,11 +1,11 @@
 from decimal import Decimal
 
 from defyes import RocketPool
-from defyes.constants import ETHEREUM, ZERO_ADDRESS
+from defyes.constants import Chain, ZERO_ADDRESS
 
 ROCKET_ADDR = "0xae78736Cd615f374D3085123A210448E74Fc6393"
 WALLET = "0xEADB3840596cabF312F2bC88A4Bb0b93A4E1FF5F"
-BLOCKCHAIN = ETHEREUM
+BLOCKCHAIN = Chain.ETHEREUM
 
 
 def test_underlying():

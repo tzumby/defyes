@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Union
 
-from defyes.constants import DAI_ETH, ETHEREUM, ETHTokenAddr
+from defyes.constants import DAI_ETH, Chain, ETHTokenAddr
 from defyes.functions import balance_of, get_contract
 from defyes.node import get_node
 
@@ -49,12 +49,12 @@ def get_vault_data(vault_id, block, web3=None):
     vault_data = {}
 
     if web3 is None:
-        web3 = get_node(ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM, block=block)
 
-    cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
-    ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY, block=block)
-    vat_contract = get_contract(VAT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_VAT, block=block)
-    spot_contract = get_contract(SPOT_ADDRESS, ETHEREUM, web3=web3, abi=ABI_SPOT, block=block)
+    cpd_manager_contract = get_contract(CDP_MANAGER_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block)
+    ilk_registry_contract = get_contract(ILK_REGISTRY_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_ILK_REGISTRY, block=block)
+    vat_contract = get_contract(VAT_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_VAT, block=block)
+    spot_contract = get_contract(SPOT_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_SPOT, block=block)
 
     ilk = cpd_manager_contract.functions.ilks(vault_id).call(block_identifier=block)
 
@@ -89,7 +89,7 @@ def underlying(vault_id, block, web3=None):
     result = []
 
     if web3 is None:
-        web3 = get_node(ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM, block=block)
 
     vault_data = get_vault_data(vault_id, block, web3=web3)
 
@@ -105,9 +105,9 @@ def underlying(vault_id, block, web3=None):
 
 def get_delegated_MKR(wallet: str, block: Union[int, str], web3=None, decimals=True) -> Union[int, float]:
     if web3 is None:
-        web3 = get_node(ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM, block=block)
 
     IOU_token_address = "0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7"
-    balance = balance_of(wallet, IOU_token_address, block, ETHEREUM, web3=web3, decimals=decimals)
+    balance = balance_of(wallet, IOU_token_address, block, Chain.ETHEREUM, web3=web3, decimals=decimals)
 
     return [[ETHTokenAddr.MKR, balance]]

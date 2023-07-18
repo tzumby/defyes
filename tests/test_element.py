@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import Element
-from defyes.constants import E_ADDRESS, ETHEREUM, ETHTokenAddr
+from defyes.constants import E_ADDRESS, Chain, ETHTokenAddr
 
 LPTOKEN_ADDR = "0x06325440D014e39736583c165C2963BA99fAf14E"
 WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
@@ -17,7 +17,7 @@ WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 
 def test_addresses():
     block = 17000000
-    addresses = Element.get_addresses(block, ETHEREUM)
+    addresses = Element.get_addresses(block, Chain.ETHEREUM)
     assert len(addresses) == 37
     assert [item[-1] for item in addresses] == [
         1663355860,
@@ -63,7 +63,7 @@ def test_addresses():
 def test_underlying():
     block = 16627530
     name = "LP Element Principal Token yvCurve-stETH-24FEB23"
-    underlying = Element.underlying(name, WALLET, block, blockchain=ETHEREUM)
+    underlying = Element.underlying(name, WALLET, block, blockchain=Chain.ETHEREUM)
     assert underlying == [
         [E_ADDRESS, Decimal("744.5556663118056659868728133")],
         [ETHTokenAddr.stETH, Decimal("766.3546455242681872680648993")],
@@ -72,7 +72,7 @@ def test_underlying():
 
 def test_underlying_all():
     block = 16627530
-    underlying = Element.underlying_all(WALLET, block, blockchain=ETHEREUM)
+    underlying = Element.underlying_all(WALLET, block, blockchain=Chain.ETHEREUM)
     assert underlying == [
         {
             "protocol": "Element",

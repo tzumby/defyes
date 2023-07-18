@@ -5,7 +5,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import AURA_ETH, ETHEREUM
+from defyes.constants import AURA_ETH, Chain
 from defyes.functions import get_contract, get_contract_creation, get_decimals, last_block, to_token_amount
 from defyes.helpers import call_contract_method
 from defyes.node import get_node
@@ -94,7 +94,7 @@ DB_FILE = Path(__file__).parent / "db.json"
 def get_pool_rewarders(booster_contract, lptoken_address, block):
     if isinstance(block, str):
         if block == "latest":
-            block = last_block(ETHEREUM)
+            block = last_block(Chain)
         else:
             raise ValueError("Incorrect block.")
 
@@ -415,14 +415,14 @@ def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: 
 def update_db(output_file=DB_FILE, block="latest"):
     db_data = {"pools": {}}
 
-    web3 = get_node(ETHEREUM, block=block)
-    booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
+    web3 = get_node(Chain, block=block)
+    booster = get_contract(BOOSTER, Chain, web3=web3, abi=ABI_BOOSTER, block=block)
     pools_length = booster.functions.poolLength().call(block_identifier=block)
 
     for i in range(pools_length):
         pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
 
-        rewarder_data = get_contract_creation(pool_info[3], ETHEREUM)
+        rewarder_data = get_contract_creation(pool_info[3], Chain)
         rewarder_creation_tx = web3.eth.get_transaction(rewarder_data[0]["txHash"])
 
         if pool_info[0] in db_data["pools"].keys():

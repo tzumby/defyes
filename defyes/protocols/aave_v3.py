@@ -6,7 +6,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import ARBITRUM, AVALANCHE, ETHEREUM, FANTOM, OPTIMISM, POLYGON, STKAAVE_ETH
+from defyes.constants import Chain
 from defyes.functions import get_contract, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -17,30 +17,30 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider - Ethereum
 PROTOCOL_DATA_PROVIDER = {
-    ETHEREUM: "0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3",
-    OPTIMISM: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
-    ARBITRUM: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
-    POLYGON: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
-    FANTOM: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
-    AVALANCHE: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
+    Chain.ETHEREUM: "0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3",
+    Chain.OPTIMISM: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
+    Chain.ARBITRUM: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
+    Chain.POLYGON: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
+    Chain.FANTOM: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
+    Chain.AVALANCHE: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
 }
 
 POOL_ADDRESSES_PROVIDER = {
-    ETHEREUM: "0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e",
-    OPTIMISM: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
-    ARBITRUM: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
-    POLYGON: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
-    FANTOM: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
-    AVALANCHE: "0x770ef9f4fe897e59daCc474EF11238303F9552b6",
+    Chain.ETHEREUM: "0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e",
+    Chain.OPTIMISM: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
+    Chain.ARBITRUM: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
+    Chain.POLYGON: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
+    Chain.FANTOM: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
+    Chain.AVALANCHE: "0x770ef9f4fe897e59daCc474EF11238303F9552b6",
 }
 
 CHAINLINK_NATIVE_USD = {
-    ETHEREUM: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
-    OPTIMISM: "0x13e3Ee699D1909E989722E753853AE30b17e08c5",
-    ARBITRUM: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
-    POLYGON: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0",
-    FANTOM: "0xf4766552D15AE4d256Ad41B6cf2933482B0680dc",
-    AVALANCHE: "0x0A77230d17318075983913bC2145DB16C7366156",
+    Chain.ETHEREUM: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+    Chain.OPTIMISM: "0x13e3Ee699D1909E989722E753853AE30b17e08c5",
+    Chain.ARBITRUM: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+    Chain.POLYGON: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0",
+    Chain.FANTOM: "0xf4766552D15AE4d256Ad41B6cf2933482B0680dc",
+    Chain.AVALANCHE: "0x0A77230d17318075983913bC2145DB16C7366156",
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ def get_all_rewards(
     Output: List of 2-element lists: [[reward_token_1_address, balance_1], [t2, b2], ... ]
     """
 
-    if blockchain != ETHEREUM:
+    if blockchain != Chain.ETHEREUM:
         return None
 
     all_rewards = []

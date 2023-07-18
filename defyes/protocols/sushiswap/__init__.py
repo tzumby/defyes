@@ -10,7 +10,7 @@ from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound
 
 from defyes.cache import const_call
-from defyes.constants import ETHEREUM, POLYGON, XDAI, ZERO_ADDRESS
+from defyes.constants import Chain, ZERO_ADDRESS
 from defyes.functions import (
     block_to_date,
     date_to_block,
@@ -72,16 +72,16 @@ def get_chef_contract(web3, block, blockchain, v1=False):
     :param v1:
     :return:
     """
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         if v1 is False:
             chef_contract = get_contract(MASTERCHEF_V2, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
         else:
             chef_contract = get_contract(MASTERCHEF_V1, blockchain, web3=web3, abi=ABI_CHEF_V1, block=block)
 
-    elif blockchain == POLYGON:
+    elif blockchain == Chain.POLYGON:
         chef_contract = get_contract(MINICHEF_POLYGON, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
 
-    elif blockchain == XDAI:
+    elif blockchain == Chain.XDAI:
         chef_contract = get_contract(MINICHEF_XDAI, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
 
     return chef_contract
@@ -113,7 +113,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
         with open(DB_FILE) as db_file:
             db_data = json.load(db_file)
 
-        if blockchain == ETHEREUM:
+        if blockchain == Chain.ETHEREUM:
             try:
                 result["chef_contract"] = get_chef_contract(web3, block, blockchain)
                 result["pool_info"] = {
@@ -183,8 +183,8 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
 
                 return result
 
-        # This section searches if the pool it's a V1 pool (only in ETHEREUM)
-        if blockchain == ETHEREUM:
+        # This section searches if the pool it's a V1 pool (only in Chain.ETHEREUM)
+        if blockchain == Chain.ETHEREUM:
             result["chef_contract"] = get_chef_contract(web3, block, blockchain, v1=True)
 
             pool_length = result["chef_contract"].functions.poolLength().call(block_identifier=block)
@@ -798,12 +798,12 @@ def update_db():
             # Reading from json file
             db_data = json.load(db_file)
     except:
-        db_data = {ETHEREUM: {"poolsv2": {}, "poolsv1": {}}, POLYGON: {"pools": {}}, XDAI: {"pools": {}}}
+        db_data = {Chain.ETHEREUM: {"poolsv2": {}, "poolsv1": {}}, Chain.POLYGON: {"pools": {}}, Chain.XDAI: {"pools": {}}}
 
-    web3 = get_node(ETHEREUM)
+    web3 = get_node(Chain.ETHEREUM)
 
-    master_chefv2 = get_chef_contract(web3, "latest", ETHEREUM)
-    db_pool_length = len(db_data[ETHEREUM]["poolsv2"])
+    master_chefv2 = get_chef_contract(web3, "latest", Chain.ETHEREUM)
+    db_pool_length = len(db_data[Chain.ETHEREUM]["poolsv2"])
     pools_delta = master_chefv2.functions.poolLength().call(block_identifier="latest") - db_pool_length
 
     if pools_delta > 0:
@@ -811,10 +811,10 @@ def update_db():
 
         for i in range(pools_delta):
             lptoken_address = master_chefv2.functions.lpToken(db_pool_length + i).call(block_identifier="latest")
-            db_data[ETHEREUM]["poolsv2"][lptoken_address] = db_pool_length + i
+            db_data[Chain.ETHEREUM]["poolsv2"][lptoken_address] = db_pool_length + i
 
-    master_chefv1 = get_chef_contract(web3, "latest", ETHEREUM, v1=True)
-    db_pool_length = len(db_data[ETHEREUM]["poolsv1"])
+    master_chefv1 = get_chef_contract(web3, "latest", Chain.ETHEREUM, v1=True)
+    db_pool_length = len(db_data[Chain.ETHEREUM]["poolsv1"])
     pools_delta = master_chefv1.functions.poolLength().call(block_identifier="latest") - db_pool_length
 
     if pools_delta > 0:
@@ -822,12 +822,12 @@ def update_db():
 
         for i in range(pools_delta):
             lptoken_address = master_chefv1.functions.poolInfo(db_pool_length + i).call(block_identifier="latest")[0]
-            db_data[ETHEREUM]["poolsv1"][lptoken_address] = db_pool_length + i
+            db_data[Chain.ETHEREUM]["poolsv1"][lptoken_address] = db_pool_length + i
 
-    web3 = get_node(POLYGON)
+    web3 = get_node(Chain.POLYGON)
 
-    mini_chef = get_chef_contract(web3, "latest", POLYGON)
-    db_pool_length = len(db_data[POLYGON]["pools"])
+    mini_chef = get_chef_contract(web3, "latest", Chain.POLYGON)
+    db_pool_length = len(db_data[Chain.POLYGON]["pools"])
     pools_delta = mini_chef.functions.poolLength().call(block_identifier="latest") - db_pool_length
 
     if pools_delta > 0:
@@ -835,12 +835,12 @@ def update_db():
 
         for i in range(pools_delta):
             lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call(block_identifier="latest")
-            db_data[POLYGON]["pools"][lptoken_address] = db_pool_length + i
+            db_data[Chain.POLYGON]["pools"][lptoken_address] = db_pool_length + i
 
-    web3 = get_node(XDAI)
+    web3 = get_node(Chain.XDAI)
 
-    mini_chef = get_chef_contract(web3, "latest", XDAI)
-    db_pool_length = len(db_data[XDAI]["pools"])
+    mini_chef = get_chef_contract(web3, "latest", Chain.XDAI)
+    db_pool_length = len(db_data[Chain.XDAI]["pools"])
     pools_delta = mini_chef.functions.poolLength().call(block_identifier="latest") - db_pool_length
 
     if pools_delta > 0:
@@ -848,14 +848,14 @@ def update_db():
 
         for i in range(pools_delta):
             lptoken_address = mini_chef.functions.lpToken(db_pool_length + i).call(block_identifier="latest")
-            db_data[XDAI]["pools"][lptoken_address] = db_pool_length + i
+            db_data[Chain.XDAI]["pools"][lptoken_address] = db_pool_length + i
 
     if update is True:
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/SushiSwap_db.json", "w") as db_file:
             json.dump(db_data, db_file)
 
 
-# blockchain = ETHEREUM
+# blockchain = Chain.ETHEREUM
 # lptoken = '0xceff51756c56ceffca006cd410b03ffc46dd3a58'
 # blockstart = date_to_block('2023-02-20 18:24:00',blockchain)
 # blockend = date_to_block('2023-02-21 18:24:00',blockchain)

@@ -2,25 +2,30 @@ import json
 import os
 from pathlib import Path
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# BLOCKCHAINS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-ETHEREUM = "ethereum"
-POLYGON = "polygon"
-XDAI = "xdai"
-ARBITRUM = "arbitrum"
-BINANCE = "binance"
-AVALANCHE = "avalanche"
-FANTOM = "fantom"
-OPTIMISM = "optimism"
-AVAX = "avax"
-ROPSTEN = "ropsten"
-KOVAN = "kovan"
-GOERLI = "goerli"
-HARMONY = "harmony"
-METIS = "metis"
+from dataclasses import dataclass, asdict
+
+@dataclass(frozen=True)
+class ConstantList:
+    @classmethod
+    def to_dict(self):
+        return {attr: getattr(self, attr) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")}
+
+@dataclass(frozen=True)
+class Chain(ConstantList):
+    ETHEREUM = "ethereum"
+    POLYGON = "polygon"
+    # FIXME: XDAI should be eventually removed
+    GNOSIS = "gnosis"
+    XDAI = "xdai"
+    ARBITRUM = "arbitrum"
+    BINANCE = "binance"
+    AVALANCHE = "avalanche"
+    FANTOM = "fantom"
+    OPTIMISM = "optimism"
+    AVAX = "avax"
+    ROPSTEN = "ropsten"
+    KOVAN = "kovan"
+    GOERLI = "goerli"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # TESTNET HEADER

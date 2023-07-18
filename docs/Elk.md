@@ -16,7 +16,7 @@
   from defyes import Elk
 
 
-  f1 = Elk.get_lptoken_data('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', ETHEREUM)
+  f1 = Elk.get_lptoken_data('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', Chain.ETHEREUM)
 
   print(f1)
 
@@ -44,9 +44,9 @@
 
   from defyes import Elk
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
   
-  f2 = Elk.get_pool_address(web3, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE', 'latest', ETHEREUM)
+  f2 = Elk.get_pool_address(web3, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE', 'latest', Chain.ETHEREUM)
   
   print(f2)
   
@@ -78,9 +78,9 @@
 
   from defyes import Elk
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
-  f2 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', ETHEREUM)
-  f3 = Elk.get_elk_rewards(web3, f2, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+  f2 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', Chain.ETHEREUM)
+  f3 = Elk.get_elk_rewards(web3, f2, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f3)
 
@@ -111,9 +111,9 @@
 
   from defyes import Elk
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
-  f3 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', ETHEREUM)
-  f4 = Elk.get_booster_rewards(web3, f3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+  f3 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', Chain.ETHEREUM)
+  f4 = Elk.get_booster_rewards(web3, f3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
   
   print(f4)
 
@@ -143,7 +143,7 @@
 
   from defyes import Elk
 
-  f5 = Elk.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xF220eA963D27Ebe782f09403017B29692A4fC4aE', 'latest', ETHEREUM)
+  f5 = Elk.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xF220eA963D27Ebe782f09403017B29692A4fC4aE', 'latest', Chain.ETHEREUM)
 
   print(f5)
 
@@ -175,7 +175,7 @@
 
   from defyes import Elk
 
-  f6 = Elk.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', ETHEREUM)
+  f6 = Elk.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', Chain.ETHEREUM)
 
   print(f6)
 
@@ -207,7 +207,7 @@
 
   from defyes import Elk
 
-  f7 = Elk.pool_balances('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', ETHEREUM)
+  f7 = Elk.pool_balances('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', Chain.ETHEREUM)
   
   print(f7)
 
@@ -235,7 +235,7 @@
 
   from defyes import Elk
 
-  f8 = Elk.swap_fees('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 16380015, 'latest', ETHEREUM)
+  f8 = Elk.swap_fees('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 16380015, 'latest', Chain.ETHEREUM)
 
   print(f8)
 

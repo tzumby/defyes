@@ -5,7 +5,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import XDAI, ZERO_ADDRESS
+from defyes.constants import Chain, ZERO_ADDRESS
 from defyes.functions import BlockchainError, get_contract, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -66,14 +66,14 @@ pool_ids_farming = {
 
 
 def get_pool_ids_farming():
-    web3 = get_node(XDAI, "latest")
+    web3 = get_node(Chain.XDAI, "latest")
 
     chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
     poolLength = chef_contract.functions.poolLength().call(block_identifier="latest")
 
     for i in range(poolLength):
         lptoken_address = const_call(chef_contract.functions.lpToken(i))
-        pool_ids_farming[XDAI][lptoken_address] = i
+        pool_ids_farming[Chain.XDAI][lptoken_address] = i
 
     return pool_ids_farming
 
@@ -118,8 +118,8 @@ def get_all_rewards(
         }
 
     """
-    if blockchain != XDAI:
-        raise BlockchainError(f"{blockchain} not {XDAI}")
+    if blockchain != Chain.XDAI:
+        raise BlockchainError(f"{blockchain} not {Chain.XDAI}")
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -131,18 +131,18 @@ def get_all_rewards(
         "protocol": "Symmetric",
         "blockchain": blockchain,
         "lptoken_address": lptoken_address,
-        "block": block if block != "latest" else last_block(XDAI),
+        "block": block if block != "latest" else last_block(Chain.XDAI),
         "rewards": [],
     }
 
-    if lptoken_address not in pool_ids_farming[XDAI]:
+    if lptoken_address not in pool_ids_farming[Chain.XDAI]:
         return result
 
-    pool_id_farming = pool_ids_farming[XDAI][lptoken_address]
+    pool_id_farming = pool_ids_farming[Chain.XDAI][lptoken_address]
     chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
     symm_rewards = chef_contract.functions.pendingSymm(pool_id_farming, wallet).call(block_identifier=block)
     result["rewards"].append(
-        {"token": SYMM, "balance": to_token_amount(SYMM, symm_rewards, XDAI, web3=web3, decimals=decimals)}
+        {"token": SYMM, "balance": to_token_amount(SYMM, symm_rewards, Chain.XDAI, web3=web3, decimals=decimals)}
     )
 
     rewarder_contract_address = const_call(chef_contract.functions.rewarder(pool_id_farming))
@@ -223,8 +223,8 @@ def underlying(
         }
     """
 
-    if blockchain != XDAI:
-        raise BlockchainError(f"{blockchain} not {XDAI}")
+    if blockchain != Chain.XDAI:
+        raise BlockchainError(f"{blockchain} not {Chain.XDAI}")
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -238,7 +238,7 @@ def underlying(
         "protocol": "Symmetric",
         "blockchain": blockchain,
         "lptoken_address": lptoken_address,
-        "block": block if block != "latest" else last_block(XDAI),
+        "block": block if block != "latest" else last_block(Chain.XDAI),
         "unstaked": [],
     }
 
@@ -273,8 +273,8 @@ def underlying(
         for token_address, pool_balance in zip(pool_tokens, pool_balances):
             amount = to_token_amount(token_address, pool_balance, blockchain, web3, decimals)
             result["unstaked"].append({"token": token_address, "balance": amount * pool_balance_fraction})
-        if lptoken_address in pool_ids_farming[XDAI]:
-            pool_id_farming = pool_ids_farming[XDAI][lptoken_address]
+        if lptoken_address in pool_ids_farming[Chain.XDAI]:
+            pool_id_farming = pool_ids_farming[Chain.XDAI][lptoken_address]
             chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
             pool_staked_fraction = Decimal(
                 chef_contract.functions.userInfo(pool_id_farming, wallet).call(block_identifier=block)[0]
@@ -339,8 +339,8 @@ def pool_balances(
         }
     """
 
-    if blockchain != XDAI:
-        raise BlockchainError(f"{blockchain} not {XDAI}")
+    if blockchain != Chain.XDAI:
+        raise BlockchainError(f"{blockchain} not {Chain.XDAI}")
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -353,7 +353,7 @@ def pool_balances(
         "protocol": "Symmetric",
         "blockchain": blockchain,
         "lptoken_address": lptoken_address,
-        "block": block if block != "latest" else last_block(XDAI),
+        "block": block if block != "latest" else last_block(Chain.XDAI),
         "pool_balances": [],
     }
 
@@ -434,8 +434,8 @@ def get_rewards_per_second(
 
     """
 
-    if blockchain != XDAI:
-        raise BlockchainError(f"{blockchain} not {XDAI}")
+    if blockchain != Chain.XDAI:
+        raise BlockchainError(f"{blockchain} not {Chain.XDAI}")
 
     if web3 is None:
         web3 = get_node(blockchain, block=block)
@@ -446,14 +446,14 @@ def get_rewards_per_second(
         "protocol": "Symmetric",
         "blockchain": blockchain,
         "lptoken_address": lptoken_address,
-        "block": block if block != "latest" else last_block(XDAI),
+        "block": block if block != "latest" else last_block(Chain.XDAI),
         "reward_rates": [],
     }
 
-    if lptoken_address not in pool_ids_farming[XDAI]:
+    if lptoken_address not in pool_ids_farming[Chain.XDAI]:
         return result
 
-    pool_id_farming = pool_ids_farming[XDAI][lptoken_address]
+    pool_id_farming = pool_ids_farming[Chain.XDAI][lptoken_address]
     chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
     alloc_point = chef_contract.functions.poolInfo(pool_id_farming).call(block_identifier=block)[2]
     total_alloc_point = chef_contract.functions.totalAllocPoint().call(block_identifier=block)
