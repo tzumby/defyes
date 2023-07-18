@@ -35,7 +35,12 @@ START_BLOCK = {
 
 class Vault(Vault):
     ADDR: str = "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
-    default_addresses: dict[str, str] = {Chain.ETHEREUM: ADDR, Chain.POLYGON: ADDR, Chain.GNOSIS: ADDR, Chain.ARBITRUM: ADDR}
+    default_addresses: dict[str, str] = {
+        Chain.ETHEREUM: ADDR,
+        Chain.POLYGON: ADDR,
+        Chain.GNOSIS: ADDR,
+        Chain.ARBITRUM: ADDR,
+    }
 
     def get_pool_data(self, pool_id: int) -> list:
         tokens = []
