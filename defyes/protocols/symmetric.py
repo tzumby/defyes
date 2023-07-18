@@ -104,7 +104,7 @@ def get_all_rewards(
     dict
         {
             'protocol': 'Symmetric',
-            'blockchain': 'xdai',
+            'blockchain': Chain.GNOSIS,
             'lptoken_address': '0x650f5d96E83d3437bf5382558cB31F0ac5536684',
             'block': 26502427,
             'rewards': [{
@@ -201,7 +201,7 @@ def underlying(
     dict
         {
             'protocol': 'Symmetric',
-            'blockchain': 'xdai',
+            'blockchain': Chain.GNOSIS,
             'lptoken_address': '0x650f5d96E83d3437bf5382558cB31F0ac5536684',
             'block': 28440966,
             'unstaked': [{
@@ -317,7 +317,7 @@ def pool_balances(
     dict
         {
             'protocol': 'Symmetric',
-            'blockchain': 'xdai',
+            'blockchain': Chain.GNOSIS,
             'lptoken_address': '0x650f5d96E83d3437bf5382558cB31F0ac5536684',
             'block': 28440966,
             'unstaked': [{
@@ -419,7 +419,7 @@ def get_rewards_per_second(
     dict
         {
             'protocol': 'Symmetric',
-            'blockchain': 'xdai',
+            'blockchain': Chain.GNOSIS,
             'lptoken_address': '0x650f5d96E83d3437bf5382558cB31F0ac5536684',
             'block': 25502427,
             'reward_rates': [{
