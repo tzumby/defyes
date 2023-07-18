@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import RealT
-from defyes.constants import Chain, WXDAI
+from defyes.constants import Chain, GnosisTokenAddr
 from defyes.node import get_node
 
 TEST_BLOCK = 27450341
@@ -15,4 +15,4 @@ WEB3 = get_node(blockchain=Chain.XDAI, block=TEST_BLOCK)
 def test_underlying(decimals):
     x = RealT.underlying(TEST_WALLET, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals)
     b = Decimal(702419123657008433506235) / Decimal(10**18 if decimals else 1)
-    assert x == [[WXDAI, b]]
+    assert x == [[GnosisTokenAddr.WXDAI, b]]

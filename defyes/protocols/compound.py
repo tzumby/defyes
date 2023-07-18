@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import COMP_ETH, Chain, ZERO_ADDRESS
+from defyes.constants import ETHTokenAddr, Chain, ZERO_ADDRESS
 from defyes.functions import balance_of, get_contract, get_decimals, to_token_amount
 from defyes.node import get_node
 from defyes.prices import prices
@@ -62,7 +62,7 @@ def get_compound_lens_address(blockchain):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_compound_token_address(blockchain):
     if blockchain == Chain.ETHEREUM:
-        return COMP_ETH
+        return ETHTokenAddr.COMP
 
 
 def get_ctokens_contract_list(blockchain, web3, block):
@@ -453,7 +453,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
             )
             comp_borrow_per_day = comp_borrow_speed_per_block * blocks_per_day
 
-            comp_price = Decimal(prices.get_price(COMP_ETH, block, blockchain, web3=web3)[0])
+            comp_price = Decimal(prices.get_price(ETHTokenAddr.COMP, block, blockchain, web3=web3)[0])
             underlying_token_price = Decimal(prices.get_price(underlying_token, block, blockchain, web3=web3)[0])
 
             ctoken_decimals = const_call(ctoken_contract.functions.decimals())

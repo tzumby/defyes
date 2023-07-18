@@ -22,8 +22,7 @@ def test_get_nproxy_address():
 
 
 def test_get_snote_address():
-    snote_address = Notional.get_snote_address(Chain.ETHEREUM)
-    assert Notional.SNOTE_ETH == snote_address
+    assert ETHTokenAddr.SNOTE == Notional.get_snote_address(Chain.ETHEREUM)
 
 
 def test_get_markets_data():

@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import MAI_POL, Chain, GnosisTokenAddr
+from defyes.constants import PolygonTokenAddr, Chain, GnosisTokenAddr
 from defyes.functions import block_to_timestamp, get_contract, get_decimals, timestamp_to_block, to_token_amount
 from defyes.node import get_node
 
@@ -173,7 +173,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
             matic_usd_price /= Decimal(10**price_feed_decimals)
 
             oracle_contract = get_contract(ORACLE_1INCH_POLYGON, Chain.POLYGON, abi=ABI_ORACLE, block=block_polygon)
-            rate = Decimal(oracle_contract.functions.getRateToEth(MAI_POL, False).call(block_identifier=block_polygon))
+            rate = Decimal(oracle_contract.functions.getRateToEth(PolygonTokenAddr.MAI, False).call(block_identifier=block_polygon))
             rate /= Decimal(10 ** abs(18 + 18 - get_decimals(debt_address, blockchain, web3=web3)))
 
             vault_data["debt_token_usd_value"] = matic_usd_price * rate

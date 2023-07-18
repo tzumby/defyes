@@ -5,7 +5,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import AURA_ETH, Chain
+from defyes.constants import ETHTokenAddr, Chain
 from defyes.functions import get_contract, get_contract_creation, get_decimals, last_block, to_token_amount
 from defyes.helpers import call_contract_method
 from defyes.node import get_node
@@ -183,10 +183,10 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
         EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block
     )
 
-    extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, AURA_ETH).call(block_identifier=block)
+    extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, ETHTokenAddr.AURA).call(block_identifier=block)
 
     if extra_reward > 0:
-        extra_rewards_airdrop = [AURA_ETH, to_token_amount(AURA_ETH, extra_reward, blockchain, web3, decimals)]
+        extra_rewards_airdrop = [ETHTokenAddr.AURA, to_token_amount(ETHTokenAddr.AURA, extra_reward, blockchain, web3, decimals)]
 
     return extra_rewards_airdrop
 
@@ -198,7 +198,7 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
 def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
     aura_amount = 0
 
-    aura_contract = get_contract(AURA_ETH, blockchain, web3=web3, abi=ABI_AURA, block=block)
+    aura_contract = get_contract(ETHTokenAddr.AURA, blockchain, web3=web3, abi=ABI_AURA, block=block)
 
     aura_total_supply = aura_contract.functions.totalSupply().call(block_identifier=block)
     init_mint_amount = aura_contract.functions.INIT_MINT_AMOUNT().call(block_identifier=block)
@@ -222,10 +222,10 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
             aura_amount = amount_till_max
 
     if not decimals:
-        aura_decimals = get_decimals(AURA_ETH, blockchain, web3=web3)
+        aura_decimals = get_decimals(ETHTokenAddr.AURA, blockchain, web3=web3)
         aura_amount = aura_amount * Decimal(10**aura_decimals)
 
-    return [AURA_ETH, aura_amount]
+    return [ETHTokenAddr.AURA, aura_amount]
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 
     aura_locker = aura_locker_contract.functions.balances(wallet).call(block_identifier=block)[0]
 
-    result = [[AURA_ETH, to_token_amount(AURA_ETH, aura_locker, blockchain, web3, decimals)]]
+    result = [[ETHTokenAddr.AURA, to_token_amount(ETHTokenAddr.AURA, aura_locker, blockchain, web3, decimals)]]
 
     if reward is True:
         rewards = []

@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import Chain, SNOTE_ETH
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import block_to_timestamp, get_contract, to_token_amount
 from defyes.node import get_node
 
@@ -26,7 +26,7 @@ def get_nproxy_address(blockchain):
 
 def get_snote_address(blockchain):
     if blockchain == Chain.ETHEREUM:
-        return SNOTE_ETH
+        return ETHTokenAddr.SNOTE
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

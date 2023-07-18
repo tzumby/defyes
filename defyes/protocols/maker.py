@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Union
 
-from defyes.constants import DAI_ETH, Chain, ETHTokenAddr
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import balance_of, get_contract
 from defyes.node import get_node
 
@@ -66,7 +66,7 @@ def get_vault_data(vault_id, block, web3=None):
 
     vault_data["mat"] = spot_contract.functions.ilks(ilk).call(block_identifier=block)[1] / Decimal(10**27)
     vault_data["gem"] = ilk_info[4]
-    vault_data["dai"] = DAI_ETH
+    vault_data["dai"] = ETHTokenAddr.DAI
     vault_data["ink"] = urn_data[0] / Decimal(10**18)
     vault_data["art"] = urn_data[1] / Decimal(10**18)
 

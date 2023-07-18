@@ -3,7 +3,7 @@ import datetime
 import pytz
 from pytest import raises
 
-from defyes.constants import Chain, STETH_ETH, USDC_ETH, ETHTokenAddr
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import date_to_block, get_symbol, search_proxy_impl_address
 from defyes.node import get_node
 
@@ -60,14 +60,14 @@ def test_search_proxy_impl_address():
     assert implementation == "0x2157A7894439191e520825fe9399aB8655E0f708"
 
     # OpenZeppelins' Unstructured Storage proxy pattern
-    implementation = search_proxy_impl_address(USDC_ETH, Chain.ETHEREUM)
+    implementation = search_proxy_impl_address(ETHTokenAddr.USDC, Chain.ETHEREUM)
     assert implementation == "0xa2327a938Febf5FEC13baCFb16Ae10EcBc4cbDCF"
 
-    implementation = search_proxy_impl_address(USDC_ETH, Chain.ETHEREUM, block=10800000)
+    implementation = search_proxy_impl_address(ETHTokenAddr.USDC, Chain.ETHEREUM, block=10800000)
     assert implementation == "0xB7277a6e95992041568D9391D09d0122023778A2"
 
     # OpenZeppelins' EIP-897 DelegateProxy
-    implementation = search_proxy_impl_address(STETH_ETH, Chain.ETHEREUM)
+    implementation = search_proxy_impl_address(ETHTokenAddr.stETH, Chain.ETHEREUM)
     assert implementation == "0x17144556fd3424EDC8Fc8A4C940B2D04936d17eb"
 
     implementation = search_proxy_impl_address("0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B", Chain.ETHEREUM)

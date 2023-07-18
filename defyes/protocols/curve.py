@@ -7,7 +7,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import CRV_ETH, CRV_XDAI, E_ADDRESS, Chain, X3CRV_ETH, X3CRV_XDAI, ZERO_ADDRESS
+from defyes.constants import ETHTokenAddr, E_ADDRESS, Chain, ZERO_ADDRESS, GnosisTokenAddr
 from defyes.functions import (
     balance_of,
     block_to_date,
@@ -282,8 +282,8 @@ def get_pool_data(web3, minter, block, blockchain):
             continue
 
         # IMPORTANT: AD-HOC FIX UNTIL WE FIND A WAY TO SOLVE HOW META POOLS WORK FOR DIFFERENT POOL TYPES AND SIDE-CHAINS
-        # if token_address == X3CRV_ETH or token_address == X3CRV_POL or token_address == X3CRV_XDAI:
-        if token_address == X3CRV_ETH:
+        # if token_address == ETHTokenAddr.X3CRV or token_address == X3CRV_POL or token_address == GnosisTokenAddr.X3CRV:
+        if token_address == ETHTokenAddr.X3CRV:
             pool_data["is_metapool"] = True
 
             x3crv_minter = get_pool_address(web3, token_address, block, blockchain)
@@ -385,9 +385,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 
         # CRV rewards
         if blockchain == Chain.ETHEREUM:
-            token_address = CRV_ETH
+            token_address = ETHTokenAddr.CRV
         elif blockchain == Chain.XDAI:
-            token_address = CRV_XDAI
+            token_address = GnosisTokenAddr.CRV
 
         token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
         all_rewards.append([token_address, to_token_amount(token_address, token_reward, blockchain, web3, decimals)])
@@ -410,9 +410,9 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         if gauge_version == "LiquidityGaugeV3":
             # CRV rewards
             if blockchain == Chain.ETHEREUM:
-                token_address = CRV_ETH
+                token_address = ETHTokenAddr.CRV
             elif blockchain == Chain.XDAI:
-                token_address = CRV_XDAI
+                token_address = GnosisTokenAddr.CRV
 
             token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
             all_rewards.append(
@@ -644,7 +644,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
 
         balance = pool_contract.functions.balances(i).call(block_identifier=block)
         # Fetches the 3CR underlying balances in the 3pool
-        if token_address != X3CRV_ETH and token_address != X3CRV_XDAI:
+        if token_address != ETHTokenAddr.X3CRV and token_address != GnosisTokenAddr.X3CRV:
             balances.append([token_address, to_token_amount(token_address, balance, blockchain, web3, decimals)])
         else:
             if meta is False:

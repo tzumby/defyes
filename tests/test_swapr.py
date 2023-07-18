@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Swapr
-from defyes.constants import Chain, GNO_XDAI
+from defyes.constants import Chain, GnosisTokenAddr
 from defyes.functions import get_contract, get_node
 
 TEST_BLOCK = 27450341
@@ -25,7 +25,7 @@ BER_XDAI = "0x05698e7346Ea67Cfb088f64Ad8962B18137d17c0"
 @pytest.mark.parametrize("db", [True])
 def test_get_distribution_contracts(campaigns, db):
     staking_rewards_contract = get_contract(Swapr.SRC_XDAI, Chain.XDAI, web3=WEB3, abi=Swapr.ABI_SRC, block=TEST_BLOCK)
-    x = Swapr.get_distribution_contracts(WEB3, GNO_XDAI, staking_rewards_contract, campaigns, TEST_BLOCK, Chain.XDAI, db=db)
+    x = Swapr.get_distribution_contracts(WEB3, GnosisTokenAddr.GNO, staking_rewards_contract, campaigns, TEST_BLOCK, Chain.XDAI, db=db)
     assert x == []
 
 
@@ -35,7 +35,7 @@ def test_get_lptoken_data():
         "decimals": 18,
         "totalSupply": 94233751915117971705,
         "token0": BER_XDAI,
-        "token1": GNO_XDAI,
+        "token1": GnosisTokenAddr.GNO,
         "reserves": [1071822921647535396369, 8286413444006866465, 1677145545],
         "kLast": 8880000000000000000000000000000000000000,
         "virtualTotalSupply": Decimal("94235138257570979954.58402272"),
@@ -66,7 +66,7 @@ def test_underlying(campaigns, db, decimals, reward):
     y = Decimal(10**18 if decimals else 1)
     assert x == [
         [BER_XDAI, Decimal("1071807153499412909748.616424") / y, Decimal("0")],
-        [GNO_XDAI, Decimal("8286291538240577738.223834754") / y, Decimal("0")],
+        [GnosisTokenAddr.GNO, Decimal("8286291538240577738.223834754") / y, Decimal("0")],
     ]
 
 
@@ -74,7 +74,7 @@ def test_underlying(campaigns, db, decimals, reward):
 def test_pool_balances(decimals):
     x = Swapr.pool_balances(DXS, TEST_BLOCK, Chain.XDAI, WEB3, decimals=decimals)
     y = Decimal(10**18 if decimals else 1)
-    assert x == [[BER_XDAI, Decimal("1071822921647535396369") / y], [GNO_XDAI, Decimal("8286413444006866465") / y]]
+    assert x == [[BER_XDAI, Decimal("1071822921647535396369") / y], [GnosisTokenAddr.GNO, Decimal("8286413444006866465") / y]]
 
 
 @pytest.mark.parametrize("decimals", [False, True])
@@ -84,10 +84,10 @@ def test_swap_fees(decimals):
     assert x["swaps"] == [
         {"block": 27494581, "token": BER_XDAI, "amount": Decimal("249999999999999999.8900") / y},
         {"block": 27494618, "token": BER_XDAI, "amount": Decimal("1562499999999999999.3975") / y},
-        {"block": 27494972, "token": GNO_XDAI, "amount": Decimal("2537125747349638.0950") / y},
-        {"block": 27507943, "token": GNO_XDAI, "amount": Decimal("10825598350382.8550") / y},
+        {"block": 27494972, "token": GnosisTokenAddr.GNO, "amount": Decimal("2537125747349638.0950") / y},
+        {"block": 27507943, "token": GnosisTokenAddr.GNO, "amount": Decimal("10825598350382.8550") / y},
         {"block": 27508016, "token": BER_XDAI, "amount": Decimal("2497385336193485.3650") / y},
-        {"block": 27508197, "token": GNO_XDAI, "amount": Decimal("10752897685489.7700") / y},
+        {"block": 27508197, "token": GnosisTokenAddr.GNO, "amount": Decimal("10752897685489.7700") / y},
         {"block": 27510159, "token": BER_XDAI, "amount": Decimal("104140624994283793.4525") / y},
     ]
 

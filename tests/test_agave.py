@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Agave
-from defyes.constants import AGVE_XDAI, Chain
+from defyes.constants import GnosisTokenAddr, Chain
 from defyes.functions import get_contract
 from defyes.node import get_node
 
@@ -170,7 +170,7 @@ def test_get_staked(wallet_address, decimals):
     }[wallet_address]
 
     data = Agave.get_staked(wallet_address, block=TEST_BLOCK, blockchain=Chain.XDAI, web3=WEB3, decimals=decimals)
-    assert data == [[AGVE_XDAI, expected]]
+    assert data == [[GnosisTokenAddr.AGVE, expected]]
 
 
 def test_get_agave_tokens():

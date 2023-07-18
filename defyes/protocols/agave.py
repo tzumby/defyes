@@ -16,7 +16,7 @@ from typing import Dict, List, Union
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import AGVE_XDAI, STKAGAVE_XDAI
+from defyes.constants import GnosisTokenAddr
 from defyes.functions import balance_of, get_contract, to_token_amount
 from defyes.node import get_node
 
@@ -195,7 +195,7 @@ def get_all_rewards(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
 
     reward_token = const_call(stkagave_contract.functions.REWARD_TOKEN())
 
@@ -281,10 +281,10 @@ def get_staking_apr(block: Union[int, str], blockchain: str, web3=None, apy: boo
 
     seconds_per_year = 365 * 24 * 60 * 60
 
-    stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
-    emission_per_second = stkagave_contract.functions.assets(STKAGAVE_XDAI).call(block_identifier=block)[0]
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    emission_per_second = stkagave_contract.functions.assets(GnosisTokenAddr.STKAGAVE).call(block_identifier=block)[0]
     agave_token_address = const_call(stkagave_contract.functions.REWARD_TOKEN())
-    current_stakes = balance_of(STKAGAVE_XDAI, agave_token_address, block, blockchain, web3=web3, decimals=False)
+    current_stakes = balance_of(GnosisTokenAddr.STKAGAVE, agave_token_address, block, blockchain, web3=web3, decimals=False)
 
     staking_apr = emission_per_second * seconds_per_year / current_stakes
     staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1
@@ -302,15 +302,15 @@ def get_staked(
 
     agave_wallet = Web3.to_checksum_address(wallet)
 
-    stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
     stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
 
-    stkagave_balance = to_token_amount(STKAGAVE_XDAI, stkagave_balance, blockchain, web3, decimals)
+    stkagave_balance = to_token_amount(GnosisTokenAddr.STKAGAVE, stkagave_balance, blockchain, web3, decimals)
 
     if stkagve:
-        balances.append([STKAGAVE_XDAI, stkagave_balance])
+        balances.append([GnosisTokenAddr.STKAGAVE, stkagave_balance])
     else:
-        balances.append([AGVE_XDAI, stkagave_balance])
+        balances.append([GnosisTokenAddr.AGVE, stkagave_balance])
 
     return balances
 
