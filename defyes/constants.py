@@ -1,22 +1,18 @@
 import json
 import os
-from dataclasses import dataclass
 from pathlib import Path
 
 
-@dataclass(frozen=True)
-class ConstantList:
-    @classmethod
-    def to_dict(self):
-        return {
-            attr: getattr(self, attr)
-            for attr in dir(self)
-            if not callable(getattr(self, attr)) and not attr.startswith("__")
-        }
+class ConstantsMeta(type):
+    def __setattr__(cls, name, value):
+        raise AttributeError("Read only")
 
 
-@dataclass(frozen=True)
-class Chain(ConstantList):
+class Constants(metaclass=ConstantsMeta):
+    pass
+
+
+class Chain(Constants):
     ETHEREUM = "ethereum"
     POLYGON = "polygon"
     # FIXME: XDAI should be eventually removed
@@ -48,8 +44,7 @@ E_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 
 
 # ETHEREUM - Token Addresses
-@dataclass(frozen=True)
-class ETHTokenAddr(ConstantList):
+class ETHTokenAddr(Constants):
     BAT = "0x0D8775F648430679A709E98d2b0Cb6250d2887EF"
     COW = "0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB"
     DAI = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
@@ -97,8 +92,7 @@ class ETHTokenAddr(ConstantList):
 
 
 # XDAI - Token Addresses
-@dataclass(frozen=True)
-class GnosisTokenAddr(ConstantList):
+class GnosisTokenAddr(Constants):
     AGVE = "0x3a97704a1b25F08aa230ae53B352e2e72ef52843"
     BAL = "0x7eF541E2a22058048904fE5744f9c7E4C57AF717"
     COW = "0x177127622c4A00F3d409B75571e12cB3c8973d3c"
@@ -121,8 +115,7 @@ class GnosisTokenAddr(ConstantList):
 
 
 # POLYGON - Token Addresses
-@dataclass(frozen=True)
-class PolygonTokenAddr(ConstantList):
+class PolygonTokenAddr(Constants):
     BAL = "0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3"
     MAI = "0xa3Fa99A148fA48D14Ed51d610c367C61876997F1"
     X3CRV = "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"
@@ -132,8 +125,7 @@ class PolygonTokenAddr(ConstantList):
 
 
 # ARBITRUM - Token Addresses
-@dataclass(frozen=True)
-class ArbitrumTokenAddr(ConstantList):
+class ArbitrumTokenAddr(Constants):
     BAL = "0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8"
 
 
