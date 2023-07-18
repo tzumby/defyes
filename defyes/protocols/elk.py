@@ -103,7 +103,6 @@ def get_pool_address(web3, token0, token1, block, blockchain):
     pool_ids = ["-".join(symbols), "-".join(symbols[::-1])]
     pool_address = None
     for pool_id in pool_ids:
-        print(pool_blockchain)
         try:
             pool_address = pools[pool_blockchain][pool_id]["address"]
             break
