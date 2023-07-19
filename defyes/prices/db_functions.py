@@ -1,11 +1,12 @@
 import json
-import os
 from pathlib import Path
 
 from web3 import Web3
 
 from defyes.constants import Chain
 from defyes.functions import get_symbol
+
+TOKEN_MAPPING_FILE = Path(__file__).parent / "token_mapping.json"
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,7 +20,7 @@ def update_token_mapping(
     price_feed_blockchain=None,
     price_feed_connector=None,
 ):
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/token_mapping.json", "r") as db_file:
+    with open(TOKEN_MAPPING_FILE) as db_file:
         db_data = json.load(db_file)
 
     if token_address_xdai is not None and len(str(token_address_xdai)) > 0:
@@ -235,5 +236,5 @@ def update_token_mapping(
 
             db_data[Chain.POLYGON][token_address_pol] = token_data
 
-    with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/token_mapping.json", "w") as db_file:
+    with open(TOKEN_MAPPING_FILE, "w") as db_file:
         json.dump(db_data, db_file)
