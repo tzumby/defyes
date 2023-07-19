@@ -268,6 +268,17 @@ def test_pool_balances3():
     gno = Balancer.pool_balances(bb_ag_GNO_ADDR, block, XDAI, web3=node)[0]
     assert gno == [GnosisTokenAddr.GNO, Decimal("26159.71190211541086527825594")]
 
+    block = 28721619
+    node = get_node("xdai", block)
+    tokens, rewards = Balancer.underlying(
+        WALLET_e6f, "0xbad20c15a773bf03ab973302f61fabcea5101f0a", block, "xdai", node, reward=True
+    )
+    assert tokens == [
+        ["0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1", 0, Decimal("1330.644525157873920497987352"), 0],
+        ["0x6C76971f98945AE98dD7d4DFcA8711ebea946eA6", 0, Decimal("1142.204886390243725927584743"), 0],
+    ]
+    assert rewards == [["0x7eF541E2a22058048904fE5744f9c7E4C57AF717", Decimal("470.98333553991963146")]]
+
 
 def test_unwrap():
     block = 16950590
