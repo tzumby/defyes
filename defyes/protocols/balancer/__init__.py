@@ -7,7 +7,7 @@ from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.constants import ZERO_ADDRESS, ETHTokenAddr
-from defyes.functions import block_to_date, date_to_block, get_logs_web3, last_block, to_token_amount, get_symbol
+from defyes.functions import block_to_date, date_to_block, get_logs_web3, get_symbol, last_block, to_token_amount
 from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
 from defyes.prices.prices import get_price
@@ -95,7 +95,7 @@ class PoolToken(PoolToken):
             if main_token is None:
                 main_token = self.address
                 main_token_symbol = get_symbol(main_token, self.blockchain, web3=self.contract.w3).lower()
-                self.is_wsteth = (main_token_symbol == "wsteth")
+                self.is_wsteth = main_token_symbol == "wsteth"
 
         return main_token
 
@@ -188,16 +188,26 @@ class LiquidityPool(LiquidityPool):
 
 def get_gauge_addresses(blockchain: str, block: int | str, lp_address: str) -> list:
     ADDRS: dict[str, str] = {
-        "ethereum": [(15399251, "0xf1665E19bc105BE4EDD3739F88315cC699cc5b65"),
-                     (14457664, "0x4E7bBd911cf1EFa442BC1b2e9Ea01ffE785412EC")],
-        "polygon": [(40687417, "0x22625eEDd92c81a219A83e1dc48f88d54786B017"),
-                    (27098624, "0x3b8cA519122CdD8efb272b0D3085453404B25bD0")],
-        "arbitrum": [(72942741, "0x6817149cb753BF529565B4D023d7507eD2ff4Bc0"),
-                     (9756975, "0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2")],
-        "xdai": [(27088528, "0x83E443EF4f9963C77bd860f94500075556668cb8"),
-                 (26615210, "0x809B79b53F18E9bc08A961ED4678B901aC93213a")],
-        "optimism": [(641824, "0x83E443EF4f9963C77bd860f94500075556668cb8"),
-                     (60740, "0x2E96068b3D5B5BAE3D7515da4A1D2E52d08A2647")]
+        "ethereum": [
+            (15399251, "0xf1665E19bc105BE4EDD3739F88315cC699cc5b65"),
+            (14457664, "0x4E7bBd911cf1EFa442BC1b2e9Ea01ffE785412EC"),
+        ],
+        "polygon": [
+            (40687417, "0x22625eEDd92c81a219A83e1dc48f88d54786B017"),
+            (27098624, "0x3b8cA519122CdD8efb272b0D3085453404B25bD0"),
+        ],
+        "arbitrum": [
+            (72942741, "0x6817149cb753BF529565B4D023d7507eD2ff4Bc0"),
+            (9756975, "0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2"),
+        ],
+        "xdai": [
+            (27088528, "0x83E443EF4f9963C77bd860f94500075556668cb8"),
+            (26615210, "0x809B79b53F18E9bc08A961ED4678B901aC93213a"),
+        ],
+        "optimism": [
+            (641824, "0x83E443EF4f9963C77bd860f94500075556668cb8"),
+            (60740, "0x2E96068b3D5B5BAE3D7515da4A1D2E52d08A2647"),
+        ],
     }
 
     if block == "latest":
@@ -275,7 +285,10 @@ class Gauge(Gauge):
                 rewards = {self.BAL_ADDRS[self.blockchain]: self.claimable_tokens(wallet) / bal_decimals}
             if not rewards:
                 with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
-                    rewards = {self.BAL_ADDRS[self.blockchain]: self.claimable_reward(wallet, self.BAL_ADDRS[self.blockchain]) / bal_decimals}
+                    rewards = {
+                        self.BAL_ADDRS[self.blockchain]: self.claimable_reward(wallet, self.BAL_ADDRS[self.blockchain])
+                        / bal_decimals
+                    }
 
             tokens = [self.reward_tokens(n) for n in range(self.reward_count)]
             for token_address in tokens:
@@ -331,11 +344,15 @@ class Vebal(Vebal):
 
 
 def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: bool = True) -> dict:
-    ADDRS: list = [(15149500, "0xD3cf852898b21fc233251427c2DC93d3d604F3BB"),
-                   (14623899, "0x26743984e3357eFC59f2fd6C1aFDC310335a61c9")]
+    ADDRS: list = [
+        (15149500, "0xD3cf852898b21fc233251427c2DC93d3d604F3BB"),
+        (14623899, "0x26743984e3357eFC59f2fd6C1aFDC310335a61c9"),
+    ]
 
-    REWARD_TOKENS: list = [(16981440, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD, ETHTokenAddr.BB_A_USD_V3]),
-                           (14623899, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD])]
+    REWARD_TOKENS: list = [
+        (16981440, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD, ETHTokenAddr.BB_A_USD_V3]),
+        (14623899, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD]),
+    ]
 
     rewards = {ETHTokenAddr.BAL: 0, ETHTokenAddr.BB_A_USD_OLD: 0, ETHTokenAddr.BB_A_USD: 0, ETHTokenAddr.BB_A_USD_V3: 0}
 
@@ -351,11 +368,12 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
                         break
 
                 balances = VebalFeeDistributor(blockchain, block, addr).claim_tokens(wallet, reward_list)
-                for reward_token, balance in zip(reward_list, balances):
+                for reward_token, balance in zip(reward_tokens, balances):
                     balance = balance / Decimal(10**18) if decimals else Decimal(balance)
                     rewards[reward_token] = rewards.get(reward_token, 0) + balance
 
     return rewards
+
 
 def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, decimals: bool = True) -> None:
     lp = LiquidityPool(blockchain, block, lp_address)
@@ -439,9 +457,7 @@ def get_protocol_data_for(
             total_staked_balance += lp_balance_staked / Decimal(10**gauge.decimals if decimals else 1)
 
         if total_staked_balance:
-            positions[lp_address]["staked"] = {
-                "holdings": [{"address": lp_address, "balance": total_staked_balance}]
-            }
+            positions[lp_address]["staked"] = {"holdings": [{"address": lp_address, "balance": total_staked_balance}]}
 
         if blockchain == "ethereum":
             vebal = Vebal(blockchain, block)
@@ -489,7 +505,9 @@ def get_protocol_data_for(
                     positions[lp_address]["staked"]["unclaimed_rewards"] = positions[lp_address]["staked"].get(
                         "unclaimed_rewards", []
                     )
-                    positions[lp_address]["staked"]["unclaimed_rewards"].append({"address": addr, "balance": reward_balance})
+                    positions[lp_address]["staked"]["unclaimed_rewards"].append(
+                        {"address": addr, "balance": reward_balance}
+                    )
 
             if blockchain == "ethereum":
                 vebal_rewards = get_vebal_rewards(wallet, blockchain, block, decimals)

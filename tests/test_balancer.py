@@ -60,10 +60,9 @@ def test_liquidity_pool():
 
 def test_gauge_address():
     block = 16978206
-    assert (
-        Balancer.get_gauge_addresses(ETHEREUM, block, B60WETH40DAI_ADDR)
-        == ["0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1"]
-    )
+    assert Balancer.get_gauge_addresses(ETHEREUM, block, B60WETH40DAI_ADDR) == [
+        "0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1"
+    ]
 
 
 def test_pool_balances():
@@ -257,8 +256,7 @@ def test_protocol_data():
                         },
                     ],
                 },
-                "staked": {
-                },
+                "staked": {},
             },
             "0x96646936b91d6B9D7D0c47C496AfBF3D6ec7B6f8": {
                 "financial_metrics": {},
