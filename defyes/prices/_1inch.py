@@ -1,6 +1,6 @@
 from web3 import Web3
 
-from defyes.constants import ZERO_ADDRESS, Chain
+from defyes.constants import Address, Chain
 from defyes.functions import get_contract, get_decimals
 from defyes.node import get_node
 from defyes.prices import Chainlink
@@ -146,7 +146,7 @@ def get_price(token_src, block, blockchain, web3=None, use_wrappers=False, conne
 
     native_token_price = Chainlink.get_native_token_price(web3, block, blockchain)
 
-    if token_src == ZERO_ADDRESS:
+    if token_src == Address.ZERO:
         return native_token_price
 
     else:

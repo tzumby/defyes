@@ -3,7 +3,7 @@ from typing import Union
 
 from web3 import Web3
 
-from defyes.constants import ZERO_ADDRESS, Chain, ETHTokenAddr
+from defyes.constants import Address, Chain, ETHTokenAddr
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 
@@ -49,7 +49,7 @@ def underlying(
     steth_equivalent = steth_balance + wsteth_balance * stEthPerToken
     steth_equivalent = to_token_amount(ETHTokenAddr.stETH, steth_equivalent, Chain.ETHEREUM, web3, decimals)
 
-    token = ETHTokenAddr.stETH if steth else ZERO_ADDRESS
+    token = ETHTokenAddr.stETH if steth else Address.ZERO
 
     return [[token, steth_equivalent]]
 
@@ -80,6 +80,6 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool = Fals
     stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10**18)
 
     steth_equivalent = amount * stEthPerToken
-    token = ETHTokenAddr.stETH if steth else ZERO_ADDRESS
+    token = ETHTokenAddr.stETH if steth else Address.ZERO
 
     return [token, steth_equivalent]

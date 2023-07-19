@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ZERO_ADDRESS, Chain, ETHTokenAddr
+from defyes.constants import Address, Chain, ETHTokenAddr
 from defyes.functions import balance_of, get_contract, get_decimals, to_token_amount
 from defyes.node import get_node
 from defyes.prices import prices
@@ -108,7 +108,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
     else:
         symbol = const_call(ctoken_data["contract"].functions.symbol())
         if symbol == "cETH":
-            ctoken_data["underlying"] = ZERO_ADDRESS
+            ctoken_data["underlying"] = Address.ZERO
         else:
             ctoken_data["underlying"] = ctoken_data["contract"].functions.underlying().call(block_identifier=block)
 
@@ -170,7 +170,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
         symbol = const_call(ctoken_contract.functions.symbol())
         if symbol == "cETH":
             # cETH does not have the underlying function
-            underlying_token = ZERO_ADDRESS
+            underlying_token = Address.ZERO
         else:
             underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
@@ -224,7 +224,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
             symbol = const_call(ctoken_contract.functions.symbol())
             if symbol == "cETH":
                 # cETH does not have the underlying function
-                underlying_token = ZERO_ADDRESS
+                underlying_token = Address.ZERO
             else:
                 underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
@@ -316,7 +316,7 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals
     symbol = const_call(ctoken_contract.functions.symbol())
     if symbol == "cETH":
         # cETH does not have the underlying function
-        underlying_token = ZERO_ADDRESS
+        underlying_token = Address.ZERO
     else:
         underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
@@ -363,7 +363,7 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
         symbol = const_call(ctoken_contract.functions.symbol())
         if symbol == "cETH":
             # cETH does not have the underlying function
-            underlying_token = ZERO_ADDRESS
+            underlying_token = Address.ZERO
         else:
             underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 
@@ -431,7 +431,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
         symbol = const_call(ctoken_contract.functions.symbol())
         if symbol == "cETH":
             # cETH does not have the underlying function
-            underlying_token = ZERO_ADDRESS
+            underlying_token = Address.ZERO
         else:
             underlying_token = ctoken_contract.functions.underlying().call(block_identifier=block)
 

@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Bancor
-from defyes.constants import E_ADDRESS, Chain, ETHTokenAddr
+from defyes.constants import Address, Chain, ETHTokenAddr
 from defyes.node import get_node
 
 WALLET_N1 = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
@@ -20,7 +20,7 @@ def test_underlying():
     underlying = Bancor.underlying(bnICHI_ADDR, WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert underlying == [[ETHTokenAddr.ICHI, Decimal("44351.005182315")], [ETHTokenAddr.BNT, Decimal("0")]]
     underlying = Bancor.underlying(bnETH_ADDR, WALLET_N2, block, Chain.ETHEREUM, web3=node)
-    assert underlying == [[E_ADDRESS, Decimal("0.149703304228299349")], [ETHTokenAddr.BNT, Decimal("0")]]
+    assert underlying == [[Address.E, Decimal("0.149703304228299349")], [ETHTokenAddr.BNT, Decimal("0")]]
 
 
 @pytest.mark.skip(reason="It takes to long.")
@@ -30,6 +30,6 @@ def test_underlying_all():
 
     underlying = Bancor.underlying_all(WALLET_N2, block, Chain.ETHEREUM, web3=node)
     assert underlying == [
-        [[E_ADDRESS, Decimal("0.149703304228299349")], [ETHTokenAddr.BNT, Decimal("0")]],
+        [[Address.E, Decimal("0.149703304228299349")], [ETHTokenAddr.BNT, Decimal("0")]],
         *(list() for _ in range(147)),  # plus 147 empty lists
     ]

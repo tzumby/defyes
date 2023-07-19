@@ -4,7 +4,7 @@ from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import ZERO_ADDRESS, Chain
+from defyes.constants import Address, Chain
 from defyes.functions import get_contract, get_decimals, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -107,7 +107,7 @@ def get_itoken_data(itoken_address, wallet, block, blockchain, web3=None, underl
             itoken_data["underlying"] = itoken_data["contract"].functions.underlying().call(block_identifier=block)
         except Exception as e:
             print(f"{e}")
-            itoken_data["underlying"] = ZERO_ADDRESS
+            itoken_data["underlying"] = Address.ZERO
 
     itoken_data["decimals"] = const_call(itoken_data["contract"].functions.decimals())
     itoken_data["borrowBalanceStored"] = (
@@ -171,7 +171,7 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
         block=block,
     )
 
-    staking_rewards_helper_address = ZERO_ADDRESS
+    staking_rewards_helper_address = Address.ZERO
     rewards_tokens = []
 
     # TODO: determine if const_call can be used
@@ -181,7 +181,7 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
             staking_rewards, blockchain, web3=web3, abi=ABI_STAKING_REWARDS, block=block
         )
 
-        if staking_rewards_helper_address is ZERO_ADDRESS:
+        if staking_rewards_helper_address is Address.ZERO:
             staking_rewards_helper_address = const_call(staking_rewards_contract.functions.helperContract())
 
         # TODO: determine if const_call can be used
@@ -190,7 +190,7 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
             if rewards_token is not [] and rewards_token not in rewards_tokens:
                 rewards_tokens.append(rewards_token)
 
-    if staking_rewards_helper_address is not ZERO_ADDRESS and rewards_tokens is not []:
+    if staking_rewards_helper_address is not Address.ZERO and rewards_tokens is not []:
         staking_rewards_helper_contract = get_contract(
             staking_rewards_helper_address, blockchain, web3=web3, abi=ABI_STAKING_REWARDS_HELPER, block=block
         )
@@ -284,7 +284,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
     itoken = const_call(staking_rewards_factory_contract.functions.getStakingToken(token_address))
 
-    if itoken == ZERO_ADDRESS:
+    if itoken == Address.ZERO:
         return []
 
     itoken_data = get_itoken_data(itoken, wallet, block, blockchain, web3=web3, underlying_token=token_address)
@@ -375,7 +375,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
 
         underlying_token_balance = 0
         if itoken_data["balanceOf"] > 0 or itoken_data["borrowBalanceStored"] > 0:
-            if underlying_token is not ZERO_ADDRESS:
+            if underlying_token is not Address.ZERO:
                 underlying_token_decimals = get_decimals(
                     underlying_token, block=block, blockchain=blockchain, web3=web3
                 )

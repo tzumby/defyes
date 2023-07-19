@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import Notional
-from defyes.constants import ZERO_ADDRESS, Chain, ETHTokenAddr
+from defyes.constants import Address, Chain, ETHTokenAddr
 from defyes.node import get_node
 
 cETH = "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"
@@ -31,7 +31,7 @@ def test_get_markets_data():
 
     eth, dai, usdc, wbtc = Notional.get_markets_data(block, Chain.ETHEREUM, web3=node)
     assert eth["currencyId"] == 1
-    assert eth["underlyingToken"] == {"address": ZERO_ADDRESS, "decimals": 1000000000000000000}
+    assert eth["underlyingToken"] == {"address": Address.ZERO, "decimals": 1000000000000000000}
     assert eth["cToken"] == {"address": cETH, "decimals": 100000000, "rate": Decimal("0.0200824210777124347051837671")}
     assert eth["nToken"] == {"address": nETH, "decimals": 100000000, "rate": Decimal("0.02026470831212603197181101555")}
     assert dai["currencyId"] == 2
@@ -78,7 +78,7 @@ def test_underlying_all():
 
     underlying = Notional.underlying_all(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert underlying == [
-        [ZERO_ADDRESS, Decimal("9.237913695747719964384532866E-9")],
+        [Address.ZERO, Decimal("9.237913695747719964384532866E-9")],
         [ETHTokenAddr.DAI, Decimal("-209743.3234")],
         [ETHTokenAddr.USDC, Decimal("836657.9853193511111313755831")],
     ]

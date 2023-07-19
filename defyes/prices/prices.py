@@ -4,7 +4,7 @@ from typing import Tuple
 import requests
 from web3 import Web3
 
-from defyes.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, ZERO_ADDRESS, Chain
+from defyes.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, Address, Chain
 from defyes.functions import block_to_timestamp
 from defyes.node import get_node
 from defyes.prices import Chainlink, CoinGecko, _1inch
@@ -49,7 +49,7 @@ def get_price(token_address, block, blockchain, web3=None, source: str = "chainl
     token_address = Web3.to_checksum_address(token_address)
 
     # Get price directly from Chainlink in case of native token.
-    if token_address == ZERO_ADDRESS:
+    if token_address == Address.ZERO:
         return Chainlink.get_native_token_price(web3, block, blockchain), "chainlink", blockchain
 
     # As chainlink is just for eth, we switch to 1inch in case of xdai and other blockchains.

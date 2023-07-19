@@ -5,7 +5,7 @@ import requests
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ZERO_ADDRESS, Chain
+from defyes.constants import Address, Chain
 from defyes.functions import ABI_TOKEN_SIMPLIFIED, get_contract, get_decimals, get_logs_web3, to_token_amount
 from defyes.node import get_node
 
@@ -138,7 +138,7 @@ def get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=Tru
 def get_booster_rewards(web3, pool_contract, wallet, block, blockchain, decimals=True):
     rewards = []
     booster_token_address = const_call(pool_contract.functions.boosterToken())
-    if booster_token_address != ZERO_ADDRESS:
+    if booster_token_address != Address.ZERO:
         booster_rewards = Decimal(pool_contract.functions.boosterEarned(wallet).call(block_identifier=block))
         rewards = [
             booster_token_address,
@@ -363,7 +363,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 #     pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
 
 #     booster_token = pool_contract.functions.boosterToken().call()
-#     if booster_token is not None and booster_token != ZERO_ADDRESS:
+#     if booster_token is not None and booster_token != Address.ZERO:
 #         booster_token_decimals = get_decimals(booster_token, blockchain, web3=web3)
 #         booster_reward_per_token = pool_contract.functions.boosterRewardPerToken().call(block_identifier=block) / (10**booster_token_decimals)
 #         booster_token_price = Prices.get_price(booster_token, block, blockchain)
