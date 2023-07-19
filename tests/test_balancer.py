@@ -61,8 +61,8 @@ def test_liquidity_pool():
 def test_gauge_address():
     block = 16978206
     assert (
-        Balancer.GaugeFactory(ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address
-        == "0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1"
+        Balancer.get_gauge_addresses(ETHEREUM, block, B60WETH40DAI_ADDR)
+        == ["0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1"]
     )
 
 
@@ -154,12 +154,12 @@ def test_unwrap():
 def test_gauge_rewards():
     block = 16978206
 
-    gauge_address = Balancer.GaugeFactory(ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address
+    gauge_address = Balancer.get_gauge_addresses(ETHEREUM, block, B60WETH40DAI_ADDR)[0]
     gauge = Balancer.Gauge(ETHEREUM, block, gauge_address)
     rewards = gauge.get_rewards(WALLET_N1)
     assert rewards == {ETHTokenAddr.BAL: Decimal("0.000001267800098374")}
 
-    gauge_address = Balancer.GaugeFactory(ETHEREUM, block, BstETHSTABLE_ADDR).gauge_address
+    gauge_address = Balancer.get_gauge_addresses(ETHEREUM, block, BstETHSTABLE_ADDR)[0]
     gauge = Balancer.Gauge(ETHEREUM, block, gauge_address)
     rewards = gauge.get_rewards(WALLET_N3)
     assert rewards == {ETHTokenAddr.LDO: 0, ETHTokenAddr.BAL: Decimal("0.000090529527458665")}
@@ -168,13 +168,12 @@ def test_gauge_rewards():
 def test_vebal_rewards():
     block = 16950590
 
-    vebal_distributor = Balancer.VebalFeeDistributor(ETHEREUM, block)
-    vebal_rewards = vebal_distributor.get_rewards(WALLET_N2)
-
+    vebal_rewards = Balancer.get_vebal_rewards(WALLET_N2, ETHEREUM, block)
     assert vebal_rewards == {
         ETHTokenAddr.BAL: Decimal("0.000019372013715193"),
         ETHTokenAddr.BB_A_USD_OLD: Decimal("0"),
         ETHTokenAddr.BB_A_USD: Decimal("0.000210261212072964"),
+        ETHTokenAddr.BB_A_USD_V3: Decimal("0"),
     }
 
 
@@ -259,22 +258,6 @@ def test_protocol_data():
                     ],
                 },
                 "staked": {
-                    "holdings": [
-                        {
-                            "address": "0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56",
-                            "balance": Decimal("0.669798066742606023"),
-                        }
-                    ],
-                    "underlyings": [
-                        {
-                            "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                            "balance": Decimal("1.381597279600636357432913945"),
-                        },
-                        {
-                            "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                            "balance": Decimal("0.001299296197959105460435983484"),
-                        },
-                    ],
                 },
             },
             "0x96646936b91d6B9D7D0c47C496AfBF3D6ec7B6f8": {
@@ -380,12 +363,12 @@ def test_protocol_data():
         "block": 17117344,
         "blockchain": "ethereum",
         "positions": {
-            "0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5": {
+            "0x5f1f4E50ba51D723F12385a8a9606afc3A0555f5": {
                 "financial_metrics": {},
                 "liquidity": {
                     "holdings": [
                         {
-                            "address": "0x5f1f4e50ba51d723f12385a8a9606afc3a0555f5",
+                            "address": "0x5f1f4E50ba51D723F12385a8a9606afc3A0555f5",
                             "balance": Decimal("36.804073376884509435"),
                         }
                     ],
@@ -482,6 +465,49 @@ def test_protocol_data():
         },
         "positions_key": "liquidity_pool_address",
         "protocol": "Balancer",
+        "version": 0,
+    } == underlying
+
+    block = 28721619
+    underlying = Balancer.get_protocol_data_for(
+        "xdai", WALLET_e6f, "0xbad20c15a773bf03ab973302f61fabcea5101f0a", block, reward=True
+    )
+    assert {
+        "protocol": "Balancer",
+        "blockchain": "xdai",
+        "block": 28721619,
+        "positions": {
+            "0xbAd20c15A773bf03ab973302F61FAbceA5101f0A": {
+                "liquidity": {},
+                "staked": {
+                    "holdings": [
+                        {
+                            "address": "0xbAd20c15A773bf03ab973302F61FAbceA5101f0A",
+                            "balance": Decimal("2618.823016673511834775"),
+                        }
+                    ],
+                    "underlyings": [
+                        {
+                            "address": "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
+                            "balance": Decimal("1330.644525157873920497987352"),
+                        },
+                        {
+                            "address": "0x6C76971f98945AE98dD7d4DFcA8711ebea946eA6",
+                            "balance": Decimal("1142.204886390243725927584743"),
+                        },
+                    ],
+                    "unclaimed_rewards": [
+                        {
+                            "address": "0x7eF541E2a22058048904fE5744f9c7E4C57AF717",
+                            "balance": Decimal("470.98333553991963146"),
+                        }
+                    ],
+                },
+                "locked": {},
+                "financial_metrics": {},
+            }
+        },
+        "positions_key": "liquidity_pool_address",
         "version": 0,
     } == underlying
 
