@@ -6,7 +6,7 @@ from pathlib import Path
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import CVX_ETH, CVXCRV_ETH, ETHEREUM
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import get_contract, get_contract_creation, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -58,7 +58,7 @@ DB_FILE = Path(__file__).parent / "db.json"
 def get_pool_rewarders(lptoken_address, block):
     if isinstance(block, str):
         if block == "latest":
-            block = last_block(ETHEREUM)
+            block = last_block(Chain)
         else:
             raise ValueError("Incorrect block.")
 
@@ -73,7 +73,7 @@ def get_pool_rewarders(lptoken_address, block):
                 rewarders.append(db_data["pools"][lptoken_address][iblock]["rewarder"])
 
     else:
-        booster_contract = get_contract(BOOSTER, ETHEREUM, abi=ABI_BOOSTER, block=block)
+        booster_contract = get_contract(BOOSTER, Chain, abi=ABI_BOOSTER, block=block)
         number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
 
         for pool_id in range(number_of_pools):
@@ -133,7 +133,7 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
     """
     cvx_amount = 0
 
-    cvx_contract = get_contract(CVX_ETH, blockchain, web3=web3, abi=ABI_CVX, block=block)
+    cvx_contract = get_contract(ETHTokenAddr.CVX, blockchain, web3=web3, abi=ABI_CVX, block=block)
 
     cliff_size = cvx_contract.functions.reductionPerCliff().call(block_identifier=block)
     cliff_count = cvx_contract.functions.totalCliffs().call(block_identifier=block)
@@ -151,7 +151,7 @@ def get_cvx_mint_amount(web3, crv_earned, block, blockchain, decimals=True):
         if cvx_amount > amount_till_max:
             cvx_amount = amount_till_max
 
-    return [CVX_ETH, cvx_amount]
+    return [ETHTokenAddr.CVX, cvx_amount]
 
 
 def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decimals=True, rewarders=[]):
@@ -208,7 +208,6 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     1 - List of Tuples: [cvx_token_address, locked_balance]
     2 - List of Tuples: [reward_token_address, balance]
     """
-    # If the number of executions is greater than the MAX_EXECUTIONS variable -> returns None and halts
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -217,7 +216,7 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     cvx_locker_contract = get_contract(CVX_LOCKER, blockchain, web3=web3, block=block)
     cvx_locker = cvx_locker_contract.functions.balances(wallet).call(block_identifier=block)[0]
 
-    result = [[CVX_ETH, to_token_amount(CVX_ETH, cvx_locker, blockchain, web3, decimals)]]
+    result = [[ETHTokenAddr.CVX, to_token_amount(ETHTokenAddr.CVX, cvx_locker, blockchain, web3, decimals)]]
 
     if reward:
         rewards = []
@@ -251,14 +250,19 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     cvx_staking_contract = get_contract(CVX_STAKER, blockchain, web3=web3, block=block)
     cvx_staked = cvx_staking_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
-    result = [[CVX_ETH, to_token_amount(CVX_ETH, cvx_staked, blockchain, web3, decimals)]]
+    result = [[ETHTokenAddr.CVX, to_token_amount(ETHTokenAddr.CVX, cvx_staked, blockchain, web3, decimals)]]
 
     if reward:
         rewards = []
         cvx_staked_rewards = cvx_staking_contract.functions.earned(wallet).call(block_identifier=block)
 
         if cvx_staked_rewards > 0:
-            rewards.append([CVXCRV_ETH, to_token_amount(CVXCRV_ETH, cvx_staked_rewards, blockchain, web3, decimals)])
+            rewards.append(
+                [
+                    ETHTokenAddr.CVXCRV,
+                    to_token_amount(ETHTokenAddr.CVXCRV, cvx_staked_rewards, blockchain, web3, decimals),
+                ]
+            )
 
         result += rewards
 
@@ -333,14 +337,14 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 def update_db(output_file=DB_FILE, block="latest"):
     db_data = {"pools": {}}
 
-    web3 = get_node(ETHEREUM, block=block)
-    booster = get_contract(BOOSTER, ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
+    web3 = get_node(Chain, block=block)
+    booster = get_contract(BOOSTER, Chain, web3=web3, abi=ABI_BOOSTER, block=block)
     pools_length = booster.functions.poolLength().call(block_identifier=block)
 
     for i in range(pools_length):
         pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
 
-        rewarder_data = get_contract_creation(pool_info[3], ETHEREUM)
+        rewarder_data = get_contract_creation(pool_info[3], Chain)
         rewarder_creation_tx = web3.eth.get_transaction(rewarder_data[0]["txHash"])
 
         if pool_info[0] in db_data["pools"].keys():

@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import Idle
-from defyes.constants import ETHEREUM, ETHTokenAddr
+from defyes.constants import Chain, ETHTokenAddr
 
 TEST_WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 TEST_BLOCK = 16836190
@@ -10,7 +10,7 @@ LIDO_STAKED_TOKEN_ETH = "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
 
 def test_get_all_rewards():
     gauge = "0x675eC042325535F6e176638Dd2d4994F645502B9"
-    rewards = Idle.get_all_rewards(TEST_WALLET, gauge, TEST_BLOCK, ETHEREUM)
+    rewards = Idle.get_all_rewards(TEST_WALLET, gauge, TEST_BLOCK, Chain.ETHEREUM)
     assert rewards == [[ETHTokenAddr.IDLE, Decimal("0")], [ETHTokenAddr.LDO, Decimal("31065.052700304643473107")]]
 
 
@@ -23,14 +23,18 @@ def test_get_amounts():
         gauge_address=None,
         wallet=TEST_WALLET,
         block=TEST_BLOCK,
-        blockchain=ETHEREUM,
+        blockchain=Chain.ETHEREUM,
     )
     assert amounts == [[ETHTokenAddr.FEI, Decimal("924.3773587200106717312902131")]]
 
 
 def test_underlying():
     underlying = Idle.underlying(
-        token_address=LIDO_STAKED_TOKEN_ETH, wallet=TEST_WALLET, block=TEST_BLOCK, blockchain=ETHEREUM, rewards=True
+        token_address=LIDO_STAKED_TOKEN_ETH,
+        wallet=TEST_WALLET,
+        block=TEST_BLOCK,
+        blockchain=Chain.ETHEREUM,
+        rewards=True,
     )
 
     assert underlying == [
@@ -41,17 +45,17 @@ def test_underlying():
 
 def test_underlying_all():
     wallet = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
-    underlying = Idle.underlying_all(wallet, 17295010, ETHEREUM, rewards=True)
+    underlying = Idle.underlying_all(wallet, 17295010, Chain.ETHEREUM, rewards=True)
     assert underlying == [
         [
-            [ETHTokenAddr.STETH, Decimal("931.756327134769968317289982")],
+            [ETHTokenAddr.stETH, Decimal("931.756327134769968317289982")],
             [[ETHTokenAddr.IDLE, Decimal("0")], [ETHTokenAddr.LDO, Decimal("31065.052700304643473107")]],
         ]
     ]
 
 
 def test_get_addresses():
-    addresses = Idle.get_addresses(TEST_BLOCK, ETHEREUM)
+    addresses = Idle.get_addresses(TEST_BLOCK, Chain.ETHEREUM)
     assert addresses == {
         "tranches": [
             {
@@ -278,7 +282,7 @@ def test_get_addresses():
 
 
 def test_get_gauges():
-    gauges = Idle.get_gauges(TEST_BLOCK, ETHEREUM)
+    gauges = Idle.get_gauges(TEST_BLOCK, Chain.ETHEREUM)
     assert gauges == [
         ["0x21dDA17dFF89eF635964cd3910d167d562112f57", "0x790E38D85a364DD03F682f5EcdC88f8FF7299908"],
         ["0x675eC042325535F6e176638Dd2d4994F645502B9", "0x2688FC68c4eac90d9E5e1B94776cF14eADe8D877"],

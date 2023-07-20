@@ -3,11 +3,11 @@ from decimal import Decimal
 
 from web3 import Web3
 
+from defyes.api import RequestFromScan
 from defyes.cache import const_call
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
-from defyes.util.api import RequestFromScan
-from defyes.util.topic import decode_address_hexor
+from defyes.topic import decode_address_hexor
 
 from .curve import unwrap
 

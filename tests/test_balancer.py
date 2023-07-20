@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import Balancer
-from defyes.constants import ETHEREUM, XDAI, ETHTokenAddr, GnosisTokenAddr
+from defyes.constants import Chain, ETHTokenAddr, GnosisTokenAddr
 from defyes.functions import date_to_block
 
 WALLET_N1 = "0x31cD267D34EC6368eac930Be4f412dfAcc71A844"
@@ -33,7 +33,7 @@ bb_ag_GNO_ADDR = "0xffff76a3280e95dc855696111c2562da09db2ac0"
 def test_liquidity_pool():
     block = 16950590
 
-    lp = Balancer.LiquidityPool(ETHEREUM, block, B60WETH40DAI_ADDR)
+    lp = Balancer.LiquidityPool(Chain.ETHEREUM, block, B60WETH40DAI_ADDR)
     assert (
         lp.poolid
         == b"\x0b\t\xde\xa1gh\xf0y\x90e\xc4u\xbe\x02\x91\x95\x03\xcb*5\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a"
@@ -43,7 +43,7 @@ def test_liquidity_pool():
     assert lp.bpt_index is None
     assert lp.scaling_factors is None
 
-    lp = Balancer.LiquidityPool(ETHEREUM, block, bbaUSD_ADDR)
+    lp = Balancer.LiquidityPool(Chain.ETHEREUM, block, bbaUSD_ADDR)
     assert (
         lp.poolid == b"\xa1:\x92G\xeaB\xd7C#\x80\x89\x905p\x12}\xdar\xfeD\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03]"
     )
@@ -61,37 +61,37 @@ def test_liquidity_pool():
 def test_gauge_address():
     block = 16978206
     assert (
-        Balancer.GaugeFactory(ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address
+        Balancer.GaugeFactory(Chain.ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address
         == "0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1"
     )
 
 
 def test_pool_balances():
     block = 16978206
-    balances = Balancer.pool_balances(ETHEREUM, B50USDC50WETH_ADDR, block)
+    balances = Balancer.pool_balances(Chain.ETHEREUM, B50USDC50WETH_ADDR, block)
     assert balances == {
         ETHTokenAddr.USDC: Decimal("1129072.214823"),
         ETHTokenAddr.WETH: Decimal("601.535954342344676691"),
     }
 
     block = 17117344
-    balances = Balancer.pool_balances(ETHEREUM, bbaUSD_ADDR, block)
+    balances = Balancer.pool_balances(Chain.ETHEREUM, bbaUSD_ADDR, block)
     assert balances == {
         ETHTokenAddr.USDT: Decimal("11433582.31554748359005298347"),
         ETHTokenAddr.USDC: Decimal("13368829.78950840748853951224"),
         ETHTokenAddr.DAI: Decimal("13416454.19566038579649334747"),
     }
 
-    usdt = Balancer.pool_balances(ETHEREUM, bbaUSDT_ADDR, block)
+    usdt = Balancer.pool_balances(Chain.ETHEREUM, bbaUSDT_ADDR, block)
     assert usdt[ETHTokenAddr.USDT] == Decimal("11433698.53586857519047922515")
 
-    usdc = Balancer.pool_balances(ETHEREUM, bbaUSDC_ADDR, block)
+    usdc = Balancer.pool_balances(Chain.ETHEREUM, bbaUSDC_ADDR, block)
     assert usdc[ETHTokenAddr.USDC] == Decimal("13369125.00806304894840304454")
 
-    dai = Balancer.pool_balances(ETHEREUM, bbaDAI_ADDR, block)
+    dai = Balancer.pool_balances(Chain.ETHEREUM, bbaDAI_ADDR, block)
     assert dai[ETHTokenAddr.DAI] == Decimal("13416679.31570410197485793129")
 
-    balances = Balancer.pool_balances(ETHEREUM, bbaUSDV3_ADDR, block)
+    balances = Balancer.pool_balances(Chain.ETHEREUM, bbaUSDV3_ADDR, block)
     assert balances == {
         ETHTokenAddr.DAI: Decimal("1050266.066617679685909312000"),
         ETHTokenAddr.USDT: Decimal("765001.8540369999844466201230"),
@@ -99,10 +99,10 @@ def test_pool_balances():
     }
 
     block = 27628264
-    balances = Balancer.pool_balances(XDAI, bb_ag_WXDAI_ADDR, block)
+    balances = Balancer.pool_balances(Chain.GNOSIS, bb_ag_WXDAI_ADDR, block)
     assert balances[GnosisTokenAddr.WXDAI] == Decimal("1295439.981731337648045247778")
 
-    balances = Balancer.pool_balances(XDAI, B50bbagGNO50bbagUSD_ADDR, block)
+    balances = Balancer.pool_balances(Chain.GNOSIS, B50bbagGNO50bbagUSD_ADDR, block)
     assert balances == {
         GnosisTokenAddr.WXDAI: Decimal("327217.3285011014510966714956"),
         GnosisTokenAddr.USDT: Decimal("182785.2866365983481610436107"),
@@ -110,14 +110,14 @@ def test_pool_balances():
         GnosisTokenAddr.GNO: Decimal("7700.623246950826914818782253"),
     }
 
-    gno = Balancer.pool_balances(XDAI, bb_ag_GNO_ADDR, block)
+    gno = Balancer.pool_balances(Chain.GNOSIS, bb_ag_GNO_ADDR, block)
     assert gno[GnosisTokenAddr.GNO] == Decimal("26159.71190211541086527825594")
 
 
 def test_unwrap():
     block = 16950590
     lptoken_amount = 1
-    unwrap = Balancer.unwrap(ETHEREUM, bbaUSD_ADDR, lptoken_amount, block)
+    unwrap = Balancer.unwrap(Chain.ETHEREUM, bbaUSD_ADDR, lptoken_amount, block)
     assert unwrap == {
         ETHTokenAddr.USDT: Decimal("0.2544855265987162735881749720"),
         ETHTokenAddr.USDC: Decimal("0.3695278389467781030866438160"),
@@ -125,7 +125,7 @@ def test_unwrap():
     }
 
     lptoken_amount = Decimal("0.0106223377584825466601881061023959773592650890350341796875")
-    unwrap = Balancer.unwrap(ETHEREUM, B60WETH40DAI_ADDR, lptoken_amount, block)
+    unwrap = Balancer.unwrap(Chain.ETHEREUM, B60WETH40DAI_ADDR, lptoken_amount, block)
     assert unwrap == {
         ETHTokenAddr.DAI: Decimal("0.3998802387901373103114663897"),
         ETHTokenAddr.WETH: Decimal("0.0003284487726480976462916290608"),
@@ -133,7 +133,7 @@ def test_unwrap():
 
     block = 27628264
     lptoken_amount = 1000
-    unwrap = Balancer.unwrap(XDAI, B50bbagGNO50bbagUSD_ADDR, lptoken_amount, block)
+    unwrap = Balancer.unwrap(Chain.GNOSIS, B50bbagGNO50bbagUSD_ADDR, lptoken_amount, block)
     assert unwrap == {
         GnosisTokenAddr.WXDAI: Decimal("2072.099936394024014750631244"),
         GnosisTokenAddr.USDT: Decimal("1157.485706971609760143788076"),
@@ -143,7 +143,7 @@ def test_unwrap():
 
     block = 17543299
     lptoken_amount = 1
-    unwrap = Balancer.unwrap(ETHEREUM, bbaUSDV3_ADDR, lptoken_amount, block)
+    unwrap = Balancer.unwrap(Chain.ETHEREUM, bbaUSDV3_ADDR, lptoken_amount, block)
     assert unwrap == {
         ETHTokenAddr.DAI: Decimal("0.3836613819783486198907516245"),
         ETHTokenAddr.USDT: Decimal("0.2472909112224638002039090849"),
@@ -154,13 +154,13 @@ def test_unwrap():
 def test_gauge_rewards():
     block = 16978206
 
-    gauge_address = Balancer.GaugeFactory(ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address
-    gauge = Balancer.Gauge(ETHEREUM, block, gauge_address)
+    gauge_address = Balancer.GaugeFactory(Chain.ETHEREUM, block, B60WETH40DAI_ADDR).gauge_address
+    gauge = Balancer.Gauge(Chain.ETHEREUM, block, gauge_address)
     rewards = gauge.get_rewards(WALLET_N1)
     assert rewards == {ETHTokenAddr.BAL: Decimal("0.000001267800098374")}
 
-    gauge_address = Balancer.GaugeFactory(ETHEREUM, block, BstETHSTABLE_ADDR).gauge_address
-    gauge = Balancer.Gauge(ETHEREUM, block, gauge_address)
+    gauge_address = Balancer.GaugeFactory(Chain.ETHEREUM, block, BstETHSTABLE_ADDR).gauge_address
+    gauge = Balancer.Gauge(Chain.ETHEREUM, block, gauge_address)
     rewards = gauge.get_rewards(WALLET_N3)
     assert rewards == {ETHTokenAddr.LDO: 0, ETHTokenAddr.BAL: Decimal("0.000090529527458665")}
 
@@ -168,7 +168,7 @@ def test_gauge_rewards():
 def test_vebal_rewards():
     block = 16950590
 
-    vebal_distributor = Balancer.VebalFeeDistributor(ETHEREUM, block)
+    vebal_distributor = Balancer.VebalFeeDistributor(Chain.ETHEREUM, block)
     vebal_rewards = vebal_distributor.get_rewards(WALLET_N2)
 
     assert vebal_rewards == {
@@ -180,7 +180,7 @@ def test_vebal_rewards():
 
 def test_protocol_data():
     block = 16978206
-    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N1, B60WETH40DAI_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(Chain.ETHEREUM, WALLET_N1, B60WETH40DAI_ADDR, block, reward=True)
     assert {
         "block": 16978206,
         "blockchain": "ethereum",
@@ -221,7 +221,7 @@ def test_protocol_data():
     } == underlying
 
     underlying = Balancer.get_protocol_data_for(
-        ETHEREUM, WALLET_N2, [B50USDC50WETH_ADDR, B80BAL20WETH_ADDR], block, reward=True
+        Chain.ETHEREUM, WALLET_N2, [B50USDC50WETH_ADDR, B80BAL20WETH_ADDR], block, reward=True
     )
     assert {
         "block": 16978206,
@@ -341,7 +341,7 @@ def test_protocol_data():
     } == underlying
 
     block = 17117344
-    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N4, BstETHSTABLE_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(Chain.ETHEREUM, WALLET_N4, BstETHSTABLE_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -375,7 +375,7 @@ def test_protocol_data():
         "version": 0,
     } == underlying
 
-    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N5, B50wstETH50LDO_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(Chain.ETHEREUM, WALLET_N5, B50wstETH50LDO_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -409,7 +409,7 @@ def test_protocol_data():
         "version": 0,
     } == underlying
 
-    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_N6, bbaUSD_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(Chain.ETHEREUM, WALLET_N6, bbaUSD_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -447,7 +447,7 @@ def test_protocol_data():
         "version": 0,
     } == underlying
 
-    underlying = Balancer.get_protocol_data_for(ETHEREUM, WALLET_39d, bbaUSD_ADDR, block)
+    underlying = Balancer.get_protocol_data_for(Chain.ETHEREUM, WALLET_39d, bbaUSD_ADDR, block)
     assert {
         "block": 17117344,
         "blockchain": "ethereum",
@@ -486,10 +486,10 @@ def test_protocol_data():
     } == underlying
 
     block = 28275634
-    underlying = Balancer.get_protocol_data_for(XDAI, WALLET_e6f, bb_ag_USD_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(Chain.GNOSIS, WALLET_e6f, bb_ag_USD_ADDR, block, reward=True)
     assert {
         "block": 28275634,
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "positions": {
             "0xfedb19ec000d38d92af4b21436870f115db22725": {
                 "financial_metrics": {},
@@ -530,10 +530,10 @@ def test_protocol_data():
         "version": 0,
     }
 
-    underlying = Balancer.get_protocol_data_for(XDAI, WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(Chain.GNOSIS, WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, reward=True)
     assert {
         "block": 28275634,
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "positions": {
             "0xB973Ca96a3f0D61045f53255E319AEDb6ED49240": {
                 "financial_metrics": {},
@@ -580,11 +580,11 @@ def test_protocol_data():
 
 
 def test_swap_fees():
-    blockstart = date_to_block("2023-02-20 18:25:00", ETHEREUM)
-    blockend = date_to_block("2023-02-20 18:30:00", ETHEREUM)
+    blockstart = date_to_block("2023-02-20 18:25:00", Chain.ETHEREUM)
+    blockend = date_to_block("2023-02-20 18:30:00", Chain.ETHEREUM)
 
-    vault_address = Balancer.Vault(ETHEREUM, blockend).address
-    lp = Balancer.LiquidityPool(ETHEREUM, blockend, B80BAL20WETH_ADDR)
+    vault_address = Balancer.Vault(Chain.ETHEREUM, blockend).address
+    lp = Balancer.LiquidityPool(Chain.ETHEREUM, blockend, B80BAL20WETH_ADDR)
     swaps = lp.swap_fees(vault_address, blockstart)
     assert swaps == [
         {
@@ -601,8 +601,8 @@ def test_swap_fees():
 
 
 def test_swap_fees_apr():
-    blockend = date_to_block("2023-02-20 18:30:00", ETHEREUM)
-    apr = Balancer.get_swap_fees_apr(B80BAL20WETH_ADDR, ETHEREUM, blockend)
+    blockend = date_to_block("2023-02-20 18:30:00", Chain.ETHEREUM)
+    apr = Balancer.get_swap_fees_apr(B80BAL20WETH_ADDR, Chain.ETHEREUM, blockend)
     assert apr == Decimal("0.596125086010151913782740200")
-    apy = Balancer.get_swap_fees_apr(B80BAL20WETH_ADDR, ETHEREUM, blockend, apy=True)
+    apy = Balancer.get_swap_fees_apr(B80BAL20WETH_ADDR, Chain.ETHEREUM, blockend, apy=True)
     assert apy == Decimal("0.815071898400229530363657020")

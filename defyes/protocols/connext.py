@@ -6,7 +6,7 @@ from gql.transport.requests import RequestsHTTPTransport
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ETHEREUM, XDAI
+from defyes.constants import Chain
 from defyes.functions import balance_of, get_contract, get_decimals
 from defyes.helpers import call_contract_method
 from defyes.node import get_node
@@ -95,10 +95,10 @@ class Connext:
     assets: list = field(init=False)
 
     def __post_init__(self) -> None:
-        if self.blockchain == ETHEREUM:
+        if self.blockchain == Chain.ETHEREUM:
             self.diamond_adrr = CONNEXT_DIAMOND_ETH
             self.subgraph_api_endpoint = SUBGRAPH_API_ENDPOINT_ETH
-        elif self.blockchain == XDAI:
+        elif self.blockchain == Chain.GNOSIS:
             self.diamond_adrr = CONNEXT_DIAMOND_GC
             self.subgraph_api_endpoint = SUBGRAPH_API_ENDPOINT_GC
         else:

@@ -14,7 +14,7 @@
 
   from defyes import Aave
 
-  f1 = get_contract('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d', ETHEREUM)
+  f1 = get_contract('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d', Chain.ETHEREUM)
 
   f2 = Aave.get_reserves_tokens(f1, 'latest')
 
@@ -39,9 +39,9 @@
 
   from defyes import Aave
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f2 = Aave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f2 = Aave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f2)
 
@@ -64,7 +64,7 @@
 
   from defyes import Aave
 
-  f3 = Aave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f3 = Aave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f3)
 
@@ -90,7 +90,7 @@
 
   from defyes import Aave
 
-  f4 = Aave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f4 = Aave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f4)
 
@@ -114,7 +114,7 @@
 
   from defyes import Aave
 
-  f5 = Aave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM, reward=True)
+  f5 = Aave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM, reward=True)
 
   print(f5)
 

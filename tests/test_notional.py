@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import Notional
-from defyes.constants import ETHEREUM, ZERO_ADDRESS, ETHTokenAddr
+from defyes.constants import Address, Chain, ETHTokenAddr
 from defyes.node import get_node
 
 cETH = "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"
@@ -17,22 +17,21 @@ WALLET_N1 = "0x79a98A9F41051e119cad1b9fFeFe523cd0Be65f0"
 
 
 def test_get_nproxy_address():
-    nproxy_address = Notional.get_nproxy_address(ETHEREUM)
-    assert Notional.NPROXY_ETHEREUM == nproxy_address
+    nproxy_address = Notional.get_nproxy_address(Chain.ETHEREUM)
+    assert Notional.NPROXY_Chain == nproxy_address
 
 
 def test_get_snote_address():
-    snote_address = Notional.get_snote_address(ETHEREUM)
-    assert Notional.SNOTE_ETH == snote_address
+    assert ETHTokenAddr.SNOTE == Notional.get_snote_address(Chain.ETHEREUM)
 
 
 def test_get_markets_data():
     block = 17049450
-    node = get_node(ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM, block)
 
-    eth, dai, usdc, wbtc = Notional.get_markets_data(block, ETHEREUM, web3=node)
+    eth, dai, usdc, wbtc = Notional.get_markets_data(block, Chain.ETHEREUM, web3=node)
     assert eth["currencyId"] == 1
-    assert eth["underlyingToken"] == {"address": ZERO_ADDRESS, "decimals": 1000000000000000000}
+    assert eth["underlyingToken"] == {"address": Address.ZERO, "decimals": 1000000000000000000}
     assert eth["cToken"] == {"address": cETH, "decimals": 100000000, "rate": Decimal("0.0200824210777124347051837671")}
     assert eth["nToken"] == {"address": nETH, "decimals": 100000000, "rate": Decimal("0.02026470831212603197181101555")}
     assert dai["currencyId"] == 2
@@ -59,27 +58,27 @@ def test_get_markets_data():
 
 def test_get_all_note_rewards():
     block = 17049450
-    node = get_node(ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM, block)
 
-    note_reward = Notional.all_note_rewards(WALLET_N1, block, ETHEREUM, web3=node)
+    note_reward = Notional.all_note_rewards(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert note_reward == [[ETHTokenAddr.NOTE, Decimal("20787.1858851")]]
 
 
 def test_get_staked():
     block = 17049450
-    node = get_node(ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM, block)
 
-    staked = Notional.get_staked(WALLET_N1, block, ETHEREUM, web3=node)
+    staked = Notional.get_staked(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert staked == [[ETHTokenAddr.WETH, Decimal("0")], [ETHTokenAddr.NOTE, Decimal("0")]]
 
 
 def test_underlying_all():
     block = 17049450
-    node = get_node(ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM, block)
 
-    underlying = Notional.underlying_all(WALLET_N1, block, ETHEREUM, web3=node)
+    underlying = Notional.underlying_all(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert underlying == [
-        [ZERO_ADDRESS, Decimal("9.237913695747719964384532866E-9")],
+        [Address.ZERO, Decimal("9.237913695747719964384532866E-9")],
         [ETHTokenAddr.DAI, Decimal("-209743.3234")],
         [ETHTokenAddr.USDC, Decimal("836657.9853193511111313755831")],
     ]
@@ -87,7 +86,7 @@ def test_underlying_all():
 
 def test_underlying():
     block = 17049450
-    node = get_node(ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM, block)
 
-    underlying = Notional.underlying(WALLET_N1, ETHTokenAddr.USDC, block, ETHEREUM, web3=node)
+    underlying = Notional.underlying(WALLET_N1, ETHTokenAddr.USDC, block, Chain.ETHEREUM, web3=node)
     assert underlying == [[ETHTokenAddr.USDC, Decimal("836657.9853193511111313755831")]]

@@ -5,7 +5,7 @@ from decimal import Decimal
 import requests
 from web3 import Web3
 
-from defyes.constants import ETHEREUM, XDAI, ZERO_ADDRESS
+from defyes.constants import Address, Chain
 from defyes.functions import balance_of, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -24,22 +24,21 @@ GNO = "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb"
 
 tokens = {
     "ethereum": {
-        "underlying": ZERO_ADDRESS,
+        "underlying": Address.ZERO,
         "staking": sETH2,
         "rewards": rETH2,
     },
-    # FIXME: 'xdai' should eventually be replaced by 'gnosis'
-    "xdai": {
+    Chain.GNOSIS: {
         "underlying": GNO,
         "staking": sGNO,
         "rewards": rGNO,
     },
 }
-# Tokens that can be accrued as rewards by depositing funds in the Curve or
-reward_addresses = {"ethereum": [rETH2, SWISE_eth], "xdai": [rGNO, SWISE_gno]}
+# Tokens that can be accrued as rewards by depositing funds in the Curve or Uniswap V3 pools
+reward_addresses = {"ethereum": [rETH2, SWISE_eth], Chain.GNOSIS: [rGNO, SWISE_gno]}
 
 Pools = {
-    "xdai": {
+    Chain.GNOSIS: {
         "curve": [
             {"name": "sGNO-GNO", "LPtoken": "0xBdF4488Dcf7165788D438b62B4C8A333879B7078"},
             {
@@ -48,7 +47,6 @@ Pools = {
             },
         ]
     },
-    # FIXME: 'xdai' should eventually be replaced by gnosis
     "ethereum": {
         "uniswap v3": [
             {"name": "WETH-sETH2", "tokens": [WETH, sETH2], "fee": 3000},
@@ -62,7 +60,7 @@ Pools = {
 def check_curve_pools(
     wallet: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True, reward: bool = False
 ):
-    if blockchain is not XDAI:
+    if blockchain is not Chain.GNOSIS:
         raise ValueError("Stakewise Curve pools are only deployed on Gnosis Chain.")
 
     if web3 is None:
@@ -71,7 +69,7 @@ def check_curve_pools(
     # FIXME: this will change once we change curve.underlying so that it returns a dictionary
     result = {}
 
-    for item in Pools["xdai"]["curve"]:
+    for item in Pools[Chain.GNOSIS]["curve"]:
         balances = curve.underlying(wallet, item["LPtoken"], block, blockchain, web3=web3, decimals=decimals)
 
         result[item["name"]] = {"LP token": item["LPtoken"], "balances": []}
@@ -90,7 +88,7 @@ def check_curve_pools(
 def check_uniswap_v3_pools(
     wallet: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True, reward: bool = False
 ):
-    if blockchain is not ETHEREUM:
+    if blockchain is not Chain.ETHEREUM:
         raise ValueError("Stakewise Uniswap V3 pools are only deployed on Ethereum.")
 
     if web3 is None:
@@ -138,7 +136,7 @@ def get_all_rewards(
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    chain = "mainnet" if blockchain is ETHEREUM else "gnosis"
+    chain = "mainnet" if blockchain is Chain.ETHEREUM else Chain.GNOSIS
     response = requests.get(f"https://api.stakewise.io/distributor-claims/{wallet}/?network={chain}")
     data = json.loads(response.text, parse_float=Decimal)
 
@@ -272,11 +270,11 @@ def underlying(
         result["unclaimed_rewards"] = rewards_data["rewards"]
 
     if pools:
-        if blockchain == XDAI:
+        if blockchain == Chain.GNOSIS:
             result["Curve_pools"] = check_curve_pools(
                 wallet, block, blockchain, web3=web3, decimals=decimals, reward=reward
             )
-        if blockchain == ETHEREUM:
+        if blockchain == Chain.ETHEREUM:
             result["Uniswap_V3_pools"] = check_uniswap_v3_pools(
                 wallet, block, blockchain, web3=web3, decimals=decimals, reward=reward
             )

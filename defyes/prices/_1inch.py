@@ -1,6 +1,6 @@
 from web3 import Web3
 
-from defyes.constants import ARBITRUM, AVAX, BINANCE, ETHEREUM, KOVAN, OPTIMISM, POLYGON, XDAI, ZERO_ADDRESS
+from defyes.constants import Address, Chain
 from defyes.functions import get_contract, get_decimals
 from defyes.node import get_node
 from defyes.prices import Chainlink
@@ -15,7 +15,7 @@ ORACLE_ETHEREUM = "0x07D91f5fb9Bf7798734C3f606dB065549F6893bb"
 ORACLE_POLYGON = "0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9"
 
 # Gnosis Chain(xDai) Oracle Address
-ORACLE_XDAI = "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E"
+ORACLE_GNOSIS = "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E"
 
 # Smart Chain (Binance) Oracle Address
 ORACLE_BINANCE = "0xfbD61B037C325b959c0F6A7e69D8f37770C2c550"
@@ -43,28 +43,28 @@ ABI_ORACLE = '[{"inputs":[],"name":"connectors","outputs":[{"internalType":"cont
 # get_oracle_address
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_oracle_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return ORACLE_ETHEREUM
 
-    elif blockchain == POLYGON:
+    elif blockchain == Chain.POLYGON:
         return ORACLE_POLYGON
 
-    elif blockchain == XDAI:
-        return ORACLE_XDAI
+    elif blockchain == Chain.GNOSIS:
+        return ORACLE_GNOSIS
 
-    elif blockchain == BINANCE:
+    elif blockchain == Chain.BINANCE:
         return ORACLE_BINANCE
 
-    elif blockchain == KOVAN:
+    elif blockchain == Chain.KOVAN:
         return ORACLE_KOVAN
 
-    elif blockchain == OPTIMISM:
+    elif blockchain == Chain.OPTIMISM:
         return ORACLE_OPTIMISM
 
-    elif blockchain == ARBITRUM:
+    elif blockchain == Chain.ARBITRUM:
         return ORACLE_ARBITRUM
 
-    elif blockchain == AVAX:
+    elif blockchain == Chain.AVAX:
         return ORACLE_AVAX
 
 
@@ -146,7 +146,7 @@ def get_price(token_src, block, blockchain, web3=None, use_wrappers=False, conne
 
     native_token_price = Chainlink.get_native_token_price(web3, block, blockchain)
 
-    if token_src == ZERO_ADDRESS:
+    if token_src == Address.ZERO:
         return native_token_price
 
     else:

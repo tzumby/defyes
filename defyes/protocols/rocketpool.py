@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from web3 import Web3
 
-from defyes.constants import ETHEREUM
+from defyes.constants import Chain
 from defyes.eth_derivs import EthDerivative
 from defyes.node import get_node
 
@@ -14,7 +14,7 @@ ROCKET_ADDR = "0xae78736Cd615f374D3085123A210448E74Fc6393"
 RocketPool = EthDerivative(
     protocol="Rocket Pool",
     description="Rocket Pool ETH",
-    blockchain=ETHEREUM,
+    blockchain=Chain.ETHEREUM,
     addr=ROCKET_ADDR,
     underlying_token="0x0000000000000000000000000000000000000000",
     eth_value_function="getEthValue",
@@ -25,7 +25,7 @@ RocketPool = EthDerivative(
 def underlying(
     wallet: str, block: int | str, blockchain: str, decimals: bool = True, web3: Web3 = None, unwrapped: bool = True
 ) -> list:
-    # The blockchain argument is not used but it could be in the future if Rocket Pool deploys on other chain
+    # The blockchain argument is not used but it could be in the future if Rocket Pool deploys on other ETHEREUM
     if web3 is None:
         web3 = get_node(blockchain, block=block)
     value = RocketPool.underlying(wallet=wallet, block=block, decimals=decimals, web3=web3, unwrapped=unwrapped)
@@ -52,7 +52,7 @@ def unwrap(amount: int | float | Decimal, block: int | str, blockchain: str, web
     list
         a list where the first element is the underlying token address and the second one is the balance
     """
-    # The blockchain argument is not used but it could be in the future if Rocket Pool deploys on other chain
+    # The blockchain argument is not used but it could be in the future if Rocket Pool deploys on other ETHEREUM
     if web3 is None:
         web3 = get_node(blockchain, block=block)
     value = RocketPool.unwrap(amount=amount, block=block, web3=web3)

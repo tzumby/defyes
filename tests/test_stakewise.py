@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Stakewise
-from defyes.constants import ETHEREUM, XDAI
+from defyes.constants import Chain
 from defyes.node import get_node
 
 WALLET_N1 = "0x05E61adDCef87ad8548236eb5Cbf2f699C834935"
@@ -13,7 +13,7 @@ WALLET_N2 = "0x53811010085382D49eF12bCC55902bbFCEB57790"
 @pytest.mark.parametrize("reward", [True, False])
 def test_check_uniswap_v3_pools(reward):
     block = 17438389
-    blockchain = ETHEREUM
+    blockchain = Chain.ETHEREUM
     node = get_node(blockchain, block)
     pools = Stakewise.check_uniswap_v3_pools(WALLET_N1, block, blockchain, web3=node, reward=reward)
     assert (
@@ -65,7 +65,7 @@ def test_check_uniswap_v3_pools(reward):
 @pytest.mark.parametrize("reward", [True, False])
 def test_check_curve_pools(reward):
     block = 28357764
-    blockchain = XDAI
+    blockchain = Chain.GNOSIS
     node = get_node(blockchain, block)
     pools = Stakewise.check_curve_pools(WALLET_N2, block, blockchain, web3=node, reward=reward)
     assert (
@@ -143,7 +143,7 @@ def test_check_curve_pools(reward):
 @pytest.mark.parametrize("pools", [True, False])
 def test_underlying(pools):
     block = 17438389
-    blockchain = ETHEREUM
+    blockchain = Chain.ETHEREUM
     node = get_node(blockchain, block)
     underlying = Stakewise.underlying(WALLET_N1, block, blockchain, web3=node, pools=pools, decimals=False)
     assert (
@@ -217,13 +217,13 @@ def test_underlying(pools):
     )
 
     block = 28357764
-    blockchain = XDAI
+    blockchain = Chain.GNOSIS
     node = get_node(blockchain, block)
     underlying = Stakewise.underlying(WALLET_N2, block, blockchain, web3=node, pools=pools, decimals=False)
     assert (
         underlying
         == {
-            "blockchain": "xdai",
+            "blockchain": Chain.GNOSIS,
             "block": 28357764,
             "protocol": "Stakewise",
             "positions_key": None,
@@ -271,7 +271,7 @@ def test_underlying(pools):
         }
         if pools
         else {
-            "blockchain": "xdai",
+            "blockchain": Chain.GNOSIS,
             "block": 28357764,
             "protocol": "Stakewise",
             "positions_key": None,

@@ -6,7 +6,7 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import get_contract, get_logs_web3, to_token_amount
 from defyes.node import get_node
-from defyes.util.topic import AddressHexor, TopicCreator
+from defyes.topic import address_hexor, topic_creator
 
 POOL_ADDR_V1 = "0xac004b512c33D029cf23ABf04513f1f380B3FD0a"
 POOL_ADDR_V2 = "0x204e7371Ade792c5C006fb52711c50a7efC843ed"
@@ -39,8 +39,8 @@ class AzuroPools:
             )
             self.first_block = 26026907
 
-        self.liquidity_added_topic = str(TopicCreator(liquidity_added_event))
-        self.liquidity_removed_topic = str(TopicCreator(liquidity_removed_event))
+        self.liquidity_added_topic = topic_creator(liquidity_added_event)
+        self.liquidity_removed_topic = topic_creator(liquidity_removed_event)
 
 
 # AZURO token contract ABI
@@ -64,7 +64,7 @@ def get_deposit(
     azuro_pool = AzuroPools(contract_address)
     wallet = Web3.to_checksum_address(wallet)
 
-    wallethex = str(AddressHexor(wallet))
+    wallethex = address_hexor(wallet)
     nfthex = "0x00000000000000000000000000000000000000000000000000000" + hex(nftid)[2:]
 
     amount = 0

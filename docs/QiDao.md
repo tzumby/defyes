@@ -16,7 +16,7 @@
 
   from defyes import QiDao
 
-  f1 = QiDao.get_vault_address('0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', XDAI)
+  f1 = QiDao.get_vault_address('0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', Chain.GNOSIS)
 
   print(f1)
 
@@ -42,7 +42,7 @@
 
   from defyes import QiDao
 
-  f2 = QiDao.get_vault_data(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', XDAI)
+  f2 = QiDao.get_vault_data(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.GNOSIS)
 
   print(f2)
 
@@ -74,7 +74,7 @@
 
   from defyes import QiDao
 
-  f3 = QiDao.underlying(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', XDAI)
+  f3 = QiDao.underlying(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.GNOSIS)
 
   print(f3)
 

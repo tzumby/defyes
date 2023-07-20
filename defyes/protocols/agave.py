@@ -16,7 +16,7 @@ from typing import Dict, List, Union
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import AGVE_XDAI, STKAGAVE_XDAI
+from defyes.constants import GnosisTokenAddr
 from defyes.functions import balance_of, get_contract, to_token_amount
 from defyes.node import get_node
 
@@ -25,28 +25,28 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROTOCOL DATA PROVIDER
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Protocol Data Provider - XDAI
-# PDP_XDAI = '0x75e5cF901f3A576F72AB6bCbcf7d81F1619C6a12'
-PDP_XDAI = "0x24dCbd376Db23e4771375092344f5CbEA3541FC0"
+# Protocol Data Provider - GNOSIS
+# PDP_GNOSIS = '0x75e5cF901f3A576F72AB6bCbcf7d81F1619C6a12'
+PDP_GNOSIS = "0x24dCbd376Db23e4771375092344f5CbEA3541FC0"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # LENDING POOL ADDRESSES PROVIDER REGISTRY
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Lending Pool Addresses Provider Registry - XDAI
-LPAPR_XDAI = "0x3673C22153E363B1da69732c4E0aA71872Bbb87F"
+# Lending Pool Addresses Provider Registry - GNOSIS
+LPAPR_GNOSIS = "0x3673C22153E363B1da69732c4E0aA71872Bbb87F"
 # 0x5E15d5E33d318dCEd84Bfe3F4EACe07909bE6d9c
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # EXTRA REWARDER CONTRACT
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Rewarder contract - XDAI
+# Rewarder contract - GNOSIS
 REWARDER_ADDRESS = "0xfa255f5104f129B78f477e9a6D050a02f31A5D86"
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CHAINLINK PRICE FEEDS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# XDAI
+# GNOSIS
 # XDAI/USD Price Feed
 CHAINLINK_XDAI_USD = "0x678df3415fc31947dA4324eC63212874be5a82f8"
 
@@ -87,7 +87,7 @@ def get_reserves_tokens_balances(
 ) -> List[List]:
     balances = []
 
-    pdp_contract = get_contract(PDP_XDAI, blockchain, web3=web3, abi=ABI_PDP, block=block)
+    pdp_contract = get_contract(PDP_GNOSIS, blockchain, web3=web3, abi=ABI_PDP, block=block)
     reserves_tokens = get_reserves_tokens(pdp_contract, block)
     cs_wallet = Web3.to_checksum_address(wallet)
 
@@ -112,7 +112,7 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str, web3=None, de
 
     wallet = Web3.to_checksum_address(wallet)
 
-    lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+    lpapr_contract = get_contract(LPAPR_GNOSIS, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
     lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
     lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
@@ -195,7 +195,7 @@ def get_all_rewards(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
 
     reward_token = const_call(stkagave_contract.functions.REWARD_TOKEN())
 
@@ -239,7 +239,7 @@ def get_apr(token_address: str, block: Union[int, str], blockchain: str, web3=No
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    lpapr_contract = get_contract(LPAPR_XDAI, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+    lpapr_contract = get_contract(LPAPR_GNOSIS, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
 
     lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
     lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
@@ -281,10 +281,12 @@ def get_staking_apr(block: Union[int, str], blockchain: str, web3=None, apy: boo
 
     seconds_per_year = 365 * 24 * 60 * 60
 
-    stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
-    emission_per_second = stkagave_contract.functions.assets(STKAGAVE_XDAI).call(block_identifier=block)[0]
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    emission_per_second = stkagave_contract.functions.assets(GnosisTokenAddr.STKAGAVE).call(block_identifier=block)[0]
     agave_token_address = const_call(stkagave_contract.functions.REWARD_TOKEN())
-    current_stakes = balance_of(STKAGAVE_XDAI, agave_token_address, block, blockchain, web3=web3, decimals=False)
+    current_stakes = balance_of(
+        GnosisTokenAddr.STKAGAVE, agave_token_address, block, blockchain, web3=web3, decimals=False
+    )
 
     staking_apr = emission_per_second * seconds_per_year / current_stakes
     staking_apy = ((1 + (staking_apr / seconds_per_year)) ** seconds_per_year) - 1
@@ -302,15 +304,15 @@ def get_staked(
 
     agave_wallet = Web3.to_checksum_address(wallet)
 
-    stkagave_contract = get_contract(STKAGAVE_XDAI, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
     stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
 
-    stkagave_balance = to_token_amount(STKAGAVE_XDAI, stkagave_balance, blockchain, web3, decimals)
+    stkagave_balance = to_token_amount(GnosisTokenAddr.STKAGAVE, stkagave_balance, blockchain, web3, decimals)
 
     if stkagve:
-        balances.append([STKAGAVE_XDAI, stkagave_balance])
+        balances.append([GnosisTokenAddr.STKAGAVE, stkagave_balance])
     else:
-        balances.append([AGVE_XDAI, stkagave_balance])
+        balances.append([GnosisTokenAddr.AGVE, stkagave_balance])
 
     return balances
 
@@ -319,7 +321,7 @@ def get_agave_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> di
     if web3 is None:
         web3 = get_node(blockchain, block)
 
-    pdp_contract = get_contract(PDP_XDAI, blockchain, web3=web3, abi=ABI_PDP, block=block)
+    pdp_contract = get_contract(PDP_GNOSIS, blockchain, web3=web3, abi=ABI_PDP, block=block)
     reserve_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
     agave_tokens = []
     for token in reserve_tokens:
