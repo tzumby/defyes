@@ -468,11 +468,11 @@ def test_protocol_data():
 
     block = 28721619
     underlying = Balancer.get_protocol_data_for(
-        "xdai", WALLET_e6f, "0xbad20c15a773bf03ab973302f61fabcea5101f0a", block, reward=True
+        Chain.GNOSIS, WALLET_e6f, "0xbad20c15a773bf03ab973302f61fabcea5101f0a", block, reward=True
     )
     assert {
         "protocol": "Balancer",
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "block": 28721619,
         "positions": {
             "0xbAd20c15A773bf03ab973302F61FAbceA5101f0A": {

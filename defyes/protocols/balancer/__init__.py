@@ -206,7 +206,7 @@ def get_gauge_addresses(blockchain: str, block: int | str, lp_address: str) -> l
             (72942741, "0x6817149cb753BF529565B4D023d7507eD2ff4Bc0"),
             (9756975, "0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2"),
         ],
-        "xdai": [
+        Chain.GNOSIS: [
             (27088528, "0x83E443EF4f9963C77bd860f94500075556668cb8"),
             (26615210, "0x809B79b53F18E9bc08A961ED4678B901aC93213a"),
         ],
