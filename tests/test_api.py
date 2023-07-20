@@ -1,7 +1,7 @@
 import pytest
 
-from defyes.constants import ETHEREUM, XDAI
-from defyes.util.api import RequestFromScan
+from defyes.api import RequestFromScan
+from defyes.constants import Chain
 
 ADDRESS_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
 ABI_N1 = '{"internalType":"bytes","name":"signatures","type":"bytes"}],"name":"execTransaction","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"payable","type":"function"}'
@@ -13,11 +13,11 @@ ADDRESS_N4 = "0xD6A6372e371AF57c773176C41DD4a26f6084b37E"
 ABI_N4 = "Contract source code not verified"
 
 test_cases = [
-    (XDAI, "contract", "getabi", {"address": ADDRESS_N1}, ABI_N1),
-    (XDAI, "contract", "getabi", {"address": ADDRESS_N2}, ABI_N2),
-    (XDAI, "contract", "getabi", {"address": ADDRESS_N3}, ABI_N3),
-    (XDAI, "contract", "getabi", {"address": ADDRESS_N4}, ABI_N4),
-    (ETHEREUM, "block", "getblockreward", {"blockno": 2165403}, "blockReward"),
+    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N1}, ABI_N1),
+    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N2}, ABI_N2),
+    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N3}, ABI_N3),
+    (Chain.XDAI, "contract", "getabi", {"address": ADDRESS_N4}, ABI_N4),
+    (Chain.ETHEREUM, "block", "getblockreward", {"blockno": 2165403}, "blockReward"),
 ]
 
 

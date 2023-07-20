@@ -3,11 +3,11 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ETHEREUM, SNOTE_ETH
+from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import block_to_timestamp, get_contract, to_token_amount
 from defyes.node import get_node
 
-NPROXY_ETHEREUM = "0x1344A36A1B56144C3Bc62E7757377D288fDE0369"
+NPROXY_Chain = "0x1344A36A1B56144C3Bc62E7757377D288fDE0369"
 
 # nProxy ABI - getAccount, getCurrencyAndRates, getMaxCurrencyId, getNoteToken, nTokenAddress, nTokenGetClaimableIncentives
 ABI_NPROXY = '[{"stateMutability":"nonpayable","type":"fallback"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getAccount","outputs":[{"components":[{"internalType":"uint40","name":"nextSettleTime","type":"uint40"},{"internalType":"bytes1","name":"hasDebt","type":"bytes1"},{"internalType":"uint8","name":"assetArrayLength","type":"uint8"},{"internalType":"uint16","name":"bitmapCurrencyId","type":"uint16"},{"internalType":"bytes18","name":"activeCurrencies","type":"bytes18"}],"internalType":"struct AccountContext","name":"accountContext","type":"tuple"},{"components":[{"internalType":"uint16","name":"currencyId","type":"uint16"},{"internalType":"int256","name":"cashBalance","type":"int256"},{"internalType":"int256","name":"nTokenBalance","type":"int256"},{"internalType":"uint256","name":"lastClaimTime","type":"uint256"},{"internalType":"uint256","name":"accountIncentiveDebt","type":"uint256"}],"internalType":"struct AccountBalance[]","name":"accountBalances","type":"tuple[]"},{"components":[{"internalType":"uint256","name":"currencyId","type":"uint256"},{"internalType":"uint256","name":"maturity","type":"uint256"},{"internalType":"uint256","name":"assetType","type":"uint256"},{"internalType":"int256","name":"notional","type":"int256"},{"internalType":"uint256","name":"storageSlot","type":"uint256"},{"internalType":"enum AssetStorageState","name":"storageState","type":"uint8"}],"internalType":"struct PortfolioAsset[]","name":"portfolio","type":"tuple[]"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint16","name":"currencyId","type":"uint16"}],"name":"getCurrencyAndRates","outputs":[{"components":[{"internalType":"address","name":"tokenAddress","type":"address"},{"internalType":"bool","name":"hasTransferFee","type":"bool"},{"internalType":"int256","name":"decimals","type":"int256"},{"internalType":"enum TokenType","name":"tokenType","type":"uint8"},{"internalType":"uint256","name":"maxCollateralBalance","type":"uint256"}],"internalType":"struct Token","name":"assetToken","type":"tuple"},{"components":[{"internalType":"address","name":"tokenAddress","type":"address"},{"internalType":"bool","name":"hasTransferFee","type":"bool"},{"internalType":"int256","name":"decimals","type":"int256"},{"internalType":"enum TokenType","name":"tokenType","type":"uint8"},{"internalType":"uint256","name":"maxCollateralBalance","type":"uint256"}],"internalType":"struct Token","name":"underlyingToken","type":"tuple"},{"components":[{"internalType":"int256","name":"rateDecimals","type":"int256"},{"internalType":"int256","name":"rate","type":"int256"},{"internalType":"int256","name":"buffer","type":"int256"},{"internalType":"int256","name":"haircut","type":"int256"},{"internalType":"int256","name":"liquidationDiscount","type":"int256"}],"internalType":"struct ETHRate","name":"ethRate","type":"tuple"},{"components":[{"internalType":"contract AssetRateAdapter","name":"rateOracle","type":"address"},{"internalType":"int256","name":"rate","type":"int256"},{"internalType":"int256","name":"underlyingDecimals","type":"int256"}],"internalType":"struct AssetRateParameters","name":"assetRate","type":"tuple"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getMaxCurrencyId","outputs":[{"internalType":"uint16","name":"","type":"uint16"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getNoteToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"pure","type":"function"}, {"inputs":[{"internalType":"uint16","name":"currencyId","type":"uint16"}],"name":"nTokenAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"blockTime","type":"uint256"}],"name":"nTokenGetClaimableIncentives","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
@@ -20,13 +20,13 @@ ABI_SNOTE = '[{"inputs":[],"name":"NOTE","outputs":[{"internalType":"contract ER
 
 
 def get_nproxy_address(blockchain):
-    if blockchain == ETHEREUM:
-        return NPROXY_ETHEREUM
+    if blockchain == Chain.ETHEREUM:
+        return NPROXY_Chain
 
 
 def get_snote_address(blockchain):
-    if blockchain == ETHEREUM:
-        return SNOTE_ETH
+    if blockchain == Chain.ETHEREUM:
+        return ETHTokenAddr.SNOTE
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

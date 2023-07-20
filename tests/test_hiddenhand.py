@@ -2,7 +2,7 @@ from decimal import Decimal
 from unittest.mock import Mock
 
 from defyes import HiddenHand
-from defyes.constants import ETHEREUM
+from defyes.constants import Chain
 
 WALLET_N1 = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 
@@ -80,7 +80,7 @@ api_json_result = (
 
 def test_underlying_all(monkeypatch):
     monkeypatch.setattr(HiddenHand, "get_api_results", Mock(return_value=api_result))
-    data = HiddenHand.underlying_all(WALLET_N1, ETHEREUM)
+    data = HiddenHand.underlying_all(WALLET_N1, Chain.ETHEREUM)
     assert data == end_result
 
 
@@ -88,7 +88,7 @@ def test_get_api_result(requests_mock):
     requests_mock.get(f"https://api.hiddenhand.finance/reward/1/{WALLET_N1}", text=api_json_result)
     api_results = HiddenHand.get_api_results(
         wallet=WALLET_N1,
-        blockchain=ETHEREUM,
+        blockchain=Chain.ETHEREUM,
     )
     assert api_results == [
         {"decimals": 18, "claimable": "56.771231052533362388", "value": Decimal("2835.7229910740416")},

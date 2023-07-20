@@ -5,12 +5,8 @@ import requests
 from defyes.constants import (
     API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE,
     API_COINGECKO_COINID_PRICE_RANGE,
-    AVALANCHE,
-    ETHEREUM,
-    OPTIMISM,
-    POLYGON,
-    XDAI,
-    ZERO_ADDRESS,
+    Address,
+    Chain,
 )
 
 
@@ -26,16 +22,16 @@ def get_price(token_address, timestamp, blockchain):
     :return:
     """
     if (
-        blockchain != ETHEREUM
-        and blockchain != XDAI
-        and blockchain != POLYGON
-        and blockchain != AVALANCHE
-        and blockchain != OPTIMISM
+        blockchain != Chain.ETHEREUM
+        and blockchain != Chain.XDAI
+        and blockchain != Chain.POLYGON
+        and blockchain != Chain.AVALANCHE
+        and blockchain != Chain.OPTIMISM
     ):
         return [timestamp, None]
 
-    if token_address == ZERO_ADDRESS:
-        if blockchain == POLYGON:
+    if token_address == Address.ZERO:
+        if blockchain == Chain.POLYGON:
             coin_id = "matic-network"
         else:
             coin_id = blockchain
@@ -64,9 +60,9 @@ def get_price(token_address, timestamp, blockchain):
                             data = data.json()["prices"]
 
     else:
-        if blockchain == POLYGON:
+        if blockchain == Chain.POLYGON:
             blockchain_id = "polygon-pos"
-        elif blockchain == OPTIMISM:
+        elif blockchain == Chain.OPTIMISM:
             blockchain_id = "optimistic-ethereum"
         else:
             blockchain_id = blockchain
@@ -139,11 +135,11 @@ def get_price_range(token_address, start_timestamp, end_timestamp, blockchain):
     """
     result = []
 
-    if blockchain != ETHEREUM and blockchain != XDAI and blockchain != POLYGON:
+    if blockchain != Chain.ETHEREUM and blockchain != Chain.XDAI and blockchain != Chain.POLYGON:
         return None
 
-    if token_address == ZERO_ADDRESS:
-        if blockchain == POLYGON:
+    if token_address == Address.ZERO:
+        if blockchain == Chain.POLYGON:
             coin_id = "matic-network"
         else:
             coin_id = blockchain
@@ -155,7 +151,7 @@ def get_price_range(token_address, start_timestamp, end_timestamp, blockchain):
             data = data.json()["prices"]
 
     else:
-        if blockchain == POLYGON:
+        if blockchain == Chain.POLYGON:
             blockchain_id = "polygon-pos"
         else:
             blockchain_id = blockchain

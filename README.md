@@ -154,7 +154,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```
-    a = get_node(ETHEREUM, 'latest')
+    a = get_node(Chain.ETHEREUM, 'latest')
     print(a)
     ```
 
@@ -171,7 +171,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```
-    a = last_block(ETHEREUM, None, 'latest')
+    a = last_block(Chain.ETHEREUM, None, 'latest')
     print(a)
     ```
 
@@ -205,7 +205,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```
-    a = timestamp_to_block(1663181616, ETHEREUM)
+    a = timestamp_to_block(1663181616, Chain.ETHEREUM)
     print(a)
     ```
 
@@ -239,7 +239,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    a = date_to_block('2022-01-14 00:00:00', ETHEREUM)
+    a = date_to_block('2022-01-14 00:00:00', Chain.ETHEREUM)
     print(a)
 
     ```
@@ -257,7 +257,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    a = block_to_timestamp(14000200, ETHEREUM)
+    a = block_to_timestamp(14000200, Chain.ETHEREUM)
     print(a)
 
     ```
@@ -275,7 +275,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    a = block_to_date(14000270, ETHEREUM)
+    a = block_to_date(14000270, Chain.ETHEREUM)
     print(a)
 
     ```
@@ -293,7 +293,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    a = get_blocks_per_year(ETHEREUM)
+    a = get_blocks_per_year(Chain.ETHEREUM)
     print(a)
 
     ```
@@ -311,7 +311,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    a = token_info('0x6810e776880C02933D47DB1b9fc05908e5386b96', ETHEREUM)
+    a = token_info('0x6810e776880C02933D47DB1b9fc05908e5386b96', Chain.ETHEREUM)
     print (a)
 
     ```
@@ -329,7 +329,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    a = balance_of('0x2D0669DB84f11A9EAD41e57Ce2f242D92111a58F', '0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', ETHEREUM)
+    a = balance_of('0x2D0669DB84f11A9EAD41e57Ce2f242D92111a58F', '0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', Chain.ETHEREUM)
     print(a)
 
     ```
@@ -347,7 +347,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    a = total_supply('0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', ETHEREUM)
+    a = total_supply('0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', Chain.ETHEREUM)
     print(a)
 
     ```
@@ -378,7 +378,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    print(get_contract('0xdAC17F958D2ee523a2206206994597C13D831ec7', ETHEREUM))
+    print(get_contract('0xdAC17F958D2ee523a2206206994597C13D831ec7', Chain.ETHEREUM))
 
     ```
 
@@ -395,11 +395,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    # a = get_contract_abi('0xdc31ee1784292379fbb2964b3b9c4124d8f89c60', GOERLI)
+    # a = get_contract_abi('0xdc31ee1784292379fbb2964b3b9c4124d8f89c60', Chain.GOERLI)
 
     # print(a)
 
-    b = get_contract_proxy_abi('0xdc31ee1784292379fbb2964b3b9c4124d8f89c60', '0xe2E52C2D0D64209b8DD1854371A4C673c13448f0', GOERLI)
+    b = get_contract_proxy_abi('0xdc31ee1784292379fbb2964b3b9c4124d8f89c60', '0xe2E52C2D0D64209b8DD1854371A4C673c13448f0', Chain.GOERLI)
 
     print(b)
     ```
@@ -417,7 +417,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', XDAI)
+    d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
 
     print(d)
 
@@ -436,7 +436,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', XDAI)
+    d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
 
     print(d)
 
@@ -455,7 +455,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, XDAI)
+    d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, Chain.XDAI)
 
     print(d)
 
@@ -474,7 +474,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', XDAI)
+    e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', Chain.XDAI)
 
     print(e)
 
@@ -494,7 +494,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', XDAI)
+    e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', Chain.XDAI)
 
     print(e)
 
@@ -573,7 +573,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aave
 
-    f1 = get_contract('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d', ETHEREUM)
+    f1 = get_contract('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d', Chain.ETHEREUM)
 
     f2 = Aave.get_reserves_tokens(f1, 'latest')
 
@@ -598,9 +598,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aave
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f2 = Aave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f2 = Aave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -623,7 +623,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aave
 
-    f3 = Aave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f3 = Aave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f3)
 
@@ -649,7 +649,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aave
 
-    f4 = Aave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f4 = Aave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f4)
 
@@ -673,7 +673,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aave
 
-    f5 = Aave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM, reward=True)
+    f5 = Aave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM, reward=True)
 
     print(f5)
 
@@ -710,7 +710,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
     from defyes import Agave
 
 
-    f1 = Agave.get_contract('0x24dCbd376Db23e4771375092344f5CbEA3541FC0', XDAI)
+    f1 = Agave.get_contract('0x24dCbd376Db23e4771375092344f5CbEA3541FC0', Chain.XDAI)
     f2 = Agave.get_reserves_tokens(f1, 'latest')
     print(f2)
 
@@ -736,9 +736,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f2 = Agave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', XDAI)
+    f2 = Agave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
 
     print(f2)
 
@@ -765,7 +765,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    f3 = Agave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', XDAI)
+    f3 = Agave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
 
     print(f3)
 
@@ -791,7 +791,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    f4 = Agave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', XDAI)
+    f4 = Agave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
 
     print(f4)
 
@@ -817,7 +817,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    f5 = Agave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', XDAI, reward=True)
+    f5 = Agave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI, reward=True)
 
     print(f5)
 
@@ -858,7 +858,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    f0 = get_contract('0xA57b8d98dAE62B26Ec3bcC4a365338157060B234', ETHEREUM)
+    f0 = get_contract('0xA57b8d98dAE62B26Ec3bcC4a365338157060B234', Chain.ETHEREUM)
 
     f1 = Aura.get_pool_info(f0, '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest')
 
@@ -887,11 +887,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', ETHEREUM)
+    f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', Chain.ETHEREUM)
 
-    f2 = Aura.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f2 = Aura.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -918,11 +918,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', ETHEREUM)
+    f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', Chain.ETHEREUM)
 
-    f3 = Aura.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f3 = Aura.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f3)
 
@@ -948,7 +948,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    f4 = Aura.get_extra_rewards_airdrop('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f4 = Aura.get_extra_rewards_airdrop('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f4)
 
@@ -1003,7 +1003,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    f6 = Aura.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', ETHEREUM)
+    f6 = Aura.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', Chain.ETHEREUM)
 
     print(f6)
 
@@ -1034,7 +1034,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    f7 = Aura.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f7 = Aura.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f7)
 
@@ -1067,7 +1067,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    f8 = Aura.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f8 = Aura.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f8)
 
@@ -1100,7 +1100,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    f9 = Aura.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', ETHEREUM)
+    f9 = Aura.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', Chain.ETHEREUM)
 
     print(f9)
 
@@ -1131,7 +1131,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Aura
 
-    f10 = Aura.pool_balances('0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', ETHEREUM)
+    f10 = Aura.pool_balances('0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', Chain.ETHEREUM)
 
     print(f10)
 
@@ -1172,7 +1172,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Balancer
 
-    f1 = Balancer.get_lptoken_data('0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', ETHEREUM)
+    f1 = Balancer.get_lptoken_data('0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', Chain.ETHEREUM)
 
     print(f1)
 
@@ -1208,10 +1208,10 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
     from defyes import Balancer
 
     
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f1 = get_contract('0x68d019f64A7aa97e2D4e7363AEE42251D08124Fb', ETHEREUM)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f1 = get_contract('0x68d019f64A7aa97e2D4e7363AEE42251D08124Fb', Chain.ETHEREUM)
 
-    f2 = Balancer.get_bal_rewards(web3, 'f1', '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f2 = Balancer.get_bal_rewards(web3, 'f1', '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -1245,9 +1245,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Balancer
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f1 = get_contract('0x68d019f64A7aa97e2D4e7363AEE42251D08124Fb', ETHEREUM)
-    f3 = Balancer.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM, decimals=True)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f1 = get_contract('0x68d019f64A7aa97e2D4e7363AEE42251D08124Fb', Chain.ETHEREUM)
+    f3 = Balancer.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM, decimals=True)
     print(f3)
 
     ```
@@ -1277,8 +1277,8 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Balancer
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f4 = Balancer.get_vebal_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM, decimals=True)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f4 = Balancer.get_vebal_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM, decimals=True)
     print(f4)
 
     ```
@@ -1309,7 +1309,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Balancer
     
-    f5 = Balancer.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', ETHEREUM)
+    f5 = Balancer.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', Chain.ETHEREUM)
     
     print(f5)
 
@@ -1342,7 +1342,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Balancer
     
-    f6 = Balancer.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', ETHEREUM)
+    f6 = Balancer.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', Chain.ETHEREUM)
     
     print(f6)
 
@@ -1376,7 +1376,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Balancer
     
-    f7 = Balancer.pool_balances('0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', ETHEREUM) 
+    f7 = Balancer.pool_balances('0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 'latest', Chain.ETHEREUM) 
 
     print(f7)
 
@@ -1404,7 +1404,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Balancer
     
-    f8 = Balancer.swap_fees('0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 16374265, 'latest', ETHEREUM)
+    f8 = Balancer.swap_fees('0x7B50775383d3D6f0215A8F290f2C9e2eEBBEceb2', 16374265, 'latest', Chain.ETHEREUM)
 
     print(f8)
 
@@ -1439,7 +1439,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Bancor
 
-    f1 = Bancor.underlying('0x36FAbE4cAeF8c190550b6f93c306A5644E7dCef6', '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f1 = Bancor.underlying('0x36FAbE4cAeF8c190550b6f93c306A5644E7dCef6', '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f1)
 
@@ -1465,7 +1465,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Bancor
 
-    f2 = Bancor.underlying_all('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f2 = Bancor.underlying_all('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f2)
     ```
@@ -1535,9 +1535,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Convex
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', ETHEREUM)
-    f2 = Convex.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', Chain.ETHEREUM)
+    f2 = Convex.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
     print(f2)
 
     ```
@@ -1566,9 +1566,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Convex
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', ETHEREUM)
-    f3 = Convex.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', Chain.ETHEREUM)
+    f3 = Convex.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
     print(f3)
 
     ```
@@ -1622,8 +1622,8 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Convex
 
-    f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', ETHEREUM)
-    f4 = Convex.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'f1', 'latest', ETHEREUM)
+    f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', Chain.ETHEREUM)
+    f4 = Convex.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'f1', 'latest', Chain.ETHEREUM)
     print(f4)
 
     ```
@@ -1655,7 +1655,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Convex
 
-    f5 = Convex.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f5 = Convex.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
     
     print(f5)
 
@@ -1689,7 +1689,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Convex
 
-    f6 = Convex.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f6 = Convex.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
     
     print(f6)
     
@@ -1722,7 +1722,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Convex
 
-    f7 = Convex.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', ETHEREUM)
+    f7 = Convex.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', Chain.ETHEREUM)
     
     print(f7)
     
@@ -1754,7 +1754,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Convex
 
-    f8 = Convex.pool_balances('0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', ETHEREUM)
+    f8 = Convex.pool_balances('0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', Chain.ETHEREUM)
     
     print(f8)
     
@@ -1803,8 +1803,8 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f1 = Curve.get_registry_contract(web3, 3, 'latest', ETHEREUM)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f1 = Curve.get_registry_contract(web3, 3, 'latest', Chain.ETHEREUM)
     print(f1)
 
     ```
@@ -1828,11 +1828,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
     
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
     
-    f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI)
+    f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
 
     print(f2)
 
@@ -1858,7 +1858,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', XDAI)
+    f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', Chain.XDAI)
 
     print(f3)
 
@@ -1884,9 +1884,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
     
-    f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI)
+    f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
     
     print(f4)
 
@@ -1914,9 +1914,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
     
-    f5 = Curve.get_pool_data(web3, '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46', 'latest', ETHEREUM)
+    f5 = Curve.get_pool_data(web3, '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46', 'latest', Chain.ETHEREUM)
 
     print(f5)
 
@@ -1944,7 +1944,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f6 = Curve.get_lptoken_data('0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', ETHEREUM)
+    f6 = Curve.get_lptoken_data('0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', Chain.ETHEREUM)
 
     print(f6)
 
@@ -1976,7 +1976,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f7 = Curve.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', ETHEREUM)
+    f7 = Curve.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', Chain.ETHEREUM)
 
     print(f7)
 
@@ -2008,7 +2008,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI )
+    f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI )
 
     print(f8)
 
@@ -2064,7 +2064,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI)
+    f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
 
     print(f10)
 
@@ -2092,7 +2092,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', XDAI)
+    f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', Chain.XDAI)
 
     print(f11)
 
@@ -2129,7 +2129,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
     from defyes import Elk
 
 
-    f1 = Elk.get_lptoken_data('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', ETHEREUM)
+    f1 = Elk.get_lptoken_data('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', Chain.ETHEREUM)
 
     print(f1)
 
@@ -2157,9 +2157,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Elk
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
     
-    f2 = Elk.get_pool_address(web3, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE', 'latest', ETHEREUM)
+    f2 = Elk.get_pool_address(web3, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE', 'latest', Chain.ETHEREUM)
     
     print(f2)
     
@@ -2191,9 +2191,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Elk
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f2 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', ETHEREUM)
-    f3 = Elk.get_elk_rewards(web3, f2, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f2 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', Chain.ETHEREUM)
+    f3 = Elk.get_elk_rewards(web3, f2, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f3)
 
@@ -2224,9 +2224,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Elk
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
-    f3 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', ETHEREUM)
-    f4 = Elk.get_booster_rewards(web3, f3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+    f3 = get_contract('0xF220eA963D27Ebe782f09403017B29692A4fC4aE', Chain.ETHEREUM)
+    f4 = Elk.get_booster_rewards(web3, f3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
     
     print(f4)
 
@@ -2256,7 +2256,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Elk
 
-    f5 = Elk.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xF220eA963D27Ebe782f09403017B29692A4fC4aE', 'latest', ETHEREUM)
+    f5 = Elk.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xF220eA963D27Ebe782f09403017B29692A4fC4aE', 'latest', Chain.ETHEREUM)
 
     print(f5)
 
@@ -2288,7 +2288,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Elk
 
-    f6 = Elk.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', ETHEREUM)
+    f6 = Elk.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', Chain.ETHEREUM)
 
     print(f6)
 
@@ -2320,7 +2320,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Elk
 
-    f7 = Elk.pool_balances('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', ETHEREUM)
+    f7 = Elk.pool_balances('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 'latest', Chain.ETHEREUM)
     
     print(f7)
 
@@ -2348,7 +2348,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Elk
 
-    f8 = Elk.swap_fees('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 16380015, 'latest', ETHEREUM)
+    f8 = Elk.swap_fees('0xA27E5775317F3f301B5b08BabCdE0a20FEAE7f09', 16380015, 'latest', Chain.ETHEREUM)
 
     print(f8)
 
@@ -2383,7 +2383,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Honeyswap
 
-    f1 = Honeyswap.get_lptoken_data('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', ETHEREUM)
+    f1 = Honeyswap.get_lptoken_data('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', Chain.ETHEREUM)
     
     print(f1)
 
@@ -2415,7 +2415,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Honeyswap
 
-    f2 = Honeyswap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', ETHEREUM)
+    f2 = Honeyswap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -2447,7 +2447,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Honeyswap
 
-    f3 = Honeyswap.pool_balances('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', ETHEREUM)
+    f3 = Honeyswap.pool_balances('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', Chain.ETHEREUM)
 
     print(f3)
     
@@ -2473,7 +2473,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Honeyswap
 
-    f4 = Honeyswap.swap_fees('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 0, 'latest', ETHEREUM)
+    f4 = Honeyswap.swap_fees('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 0, 'latest', Chain.ETHEREUM)
 
     print(f4)
 
@@ -2576,7 +2576,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import QiDao
 
-    f1 = QiDao.get_vault_address('0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', XDAI)
+    f1 = QiDao.get_vault_address('0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', Chain.XDAI)
 
     print(f1)
 
@@ -2602,7 +2602,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import QiDao
 
-    f2 = QiDao.get_vault_data(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', XDAI)
+    f2 = QiDao.get_vault_data(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.XDAI)
 
     print(f2)
 
@@ -2634,7 +2634,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import QiDao
 
-    f3 = QiDao.underlying(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', XDAI)
+    f3 = QiDao.underlying(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.XDAI)
 
     print(f3)
 
@@ -2668,7 +2668,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Reflexer
 
-    f1 = Reflexer.lptoken_underlying('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 10000, 'latest', ETHEREUM)
+    f1 = Reflexer.lptoken_underlying('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 10000, 'latest', Chain.ETHEREUM)
 
     print(f1)
 
@@ -2697,7 +2697,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Reflexer
 
-    f2 = Reflexer.pool_balance('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', ETHEREUM)
+    f2 = Reflexer.pool_balance('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -2725,7 +2725,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Reflexer
 
-    f3 = Reflexer.balance_of_lptoken_underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', ETHEREUM)
+    f3 = Reflexer.balance_of_lptoken_underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', Chain.ETHEREUM)
 
     print(f3)
     ```
@@ -2752,7 +2752,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
     from defyes import Reflexer
 
     
-    f4 = Reflexer.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', ETHEREUM)
+    f4 = Reflexer.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', Chain.ETHEREUM)
 
     print(f4)
     ```
@@ -2785,9 +2785,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+    f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
     print(f1)
 
@@ -2816,9 +2816,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f2 = SushiSwap.get_pool_info(web3, '0x06da0fd433C1A5d7a4faa01111c044910A184553', 'latest', ETHEREUM)
+    f2 = SushiSwap.get_pool_info(web3, '0x06da0fd433C1A5d7a4faa01111c044910A184553', 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -2846,7 +2846,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f3 = SushiSwap.get_lptoken_data('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+    f3 = SushiSwap.get_lptoken_data('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
     print(f3)
 
@@ -2876,7 +2876,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f4 = SushiSwap.get_virtual_total_supply('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+    f4 = SushiSwap.get_virtual_total_supply('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
     print(f4)
 
@@ -2904,11 +2904,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+    f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
-    f5 = SushiSwap.get_rewarder_contract(web3, 'latest', ETHEREUM, f1, 1)
+    f5 = SushiSwap.get_rewarder_contract(web3, 'latest', Chain.ETHEREUM, f1, 1)
 
     print(f5)
 
@@ -2940,11 +2940,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+    f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
-    f6 = SushiSwap.get_sushi_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', ETHEREUM)
+    f6 = SushiSwap.get_sushi_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', Chain.ETHEREUM)
 
     print(f6)
 
@@ -2976,11 +2976,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+    f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
-    f7 = SushiSwap.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', ETHEREUM)
+    f7 = SushiSwap.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', Chain.ETHEREUM)
 
     print(f7)
 
@@ -3011,7 +3011,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f8 = SushiSwap.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+    f8 = SushiSwap.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
     print(f8)
 
@@ -3043,7 +3043,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f9 = SushiSwap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+    f9 = SushiSwap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
     print(f9)
 
@@ -3074,7 +3074,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f10 = SushiSwap.pool_balances('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+    f10 = SushiSwap.pool_balances('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
     print(f10)
 
@@ -3101,7 +3101,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f11 = SushiSwap.swap_fees('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 16392251, 'latest', ETHEREUM)
+    f11 = SushiSwap.swap_fees('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 16392251, 'latest', Chain.ETHEREUM)
 
     print(f11)
 
@@ -3131,7 +3131,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f12 = SushiSwap.get_wallet_by_tx('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+    f12 = SushiSwap.get_wallet_by_tx('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
     print(f12)
 
@@ -3155,7 +3155,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import SushiSwap
 
-    f13 = SushiSwap.get_rewards_per_unit('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', ETHEREUM)
+    f13 = SushiSwap.get_rewards_per_unit('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', Chain.ETHEREUM)
 
     print(f13)
     ```
@@ -3194,9 +3194,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Swapr
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = Swapr.get_staking_rewards_contract(web3, 'latest', ETHEREUM)
+    f1 = Swapr.get_staking_rewards_contract(web3, 'latest', Chain.ETHEREUM)
 
     print(f1)
 
@@ -3225,11 +3225,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Swapr
 
-    web3 = get_node(ETHEREUM, 'latest', 0)
+    web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-    f1 = Swapr.get_staking_rewards_contract(web3, 'latest', ETHEREUM)
+    f1 = Swapr.get_staking_rewards_contract(web3, 'latest', Chain.ETHEREUM)
 
-    f2 = Swapr.get_distribution_contracts(web3, '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', f1, 1, 'latest', ETHEREUM)
+    f2 = Swapr.get_distribution_contracts(web3, '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', f1, 1, 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -3255,7 +3255,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Swapr
 
-    f3 = Swapr.get_lptoken_data('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+    f3 = Swapr.get_lptoken_data('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
     print(f3)
 
@@ -3288,7 +3288,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Swapr
 
-    f4 = Swapr.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+    f4 = Swapr.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
     print(f4)
 
@@ -3320,7 +3320,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Swapr
 
-    f5 = Swapr.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+    f5 = Swapr.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
     print(f5)
 
@@ -3350,7 +3350,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Swapr
 
-    f6 = Swapr.pool_balances('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+    f6 = Swapr.pool_balances('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
     print(f6)
 
@@ -3377,7 +3377,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Swapr
 
-    f7 = Swapr.swap_fees('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 16392504, 'latest', ETHEREUM)
+    f7 = Swapr.swap_fees('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 16392504, 'latest', Chain.ETHEREUM)
 
     print(f7)
 
@@ -3413,9 +3413,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f1 = Symmetric.get_vault_contract(web3, 'latest', XDAI)
+    f1 = Symmetric.get_vault_contract(web3, 'latest', Chain.XDAI)
 
     print(f1)
 
@@ -3444,9 +3444,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
 
     print(f2)
 
@@ -3474,9 +3474,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f3 = Symmetric.get_pool_info(web3, '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+    f3 = Symmetric.get_pool_info(web3, '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
 
     print(f3)
 
@@ -3504,9 +3504,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f4 = Symmetric.get_lptoken_data('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+    f4 = Symmetric.get_lptoken_data('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
 
     print(f4)
 
@@ -3534,11 +3534,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
 
-    f5 = Symmetric.get_rewarder_contract(web3, 'latest', XDAI, f2, 0)
+    f5 = Symmetric.get_rewarder_contract(web3, 'latest', Chain.XDAI, f2, 0)
 
     print(f5)
 
@@ -3569,11 +3569,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
 
-    f6 = Symmetric.get_symm_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', XDAI, 0)
+    f6 = Symmetric.get_symm_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.XDAI, 0)
 
     print(f6)
 
@@ -3605,11 +3605,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(XDAI, 'latest', 0)
+    web3 = get_node(Chain.XDAI, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
 
-    f7 = Symmetric.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', XDAI, 0)
+    f7 = Symmetric.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.XDAI, 0)
 
     print(f7)
 
@@ -3642,7 +3642,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f8 = Symmetric.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+    f8 = Symmetric.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
 
     print(f8)
 
@@ -3678,7 +3678,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f9 = Symmetric.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+    f9 = Symmetric.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
 
     print(f9)
 
@@ -3712,7 +3712,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f10 = Symmetric.pool_balances('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+    f10 = Symmetric.pool_balances('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
 
     print(f10)
 
@@ -3739,7 +3739,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f11 = Symmetric.get_rewards_per_unit('0x8B78873717981F18C9B8EE67162028BD7479142b', XDAI)
+    f11 = Symmetric.get_rewards_per_unit('0x8B78873717981F18C9B8EE67162028BD7479142b', Chain.XDAI)
 
     print(f11)
 
@@ -3775,7 +3775,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f13 = Symmetric.underlyingv1('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+    f13 = Symmetric.underlyingv1('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
 
     print(f13)
 
@@ -3806,7 +3806,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f14 = Symmetric.swap_fees('0x65b0e9418e102a880c92790f001a9c5810b0ef32', 25928795, 'latest', XDAI)
+    f14 = Symmetric.swap_fees('0x65b0e9418e102a880c92790f001a9c5810b0ef32', 25928795, 'latest', Chain.XDAI)
 
     print(f14)
 
@@ -3863,7 +3863,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import UniswapV3
 
-    f2 = UniswapV3.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 214704, 'latest', ETHEREUM)
+    f2 = UniswapV3.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 214704, 'latest', Chain.ETHEREUM)
 
     print(f2)
 
@@ -3890,7 +3890,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import UniswapV3
 
-    f3 = UniswapV3.allnfts('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f3 = UniswapV3.allnfts('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f3)
 
@@ -3918,7 +3918,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import UniswapV3
 
-    f4 = UniswapV3.get_fee(346143, 'latest', ETHEREUM)
+    f4 = UniswapV3.get_fee(346143, 'latest', Chain.ETHEREUM)
 
     print(f4)
 
@@ -3956,7 +3956,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Unit
 
-    f1 = Unit.get_vault_address(ETHEREUM)
+    f1 = Unit.get_vault_address(Chain.ETHEREUM)
 
     print(f1)
 
@@ -3983,7 +3983,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Unit
 
-    f2 = Unit.get_cdp_registry_address(ETHEREUM)
+    f2 = Unit.get_cdp_registry_address(Chain.ETHEREUM)
 
     print(f2)
 
@@ -4009,7 +4009,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Unit
 
-    f3 = Unit.get_cdp_manager_address(ETHEREUM)
+    f3 = Unit.get_cdp_manager_address(Chain.ETHEREUM)
 
     print(f3)
 
@@ -4036,7 +4036,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Unit
 
-    f4 = Unit.get_cdp_viewer_address(ETHEREUM)
+    f4 = Unit.get_cdp_viewer_address(Chain.ETHEREUM)
 
     print(f4)
 
@@ -4061,7 +4061,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Unit
 
-    f5 = Unit.get_cdp_viewer_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', ETHEREUM)
+    f5 = Unit.get_cdp_viewer_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', Chain.ETHEREUM)
 
     print(f5)
 
@@ -4087,7 +4087,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Unit
 
-    f6 = Unit.get_cdp_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', ETHEREUM)
+    f6 = Unit.get_cdp_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', Chain.ETHEREUM)
 
     print(f6)
 
@@ -4118,7 +4118,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Unit
 
-    f7 = Unit.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+    f7 = Unit.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
     print(f7)
 

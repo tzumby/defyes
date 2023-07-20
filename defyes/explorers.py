@@ -8,19 +8,20 @@ from defyes.constants import (
     API_KEY_FANTOM,
     API_KEY_GNOSISSCAN,
     API_KEY_POLSCAN,
+    Chain,
 )
-from defyes.util.enums import Chain, Explorer
+from defyes.enums import Explorer
 
 blockexplorers = {
-    Chain.ETHEREUM.value: [Explorer.ETHERSCAN.value, API_KEY_ETHERSCAN],
-    Chain.POLYGON.value: [Explorer.POLYSCAN.value, API_KEY_POLSCAN],
-    Chain.GNOSIS.value: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
+    Chain.ETHEREUM: [Explorer.ETHERSCAN.value, API_KEY_ETHERSCAN],
+    Chain.POLYGON: [Explorer.POLYSCAN.value, API_KEY_POLSCAN],
+    Chain.GNOSIS: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
     # FIXME: XDAI should be eventually removed
-    Chain.XDAI.value: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
-    Chain.BINANCE.value: [Explorer.BSCSCAN.value, API_KEY_BINANCE],
-    Chain.AVALANCHE.value: [Explorer.AVAXSCAN.value, API_KEY_AVALANCHE],
-    Chain.FANTOM.value: [Explorer.FTMSCAN.value, API_KEY_FANTOM],
-    Chain.ARBITRUM.value: [Explorer.ARBISCAN.value, API_KEY_ARBITRUM],
+    Chain.XDAI: [Explorer.GNOSISSCAN.value, API_KEY_GNOSISSCAN],
+    Chain.BINANCE: [Explorer.BSCSCAN.value, API_KEY_BINANCE],
+    Chain.AVALANCHE: [Explorer.AVAXSCAN.value, API_KEY_AVALANCHE],
+    Chain.FANTOM: [Explorer.FTMSCAN.value, API_KEY_FANTOM],
+    Chain.ARBITRUM: [Explorer.ARBISCAN.value, API_KEY_ARBITRUM],
 }
 
 # print(blockexplorers)

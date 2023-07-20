@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from web3 import Web3
 
-from defyes.constants import ETHEREUM
+from defyes.constants import Chain
 from defyes.eth_derivs import EthDerivative
 from defyes.node import get_node
 
@@ -17,7 +17,7 @@ ANKR_ADDR = "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb"
 Ankr = EthDerivative(
     protocol="Ankr",
     description="Ankr Staked ETH",
-    blockchain=ETHEREUM,
+    blockchain=Chain.ETHEREUM,
     addr=ANKR_ADDR,
     underlying_token="0x0000000000000000000000000000000000000000",
     # The 'sharesToBonds' function is only present in the proxy implementation contract from block 16476340 onwards
@@ -33,7 +33,7 @@ Ankr = EthDerivative(
 def underlying(
     wallet: str, block: int | str, blockchain: str, decimals: bool = True, web3: Web3 = None, unwrapped: bool = True
 ) -> list:
-    # The blockchain argument is not used but it could be in the future if Ankr deploys on other chain
+    # The blockchain argument is not used but it could be in the future if Ankr deploys on other ETHEREUM
     if web3 is None:
         web3 = get_node(blockchain, block=block)
     value = Ankr.underlying(wallet=wallet, block=block, decimals=decimals, web3=web3, unwrapped=unwrapped)
@@ -60,7 +60,7 @@ def unwrap(amount: int | float | Decimal, block: int | str, blockchain: str, web
     list
         a list where the first element is the underlying token address and the second one is the balance
     """
-    # The blockchain argument is not used but it could be in the future if Ankr deploys on other chain
+    # The blockchain argument is not used but it could be in the future if Ankr deploys on other ETHEREUM
     if web3 is None:
         web3 = get_node(blockchain, block=block)
     value = Ankr.unwrap(amount=amount, block=block, web3=web3)

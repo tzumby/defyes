@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import BINANCE, ETHEREUM, FANTOM
+from defyes.constants import Chain
 from defyes.functions import get_contract, get_decimals
 from defyes.node import get_node
 
@@ -68,43 +68,43 @@ ABI_CDP_VIEWER = '[{"inputs":[{"internalType":"address","name":"asset","type":"a
 
 
 def get_vault_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return VAULT_ETHEREUM
 
-    elif blockchain == BINANCE:
+    elif blockchain == Chain.BINANCE:
         return VAULT_BINANCE
 
-    elif blockchain == FANTOM:
+    elif blockchain == Chain.FANTOM:
         return VAULT_FANTOM
 
 
 def get_cdp_registry_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return CDP_REGISTRY_ETHEREUM
 
-    elif blockchain == BINANCE:
+    elif blockchain == Chain.BINANCE:
         return CDP_REGISTRY_BINANCE
 
-    elif blockchain == FANTOM:
+    elif blockchain == Chain.FANTOM:
         return CDP_REGISTRY_FANTOM
 
 
 def get_cdp_manager_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return CDP_MANAGER_ETHEREUM
 
-    elif blockchain == BINANCE:
+    elif blockchain == Chain.BINANCE:
         return CDP_MANAGER_BINANCE
 
-    elif blockchain == FANTOM:
+    elif blockchain == Chain.FANTOM:
         return CDP_MANAGER_FANTOM
 
 
 def get_cdp_viewer_address(blockchain):
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         return CDP_VIEWER_ETHEREUM
 
-    elif blockchain == FANTOM:
+    elif blockchain == Chain.FANTOM:
         return CDP_VIEWER_FANTOM
 
 

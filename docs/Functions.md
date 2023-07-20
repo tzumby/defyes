@@ -10,7 +10,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  a = get_node(ETHEREUM, 'latest')
+  a = get_node(Chain.ETHEREUM, 'latest')
   print(a)
   ```
 
@@ -27,7 +27,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  a = last_block(ETHEREUM, None, 'latest')
+  a = last_block(Chain.ETHEREUM, None, 'latest')
   print(a)
   ```
 
@@ -61,7 +61,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  a = timestamp_to_block(1663181616, ETHEREUM)
+  a = timestamp_to_block(1663181616, Chain.ETHEREUM)
   print(a)
   ```
 
@@ -95,7 +95,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  a = date_to_block('2022-01-14 00:00:00', ETHEREUM)
+  a = date_to_block('2022-01-14 00:00:00', Chain.ETHEREUM)
   print(a)
 
   ```
@@ -113,7 +113,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  a = block_to_timestamp(14000200, ETHEREUM)
+  a = block_to_timestamp(14000200, Chain.ETHEREUM)
   print(a)
 
   ```
@@ -131,7 +131,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  a = block_to_date(14000270, ETHEREUM)
+  a = block_to_date(14000270, Chain.ETHEREUM)
   print(a)
 
   ```
@@ -149,7 +149,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  a = get_blocks_per_year(ETHEREUM)
+  a = get_blocks_per_year(Chain.ETHEREUM)
   print(a)
 
   ```
@@ -167,7 +167,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  a = token_info('0x6810e776880C02933D47DB1b9fc05908e5386b96', ETHEREUM)
+  a = token_info('0x6810e776880C02933D47DB1b9fc05908e5386b96', Chain.ETHEREUM)
   print (a)
 
   ```
@@ -185,7 +185,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  a = balance_of('0x2D0669DB84f11A9EAD41e57Ce2f242D92111a58F', '0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', ETHEREUM)
+  a = balance_of('0x2D0669DB84f11A9EAD41e57Ce2f242D92111a58F', '0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', Chain.ETHEREUM)
   print(a)
 
   ```
@@ -203,7 +203,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  a = total_supply('0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', ETHEREUM)
+  a = total_supply('0x6810e776880C02933D47DB1b9fc05908e5386b96', 'latest', Chain.ETHEREUM)
   print(a)
 
   ```
@@ -234,7 +234,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  print(get_contract('0xdAC17F958D2ee523a2206206994597C13D831ec7', ETHEREUM))
+  print(get_contract('0xdAC17F958D2ee523a2206206994597C13D831ec7', Chain.ETHEREUM))
 
   ```
 
@@ -273,7 +273,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', XDAI)
+  d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
 
   print(d)
 
@@ -292,7 +292,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', XDAI)
+  d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
 
   print(d)
 
@@ -311,7 +311,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, XDAI)
+  d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, Chain.XDAI)
 
   print(d)
 
@@ -330,7 +330,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', XDAI)
+  e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', Chain.XDAI)
 
   print(e)
 
@@ -350,7 +350,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', XDAI)
+  e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', Chain.XDAI)
 
   print(e)
 

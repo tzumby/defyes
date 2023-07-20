@@ -15,9 +15,9 @@
 
   from defyes import SushiSwap
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+  f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
   print(f1)
 
@@ -46,9 +46,9 @@
 
   from defyes import SushiSwap
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f2 = SushiSwap.get_pool_info(web3, '0x06da0fd433C1A5d7a4faa01111c044910A184553', 'latest', ETHEREUM)
+  f2 = SushiSwap.get_pool_info(web3, '0x06da0fd433C1A5d7a4faa01111c044910A184553', 'latest', Chain.ETHEREUM)
 
   print(f2)
 
@@ -76,7 +76,7 @@
 
   from defyes import SushiSwap
 
-  f3 = SushiSwap.get_lptoken_data('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+  f3 = SushiSwap.get_lptoken_data('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
   print(f3)
 
@@ -106,7 +106,7 @@
 
   from defyes import SushiSwap
 
-  f4 = SushiSwap.get_virtual_total_supply('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+  f4 = SushiSwap.get_virtual_total_supply('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
   print(f4)
 
@@ -134,11 +134,11 @@
 
   from defyes import SushiSwap
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+  f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
-  f5 = SushiSwap.get_rewarder_contract(web3, 'latest', ETHEREUM, f1, 1)
+  f5 = SushiSwap.get_rewarder_contract(web3, 'latest', Chain.ETHEREUM, f1, 1)
 
   print(f5)
 
@@ -170,11 +170,11 @@
 
   from defyes import SushiSwap
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+  f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
-  f6 = SushiSwap.get_sushi_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', ETHEREUM)
+  f6 = SushiSwap.get_sushi_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', Chain.ETHEREUM)
 
   print(f6)
 
@@ -206,11 +206,11 @@
 
   from defyes import SushiSwap
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = SushiSwap.get_chef_contract(web3, 'latest', ETHEREUM)
+  f1 = SushiSwap.get_chef_contract(web3, 'latest', Chain.ETHEREUM)
 
-  f7 = SushiSwap.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', ETHEREUM)
+  f7 = SushiSwap.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f1, 1, 'latest', Chain.ETHEREUM)
 
   print(f7)
 
@@ -241,7 +241,7 @@
 
   from defyes import SushiSwap
 
-  f8 = SushiSwap.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+  f8 = SushiSwap.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
   print(f8)
 
@@ -273,7 +273,7 @@
 
   from defyes import SushiSwap
 
-  f9 = SushiSwap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+  f9 = SushiSwap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
   print(f9)
 
@@ -304,7 +304,7 @@
 
   from defyes import SushiSwap
 
-  f10 = SushiSwap.pool_balances('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+  f10 = SushiSwap.pool_balances('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
   print(f10)
 
@@ -331,7 +331,7 @@
 
   from defyes import SushiSwap
 
-  f11 = SushiSwap.swap_fees('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 16392251, 'latest', ETHEREUM)
+  f11 = SushiSwap.swap_fees('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 16392251, 'latest', Chain.ETHEREUM)
 
   print(f11)
 
@@ -361,7 +361,7 @@
 
   from defyes import SushiSwap
 
-  f12 = SushiSwap.get_wallet_by_tx('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', ETHEREUM)
+  f12 = SushiSwap.get_wallet_by_tx('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', 'latest', Chain.ETHEREUM)
 
   print(f12)
 
@@ -385,7 +385,7 @@
 
   from defyes import SushiSwap
 
-  f13 = SushiSwap.get_rewards_per_unit('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', ETHEREUM)
+  f13 = SushiSwap.get_rewards_per_unit('0x397FF1542f962076d0BFE58eA045FfA2d347ACa0', Chain.ETHEREUM)
 
   print(f13)
   ```
