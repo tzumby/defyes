@@ -23,8 +23,8 @@
 
   from defyes import Curve
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
-  f1 = Curve.get_registry_contract(web3, 3, 'latest', ETHEREUM)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+  f1 = Curve.get_registry_contract(web3, 3, 'latest', Chain.ETHEREUM)
   print(f1)
 
   ```
@@ -48,11 +48,11 @@
 
   from defyes import Curve
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
   
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
   
-  f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI)
+  f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
 
   print(f2)
 
@@ -78,7 +78,7 @@
 
   from defyes import Curve
 
-  f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', XDAI)
+  f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', Chain.GNOSIS)
 
   print(f3)
 
@@ -104,9 +104,9 @@
 
   from defyes import Curve
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
   
-  f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI)
+  f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
   
   print(f4)
 
@@ -134,9 +134,9 @@
 
   from defyes import Curve
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
   
-  f5 = Curve.get_pool_data(web3, '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46', 'latest', ETHEREUM)
+  f5 = Curve.get_pool_data(web3, '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46', 'latest', Chain.ETHEREUM)
 
   print(f5)
 
@@ -164,7 +164,7 @@
 
   from defyes import Curve
 
-  f6 = Curve.get_lptoken_data('0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', ETHEREUM)
+  f6 = Curve.get_lptoken_data('0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', Chain.ETHEREUM)
 
   print(f6)
 
@@ -196,7 +196,7 @@
 
   from defyes import Curve
 
-  f7 = Curve.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', ETHEREUM)
+  f7 = Curve.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff', 'latest', Chain.ETHEREUM)
 
   print(f7)
 
@@ -228,7 +228,7 @@
 
   from defyes import Curve
 
-  f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI )
+  f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS )
 
   print(f8)
 
@@ -284,7 +284,7 @@
 
   from defyes import Curve
 
-  f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', XDAI)
+  f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
 
   print(f10)
 
@@ -312,7 +312,7 @@
 
   from defyes import Curve
 
-  f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', XDAI)
+  f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', Chain.GNOSIS)
 
   print(f11)
 

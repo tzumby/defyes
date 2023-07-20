@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Stakewise
-from defyes.constants import ETHEREUM, XDAI
+from defyes.constants import Chain
 from defyes.node import get_node
 
 WALLET_N1 = "0x05E61adDCef87ad8548236eb5Cbf2f699C834935"
@@ -13,7 +13,7 @@ WALLET_N2 = "0x53811010085382D49eF12bCC55902bbFCEB57790"
 @pytest.mark.parametrize("reward", [True, False])
 def test_check_uniswap_v3_pools(reward):
     block = 17438389
-    blockchain = ETHEREUM
+    blockchain = Chain.ETHEREUM
     node = get_node(blockchain, block)
     pools = Stakewise.check_uniswap_v3_pools(WALLET_N1, block, blockchain, web3=node, reward=reward)
     assert (
@@ -65,7 +65,7 @@ def test_check_uniswap_v3_pools(reward):
 @pytest.mark.parametrize("reward", [True, False])
 def test_check_curve_pools(reward):
     block = 28357764
-    blockchain = XDAI
+    blockchain = Chain.GNOSIS
     node = get_node(blockchain, block)
     pools = Stakewise.check_curve_pools(WALLET_N2, block, blockchain, web3=node, reward=reward)
     assert (
@@ -143,20 +143,36 @@ def test_check_curve_pools(reward):
 @pytest.mark.parametrize("pools", [True, False])
 def test_underlying(pools):
     block = 17438389
-    blockchain = ETHEREUM
+    blockchain = Chain.ETHEREUM
     node = get_node(blockchain, block)
     underlying = Stakewise.underlying(WALLET_N1, block, blockchain, web3=node, pools=pools, decimals=False)
     assert (
         underlying
         == {
-            "protocol": "Stakewise",
             "blockchain": "ethereum",
             "block": 17438389,
-            "balances": [
-                {"token": "0xFe2e637202056d30016725477c5da089Ab0A043A", "balance": Decimal("0.849414886512576674")},
-                {"token": "0x20BC832ca081b91433ff6c17f85701B6e92486c5", "balance": Decimal("0.000462283209172035")},
-            ],
-            "Uniswap V3 pools": {
+            "protocol": "Stakewise",
+            "positions_key": None,
+            "decimals": False,
+            "version": 0,
+            "wallet": "0x05E61adDCef87ad8548236eb5Cbf2f699C834935",
+            "positions": {
+                "staking_ETH": {
+                    "holdings": [
+                        {
+                            "token": "0xFe2e637202056d30016725477c5da089Ab0A043A",
+                            "balance": Decimal("0.849414886512576674"),
+                        }
+                    ],
+                    "underlying": [
+                        {
+                            "token": "0x0000000000000000000000000000000000000000",
+                            "balance": Decimal("0.849414886512576674"),
+                        }
+                    ],
+                }
+            },
+            "Uniswap_V3_pools": {
                 "WETH-sETH2": {
                     "NFT ID": 519045,
                     "balances": [
@@ -174,31 +190,53 @@ def test_underlying(pools):
         }
         if pools
         else {
-            "protocol": "Stakewise",
             "blockchain": "ethereum",
             "block": 17438389,
-            "balances": [
-                {"token": "0xFe2e637202056d30016725477c5da089Ab0A043A", "balance": Decimal("0.849414886512576674")},
-                {"token": "0x20BC832ca081b91433ff6c17f85701B6e92486c5", "balance": Decimal("0.000462283209172035")},
-            ],
+            "protocol": "Stakewise",
+            "positions_key": None,
+            "decimals": False,
+            "version": 0,
+            "wallet": "0x05E61adDCef87ad8548236eb5Cbf2f699C834935",
+            "positions": {
+                "staking_ETH": {
+                    "holdings": [
+                        {
+                            "token": "0xFe2e637202056d30016725477c5da089Ab0A043A",
+                            "balance": Decimal("0.849414886512576674"),
+                        }
+                    ],
+                    "underlying": [
+                        {
+                            "token": "0x0000000000000000000000000000000000000000",
+                            "balance": Decimal("0.849414886512576674"),
+                        }
+                    ],
+                }
+            },
         }
     )
 
     block = 28357764
-    blockchain = XDAI
+    blockchain = Chain.GNOSIS
     node = get_node(blockchain, block)
     underlying = Stakewise.underlying(WALLET_N2, block, blockchain, web3=node, pools=pools, decimals=False)
     assert (
         underlying
         == {
-            "protocol": "Stakewise",
-            "blockchain": "xdai",
+            "blockchain": Chain.GNOSIS,
             "block": 28357764,
-            "balances": [
-                {"token": "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445", "balance": Decimal("0")},
-                {"token": "0x6aC78efae880282396a335CA2F79863A1e6831D4", "balance": Decimal("130.658666761645960747")},
-            ],
-            "Curve pools": {
+            "protocol": "Stakewise",
+            "positions_key": None,
+            "decimals": False,
+            "version": 0,
+            "wallet": "0x53811010085382D49eF12bCC55902bbFCEB57790",
+            "positions": {
+                "staking_ETH": {
+                    "holdings": [{"token": "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445", "balance": Decimal("0")}],
+                    "underlying": [{"token": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb", "balance": Decimal("0")}],
+                }
+            },
+            "Curve_pools": {
                 "sGNO-GNO": {
                     "LP token": "0xBdF4488Dcf7165788D438b62B4C8A333879B7078",
                     "balances": [
@@ -233,13 +271,19 @@ def test_underlying(pools):
         }
         if pools
         else {
-            "protocol": "Stakewise",
-            "blockchain": "xdai",
+            "blockchain": Chain.GNOSIS,
             "block": 28357764,
-            "balances": [
-                {"token": "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445", "balance": Decimal("0")},
-                {"token": "0x6aC78efae880282396a335CA2F79863A1e6831D4", "balance": Decimal("130.658666761645960747")},
-            ],
+            "protocol": "Stakewise",
+            "positions_key": None,
+            "decimals": False,
+            "version": 0,
+            "wallet": "0x53811010085382D49eF12bCC55902bbFCEB57790",
+            "positions": {
+                "staking_ETH": {
+                    "holdings": [{"token": "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445", "balance": Decimal("0")}],
+                    "underlying": [{"token": "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb", "balance": Decimal("0")}],
+                }
+            },
         }
     )
 

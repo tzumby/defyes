@@ -1,7 +1,7 @@
 from web3 import Web3
 
 from defyes.cache import const_call
-from defyes.constants import ETHEREUM, POLYGON, XDAI
+from defyes.constants import Chain
 from defyes.functions import get_contract
 from defyes.node import get_node
 
@@ -20,7 +20,7 @@ CHAINLINK_ETH_USD = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
 # MATIC/USD Price Feed
 CHAINLINK_MATIC_USD = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
 
-# XDAI
+# GNOSIS
 # XDAI/USD Price Feed - The price feed retrieves the price of DAI instead of XDAI. Chainlink does not provide a price feed for XDAI.
 CHAINLINK_XDAI_USD = "0x678df3415fc31947dA4324eC63212874be5a82f8"
 
@@ -44,13 +44,13 @@ def get_native_token_price(web3, block, blockchain):
     :param blockchain:
     :return:
     """
-    if blockchain == ETHEREUM:
+    if blockchain == Chain.ETHEREUM:
         price_feed_address = CHAINLINK_ETH_USD
 
-    elif blockchain == POLYGON:
+    elif blockchain == Chain.POLYGON:
         price_feed_address = CHAINLINK_MATIC_USD
 
-    elif blockchain == XDAI:
+    elif blockchain == Chain.GNOSIS:
         price_feed_address = CHAINLINK_XDAI_USD
 
     price_feed_contract = get_contract(
@@ -79,12 +79,12 @@ def get_mainnet_price(token_address, block, web3=None, index=0):
     :return:
     """
     if web3 is None:
-        web3 = get_node(ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM, block=block)
 
     token_address = Web3.to_checksum_address(token_address)
 
     feed_registry_contract = get_contract(
-        CHAINLINK_FEED_REGISTRY, ETHEREUM, web3=web3, abi=ABI_CHAINLINK_FEED_REGISTRY, block=block
+        CHAINLINK_FEED_REGISTRY, Chain.ETHEREUM, web3=web3, abi=ABI_CHAINLINK_FEED_REGISTRY, block=block
     )
 
     for quote in CHAINLINK_ETH_QUOTES:
@@ -93,7 +93,7 @@ def get_mainnet_price(token_address, block, web3=None, index=0):
                 block_identifier=block
             )
             price_feed_contract = get_contract(
-                price_feed_address, ETHEREUM, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block
+                price_feed_address, Chain.ETHEREUM, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block
             )
             price_feed_decimals = const_call(price_feed_contract.functions.decimals())
 
@@ -106,7 +106,7 @@ def get_mainnet_price(token_address, block, web3=None, index=0):
                 return (
                     price_feed_contract.functions.latestAnswer().call(block_identifier=block)
                     / 10**price_feed_decimals
-                    * get_native_token_price(web3, block, ETHEREUM)
+                    * get_native_token_price(web3, block, Chain.ETHEREUM)
                 )
 
         except Exception as ex:

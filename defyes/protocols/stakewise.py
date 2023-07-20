@@ -5,8 +5,8 @@ from decimal import Decimal
 import requests
 from web3 import Web3
 
-from defyes.constants import ETHEREUM, XDAI
-from defyes.functions import balance_of, to_token_amount
+from defyes.constants import Address, Chain
+from defyes.functions import balance_of, last_block, to_token_amount
 from defyes.node import get_node
 
 from . import curve, uniswapv3
@@ -20,24 +20,25 @@ SWISE_eth = "0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2"
 SWISE_gno = "0xfdA94F056346d2320d4B5E468D6Ad099b2277746"
 sGNO = "0xA4eF9Da5BA71Cc0D2e5E877a910A37eC43420445"
 rGNO = "0x6aC78efae880282396a335CA2F79863A1e6831D4"
-
+GNO = "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb"
 
 tokens = {
     "ethereum": {
+        "underlying": Address.ZERO,
         "staking": sETH2,
         "rewards": rETH2,
     },
-    # FIXME: 'xdai' should eventually be replaced by 'gnosis'
-    "xdai": {
+    Chain.GNOSIS: {
+        "underlying": GNO,
         "staking": sGNO,
         "rewards": rGNO,
     },
 }
 # Tokens that can be accrued as rewards by depositing funds in the Curve or Uniswap V3 pools
-reward_addresses = {"ethereum": [rETH2, SWISE_eth], "xdai": [rGNO, SWISE_gno]}
+reward_addresses = {"ethereum": [rETH2, SWISE_eth], Chain.GNOSIS: [rGNO, SWISE_gno]}
 
 Pools = {
-    "xdai": {
+    Chain.GNOSIS: {
         "curve": [
             {"name": "sGNO-GNO", "LPtoken": "0xBdF4488Dcf7165788D438b62B4C8A333879B7078"},
             {
@@ -46,7 +47,6 @@ Pools = {
             },
         ]
     },
-    # FIXME: 'xdai' should eventually be replaced by gnosis
     "ethereum": {
         "uniswap v3": [
             {"name": "WETH-sETH2", "tokens": [WETH, sETH2], "fee": 3000},
@@ -60,7 +60,7 @@ Pools = {
 def check_curve_pools(
     wallet: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True, reward: bool = False
 ):
-    if blockchain is not XDAI:
+    if blockchain is not Chain.GNOSIS:
         raise ValueError("Stakewise Curve pools are only deployed on Gnosis Chain.")
 
     if web3 is None:
@@ -69,7 +69,7 @@ def check_curve_pools(
     # FIXME: this will change once we change curve.underlying so that it returns a dictionary
     result = {}
 
-    for item in Pools["xdai"]["curve"]:
+    for item in Pools[Chain.GNOSIS]["curve"]:
         balances = curve.underlying(wallet, item["LPtoken"], block, blockchain, web3=web3, decimals=decimals)
 
         result[item["name"]] = {"LP token": item["LPtoken"], "balances": []}
@@ -88,7 +88,7 @@ def check_curve_pools(
 def check_uniswap_v3_pools(
     wallet: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True, reward: bool = False
 ):
-    if blockchain is not ETHEREUM:
+    if blockchain is not Chain.ETHEREUM:
         raise ValueError("Stakewise Uniswap V3 pools are only deployed on Ethereum.")
 
     if web3 is None:
@@ -136,7 +136,7 @@ def get_all_rewards(
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    chain = "mainnet" if blockchain is ETHEREUM else "gnosis"
+    chain = "mainnet" if blockchain is Chain.ETHEREUM else Chain.GNOSIS
     response = requests.get(f"https://api.stakewise.io/distributor-claims/{wallet}/?network={chain}")
     data = json.loads(response.text, parse_float=Decimal)
 
@@ -197,31 +197,36 @@ def underlying(
     ----------
     dict
         {
-            'protocol': 'Stakewise',
             'blockchain': 'ethereum',
-            'block': 'latest',
-            'balances': [
-                    {
-                        'token': '0xFe2e637202056d30016725477c5da089Ab0A043A',
-                        'balance': Decimal('0.849414886512576674')
-                    },
-                    {
-                        'token': '0x20BC832ca081b91433ff6c17f85701B6e92486c5',
-                        'balance': Decimal('0.000345620720353667')
-                    }
-            ],
-            'rewards': [
-                {
+            'block': 17693094,
+            'protocol': 'Stakewise',
+            'positions_key': None,
+            'decimals': False,
+            'version': 0,
+            'wallet': '0x05E61adDCef87ad8548236eb5Cbf2f699C834935',
+            'positions': {
+                'staking_ETH': {
+                    'holdings': [{
+                            'token': '0xFe2e637202056d30016725477c5da089Ab0A043A',
+                            'balance': Decimal('0.849414886512576674')
+                        }
+                    ],
+                    'underlying': [{
+                            'token': '0x0000000000000000000000000000000000000000',
+                            'balance': Decimal('0.849414886512576674')
+                        }
+                    ]
+                }
+            },
+            'unclaimed_rewards': [{
                     'token': '0x20BC832ca081b91433ff6c17f85701B6e92486c5',
-                    'balance': Decimal('0.000070178274377674')
-                },
-                {
+                    'balance': Decimal('854744963544512')
+                }, {
                     'token': '0x48C3399719B582dD63eB5AADf12A40B4C3f52FA2',
-                    'balance': Decimal('0.014540601677227434')
+                    'balance': Decimal('203099406601438885')
                 }
             ]
         }
-
     """
     # FIXME: the current code uses an API to fetch the latest unclaimed rewards. We need to find a way to be able to get historical unclaimed rewards
     if reward:
@@ -236,29 +241,41 @@ def underlying(
     wallet = Web3.to_checksum_address(wallet)
 
     staking_balance = balance_of(wallet, tokens[blockchain]["staking"], block, blockchain, web3=web3)
-    rewards_balance = balance_of(wallet, tokens[blockchain]["rewards"], block, blockchain, web3=web3)
+    # We are removing the balance of rewards held by the wallet
+    # rewards_balance = balance_of(wallet, tokens[blockchain]["rewards"], block, blockchain, web3=web3)
+
+    if block == "latest":
+        block_result = last_block(blockchain)
+    else:
+        block_result = block
 
     result = {
-        "protocol": "Stakewise",
         "blockchain": blockchain,
-        "block": block,
-        "balances": [
-            {"token": tokens[blockchain]["staking"], "balance": staking_balance},
-            {"token": tokens[blockchain]["rewards"], "balance": rewards_balance},
-        ],
+        "block": block_result,
+        "protocol": "Stakewise",
+        "positions_key": None,
+        "decimals": decimals,
+        "version": 0,
+        "wallet": wallet,
+        "positions": {
+            "staking_ETH": {
+                "holdings": [{"token": tokens[blockchain]["staking"], "balance": staking_balance}],
+                "underlying": [{"token": tokens[blockchain]["underlying"], "balance": staking_balance}],
+            }
+        },
     }
 
     if reward:
         rewards_data = get_all_rewards(wallet, block, blockchain, decimals=decimals, web3=web3)
-        result["rewards"] = rewards_data["rewards"]
+        result["unclaimed_rewards"] = rewards_data["rewards"]
 
     if pools:
-        if blockchain == XDAI:
-            result["Curve pools"] = check_curve_pools(
+        if blockchain == Chain.GNOSIS:
+            result["Curve_pools"] = check_curve_pools(
                 wallet, block, blockchain, web3=web3, decimals=decimals, reward=reward
             )
-        if blockchain == ETHEREUM:
-            result["Uniswap V3 pools"] = check_uniswap_v3_pools(
+        if blockchain == Chain.ETHEREUM:
+            result["Uniswap_V3_pools"] = check_uniswap_v3_pools(
                 wallet, block, blockchain, web3=web3, decimals=decimals, reward=reward
             )
 

@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Angle
-from defyes.constants import ETHEREUM
+from defyes.constants import Chain
 
 agEUR = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
 WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
@@ -12,7 +12,7 @@ WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 def test_angle_treasury():
     block = 17451062
 
-    t = Angle.Treasury(ETHEREUM, block)
+    t = Angle.Treasury(Chain.ETHEREUM, block)
     assert t.stablecoin == agEUR
     assert [
         "0x241D7598BD1eb819c0E9dEd456AcB24acA623679",
@@ -34,7 +34,7 @@ def test_angle_treasury():
 @pytest.mark.parametrize("decimals", [True, False])
 def test_protocol_data(decimals):
     block = 17451062
-    underlying = Angle.get_protocol_data(ETHEREUM, WALLET, block, decimals=decimals)
+    underlying = Angle.get_protocol_data(Chain.ETHEREUM, WALLET, block, decimals=decimals)
     assert {
         "block": 17451062,
         "blockchain": "ethereum",
