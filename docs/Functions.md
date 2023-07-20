@@ -273,7 +273,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
+  d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.GNOSIS)
 
   print(d)
 
@@ -292,7 +292,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
+  d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.GNOSIS)
 
   print(d)
 
@@ -311,7 +311,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, Chain.XDAI)
+  d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, Chain.GNOSIS)
 
   print(d)
 
@@ -330,7 +330,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', Chain.XDAI)
+  e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', Chain.GNOSIS)
 
   print(e)
 
@@ -350,7 +350,7 @@
 - <details><summary><b>Example</b></summary>
 
   ```bash
-  e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', Chain.XDAI)
+  e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', Chain.GNOSIS)
 
   print(e)
 

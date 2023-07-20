@@ -98,7 +98,7 @@ class Connext:
         if self.blockchain == Chain.ETHEREUM:
             self.diamond_adrr = CONNEXT_DIAMOND_ETH
             self.subgraph_api_endpoint = SUBGRAPH_API_ENDPOINT_ETH
-        elif self.blockchain == Chain.XDAI:
+        elif self.blockchain == Chain.GNOSIS:
             self.diamond_adrr = CONNEXT_DIAMOND_GC
             self.subgraph_api_endpoint = SUBGRAPH_API_ENDPOINT_GC
         else:

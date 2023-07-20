@@ -27,17 +27,16 @@ tokens = {
         "staking": sETH2,
         "rewards": rETH2,
     },
-    # FIXME: 'xdai' should eventually be replaced by 'gnosis'
-    "xdai": {
+    Chain.GNOSIS: {
         "staking": sGNO,
         "rewards": rGNO,
     },
 }
 # Tokens that can be accrued as rewards by depositing funds in the Curve or Uniswap V3 pools
-reward_addresses = {"ethereum": [rETH2, SWISE_eth], "xdai": [rGNO, SWISE_gno]}
+reward_addresses = {"ethereum": [rETH2, SWISE_eth], Chain.GNOSIS: [rGNO, SWISE_gno]}
 
 Pools = {
-    "xdai": {
+    Chain.GNOSIS: {
         "curve": [
             {"name": "sGNO-GNO", "LPtoken": "0xBdF4488Dcf7165788D438b62B4C8A333879B7078"},
             {
@@ -46,7 +45,6 @@ Pools = {
             },
         ]
     },
-    # FIXME: 'xdai' should eventually be replaced by gnosis
     "ethereum": {
         "uniswap v3": [
             {"name": "WETH-sETH2", "tokens": [WETH, sETH2], "fee": 3000},
@@ -60,7 +58,7 @@ Pools = {
 def check_curve_pools(
     wallet: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True, reward: bool = False
 ):
-    if blockchain is not Chain.XDAI:
+    if blockchain is not Chain.GNOSIS:
         raise ValueError("Stakewise Curve pools are only deployed on Gnosis Chain.")
 
     if web3 is None:
@@ -69,7 +67,7 @@ def check_curve_pools(
     # FIXME: this will change once we change curve.underlying so that it returns a dictionary
     result = {}
 
-    for item in Pools["xdai"]["curve"]:
+    for item in Pools[Chain.GNOSIS]["curve"]:
         balances = curve.underlying(wallet, item["LPtoken"], block, blockchain, web3=web3, decimals=decimals)
 
         result[item["name"]] = {"LP token": item["LPtoken"], "balances": []}
@@ -136,7 +134,7 @@ def get_all_rewards(
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    chain = "mainnet" if blockchain is Chain.ETHEREUM else "gnosis"
+    chain = "mainnet" if blockchain is Chain.ETHEREUM else Chain.GNOSIS
     response = requests.get(f"https://api.stakewise.io/distributor-claims/{wallet}/?network={chain}")
     data = json.loads(response.text, parse_float=Decimal)
 
@@ -253,7 +251,7 @@ def underlying(
         result["rewards"] = rewards_data["rewards"]
 
     if pools:
-        if blockchain == Chain.XDAI:
+        if blockchain == Chain.GNOSIS:
             result["Curve pools"] = check_curve_pools(
                 wallet, block, blockchain, web3=web3, decimals=decimals, reward=reward
             )

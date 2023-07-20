@@ -16,11 +16,11 @@ CHAINLINK_ETH_QUOTES = ["0x0000000000000000000000000000000000000348", "0xEeeeeEe
 # ETH/USD Price Feed
 CHAINLINK_ETH_USD = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
 
-# Chain.POLYGON
+# POLYGON
 # MATIC/USD Price Feed
 CHAINLINK_MATIC_USD = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
 
-# XDAI
+# GNOSIS
 # XDAI/USD Price Feed - The price feed retrieves the price of DAI instead of XDAI. Chainlink does not provide a price feed for XDAI.
 CHAINLINK_XDAI_USD = "0x678df3415fc31947dA4324eC63212874be5a82f8"
 
@@ -50,7 +50,7 @@ def get_native_token_price(web3, block, blockchain):
     elif blockchain == Chain.POLYGON:
         price_feed_address = CHAINLINK_MATIC_USD
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         price_feed_address = CHAINLINK_XDAI_USD
 
     price_feed_contract = get_contract(

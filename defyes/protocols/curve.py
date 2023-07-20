@@ -386,7 +386,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         # CRV rewards
         if blockchain == Chain.ETHEREUM:
             token_address = ETHTokenAddr.CRV
-        elif blockchain == Chain.XDAI:
+        elif blockchain == Chain.GNOSIS:
             token_address = GnosisTokenAddr.CRV
 
         token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)
@@ -411,7 +411,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
             # CRV rewards
             if blockchain == Chain.ETHEREUM:
                 token_address = ETHTokenAddr.CRV
-            elif blockchain == Chain.XDAI:
+            elif blockchain == Chain.GNOSIS:
                 token_address = GnosisTokenAddr.CRV
 
             token_reward = gauge_contract.functions.claimable_tokens(wallet).call(block_identifier=block)

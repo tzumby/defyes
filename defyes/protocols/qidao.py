@@ -13,11 +13,11 @@ from defyes.node import get_node
 # QiDao Vaults List
 QIDAO_VAULTS = {
     GnosisTokenAddr.GNO: {
-        "blockchain": Chain.XDAI,
+        "blockchain": Chain.GNOSIS,
         "address": "0x014A177E9642d1b4E970418f894985dC1b85657f",  # GNO Vault Address
     },
     GnosisTokenAddr.WETH: {
-        "blockchain": Chain.XDAI,
+        "blockchain": Chain.GNOSIS,
         "address": "0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b",  # WETH Vault Address
     },
 }

@@ -158,7 +158,7 @@ def timestamp_to_block(timestamp, blockchain) -> int:
         elif blockchain == Chain.POLYGON:
             data = requests.get(API_POLYGONSCAN_GETBLOCKNOBYTIME % (timestamp, API_KEY_POLSCAN)).json()["result"]
 
-        elif blockchain == Chain.XDAI:
+        elif blockchain == Chain.GNOSIS:
             data = requests.get(API_GNOSISSCAN_GETBLOCKNOBYTIME % (timestamp, API_KEY_GNOSISSCAN)).json()["result"]
             # For BLOCKSCOUT
             # if data is None:
@@ -238,7 +238,7 @@ def block_to_timestamp(block, blockchain):
         elif blockchain == Chain.POLYGON:
             data = requests.get(API_POLYGONSCAN_GETBLOCKREWARD % (block, API_KEY_POLSCAN)).json()["result"]["timeStamp"]
 
-        elif blockchain == Chain.XDAI:
+        elif blockchain == Chain.GNOSIS:
             data = requests.get(API_GNOSISSCAN_GETBLOCKREWARD % (block, API_KEY_GNOSISSCAN)).json()["result"][
                 "timeStamp"
             ]
@@ -297,7 +297,7 @@ def token_info(token_address, blockchain):  # NO ESTÁ Chain.POLYGON
     if blockchain.lower() == Chain.ETHEREUM:
         data = requests.get(API_ETHPLORER_GETTOKENINFO % (token_address, API_KEY_ETHPLORER)).json()
 
-    elif blockchain.lower() == Chain.XDAI:
+    elif blockchain.lower() == Chain.GNOSIS:
         data = requests.get(API_BLOCKSCOUT_GETTOKENCONTRACT % token_address).json()["result"]
 
     return data
@@ -363,8 +363,8 @@ def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
             symbol = "ETH"
         elif blockchain is Chain.POLYGON:
             symbol = "MATIC"
-        elif blockchain is Chain.XDAI:
-            symbol = "Chain.XDAI"
+        elif blockchain is Chain.GNOSIS:
+            symbol = "Chain.GNOSIS"
         elif blockchain is Chain.FANTOM:
             symbol = "FTM"
         elif blockchain is Chain.AVALANCHE:
@@ -411,7 +411,7 @@ def get_contract_abi(contract_address, blockchain):
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
-        elif blockchain == Chain.XDAI:
+        elif blockchain == Chain.GNOSIS:
             data = requests.get(API_GNOSISSCAN_GETABI % (contract_address, API_KEY_GNOSISSCAN)).json()["result"]
             if data == "Contract source code not verified":
                 data = requests.get(API_BLOCKSCOUT_GETABI % contract_address).json()["result"]
@@ -666,7 +666,7 @@ def get_token_tx(token_address, contract_address, block_start, block_end, blockc
             API_POLYGONSCAN_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_POLSCAN)
         ).json()["result"]
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         data = requests.get(
             API_GNOSISSCAN_TOKENTX % (token_address, contract_address, block_start, block_end, API_KEY_GNOSISSCAN)
         ).json()["result"]
@@ -731,7 +731,7 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
             API_POLYGONSCAN_TXLIST % (contract_address, block_start, block_end, API_KEY_POLSCAN)
         ).json()["result"]
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         data = requests.get(
             API_GNOSISSCAN_TXLIST % (contract_address, block_start, block_end, API_KEY_GNOSISSCAN)
         ).json()["result"]
@@ -837,7 +837,7 @@ def get_logs_http(block_start, block_end, address, topic0, blockchain, **kwargs)
             API_POLYGONSCAN_GETLOGS % (block_start, block_end, address, topic0, API_KEY_POLSCAN) + optional_parameters
         ).json()["result"]
 
-    elif blockchain == Chain.XDAI:
+    elif blockchain == Chain.GNOSIS:
         data = requests.get(
             API_GNOSISSCAN_GETLOGS % (block_start, block_end, address, topic0, API_KEY_GNOSISSCAN) + optional_parameters
         ).json()["result"]

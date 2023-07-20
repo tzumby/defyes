@@ -94,7 +94,12 @@ def get_pool_address(web3, token0, token1, block, blockchain):
 
         symbols.append(symbol)
 
-    pool_blockchain = "matic" if blockchain == Chain.POLYGON else blockchain
+    pool_blockchain = blockchain
+    if blockchain == Chain.POLYGON:
+        pool_blockchain = "matic"
+    if blockchain == Chain.GNOSIS:
+        pool_blockchain = "xdai"
+
     pool_ids = ["-".join(symbols), "-".join(symbols[::-1])]
     pool_address = None
     for pool_id in pool_ids:

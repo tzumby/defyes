@@ -417,7 +417,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
+    d = search_proxy_contract('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.GNOSIS)
 
     print(d)
 
@@ -436,7 +436,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.XDAI)
+    d = get_abi_function_signatures('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', Chain.GNOSIS)
 
     print(d)
 
@@ -455,7 +455,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, Chain.XDAI)
+    d = get_data('0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', 'owner', None, Chain.GNOSIS)
 
     print(d)
 
@@ -474,7 +474,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', Chain.XDAI)
+    e = get_token_tx('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', '0xc30141B657f4216252dc59Af2e7CdB9D8792e1B0', 25813406, 'latest', Chain.GNOSIS)
 
     print(e)
 
@@ -494,7 +494,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
   - <details><summary><b>Example</b></summary>
 
     ```bash
-    e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', Chain.XDAI)
+    e = get_tx_list('0x4ECaBa5870353805a9F068101A40E0f32ed605C6', 25884100, 'latest', Chain.GNOSIS)
 
     print(e)
 
@@ -710,7 +710,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
     from defyes import Agave
 
 
-    f1 = Agave.get_contract('0x24dCbd376Db23e4771375092344f5CbEA3541FC0', Chain.XDAI)
+    f1 = Agave.get_contract('0x24dCbd376Db23e4771375092344f5CbEA3541FC0', Chain.GNOSIS)
     f2 = Agave.get_reserves_tokens(f1, 'latest')
     print(f2)
 
@@ -736,9 +736,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f2 = Agave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
+    f2 = Agave.get_reserves_tokens_balances(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS)
 
     print(f2)
 
@@ -765,7 +765,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    f3 = Agave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
+    f3 = Agave.get_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS)
 
     print(f3)
 
@@ -791,7 +791,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    f4 = Agave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI)
+    f4 = Agave.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS)
 
     print(f4)
 
@@ -817,7 +817,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Agave
 
-    f5 = Agave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.XDAI, reward=True)
+    f5 = Agave.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.GNOSIS, reward=True)
 
     print(f5)
 
@@ -1828,11 +1828,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
     
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
     
-    f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
+    f2 = Curve.get_pool_gauge_address(web3, '0x7f90122BF0700F9E7e1F688fe926940E8839F353', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
 
     print(f2)
 
@@ -1858,7 +1858,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', Chain.XDAI)
+    f3 = Curve.get_gauge_version('0x1891E46859DBf78EeEfb652425755494eE8aD7bf', 'latest', Chain.GNOSIS)
 
     print(f3)
 
@@ -1884,9 +1884,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
     
-    f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
+    f4 = Curve.get_pool_address(web3, '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
     
     print(f4)
 
@@ -2008,7 +2008,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI )
+    f8 = Curve.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS )
 
     print(f8)
 
@@ -2064,7 +2064,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.XDAI)
+    f10 = Curve.pool_balances('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 'latest', Chain.GNOSIS)
 
     print(f10)
 
@@ -2092,7 +2092,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Curve
 
-    f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', Chain.XDAI)
+    f11 = Curve.swap_fees('0x1337BedC9D22ecbe766dF105c9623922A27963EC', 25913602, 'latest', Chain.GNOSIS)
 
     print(f11)
 
@@ -2576,7 +2576,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import QiDao
 
-    f1 = QiDao.get_vault_address('0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', Chain.XDAI)
+    f1 = QiDao.get_vault_address('0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', Chain.GNOSIS)
 
     print(f1)
 
@@ -2602,7 +2602,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import QiDao
 
-    f2 = QiDao.get_vault_data(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.XDAI)
+    f2 = QiDao.get_vault_data(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.GNOSIS)
 
     print(f2)
 
@@ -2634,7 +2634,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import QiDao
 
-    f3 = QiDao.underlying(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.XDAI)
+    f3 = QiDao.underlying(1, '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', 'latest', Chain.GNOSIS)
 
     print(f3)
 
@@ -3413,9 +3413,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f1 = Symmetric.get_vault_contract(web3, 'latest', Chain.XDAI)
+    f1 = Symmetric.get_vault_contract(web3, 'latest', Chain.GNOSIS)
 
     print(f1)
 
@@ -3444,9 +3444,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
     print(f2)
 
@@ -3474,9 +3474,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f3 = Symmetric.get_pool_info(web3, '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
+    f3 = Symmetric.get_pool_info(web3, '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
     print(f3)
 
@@ -3504,9 +3504,9 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f4 = Symmetric.get_lptoken_data('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
+    f4 = Symmetric.get_lptoken_data('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
     print(f4)
 
@@ -3534,11 +3534,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
-    f5 = Symmetric.get_rewarder_contract(web3, 'latest', Chain.XDAI, f2, 0)
+    f5 = Symmetric.get_rewarder_contract(web3, 'latest', Chain.GNOSIS, f2, 0)
 
     print(f5)
 
@@ -3569,11 +3569,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
-    f6 = Symmetric.get_symm_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.XDAI, 0)
+    f6 = Symmetric.get_symm_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.GNOSIS, 0)
 
     print(f6)
 
@@ -3605,11 +3605,11 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    web3 = get_node(Chain.XDAI, 'latest', 0)
+    web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.XDAI)
+    f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
-    f7 = Symmetric.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.XDAI, 0)
+    f7 = Symmetric.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.GNOSIS, 0)
 
     print(f7)
 
@@ -3642,7 +3642,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f8 = Symmetric.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
+    f8 = Symmetric.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
     print(f8)
 
@@ -3678,7 +3678,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f9 = Symmetric.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
+    f9 = Symmetric.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
     print(f9)
 
@@ -3712,7 +3712,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f10 = Symmetric.pool_balances('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
+    f10 = Symmetric.pool_balances('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
     print(f10)
 
@@ -3739,7 +3739,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f11 = Symmetric.get_rewards_per_unit('0x8B78873717981F18C9B8EE67162028BD7479142b', Chain.XDAI)
+    f11 = Symmetric.get_rewards_per_unit('0x8B78873717981F18C9B8EE67162028BD7479142b', Chain.GNOSIS)
 
     print(f11)
 
@@ -3775,7 +3775,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f13 = Symmetric.underlyingv1('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.XDAI)
+    f13 = Symmetric.underlyingv1('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
     print(f13)
 
@@ -3806,7 +3806,7 @@ To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache
 
     from defyes import Symmetric
 
-    f14 = Symmetric.swap_fees('0x65b0e9418e102a880c92790f001a9c5810b0ef32', 25928795, 'latest', Chain.XDAI)
+    f14 = Symmetric.swap_fees('0x65b0e9418e102a880c92790f001a9c5810b0ef32', 25928795, 'latest', Chain.GNOSIS)
 
     print(f14)
 

@@ -16,8 +16,8 @@ from defyes.node import get_node
 # ETHEREUM
 SRC_ETHEREUM = "0x156F0568a6cE827e5d39F6768A5D24B694e1EA7b"
 
-# XDAI
-SRC_XDAI = "0xa039793Af0bb060c597362E8155a0327d9b8BEE8"
+# GNOSIS
+SRC_GNOSIS = "0xa039793Af0bb060c597362E8155a0327d9b8BEE8"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -46,8 +46,8 @@ def get_staking_rewards_contract(web3, block, blockchain):
     if blockchain == Chain.ETHEREUM:
         staking_rewards_contract = get_contract(SRC_ETHEREUM, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
-    elif blockchain == Chain.XDAI:
-        staking_rewards_contract = get_contract(SRC_XDAI, blockchain, web3=web3, abi=ABI_SRC, block=block)
+    elif blockchain == Chain.GNOSIS:
+        staking_rewards_contract = get_contract(SRC_GNOSIS, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
     return staking_rewards_contract
 
@@ -338,7 +338,7 @@ def update_db(output_file=DB_FILE, block="latest"):
         with open(DB_FILE, "r") as db_file:
             db_data = json.load(db_file)
     except:
-        db_data = {Chain.ETHEREUM: {}, Chain.XDAI: {}}
+        db_data = {Chain.ETHEREUM: {}, Chain.GNOSIS: {}}
 
     blockchain = ""
     for blockchain in tqdm(db_data, desc="Fetching data from blockchains..."):

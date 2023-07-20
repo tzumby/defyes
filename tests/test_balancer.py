@@ -99,10 +99,10 @@ def test_pool_balances():
     }
 
     block = 27628264
-    balances = Balancer.pool_balances(Chain.XDAI, bb_ag_WXDAI_ADDR, block)
+    balances = Balancer.pool_balances(Chain.GNOSIS, bb_ag_WXDAI_ADDR, block)
     assert balances[GnosisTokenAddr.WXDAI] == Decimal("1295439.981731337648045247778")
 
-    balances = Balancer.pool_balances(Chain.XDAI, B50bbagGNO50bbagUSD_ADDR, block)
+    balances = Balancer.pool_balances(Chain.GNOSIS, B50bbagGNO50bbagUSD_ADDR, block)
     assert balances == {
         GnosisTokenAddr.WXDAI: Decimal("327217.3285011014510966714956"),
         GnosisTokenAddr.USDT: Decimal("182785.2866365983481610436107"),
@@ -110,7 +110,7 @@ def test_pool_balances():
         GnosisTokenAddr.GNO: Decimal("7700.623246950826914818782253"),
     }
 
-    gno = Balancer.pool_balances(Chain.XDAI, bb_ag_GNO_ADDR, block)
+    gno = Balancer.pool_balances(Chain.GNOSIS, bb_ag_GNO_ADDR, block)
     assert gno[GnosisTokenAddr.GNO] == Decimal("26159.71190211541086527825594")
 
 
@@ -133,7 +133,7 @@ def test_unwrap():
 
     block = 27628264
     lptoken_amount = 1000
-    unwrap = Balancer.unwrap(Chain.XDAI, B50bbagGNO50bbagUSD_ADDR, lptoken_amount, block)
+    unwrap = Balancer.unwrap(Chain.GNOSIS, B50bbagGNO50bbagUSD_ADDR, lptoken_amount, block)
     assert unwrap == {
         GnosisTokenAddr.WXDAI: Decimal("2072.099936394024014750631244"),
         GnosisTokenAddr.USDT: Decimal("1157.485706971609760143788076"),
@@ -486,10 +486,10 @@ def test_protocol_data():
     } == underlying
 
     block = 28275634
-    underlying = Balancer.get_protocol_data_for(Chain.XDAI, WALLET_e6f, bb_ag_USD_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(Chain.GNOSIS, WALLET_e6f, bb_ag_USD_ADDR, block, reward=True)
     assert {
         "block": 28275634,
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "positions": {
             "0xfedb19ec000d38d92af4b21436870f115db22725": {
                 "financial_metrics": {},
@@ -530,10 +530,10 @@ def test_protocol_data():
         "version": 0,
     }
 
-    underlying = Balancer.get_protocol_data_for(Chain.XDAI, WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, reward=True)
+    underlying = Balancer.get_protocol_data_for(Chain.GNOSIS, WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, reward=True)
     assert {
         "block": 28275634,
-        "blockchain": "xdai",
+        "blockchain": Chain.GNOSIS,
         "positions": {
             "0xB973Ca96a3f0D61045f53255E319AEDb6ED49240": {
                 "financial_metrics": {},
