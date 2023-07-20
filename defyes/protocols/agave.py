@@ -6,7 +6,7 @@ and lets them use their deposits as collateral
 to borrow and lend digital assets.
 
 Agave is a fork of Aave, built by the
-1Hive community and deployed on the xDai chain
+1Hive community and deployed on the Gnosis chain
 """
 
 import logging
