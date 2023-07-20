@@ -47,12 +47,14 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
         "uint8": "int",
         "uint64": "int",
         "uint256": "int",
+        "uint40": "int",
         "uint64[]": "list[int]",
         "uint256[]": "list[int]",
         "address": "str",
         "address[]": "list[str]",
         "string": "str",
         "bytes32": "bytes",
+        "tuple[]": "list[tuple]",
     }
 
     with open(abi_path) as f:
