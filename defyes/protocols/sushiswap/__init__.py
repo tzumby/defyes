@@ -37,7 +37,7 @@ MASTERCHEF_V2 = "0xEF0881eC094552b2e128Cf945EF17a6752B4Ec5d"
 MINICHEF_POLYGON = "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F"
 
 # xDAI - MiniChef Contract Address
-MINICHEF_XDAI = "0xdDCbf776dF3dE60163066A5ddDF2277cB445E0F3"
+MINICHEF_GNOSIS = "0xdDCbf776dF3dE60163066A5ddDF2277cB445E0F3"
 
 # Chefs V2 ABI - SUSHI, rewarder, pendingSushi, lpToken, userInfo, poolLength, poolInfo, sushiPerBlock, sushiPerSecond, totalAllocPoint
 ABI_CHEF_V2 = '[{"inputs":[],"name":"SUSHI","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"rewarder","outputs":[{"internalType":"contract IRewarder","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"},{"internalType":"address","name":"_user","type":"address"}],"name":"pendingSushi","outputs":[{"internalType":"uint256","name":"pending","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"lpToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"name":"userInfo","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"int256","name":"rewardDebt","type":"int256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"poolLength","outputs":[{"internalType":"uint256","name":"pools","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"poolInfo","outputs":[{"internalType":"uint128","name":"accSushiPerShare","type":"uint128"},{"internalType":"uint64","name":"lastRewardBlock","type":"uint64"},{"internalType":"uint64","name":"allocPoint","type":"uint64"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"sushiPerBlock","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"stateMutability":"view","type":"function"}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"sushiPerSecond","inputs":[]}, {"inputs":[],"name":"totalAllocPoint","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
@@ -82,7 +82,7 @@ def get_chef_contract(web3, block, blockchain, v1=False):
         chef_contract = get_contract(MINICHEF_POLYGON, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
 
     elif blockchain == Chain.GNOSIS:
-        chef_contract = get_contract(MINICHEF_XDAI, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
+        chef_contract = get_contract(MINICHEF_GNOSIS, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
 
     return chef_contract
 

@@ -15,7 +15,7 @@ ORACLE_ETHEREUM = "0x07D91f5fb9Bf7798734C3f606dB065549F6893bb"
 ORACLE_POLYGON = "0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9"
 
 # Gnosis Chain(xDai) Oracle Address
-ORACLE_XDAI = "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E"
+ORACLE_GNOSIS = "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E"
 
 # Smart Chain (Binance) Oracle Address
 ORACLE_BINANCE = "0xfbD61B037C325b959c0F6A7e69D8f37770C2c550"
@@ -50,7 +50,7 @@ def get_oracle_address(blockchain):
         return ORACLE_POLYGON
 
     elif blockchain == Chain.GNOSIS:
-        return ORACLE_XDAI
+        return ORACLE_GNOSIS
 
     elif blockchain == Chain.BINANCE:
         return ORACLE_BINANCE

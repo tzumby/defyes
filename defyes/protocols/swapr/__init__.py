@@ -16,8 +16,8 @@ from defyes.node import get_node
 # ETHEREUM
 SRC_ETHEREUM = "0x156F0568a6cE827e5d39F6768A5D24B694e1EA7b"
 
-# XDAI
-SRC_XDAI = "0xa039793Af0bb060c597362E8155a0327d9b8BEE8"
+# GNOSIS
+SRC_GNOSIS = "0xa039793Af0bb060c597362E8155a0327d9b8BEE8"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
@@ -47,7 +47,7 @@ def get_staking_rewards_contract(web3, block, blockchain):
         staking_rewards_contract = get_contract(SRC_ETHEREUM, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
     elif blockchain == Chain.GNOSIS:
-        staking_rewards_contract = get_contract(SRC_XDAI, blockchain, web3=web3, abi=ABI_SRC, block=block)
+        staking_rewards_contract = get_contract(SRC_GNOSIS, blockchain, web3=web3, abi=ABI_SRC, block=block)
 
     return staking_rewards_contract
 

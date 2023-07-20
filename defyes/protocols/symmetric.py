@@ -12,13 +12,13 @@ from defyes.node import get_node
 logger = logging.getLogger(__name__)
 
 # xDAI - Symmetric Vault Contract Address
-VAULT_XDAI = "0x24F87b37F4F249Da61D89c3FF776a55c321B2773"
-VAULT_OLD_XDAI = "0x901E0dC02f64C42F73F0Bdbf3ef21aFc96CF50be"
+VAULT_GNOSIS = "0x24F87b37F4F249Da61D89c3FF776a55c321B2773"
+VAULT_OLD_GNOSIS = "0x901E0dC02f64C42F73F0Bdbf3ef21aFc96CF50be"
 # xDAI - SymmChef Contract Address
-SYMMCHEF_XDAI = "0xdf667DeA9F6857634AaAf549cA40E06f04845C03"
+SYMMCHEF_GNOSIS = "0xdf667DeA9F6857634AaAf549cA40E06f04845C03"
 
 # xDAI - SymmChef Contract Address
-SYMFACTORY_XDAI = "0x9B4214FD41cD24347A25122AC7bb6B479BED72Ac"
+SYMFACTORY_GNOSIS = "0x9B4214FD41cD24347A25122AC7bb6B479BED72Ac"
 
 SYMM = "0xC45b3C1c24d5F54E7a2cF288ac668c74Dd507a84"
 
@@ -68,7 +68,7 @@ pool_ids_farming = {
 def get_pool_ids_farming():
     web3 = get_node(Chain.GNOSIS, "latest")
 
-    chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
+    chef_contract = web3.eth.contract(address=SYMMCHEF_GNOSIS, abi=ABI_CHEF_V2)
     poolLength = chef_contract.functions.poolLength().call(block_identifier="latest")
 
     for i in range(poolLength):
@@ -139,7 +139,7 @@ def get_all_rewards(
         return result
 
     pool_id_farming = pool_ids_farming[Chain.GNOSIS][lptoken_address]
-    chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
+    chef_contract = web3.eth.contract(address=SYMMCHEF_GNOSIS, abi=ABI_CHEF_V2)
     symm_rewards = chef_contract.functions.pendingSymm(pool_id_farming, wallet).call(block_identifier=block)
     result["rewards"].append(
         {"token": SYMM, "balance": to_token_amount(SYMM, symm_rewards, Chain.GNOSIS, web3=web3, decimals=decimals)}
@@ -232,7 +232,7 @@ def underlying(
     wallet = Web3.to_checksum_address(wallet)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    factory_contract = get_contract(SYMFACTORY_XDAI, blockchain, block=block, web3=web3, abi=ABI_BPOOL)
+    factory_contract = get_contract(SYMFACTORY_GNOSIS, blockchain, block=block, web3=web3, abi=ABI_BPOOL)
 
     result = {
         "protocol": "Symmetric",
@@ -258,10 +258,10 @@ def underlying(
         pool_id = "0x" + pool_id.hex()
         try:
             # Checking if it's a pool from the old vault
-            vault_contract = web3.eth.contract(address=VAULT_OLD_XDAI, abi=ABI_VAULT)
+            vault_contract = web3.eth.contract(address=VAULT_OLD_GNOSIS, abi=ABI_VAULT)
             pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
         except ContractLogicError:
-            vault_contract = web3.eth.contract(address=VAULT_XDAI, abi=ABI_VAULT)
+            vault_contract = web3.eth.contract(address=VAULT_GNOSIS, abi=ABI_VAULT)
             pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
         pool_tokens = pool_tokens_data[0]
         pool_balances = pool_tokens_data[1]
@@ -275,7 +275,7 @@ def underlying(
             result["unstaked"].append({"token": token_address, "balance": amount * pool_balance_fraction})
         if lptoken_address in pool_ids_farming[Chain.GNOSIS]:
             pool_id_farming = pool_ids_farming[Chain.GNOSIS][lptoken_address]
-            chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
+            chef_contract = web3.eth.contract(address=SYMMCHEF_GNOSIS, abi=ABI_CHEF_V2)
             pool_staked_fraction = Decimal(
                 chef_contract.functions.userInfo(pool_id_farming, wallet).call(block_identifier=block)[0]
             ) / Decimal(total_supply)
@@ -347,7 +347,7 @@ def pool_balances(
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    factory_contract = get_contract(SYMFACTORY_XDAI, blockchain, block=block, web3=web3, abi=ABI_BPOOL)
+    factory_contract = get_contract(SYMFACTORY_GNOSIS, blockchain, block=block, web3=web3, abi=ABI_BPOOL)
 
     result = {
         "protocol": "Symmetric",
@@ -376,10 +376,10 @@ def pool_balances(
     pool_id = "0x" + pool_id.hex()
     try:
         # Checking if it's a pool from the old vault
-        vault_contract = web3.eth.contract(address=VAULT_OLD_XDAI, abi=ABI_VAULT)
+        vault_contract = web3.eth.contract(address=VAULT_OLD_GNOSIS, abi=ABI_VAULT)
         pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
     except ContractLogicError:
-        vault_contract = web3.eth.contract(address=VAULT_XDAI, abi=ABI_VAULT)
+        vault_contract = web3.eth.contract(address=VAULT_GNOSIS, abi=ABI_VAULT)
         pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
 
     pool_tokens = pool_tokens_data[0]
@@ -454,7 +454,7 @@ def get_rewards_per_second(
         return result
 
     pool_id_farming = pool_ids_farming[Chain.GNOSIS][lptoken_address]
-    chef_contract = web3.eth.contract(address=SYMMCHEF_XDAI, abi=ABI_CHEF_V2)
+    chef_contract = web3.eth.contract(address=SYMMCHEF_GNOSIS, abi=ABI_CHEF_V2)
     alloc_point = chef_contract.functions.poolInfo(pool_id_farming).call(block_identifier=block)[2]
     total_alloc_point = chef_contract.functions.totalAllocPoint().call(block_identifier=block)
     symm_per_second = (

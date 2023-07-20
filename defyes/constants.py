@@ -15,7 +15,6 @@ class Constants(metaclass=ConstantsMeta):
 class Chain(Constants):
     ETHEREUM = "ethereum"
     POLYGON = "polygon"
-    # FIXME: XDAI should be eventually removed
     GNOSIS = "gnosis"
     ARBITRUM = "arbitrum"
     BINANCE = "binance"
@@ -92,7 +91,7 @@ class ETHTokenAddr(Constants):
     X3CRV = "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"
 
 
-# XDAI - Token Addresses
+# GNOSIS - Token Addresses
 class GnosisTokenAddr(Constants):
     AGVE = "0x3a97704a1b25F08aa230ae53B352e2e72ef52843"
     BAL = "0x7eF541E2a22058048904fE5744f9c7E4C57AF717"

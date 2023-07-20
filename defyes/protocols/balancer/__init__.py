@@ -212,7 +212,7 @@ class GaugeFactory(GaugeFactory):
     def _update_address(self, lp_address: str) -> str:
         new_address = self.address
         if self.blockchain == Chain.ETHEREUM:
-            if self.get_pool_gauge(lp_address) == ZERO_ADDRESS:
+            if self.get_pool_gauge(lp_address) == Address.ZERO:
                 new_address = self.default_addresses["ethereum_v2"]
 
         return new_address
