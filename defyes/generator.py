@@ -136,11 +136,8 @@ class %(first_class)s(%(first_class)s):
 '''
 from web3 import Web3
 
-from defyes.cache import const_call
 from defyes.generator import load_abi
 from defyes.node import get_node
-
-
 """
 
 contract_class_template = """
@@ -179,6 +176,7 @@ def generate_contract_class(class_name, abi_path, const_call_methods=[]):
 def generate_classes():
     setup_paths = current_module_path.glob("**/autogen_config.json")
     black_config = get_black_config()
+    is_const_call_used = False
 
     for setup_path in setup_paths:
         with open(setup_path) as f:
@@ -193,12 +191,19 @@ def generate_classes():
             abi_path = protocol_path / "abis" / f"{abi_name}.json"
             class_name = snake_to_camel(abi_name)
             classes_name.append(class_name)
-            content += generate_contract_class(class_name, abi_path, config.get("const_call", []))
+            const_call_methods = config.get("const_call", [])
+            if const_call_methods:
+                is_const_call_used = True
+            content += generate_contract_class(class_name, abi_path, const_call_methods)
 
         if not content:
             continue
 
-        content = header_template % dict(classes=", ".join(classes_name), first_class=classes_name[0]) + content
+        final_header_template = header_template
+        if is_const_call_used:
+            final_header_template += "from defyes.cache import const_call\n"
+
+        content = final_header_template % dict(classes=", ".join(classes_name), first_class=classes_name[0]) + content
 
         content = isort.code(content)
         content = black.format_file_contents(content, fast=True, mode=black_config)
