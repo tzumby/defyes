@@ -1,6 +1,7 @@
 import itertools
 import json
 import re
+import textwrap
 from pathlib import Path
 
 import black
@@ -86,7 +87,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
         outputs = item.get("outputs", [])
         if outputs:
             return_str = ""
-            return_comment = ""
+            return_docstring = ""
             return_types = []
             return_names = []
             for output in outputs:
@@ -103,14 +104,16 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
                 return_str = f" -> {return_types[0]}"
             else:
                 return_str = f' -> tuple[{", ".join(return_types)}]'
-                return_comment = f'        # Output: {", ".join(return_names)}\n'
+                return_docstring = f'        Output: {", ".join(return_names)}\n'
+                lines = textwrap.wrap(return_docstring)
+                return_docstring = "\n            ".join(lines)
 
         if method_name in const_call_methods:
             ret = f"        return const_call(self.contract.functions.{method_name}({args_names}))\n"
         else:
             ret = f"        return self.contract.functions.{method_name}({args_names}).call(block_identifier=self.block)\n"
         method_str += f"    def {method_name_snake}(self{args_str}){return_str}:\n"
-        method_str += return_comment if return_comment else ""
+        method_str += f'        """\n{return_docstring}\n        """\n' if return_docstring else ""
         method_str += ret
 
         methods.append(method_str)
