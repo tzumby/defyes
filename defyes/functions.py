@@ -93,11 +93,10 @@ from defyes.constants import (
     API_ROPSTEN_GETLOGS,
     API_ROPSTEN_TOKENTX,
     API_ROPSTEN_TXLIST,
-    E_ADDRESS,
     IMPLEMENTATION_SLOT_EIP_1967,
     IMPLEMENTATION_SLOT_UNSTRUCTURED,
     TESTNET_HEADER,
-    ZERO_ADDRESS,
+    Address,
     Chain,
 )
 from defyes.helpers import suppress_error_codes
@@ -312,7 +311,7 @@ def balance_of(address, contract_address, block, blockchain, web3=None, decimals
     contract_address = Web3.to_checksum_address(contract_address)
 
     balance = 0
-    if contract_address == ZERO_ADDRESS:
+    if contract_address == Address.ZERO:
         balance = web3.eth.get_balance(address, block)
     else:
         token_contract = web3.eth.contract(address=contract_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
@@ -344,7 +343,7 @@ def get_decimals(token_address, blockchain, web3=None, block="latest"):
 
     token_address = Web3.to_checksum_address(token_address)
 
-    if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
+    if token_address == Address.ZERO or token_address == Address.E:
         decimals = 18
     else:
         token_contract = web3.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
@@ -359,7 +358,7 @@ def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
 
     token_address = Web3.to_checksum_address(token_address)
 
-    if token_address == ZERO_ADDRESS or token_address == E_ADDRESS:
+    if token_address == Address.ZERO or token_address == Address.E:
         if blockchain is Chain.ETHEREUM or blockchain is Chain.OPTIMISM or blockchain is Chain.ARBITRUM:
             symbol = "ETH"
         elif blockchain is Chain.POLYGON:
@@ -503,7 +502,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
     if web3 is None:
         web3 = get_node(blockchain)
 
-    proxy_impl_address = ZERO_ADDRESS
+    proxy_impl_address = Address.ZERO
 
     contract_address = Web3.to_checksum_address(contract_address)
 
@@ -514,20 +513,20 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
     proxy_impl_address = Web3.to_checksum_address("0x" + proxy_impl_address[-40:])
 
     # OpenZeppelins' EIP-1167 - Example in GC: 0x793fAF861a78B07c0C8c0ed1450D3919F3473226)
-    if proxy_impl_address == ZERO_ADDRESS:
+    if proxy_impl_address == Address.ZERO:
         bytecode = web3.eth.get_code(contract_address, block_identifier=block).hex()
         if bytecode[2:22] == "363d3d373d3d3d363d73" and bytecode[62:] == "5af43d82803e903d91602b57fd5bf3":
             proxy_impl_address = Web3.to_checksum_address("0x" + bytecode[22:62])
 
     # Custom proxy implementation (similar to EIP-1167) -
     # Examples: mainnet: 0x09cabEC1eAd1c0Ba254B09efb3EE13841712bE14 / GC: 0x7B7DA887E0c18e631e175532C06221761Db30A24
-    if proxy_impl_address == ZERO_ADDRESS:
+    if proxy_impl_address == Address.ZERO:
         bytecode = web3.eth.get_code(contract_address, block_identifier=block).hex()
         if bytecode[2:32] == "366000600037611000600036600073" and bytecode[72:] == "5af41558576110006000f3":
             proxy_impl_address = Web3.to_checksum_address("0x" + bytecode[32:72])
 
     # OpenZeppelins' Unstructured Storage proxy pattern - Example: USDC in mainnet (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48)
-    if proxy_impl_address == ZERO_ADDRESS:
+    if proxy_impl_address == Address.ZERO:
         proxy_impl_address = Web3.to_hex(
             web3.eth.get_storage_at(contract_address, IMPLEMENTATION_SLOT_UNSTRUCTURED, block_identifier=block)
         )
@@ -535,7 +534,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
 
     # OpenZeppelins' EIP-897 DelegateProxy - Examples: stETH in mainnet (0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84)
     # It also includes the custom proxy implementation of the Comptroller: 0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B
-    if proxy_impl_address == ZERO_ADDRESS:
+    if proxy_impl_address == Address.ZERO:
         contract = get_contract(contract_address, blockchain, web3=web3)
         if contract is not None:
             for func in [obj for obj in contract.abi if obj["type"] == "function"]:
@@ -552,7 +551,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
                                 continue
 
     # Custom proxy implementation (used by Safes) - Example: mainnet: 0x4F2083f5fBede34C2714aFfb3105539775f7FE64
-    if proxy_impl_address == ZERO_ADDRESS:
+    if proxy_impl_address == Address.ZERO:
         contract_custom_abi = get_contract(
             contract_address,
             Chain.ETHEREUM,
@@ -640,7 +639,7 @@ def get_data(contract_address, function_name, parameters, blockchain, web3=None,
                 # If the contract does not have the function, it checks if there is a proxy implementation
                 proxy_impl_address = search_proxy_impl_address(contract_address, blockchain, web3=web3, block=block)
 
-                if proxy_impl_address != ZERO_ADDRESS:
+                if proxy_impl_address != Address.ZERO:
                     contract = get_contract_proxy_abi(contract_address, proxy_impl_address, blockchain, web3=web3)
     else:
         contract = get_contract_proxy_abi(contract_address, abi_address, blockchain, web3=web3)

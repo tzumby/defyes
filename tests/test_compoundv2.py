@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import Compound
-from defyes.constants import ZERO_ADDRESS, Chain, ETHTokenAddr
+from defyes.constants import Address, Chain, ETHTokenAddr
 from defyes.node import get_node
 
 CTOKEN_CONTRACTS = {
@@ -64,7 +64,7 @@ def test_get_ctoken_data():
 
     block = 16906410
     wallet1_ceth = Compound.get_ctoken_data(CTOKEN_CONTRACTS["ceth_contract"], WALLET_N1, block, Chain.ETHEREUM)
-    assert wallet1_ceth["underlying"] == ZERO_ADDRESS
+    assert wallet1_ceth["underlying"] == Address.ZERO
     assert wallet1_ceth["decimals"] == 8
     assert wallet1_ceth["borrowBalanceStored"] == 0
     assert wallet1_ceth["balanceOf"] == 4979680
@@ -86,7 +86,7 @@ def test_underlying():
     assert dai_underlying == [["0x6B175474E89094C44Da98b954EedeAC495271d0F", Decimal("0.9999999998429369002850268805")]]
 
     block = 16906410
-    eth_underlying = Compound.underlying(WALLET_N1, ZERO_ADDRESS, block, Chain.ETHEREUM, web3=node)
+    eth_underlying = Compound.underlying(WALLET_N1, Address.ZERO, block, Chain.ETHEREUM, web3=node)
     assert eth_underlying == [
         ["0x0000000000000000000000000000000000000000", Decimal("0.0009999999621424394485648011655")]
     ]
@@ -98,7 +98,7 @@ def test_underlying_all():
     underlyings = Compound.underlying_all(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert underlyings == [
         [ETHTokenAddr.DAI, Decimal("1.000010884057654258470225384")],
-        [ZERO_ADDRESS, Decimal("0.0009999999621424394485648011655")],
+        [Address.ZERO, Decimal("0.0009999999621424394485648011655")],
     ]
 
 

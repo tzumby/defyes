@@ -5,7 +5,7 @@ import requests
 from defyes.constants import (
     API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE,
     API_COINGECKO_COINID_PRICE_RANGE,
-    ZERO_ADDRESS,
+    Address,
     Chain,
 )
 
@@ -30,7 +30,7 @@ def get_price(token_address, timestamp, blockchain):
     ):
         return [timestamp, None]
 
-    if token_address == ZERO_ADDRESS:
+    if token_address == Address.ZERO:
         if blockchain == Chain.POLYGON:
             coin_id = "matic-network"
         else:
@@ -138,7 +138,7 @@ def get_price_range(token_address, start_timestamp, end_timestamp, blockchain):
     if blockchain != Chain.ETHEREUM and blockchain != Chain.GNOSIS and blockchain != Chain.POLYGON:
         return None
 
-    if token_address == ZERO_ADDRESS:
+    if token_address == Address.ZERO:
         if blockchain == Chain.POLYGON:
             coin_id = "matic-network"
         else:

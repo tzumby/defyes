@@ -6,7 +6,7 @@ from functools import cached_property
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from defyes.constants import ZERO_ADDRESS, Chain
+from defyes.constants import Address, Chain
 from defyes.functions import block_to_date, date_to_block, get_logs_web3, last_block, to_token_amount
 from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
@@ -225,7 +225,7 @@ class GaugeFactory(GaugeFactory):
             gauge_created_event_signature = "GaugeCreated(address)"
             gauge_created_event = Web3.keccak(text=gauge_created_event_signature).hex()
 
-            gauge_address = ZERO_ADDRESS
+            gauge_address = Address.ZERO
             if self.block == "latest" or self.block >= block_from:
                 logs = get_logs_web3(
                     address=self.address,
@@ -256,11 +256,11 @@ class Gauge(Gauge):
 
     @property
     def decimals(self):
-        return 18 if self.address == ZERO_ADDRESS else super().decimals
+        return 18 if self.address == Address.ZERO else super().decimals
 
     def balance_of(self, wallet: str) -> Decimal:
         wallet = Web3.to_checksum_address(wallet)
-        if self.address == ZERO_ADDRESS:
+        if self.address == Address.ZERO:
             return Decimal(self.contract.w3.eth.get_balance(wallet, self.block))
         else:
             with suppress(ContractLogicError):
@@ -269,7 +269,7 @@ class Gauge(Gauge):
 
     def get_rewards(self, wallet: str, decimals: bool = True) -> dict:
         rewards = {}
-        if self.address != ZERO_ADDRESS:
+        if self.address != Address.ZERO:
             wallet = Web3.to_checksum_address(wallet)
 
             # BAL rewards

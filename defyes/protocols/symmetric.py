@@ -5,7 +5,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import ZERO_ADDRESS, Chain
+from defyes.constants import Address, Chain
 from defyes.functions import BlockchainError, get_contract, last_block, to_token_amount
 from defyes.node import get_node
 
@@ -146,7 +146,7 @@ def get_all_rewards(
     )
 
     rewarder_contract_address = const_call(chef_contract.functions.rewarder(pool_id_farming))
-    if rewarder_contract_address != ZERO_ADDRESS:
+    if rewarder_contract_address != Address.ZERO:
         rewarder_contract = get_contract(
             rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block
         )
@@ -469,7 +469,7 @@ def get_rewards_per_second(
 
     rewarder_contract_address = chef_contract.functions.rewarder(pool_id_farming).call(block_identifier=block)
 
-    if rewarder_contract_address != ZERO_ADDRESS:
+    if rewarder_contract_address != Address.ZERO:
         rewarder_contract = get_contract(
             rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block
         )
@@ -482,7 +482,7 @@ def get_rewards_per_second(
         for i in range(chef_contract.functions.poolLength().call(block_identifier=block)):
             rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier=block)[2]
 
-        reward_address = rewarder_contract.functions.pendingTokens(pool_id_farming, ZERO_ADDRESS, 1).call(
+        reward_address = rewarder_contract.functions.pendingTokens(pool_id_farming, Address.ZERO, 1).call(
             block_identifier=block
         )[0][0]
 

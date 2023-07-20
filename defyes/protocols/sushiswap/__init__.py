@@ -10,7 +10,7 @@ from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound
 
 from defyes.cache import const_call
-from defyes.constants import ZERO_ADDRESS, Chain
+from defyes.constants import Address, Chain
 from defyes.functions import (
     block_to_date,
     date_to_block,
@@ -294,7 +294,7 @@ def get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id):
     """
     # TODO: determine if const_call can be used
     rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call(block_identifier=block)
-    if rewarder_contract_address != ZERO_ADDRESS:
+    if rewarder_contract_address != Address.ZERO:
         rewarder_contract = get_contract(
             rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block
         )
@@ -685,7 +685,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block="latest")
         for i in range(chef_contract.functions.poolLength().call(block_identifier=block)):
             rewarder_total_alloc_point += rewarder_contract.functions.poolInfo(i).call(block_identifier=block)[2]
 
-        reward_data["reward_address"] = rewarder_contract.functions.pendingTokens(pool_id, ZERO_ADDRESS, 1).call(
+        reward_data["reward_address"] = rewarder_contract.functions.pendingTokens(pool_id, Address.ZERO, 1).call(
             block_identifier=block
         )[0][0]
 

@@ -7,7 +7,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
-from defyes.constants import E_ADDRESS, ZERO_ADDRESS, Chain, ETHTokenAddr, GnosisTokenAddr
+from defyes.constants import Address, Chain, ETHTokenAddr, GnosisTokenAddr
 from defyes.functions import (
     balance_of,
     block_to_date,
@@ -107,32 +107,32 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
     # 1: Try to retrieve the gauge address assuming the pool is a Regular Pool
     registry_contract = get_registry_contract(web3, 0, block, blockchain)
 
-    if registry_contract.address != ZERO_ADDRESS:
+    if registry_contract.address != Address.ZERO:
         gauge_address = const_call(registry_contract.functions.get_gauges(pool_address))[0][0]
 
     # 2: Try to retrieve the gauge address assuming the pool is a Factory Pool
-    if gauge_address == ZERO_ADDRESS:
+    if gauge_address == Address.ZERO:
         registry_contract = get_registry_contract(web3, 3, block, blockchain)
 
-        if registry_contract.address != ZERO_ADDRESS:
+        if registry_contract.address != Address.ZERO:
             gauge_address = const_call(registry_contract.functions.get_gauge(pool_address))
 
     # 3: Try to retrieve the gauge address assuming the pool is a Crypto V2 Pool
-    if gauge_address == ZERO_ADDRESS:
+    if gauge_address == Address.ZERO:
         registry_contract = get_registry_contract(web3, 5, block, blockchain)
 
-        if registry_contract.address != ZERO_ADDRESS:
+        if registry_contract.address != Address.ZERO:
             gauge_address = const_call(registry_contract.functions.get_gauges(pool_address))[0][0]
 
     # 4: Try to retrieve the gauge address assuming the pool is a Crypto Factory Pool
-    if gauge_address == ZERO_ADDRESS:
+    if gauge_address == Address.ZERO:
         registry_contract = get_registry_contract(web3, 6, block, blockchain)
 
-        if registry_contract.address != ZERO_ADDRESS:
+        if registry_contract.address != Address.ZERO:
             gauge_address = const_call(registry_contract.functions.get_gauge(pool_address))
 
     # Pools which don't have their gauge registered in none of the registries
-    if gauge_address == ZERO_ADDRESS and blockchain != Chain.ETHEREUM:
+    if gauge_address == Address.ZERO and blockchain != Chain.ETHEREUM:
         x_chain_factory_contract = get_contract(
             X_CHAIN_GAUGE_FACTORY_ADDRESS, blockchain, web3=web3, abi=ABI_X_CHAIN_GAUGE_FACTORY_ADDRESS, block=block
         )
@@ -169,7 +169,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
         pass
 
     try:
-        const_call(gauge_contract.functions.claimable_reward_write(ZERO_ADDRESS, ZERO_ADDRESS))
+        const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
 
         try:
             const_call(gauge_contract.functions.crv_token())
@@ -201,7 +201,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
 
         except ContractLogicError:
             try:
-                const_call(gauge_contract.functions.claimable_reward(ZERO_ADDRESS))
+                const_call(gauge_contract.functions.claimable_reward(Address.ZERO))
                 if only_version:
                     return "LiquidityGaugeReward"
                 else:
@@ -229,18 +229,18 @@ def get_pool_address(web3, lptoken_address, block, blockchain):
     # 1: Try to retrieve the pool address assuming the pool is a Regular Pool
     registry_contract = get_registry_contract(web3, 0, block, blockchain)
 
-    if registry_contract.address != ZERO_ADDRESS:
+    if registry_contract.address != Address.ZERO:
         pool_address = const_call(registry_contract.functions.get_pool_from_lp_token(lptoken_address))
 
     # 2: Try to retrieve the pool address assuming the pool is a Crypto V2 Pool
-    if pool_address == ZERO_ADDRESS:
+    if pool_address == Address.ZERO:
         registry_contract = get_registry_contract(web3, 5, block, blockchain)
 
-        if registry_contract.address != ZERO_ADDRESS:
+        if registry_contract.address != Address.ZERO:
             pool_address = const_call(registry_contract.functions.get_pool_from_lp_token(lptoken_address))
 
     # 3: If the pool is not a Regular Pool or a V2 Pool then it's a Factory Pool
-    if pool_address == ZERO_ADDRESS:
+    if pool_address == Address.ZERO:
         pool_address = lptoken_address
 
     return pool_address
@@ -372,7 +372,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         while True:
             token_address = const_call(gauge_contract.functions.reward_tokens(i))
 
-            if token_address != ZERO_ADDRESS:
+            if token_address != Address.ZERO:
                 token_reward = gauge_contract.functions.claimable_reward(wallet, token_address).call(
                     block_identifier=block
                 )
@@ -396,7 +396,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         i = 0
         while True:
             token_address = const_call(gauge_contract.functions.reward_tokens(i))
-            if token_address != ZERO_ADDRESS:
+            if token_address != Address.ZERO:
                 token_reward = gauge_contract.functions.claimable_reward_write(wallet, token_address).call(
                     block_identifier=block
                 )
@@ -579,8 +579,8 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
             continue
 
         if decimals:
-            if token_address == E_ADDRESS:
-                token_decimals = get_decimals(ZERO_ADDRESS, blockchain, web3=web3)
+            if token_address == Address.E:
+                token_decimals = get_decimals(Address.ZERO, blockchain, web3=web3)
             else:
                 token_decimals = get_decimals(token_address, blockchain, web3=web3)
         else:
