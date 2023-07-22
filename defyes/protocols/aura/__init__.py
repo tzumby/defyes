@@ -390,16 +390,17 @@ def underlying(
     for rewarder in rewarders:
         rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
         lptoken_staked = Decimal(rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block))
+        lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
+        amount = lptoken_staked / Decimal(10**lptoken_decimals if decimals else 1)
+        if not decimals:
+            amount /= 10**lptoken_decimals
 
         if not return_balancer_underlying:
-            balancer_data = balancer.get_protocol_data_for(
-                blockchain, wallet, lptoken_address, block, aura_staked=lptoken_staked, decimals=decimals
-            )
-            positions = balancer_data["positions"][lptoken_address]["staked"].get("underlyings", [])
-            for position in positions:
-                balances[position["address"]] = balances.get(position["address"], 0) + position["balance"]
+            unwrapped_tokens = balancer.unwrap(blockchain, lptoken_address, amount, block, decimals)
+            for token_addr, token_balance in unwrapped_tokens.items():
+                balances[token_addr] = balances.get(token_addr, 0) + token_balance
         else:
-            balances[lptoken_address] = to_token_amount(lptoken_address, lptoken_staked, blockchain, web3, decimals)
+            balances[lptoken_address] = amount
 
     result["balances"] = balances
 
