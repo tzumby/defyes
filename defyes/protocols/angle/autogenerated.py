@@ -131,7 +131,9 @@ class VaultManager:
         return self.contract.functions.getVaultDebt(vault_id).call(block_identifier=self.block)
 
     def vault_data(self, arg0: int) -> tuple[int, int]:
-        # Output: collateralAmount, normalizedDebt
+        """
+        Output: collateralAmount, normalizedDebt
+        """
         return self.contract.functions.vaultData(arg0).call(block_identifier=self.block)
 
     @property

@@ -1,6 +1,7 @@
 import itertools
 import json
 import re
+import textwrap
 from pathlib import Path
 
 import black
@@ -47,12 +48,14 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
         "uint8": "int",
         "uint64": "int",
         "uint256": "int",
+        "uint40": "int",
         "uint64[]": "list[int]",
         "uint256[]": "list[int]",
         "address": "str",
         "address[]": "list[str]",
         "string": "str",
         "bytes32": "bytes",
+        "tuple[]": "list[tuple]",
     }
 
     with open(abi_path) as f:
@@ -84,7 +87,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
         outputs = item.get("outputs", [])
         if outputs:
             return_str = ""
-            return_comment = ""
+            return_docstring = ""
             return_types = []
             return_names = []
             for output in outputs:
@@ -101,14 +104,16 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
                 return_str = f" -> {return_types[0]}"
             else:
                 return_str = f' -> tuple[{", ".join(return_types)}]'
-                return_comment = f'        # Output: {", ".join(return_names)}\n'
+                return_docstring = f'        Output: {", ".join(return_names)}\n'
+                lines = textwrap.wrap(return_docstring)
+                return_docstring = "\n            ".join(lines)
 
         if method_name in const_call_methods:
             ret = f"        return const_call(self.contract.functions.{method_name}({args_names}))\n"
         else:
             ret = f"        return self.contract.functions.{method_name}({args_names}).call(block_identifier=self.block)\n"
         method_str += f"    def {method_name_snake}(self{args_str}){return_str}:\n"
-        method_str += return_comment if return_comment else ""
+        method_str += f'        """\n{return_docstring}\n        """\n' if return_docstring else ""
         method_str += ret
 
         methods.append(method_str)
@@ -131,11 +136,8 @@ class %(first_class)s(%(first_class)s):
 '''
 from web3 import Web3
 
-from defyes.cache import const_call
 from defyes.generator import load_abi
 from defyes.node import get_node
-
-
 """
 
 contract_class_template = """
@@ -174,6 +176,7 @@ def generate_contract_class(class_name, abi_path, const_call_methods=[]):
 def generate_classes():
     setup_paths = current_module_path.glob("**/autogen_config.json")
     black_config = get_black_config()
+    is_const_call_used = False
 
     for setup_path in setup_paths:
         with open(setup_path) as f:
@@ -188,12 +191,19 @@ def generate_classes():
             abi_path = protocol_path / "abis" / f"{abi_name}.json"
             class_name = snake_to_camel(abi_name)
             classes_name.append(class_name)
-            content += generate_contract_class(class_name, abi_path, config.get("const_call", []))
+            const_call_methods = config.get("const_call", [])
+            if const_call_methods:
+                is_const_call_used = True
+            content += generate_contract_class(class_name, abi_path, const_call_methods)
 
         if not content:
             continue
 
-        content = header_template % dict(classes=", ".join(classes_name), first_class=classes_name[0]) + content
+        final_header_template = header_template
+        if is_const_call_used:
+            final_header_template += "from defyes.cache import const_call\n"
+
+        content = final_header_template % dict(classes=", ".join(classes_name), first_class=classes_name[0]) + content
 
         content = isort.code(content)
         content = black.format_file_contents(content, fast=True, mode=black_config)

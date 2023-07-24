@@ -236,7 +236,9 @@ class Vault:
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "vault.json"))
 
     def get_pool_tokens(self, pool_id: bytes) -> tuple[list[str], list[int], int]:
-        # Output: tokens, balances, lastChangeBlock
+        """
+        Output: tokens, balances, lastChangeBlock
+        """
         return self.contract.functions.getPoolTokens(pool_id).call(block_identifier=self.block)
 
 
