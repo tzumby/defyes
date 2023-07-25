@@ -42,8 +42,8 @@ class Contract(Token):
 
 class TokenAmount(int):
     def __new__(cls, value: int, addr: Addr, web3: Web3):
-        self = super().__new__(value)
-        self.addr = addr
+        self = super().__new__(cls, value)
+        self.addr = Addr(addr)
         self.web3 = web3
         return self
 
