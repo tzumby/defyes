@@ -46,6 +46,10 @@ from defyes.constants import (
     API_GOERLI_GETLOGS,
     API_GOERLI_TOKENTX,
     API_GOERLI_TXLIST,
+    API_KOVAN_GETABI,
+    API_KOVAN_GETLOGS,
+    API_KOVAN_TOKENTX,
+    API_KOVAN_TXLIST,
     API_OPTIMISM_GETABI,
     API_OPTIMISM_GETLOGS,
     API_OPTIMISM_TOKENTX,
@@ -62,10 +66,10 @@ from defyes.constants import (
     IMPLEMENTATION_SLOT_UNSTRUCTURED,
     TESTNET_HEADER,
     Address,
-    Chain,
     APIKey,
-    TimeToBlock,
     BlockToTime,
+    Chain,
+    TimeToBlock,
 )
 from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
@@ -337,9 +341,9 @@ def get_contract_abi(contract_address, blockchain):
                 raise abiNotVerified
 
         elif blockchain == Chain.KOVAN:
-            data = requests.get(
-                API_KOVAN_GETABI % (contract_address, APIKey.ETHERSCAN), headers=TESTNET_HEADER
-            ).json()["result"]
+            data = requests.get(API_KOVAN_GETABI % (contract_address, APIKey.ETHERSCAN), headers=TESTNET_HEADER).json()[
+                "result"
+            ]
             if data == "Contract source code not verified":
                 raise abiNotVerified
 
@@ -608,14 +612,14 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
     data = None
 
     if blockchain == Chain.ETHEREUM:
-        data = requests.get(
-            API_ETHERSCAN_TXLIST % (contract_address, block_start, block_end, APIKey.ETHERSCAN)
-        ).json()["result"]
+        data = requests.get(API_ETHERSCAN_TXLIST % (contract_address, block_start, block_end, APIKey.ETHERSCAN)).json()[
+            "result"
+        ]
 
     elif blockchain == Chain.POLYGON:
-        data = requests.get(
-            API_POLYGONSCAN_TXLIST % (contract_address, block_start, block_end, APIKey.POLSCAN)
-        ).json()["result"]
+        data = requests.get(API_POLYGONSCAN_TXLIST % (contract_address, block_start, block_end, APIKey.POLSCAN)).json()[
+            "result"
+        ]
 
     elif blockchain == Chain.GNOSIS:
         data = requests.get(
@@ -628,9 +632,9 @@ def get_tx_list(contract_address, block_start, block_end, blockchain):
         ]
 
     elif blockchain == Chain.AVALANCHE:
-        data = requests.get(
-            API_AVALANCHE_TXLIST % (contract_address, block_start, block_end, APIKey.AVALANCHE)
-        ).json()["result"]
+        data = requests.get(API_AVALANCHE_TXLIST % (contract_address, block_start, block_end, APIKey.AVALANCHE)).json()[
+            "result"
+        ]
 
     elif blockchain == Chain.FANTOM:
         data = requests.get(API_FANTOM_TXLIST % (contract_address, block_start, block_end, APIKey.FANTOM)).json()[
@@ -673,9 +677,7 @@ def get_contract_creation(contract_addresses, blockchain):
     data = None
 
     if blockchain == Chain.ETHEREUM:
-        data = requests.get(API_ETHERSCAN_GETCONTRACTCREATION % (contract_addresses, APIKey.ETHERSCAN)).json()[
-            "result"
-        ]
+        data = requests.get(API_ETHERSCAN_GETCONTRACTCREATION % (contract_addresses, APIKey.ETHERSCAN)).json()["result"]
 
     return data
 

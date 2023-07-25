@@ -2,8 +2,8 @@ from typing import Union
 
 from web3 import Web3
 
-from defyes.node import get_node
 from defyes.api import RequestFromScan
+from defyes.node import get_node
 
 
 def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, web3=None) -> list:
@@ -96,4 +96,3 @@ def decode_function_input(function_address: str, input_hex: str, blockchain: str
     function_contract = web3.eth.contract(address=checksum_address, abi=function_abi)
     function_decode = function_contract.decode_function_input(input_hex)
     return function_decode
-

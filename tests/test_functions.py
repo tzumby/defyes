@@ -4,7 +4,7 @@ import pytz
 from pytest import raises
 
 from defyes.constants import Chain, ETHTokenAddr
-from defyes.functions import date_to_block, get_symbol, search_proxy_impl_address, block_to_date
+from defyes.functions import block_to_date, date_to_block, get_symbol, search_proxy_impl_address
 from defyes.node import get_node
 
 

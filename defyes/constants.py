@@ -1,7 +1,9 @@
 import json
 import os
 from pathlib import Path
+
 import requests
+
 
 class ConstantsMeta(type):
     def __setattr__(cls, name, value):
@@ -25,7 +27,6 @@ class Chain(Constants):
     ROPSTEN = "ropsten"
     KOVAN = "kovan"
     GOERLI = "goerli"
-
 
 
 # ERC-20
@@ -142,6 +143,7 @@ def get_api_keys_from_config():
 
 config_data = get_api_keys_from_config()
 
+
 class APIKey(Constants):
     ETHERSCAN = config_data["etherscan"]
     POLSCAN = config_data["polscan"]
@@ -154,11 +156,12 @@ class APIKey(Constants):
     ZAPPER = config_data["zapper"]
     ETHPLORER = config_data["ethplorer"]
 
+
 EXPLORERS = {
     Chain.ETHEREUM: ("api.etherscan.io", APIKey.ETHERSCAN),
     Chain.POLYGON: ("api.polygonscan.com", APIKey.POLSCAN),
     Chain.GNOSIS: ("api.gnosisscan.io", APIKey.GNOSISSCAN),
-    Chain.BINANCE: ("api.bscscan.com",  APIKey.BINANCE),
+    Chain.BINANCE: ("api.bscscan.com", APIKey.BINANCE),
     Chain.AVALANCHE: ("api.snowtrace.io", APIKey.AVALANCHE),
     Chain.FANTOM: ("api.ftmscan.io", APIKey.FANTOM),
     Chain.ARBITRUM: ("api.arbisscan.io", APIKey.ARBITRUM),
@@ -166,15 +169,18 @@ EXPLORERS = {
     Chain.ROPSTEN: ("api-ropsten.etherscan.io", APIKey.ETHERSCAN),
     Chain.KOVAN: ("api-kovan.etherscan.io", APIKey.ETHERSCAN),
     Chain.GOERLI: ("api-goerli.etherscan.io", APIKey.ETHERSCAN),
-    }
+}
 
 TESTNET_CHAINS = [Chain.ROPSTEN, Chain.KOVAN, Chain.GOERLI]
+
 
 class ExplorerError(Exception):
     pass
 
+
 class Explorer(Constants):
     query = None
+
     def __init__(self, blockchain: str = None, url: str = None):
         self.blockchain = blockchain
         if url and blockchain not in list(EXPLORERS.keys()):
@@ -184,14 +190,16 @@ class Explorer(Constants):
             self.url = EXPLORERS[blockchain][0]
             self.private_key = EXPLORERS[blockchain][1]
         else:
-            raise ExplorerError(f'Inconsistent information provided {blockchain=} {url=}')
+            raise ExplorerError(f"Inconsistent information provided {blockchain=} {url=}")
         self.query = self.query.format(url=self.url, key=self.private_key)
+
 
 # API CALLS
 # Etherscan blocks requests that don't provide a User-Agent Hearder for Testnets.
 TESTNET_HEADER = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Mobile Safari/537.36"
 }
+
 
 class TimeToBlock(Explorer):
     query = "https://{url}/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey={key}"
