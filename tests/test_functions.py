@@ -4,7 +4,7 @@ import pytz
 from pytest import raises
 
 from defyes.constants import Chain, ETHTokenAddr
-from defyes.functions import date_to_block, get_symbol, search_proxy_impl_address
+from defyes.functions import date_to_block, get_symbol, search_proxy_impl_address, block_to_date
 from defyes.node import get_node
 
 
@@ -20,6 +20,11 @@ def test_date_to_block():
     assert date_to_block(date, Chain.ETHEREUM) == block
     date = datetime.datetime(year=2023, month=2, day=20, hour=18, minute=30, second=0, tzinfo=pytz.UTC)
     assert date_to_block(date, Chain.ETHEREUM) == block
+
+
+def test_block_to_date():
+    block = 16671547
+    assert block_to_date(block, Chain.ETHEREUM) == "2023-02-20 18:29:59"
 
 
 def test_get_node_of_unknown_network():

@@ -4,7 +4,7 @@ from typing import Tuple
 import requests
 from web3 import Web3
 
-from defyes.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, Address, Chain
+from defyes.constants import API_ETHERSCAN_GETTOKENINFO, APIKey, Address, Chain
 from defyes.functions import block_to_timestamp
 from defyes.node import get_node
 from defyes.prices import Chainlink, CoinGecko, _1inch
@@ -119,7 +119,7 @@ def get_etherscan_price(token_address):
     Returns:
         float, str, str: price, source(etherscan), blockchain
     """
-    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()["result"][0][
+    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, APIKey.ETHERSCAN)).json()["result"][0][
         "tokenPriceUSD"
     ]
 

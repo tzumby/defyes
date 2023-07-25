@@ -4,9 +4,10 @@ from datetime import datetime
 import requests
 from dateutil.relativedelta import relativedelta
 
-from defyes.constants import API_KEY_ZAPPER, API_ZAPPER_PRICE, Chain
+from defyes.constants import APIKey, Chain
 
 
+URL_ZAPPER_PRICE = "https://api.zapper.fi/v2/prices/%s?network=%s&timeFrame=%s&currency=USD&api_key=%s"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_price
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ def get_price(token_address, timestamp, blockchain):
     else:
         [999, [timestamp, None]]
 
-    data = requests.get(API_ZAPPER_PRICE % (token_address, blockchain_id, time_frame, API_KEY_ZAPPER))
+    data = requests.get(URL_ZAPPER_PRICE % (token_address, blockchain_id, time_frame, APIKey.ZAPPER))
 
     if data.status_code != 200:
         return [data.status_code, [timestamp, None]]

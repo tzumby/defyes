@@ -3,7 +3,7 @@ from typing import Union
 from web3 import Web3
 
 from defyes.node import get_node
-from defyes.util.api import RequestFromScan
+from defyes.api import RequestFromScan
 
 
 def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, web3=None) -> list:
@@ -14,7 +14,7 @@ def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, we
     tx_to = tx_receipt["to"]
     tx_input_data = tx_receipt["input"]
 
-    tx_to_impl_code = bytes.fromhex(Web3.toHex(web3.eth.get_storage_at(tx_to, 0))[2:])
+    tx_to_impl_code = bytes.fromhex(Web3.to_hex(web3.eth.get_storage_at(tx_to, 0))[2:])
     proxy_address = Web3.to_checksum_address(tx_to_impl_code[-20:].hex())
     proxy_address_abi = RequestFromScan(
         blockchain=blockchain, module="contract", action="getabi", kwargs={"address": proxy_address}
@@ -97,10 +97,3 @@ def decode_function_input(function_address: str, input_hex: str, blockchain: str
     function_decode = function_contract.decode_function_input(input_hex)
     return function_decode
 
-
-# blockchain = 'ethereum'
-# tx1 = '0x2971c45416cbf234fe8939599dbb64d5c53210e76e4ff32d89188fa9bea30f87' # multisend
-# tx2 = '0x3c0fbad1350d84a159acef5c3e6fe350e10d44dc894bb3ee6f784b0c167e791f' # exec with role
-# tx3 = '0xd6ef0254c88760e5a2e58924bbaa28f8700341bfa91df469fc9c6f904b732e34' # single call
-# test = get_safe_functions(tx3,'latest',blockchain)
-# print(test)

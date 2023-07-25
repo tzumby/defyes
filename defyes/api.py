@@ -4,7 +4,7 @@ from typing import Optional
 import requests
 from web3 import Web3
 
-from defyes.explorers import Explorer
+from defyes.constants import Explorer
 from defyes.node import get_node
 
 
@@ -60,9 +60,8 @@ class RequestFromScan:
     kwargs: field(default_factory=dict) = None
 
     def __post_init__(self):
-        self.apikey = Explorer(self.blockchain).get_private_key()
+        self.explorer = Explorer(self.blockchain)
         self.get_impl_contract_if_account()
-        self.blockchain = Explorer(self.blockchain).get_explorer()
         [setattr(self, k, v) for k, v in self.kwargs.items()]
 
     def get_impl_contract_if_account(self):
@@ -78,7 +77,7 @@ class RequestFromScan:
 
     def request(self):
         request = requests.get(
-            "https://api.{}/api?".format(self.blockchain),
+            f"https://{self.explorer.url}/api?",
             params={k: v for k, v in self.__dict__.items() if k != "kwargs"},
         ).json()
         return request

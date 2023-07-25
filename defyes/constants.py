@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-
+import requests
 
 class ConstantsMeta(type):
     def __setattr__(cls, name, value):
@@ -27,10 +27,6 @@ class Chain(Constants):
     GOERLI = "goerli"
 
 
-# Etherscan blocks requests that don't provide a User-Agent Hearder for Testnets.
-TESTNET_HEADER = {
-    "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Mobile Safari/537.36"
-}
 
 # ERC-20
 # GENERAL
@@ -146,92 +142,78 @@ def get_api_keys_from_config():
 
 config_data = get_api_keys_from_config()
 
-API_KEY_ETHERSCAN = config_data["etherscan"]
-API_KEY_POLSCAN = config_data["polscan"]
-API_KEY_GNOSISSCAN = config_data["gnosisscan"]
-API_KEY_BINANCE = config_data["binance"]
-API_KEY_AVALANCHE = config_data["avalanche"]
-API_KEY_FANTOM = config_data["fantom"]
-API_KEY_OPTIMISM = config_data["optimism"]
-API_KEY_ARBITRUM = config_data["arbitrum"]
-API_KEY_ZAPPER = config_data["zapper"]
-API_KEY_ETHPLORER = config_data["ethplorer"]
+class APIKey(Constants):
+    ETHERSCAN = config_data["etherscan"]
+    POLSCAN = config_data["polscan"]
+    GNOSISSCAN = config_data["gnosisscan"]
+    BINANCE = config_data["binance"]
+    AVALANCHE = config_data["avalanche"]
+    FANTOM = config_data["fantom"]
+    OPTIMISM = config_data["optimism"]
+    ARBITRUM = config_data["arbitrum"]
+    ZAPPER = config_data["zapper"]
+    ETHPLORER = config_data["ethplorer"]
+
+EXPLORERS = {
+    Chain.ETHEREUM: ("api.etherscan.io", APIKey.ETHERSCAN),
+    Chain.POLYGON: ("api.polygonscan.com", APIKey.POLSCAN),
+    Chain.GNOSIS: ("api.gnosisscan.io", APIKey.GNOSISSCAN),
+    Chain.BINANCE: ("api.bscscan.com",  APIKey.BINANCE),
+    Chain.AVALANCHE: ("api.snowtrace.io", APIKey.AVALANCHE),
+    Chain.FANTOM: ("api.ftmscan.io", APIKey.FANTOM),
+    Chain.ARBITRUM: ("api.arbisscan.io", APIKey.ARBITRUM),
+    Chain.OPTIMISM: ("api-optimistic.etherscan.io", APIKey.OPTIMISM),
+    Chain.ROPSTEN: ("api-ropsten.etherscan.io", APIKey.ETHERSCAN),
+    Chain.KOVAN: ("api-kovan.etherscan.io", APIKey.ETHERSCAN),
+    Chain.GOERLI: ("api-goerli.etherscan.io", APIKey.ETHERSCAN),
+    }
+
+TESTNET_CHAINS = [Chain.ROPSTEN, Chain.KOVAN, Chain.GOERLI]
+
+class ExplorerError(Exception):
+    pass
+
+class Explorer(Constants):
+    query = None
+    def __init__(self, blockchain: str = None, url: str = None):
+        self.blockchain = blockchain
+        if url and blockchain not in list(EXPLORERS.keys()):
+            self.url = url
+            self.private_key = None
+        elif blockchain in list(EXPLORERS.keys()):
+            self.url = EXPLORERS[blockchain][0]
+            self.private_key = EXPLORERS[blockchain][1]
+        else:
+            raise ExplorerError(f'Inconsistent information provided {blockchain=} {url=}')
+        self.query = self.query.format(url=self.url, key=self.private_key)
 
 # API CALLS
-# COINGECKO
-API_COINGECKO_COINID_PRICE_RANGE = (
-    "https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=usd&from=%d&to=%d"
-)
-API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE = (
-    "https://api.coingecko.com/api/v3/coins/%s/contract/%s/market_chart/range?vs_currency=usd&from=%d&to=%d"
-)
-API_COINGECKO_BLOCKCHAINID_TOKENADDRESS_PRICE = "https://api.coingecko.com/api/v3/coins/%s/contract/%s"
+# Etherscan blocks requests that don't provide a User-Agent Hearder for Testnets.
+TESTNET_HEADER = {
+    "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Mobile Safari/537.36"
+}
 
-# ZAPPER
-API_ZAPPER_PRICE = "https://api.zapper.fi/v2/prices/%s?network=%s&timeFrame=%s&currency=USD&api_key=%s"
+class TimeToBlock(Explorer):
+    query = "https://{url}/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey={key}"
 
-# SCANS - MODULE = BLOCKS - GETBLOCKNOBYTIME
-API_ETHERSCAN_GETBLOCKNOBYTIME = (
-    "https://api.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_POLYGONSCAN_GETBLOCKNOBYTIME = (
-    "https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_GNOSISSCAN_GETBLOCKNOBYTIME = (
-    "https://api.gnosisscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_BLOCKSCOUT_GETBLOCKNOBYTIME = (
-    "https://blockscout.com/xdai/mainnet/api?module=block&action=getblocknobytime&timestamp=%d&closest=before"
-)
-API_BINANCE_GETBLOCKNOBYTIME = (
-    "https://api.bscscan.com/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_AVALANCHE_GETBLOCKNOBYTIME = (
-    "https://api.snowtrace.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_FANTOM_GETBLOCKNOBYTIME = (
-    "https://api.ftmscan.com/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_OPTIMISM_GETBLOCKNOBYTIME = (
-    "https://api-optimistic.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_ARBITRUM_GETBLOCKNOBYTIME = (
-    "https://api.arbiscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_ROPSTEN_GETBLOCKNOBYTIME = (
-    "https://api-ropsten.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_KOVAN_GETBLOCKNOBYTIME = (
-    "https://api-kovan.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
-API_GOERLI_GETBLOCKNOBYTIME = (
-    "https://api-goerli.etherscan.io/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s"
-)
+    def make_request(self, timestamp: int):
+        if self.blockchain in TESTNET_CHAINS:
+            return requests.get(self.query % timestamp, headers=TESTNET_HEADER).json()["result"]
+        else:
+            return requests.get(self.query % timestamp).json()["result"]
 
-# SCANS - MODULE = BLOCKS - GETBLOCKREWARD
-API_ETHERSCAN_GETBLOCKREWARD = "https://api.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-API_POLYGONSCAN_GETBLOCKREWARD = (
-    "https://api.polygonscan.com/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-)
-API_GNOSISSCAN_GETBLOCKREWARD = "https://api.gnosisscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-API_BLOCKSCOUT_GETBLOCKREWARD = "https://blockscout.com/xdai/mainnet/api?module=block&action=getblockreward&blockno=%d"
-API_BINANCE_GETBLOCKREWARD = "https://api.bscscan.com/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-API_AVALANCHE_GETBLOCKREWARD = "https://api.snowtrace.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-API_FANTOM_GETBLOCKREWARD = "https://api.ftmscan.com/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-API_OPTIMISM_GETBLOCKREWARD = (
-    "https://api-optimistic.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-)
-API_ARBITRUM_GETBLOCKREWARD = "https://api.arbiscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-API_ROPSTEN_GETBLOCKREWARD = (
-    "https://api-ropsten.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-)
-API_KOVAN_GETBLOCKREWARD = "https://api-kovan.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-API_GOERLI_GETBLOCKREWARD = (
-    "https://api-goerli.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s"
-)
 
-# SCANS - MODULE = CONTRACTS - GETABI
-API_ETHERSCAN_GETABI = "https://api.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s"
+class BlockToTime(Explorer):
+    query = "https://{url}/api?module=block&action=getblockreward&blockno=%d&apikey={key}"
+
+    def make_request(self, block: int):
+        if self.blockchain in TESTNET_CHAINS:
+            return requests.get(self.query % block, headers=TESTNET_HEADER).json()["result"]["timeStamp"]
+        else:
+            return requests.get(self.query % block).json()["result"]["timeStamp"]
+
+
+API_ETHERSCAN_GETABI = "https://api.etherscan.io/api?mogtdule=contract&action=getabi&address=%s&apikey=%s"
 API_POLYGONSCAN_GETABI = "https://api.polygonscan.com/api?module=contract&action=getabi&address=%s&apikey=%s"
 API_GNOSISSCAN_GETABI = "https://api.gnosisscan.io/api?module=contract&action=getabi&address=%s&apikey=%s"
 API_BLOCKSCOUT_GETABI = "https://blockscout.com/xdai/mainnet/api?module=contract&action=getabi&address=%s"
@@ -244,13 +226,10 @@ API_ROPSTEN_GETABI = "https://api-ropsten.etherscan.io/api?module=contract&actio
 API_KOVAN_GETABI = "https://api-kovan.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s"
 API_GOERLI_GETABI = "https://api-goerli.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s"
 
-# SCANS - MODULE = CONTRACTS - GETCONTRACTCREATION
 API_ETHERSCAN_GETCONTRACTCREATION = (
     "https://api.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=%s&apikey=%s"
 )
 
-
-# SCANS - MODULE = ACCOUNTS - TOKENTX
 API_ETHERSCAN_TOKENTX = "https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
 API_POLYGONSCAN_TOKENTX = "https://api.polygonscan.com/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
 API_GNOSISSCAN_TOKENTX = "https://api.gnosisscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
