@@ -33,6 +33,7 @@ class ProtocolDataProvider(ProtocolDataProvider):
 
     def underlying_all(self, wallet: Addr):
         block_id = self.block if isinstance(self.block, int) else self.web3.eth.block_number
+        wallet = Addr(wallet)
         return {
             "blockchain": self.blockchain,
             "block": block_id,
