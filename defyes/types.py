@@ -10,25 +10,19 @@ from .constants import ABI_TOKEN_SIMPLIFIED, Address
 abi_token_simplified = json.loads(ABI_TOKEN_SIMPLIFIED)
 
 
-class Addr:
-    def __init__(self, addr: int | str):
+class Addr(str):
+    def __new__(cls, addr: int | str, *args, **kwargs):
+        if isinstance(addr, Addr):
+            return addr
         if isinstance(addr, str):
-            self.checksum_addr = addr
-            self.addr = int(addr, base=16)
-            cs_addr = Web3.to_checksum_address(self.addr)
-            if cs_addr != self.checksum_addr:
-                raise self.ChecksumError(f"Provided {addr=!r} differs from expected {cs_addr!r}")
+            int_addr = int(addr, base=16)
+            cs_addr = Web3.to_checksum_address(int_addr)
+            if cs_addr != addr:
+                raise cls.ChecksumError(f"Provided {addr=!r} differs from expected {cs_addr!r}")
+            s = addr
         else:
-            self.addr = addr
-            self.checksum_addr = Web3.to_checksum_address(self.addr)
-
-    def __str__(self):
-        return self.checksum_addr
-
-    __repr__ = __str__
-
-    def __int__(self):
-        return self.addr
+            s = Web3.to_checksum_address(addr)
+        return super().__new__(cls, s)
 
     class ChecksumError(ValueError):
         pass
@@ -36,7 +30,6 @@ class Addr:
 
 class Token(Addr):
     def __init__(self, addr: int | str, label: str):
-        super().__init__(addr)
         self.label = label
 
     def __repr__(self):
