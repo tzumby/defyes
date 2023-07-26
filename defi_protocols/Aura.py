@@ -227,12 +227,12 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
     reduction_per_cliff = aura_contract.functions.reductionPerCliff().call(block_identifier=block)
 
     emissions_minted = aura_total_supply - init_mint_amount
-    cliff = emissions_minted / Decimal(reduction_per_cliff)
+    cliff = int(emissions_minted / Decimal(reduction_per_cliff))
 
     total_cliffs = aura_contract.functions.totalCliffs().call(block_identifier=block)
 
     if cliff < total_cliffs:
-        reduction = ((total_cliffs - cliff) * Decimal(2.5)) + 700
+        reduction = int(((total_cliffs - cliff) * Decimal(2.5)) + 700)
 
         aura_amount = (bal_earned * reduction) / total_cliffs
 
