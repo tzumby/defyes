@@ -1,5 +1,4 @@
 import json
-from decimal import Decimal
 from functools import cached_property
 
 from web3 import Web3
@@ -12,8 +11,6 @@ abi_token_simplified = json.loads(ABI_TOKEN_SIMPLIFIED)
 
 class Addr(str):
     def __new__(cls, addr: int | str, *args, **kwargs):
-        if isinstance(addr, Addr):
-            return addr
         if isinstance(addr, str):
             int_addr = int(addr, base=16)
             cs_addr = Web3.to_checksum_address(int_addr)
@@ -33,7 +30,7 @@ class Token(Addr):
         self.label = label
 
     def __repr__(self):
-        return f"{self.label}:{self.__class__.__name__}"
+        return f"{self}:{self.label}"
 
 
 class Contract(Token):
@@ -41,23 +38,32 @@ class Contract(Token):
 
 
 class TokenAmount(int):
-    def __new__(cls, value: int, addr: Addr, web3: Web3):
+    def __new__(cls, value: int, addr: Addr = None, web3: Web3 = None, decimals=None):
         self = super().__new__(cls, value)
-        self.addr = Addr(addr)
+        self.addr = addr
         self.web3 = web3
+        if decimals is not None:
+            self.decimals = decimals
         return self
-
-    @cached_property
-    def decimal(self):
-        return Decimal(self).scaleb(-self.decimals)
 
     @cached_property
     def decimals(self):
         if self.addr == Address.ZERO or self.addr == Address.E:
             return 18
         else:
+            if self.web3 is None:
+                return 0
             token_contract = self.web3.eth.contract(address=self.addr, abi=abi_token_simplified)
             return const_call(token_contract.functions.decimals()) or 0
 
-    def __repr__(self):
-        return repr(self.decimal)
+    def __str__(self):
+        if self.decimals == 0:
+            return format(int(self), "_")
+        str_value = format(int(self))
+        integer_part, decimal_part = str_value[: -self.decimals], str_value[-self.decimals :]
+        decimal_part = decimal_part.rstrip("0")
+        if not decimal_part:
+            decimal_part = "0"
+        integer_part = f"{int(integer_part):_}"
+        # decimal_part = "_".join(decimal_part[i : i + 3] for i in range(0, len(decimal_part), 3))
+        return f"{integer_part}.{decimal_part}"
