@@ -4,6 +4,7 @@ Spark protocol (by default in Ethereum mainnet)
 Mainnet Addresses https://docs.sparkprotocol.io/developers/deployed-contracts/mainnet-addresses
 """
 
+from decimal import Decimal
 from typing import Iterator, NamedTuple
 
 from defyes.constants import Chain
@@ -88,5 +89,22 @@ class UserReserveData(NamedTuple):
     is_collateral: bool
 
 
-def underlying_all(wallet: Addr, block: int | str, chain: Chain) -> dict:
-    return ProtocolDataProvider(chain, block).underlying_all(wallet)
+def underlying_all(wallet: Addr, block: int | str, chain: Chain, decimal: bool = True) -> dict:
+    ret = ProtocolDataProvider(chain, block).underlying_all(wallet)
+
+    def to_value(token_amount):
+        return Decimal(str(token_amount)) if decimal else int(token_amount)
+
+    def to_dict(token_amount):
+        return {"balance": to_value(token_amount), "address": token_amount.addr}
+
+    positions = ret["positions"]
+
+    ret["positions"] = {
+        str(asset): {
+            "holdings": [to_dict(token_amount) for token_amount in position["holdings"].values()],
+            "underlying": to_value(position["underlying"]),
+        }
+        for asset, position in positions.items()
+    }
+    return ret
