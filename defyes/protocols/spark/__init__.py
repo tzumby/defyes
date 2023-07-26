@@ -4,7 +4,7 @@ Spark protocol (by default in Ethereum mainnet)
 Mainnet Addresses https://docs.sparkprotocol.io/developers/deployed-contracts/mainnet-addresses
 """
 
-from collections import namedtuple
+from typing import Iterator, NamedTuple
 
 from defyes.constants import Chain
 from defyes.types import Addr, Token, TokenAmount
@@ -18,12 +18,11 @@ class ProtocolDataProvider(ProtocolDataProvider):
     }
 
     @property
-    def reserve_tokens_addresses(self):
-        for name, addr in self.get_all_reserves_tokens:
-            token = Token(addr, name)
-            reserve_addrs = (Addr(a) for a in self.get_reserve_tokens_addresses(addr)[:3])
-            reserve = Reserve(*reserve_addrs)
-            yield token, reserve
+    def assets_with_reserve_tokens(self):
+        for asset_name, asset_addr in self.get_all_reserves_tokens:
+            asset = Token(asset_addr, asset_name)
+            tokens = self.get_reserve_tokens_addresses(asset_addr)
+            yield asset, ReserveTokensAddresses(*tokens)
 
     @property
     def web3(self):
@@ -41,47 +40,52 @@ class ProtocolDataProvider(ProtocolDataProvider):
         wallet = Addr(wallet)
         return {
             "blockchain": self.blockchain,
-            "block": self.block_id,
+            "block_id": self.block_id,
             "protocol": "Spark",
-            "positions_key": "underlying_token_address",
             "version": 0,
             "wallet": wallet,
             "positions": dict(self.positions(wallet)),
         }
 
-    def positions(self, wallet: Addr):
+    def positions(self, wallet: Addr) -> Iterator[tuple[Addr, dict]]:
         web3 = self.web3
-        for token, addr in self.reserve_tokens_addresses:
-            sp_balance, stable_debt, variable_debt, *_ = self.get_user_reserve_data(token, wallet)
-            if (sp_balance, stable_debt, variable_debt) == (0, 0, 0):
-                continue
-            position = {
-                "holdings": [
-                    {
-                        # Should we include zero balances?
-                        "address": addr.interest_bearing,
-                        "balance": TokenAmount(sp_balance, addr.interet_bearing, web3),
-                    },
-                    {
-                        "address": addr.stable_debt,
-                        "balance": TokenAmount(stable_debt, addr.stable_debt, web3),
-                    },
-                    {
-                        "address": addr.variable_debt,
-                        "balance": TokenAmount(variable_debt, addr.variable_debt, web3),
-                    },
-                ],
-                "underlying": [
-                    {
-                        "address": str(token),
-                        "balance": TokenAmount(sp_balance - stable_debt - variable_debt, addr.variable_debt, web3),
-                    }
-                ],
-            }
-            yield token, position
+        for asset, tokens in self.assets_with_reserve_tokens:
+            ur = UserReserveData(*self.get_user_reserve_data(asset, wallet))
+
+            def holdings():
+                for amount, (kind, addr) in zip(ur[:3], tokens._asdict().items()):
+                    if amount != 0:
+                        yield f"{kind}_{asset.label}", TokenAmount(amount, addr, web3)
+                    # ,{
+                    #     "address": addr,
+                    #     "balance": TokenAmount(amount, addr, web3),
+                    # }
+
+            holdings = dict(holdings())
+            if holdings:
+                position = {
+                    "holdings": holdings,
+                    "underlying": TokenAmount(ur.sp - ur.stable_debt - ur.variable_debt, str(asset), web3),
+                }
+                yield asset, position
 
 
-Reserve = namedtuple("Reserve", "interest_bearing stable_debt variable_debt")
+class ReserveTokensAddresses(NamedTuple):
+    sp: Addr
+    stable_debt: Addr
+    variable_debt: Addr
+
+
+class UserReserveData(NamedTuple):
+    sp: int
+    stable_debt: int
+    variable_debt: int
+    principal_stable_debt: int
+    scaled_variable_debt: int
+    stable_borrow_rate: int
+    reserve_liquidity_rate: int
+    timestamp: int
+    is_collateral: bool
 
 
 def underlying_all(wallet: Addr, block: int | str, chain: Chain) -> dict:
