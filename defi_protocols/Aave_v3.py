@@ -250,24 +250,21 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     data = underlying_all(wallet, block, blockchain, web3=web3, decimals=decimals)["positions"]
     underlying_tokens = list(data.keys())
 
-    if True:
-        price_oracle_address = pool_addresses_provider_contract.functions.getPriceOracle().call(block_identifier=block)
-        price_oracle_contract = get_contract(
-            price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block
-        )
+    price_oracle_address = pool_addresses_provider_contract.functions.getPriceOracle().call(block_identifier=block)
+    price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block)
 
-        for element in underlying_tokens:
-            asset = {"token_address": element, "token_amount": abs(data[element]["underlying"][0]["balance"])}
+    for element in underlying_tokens:
+        asset = {"token_address": element, "token_amount": abs(data[element]["underlying"][0]["balance"])}
 
-            currency_unit = price_oracle_contract.functions.BASE_CURRENCY_UNIT().call(block_identifier=block)
-            asset["token_price_usd"] = price_oracle_contract.functions.getAssetPrice(asset["token_address"]).call(
-                block_identifier=block
-            ) / Decimal(currency_unit)
+        currency_unit = price_oracle_contract.functions.BASE_CURRENCY_UNIT().call(block_identifier=block)
+        asset["token_price_usd"] = price_oracle_contract.functions.getAssetPrice(asset["token_address"]).call(
+            block_identifier=block
+        ) / Decimal(currency_unit)
 
-            if data[element]["underlying"][0]["balance"] < 0:
-                debts.append(asset)
-            else:
-                collaterals.append(asset)
+        if data[element]["underlying"][0]["balance"] < 0:
+            debts.append(asset)
+        else:
+            collaterals.append(asset)
 
     # getUserAccountData return a list with the following data:
     # [0] = totalCollateralETH,
