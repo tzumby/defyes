@@ -33,10 +33,6 @@ class Token(Addr):
         return f"{self}:{self.label}"
 
 
-class Contract(Token):
-    pass
-
-
 class TokenAmount(int):
     def __new__(cls, value: int, addr: Addr = None, web3: Web3 = None, decimals=None):
         self = super().__new__(cls, value)
