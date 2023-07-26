@@ -65,7 +65,6 @@ class TokenAmount(int):
         if not decimal_part:
             decimal_part = "0"
         integer_part = f"{int(integer_part):_}"
-        # decimal_part = "_".join(decimal_part[i : i + 3] for i in range(0, len(decimal_part), 3))
         return f"{integer_part}.{decimal_part}"
 
     __repr__ = __str__

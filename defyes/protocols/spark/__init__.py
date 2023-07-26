@@ -57,10 +57,6 @@ class ProtocolDataProvider(ProtocolDataProvider):
                 for amount, (kind, addr) in zip(ur[:3], tokens._asdict().items()):
                     if amount != 0:
                         yield f"{kind}_{asset.label}", TokenAmount(amount, addr, web3)
-                    # ,{
-                    #     "address": addr,
-                    #     "balance": TokenAmount(amount, addr, web3),
-                    # }
 
             holdings = dict(holdings())
             if holdings:

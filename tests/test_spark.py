@@ -9,7 +9,6 @@ from defyes.types import Addr, Token
 
 wallet = Addr(0x849D52316331967B6FF1198E5E32A0EB168D039D)
 block_id = 17_772_457
-# block_id = 17778251
 
 DAI = Token(0x6B175474E89094C44DA98B954EEDEAC495271D0F, "DAI")
 GNO = Token(0x6810E776880C02933D47DB1B9FC05908E5386B96, "GNO")
@@ -65,7 +64,7 @@ expected_positions_retro_decimal = {
 
 def expected_underlying_all(expected_positions):
     return {
-        "block_id": 17_772_457,
+        "block_id": block_id,
         "blockchain": "ethereum",
         "positions": expected_positions,
         "protocol": "Spark",
