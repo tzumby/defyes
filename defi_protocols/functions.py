@@ -177,12 +177,17 @@ class ProviderManager(JSONBaseProvider):
                 try:
                     response = provider.make_request(method, params)
                     return response
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 413:
+                        raise ValueError({"code": -32602, "message": "eth_getLogs and eth_newFilter are limited to %s blocks range" % hex(10000), "max_block_range": 10000})#Ad-hoc parsing: Quicknode nodes return a similar message
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                     errors.append(e)
                     logger.error("Error when making request: %s", e)
+                    print(e)
                 except Exception as e:
                     errors.append(e)
                     logger.exception("Unexpected exception when making request.")
+                    print(e)
         raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
 
 
@@ -1030,8 +1035,11 @@ def get_logs_web3(
 
         if error_info["code"] == -32005:  # error code in infura
             block_interval = int(error_info["data"]["to"], 16) - int(error_info["data"]["from"], 16)
+        elif "max_block_range" in error_info:
+            block_interval = error_info["max_block_range"]# error code in Quicknode
         elif error_info["code"] == -32602:  # error code in alchemy
             blocks = [int(block, 16) for block in re.findall(r"0x[0-9a-fA-F]+", error_info["message"])]
+            print(blocks)
             block_interval = blocks[1] - blocks[0]
         else:
             raise ValueError(error_info)

@@ -328,10 +328,3 @@ def test_swap_fees_apr():
     assert apr == Decimal("0.596125086010151913782740200")
     apy = Balancer.get_swap_fees_APR(B80BAL20WETH_ADDR, ETHEREUM, blockend, apy=True)
     assert apy == Decimal("0.815071898400229530363657020")
-
-
-test_bal_rewards()
-test_vebal_rewards()
-test_get_rewards()
-test_all_rewards()
-test_underlying()
