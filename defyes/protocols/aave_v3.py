@@ -252,9 +252,7 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     underlying_tokens = list(data.keys())
 
     price_oracle_address = pool_addresses_provider_contract.functions.getPriceOracle().call(block_identifier=block)
-    price_oracle_contract = get_contract(
-        price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block
-    )
+    price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block)
 
     for element in underlying_tokens:
         asset = {"token_address": element, "token_amount": abs(data[element]["underlying"][0]["balance"])}
