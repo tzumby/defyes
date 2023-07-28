@@ -916,6 +916,8 @@ def get_logs_web3(
 
         if error_info["code"] == -32005:  # error code in infura
             block_interval = int(error_info["data"]["to"], 16) - int(error_info["data"]["from"], 16)
+        elif "max_block_range" in error_info:
+            block_interval = error_info["max_block_range"]  # error code in Quicknode
         elif error_info["code"] == -32602:  # error code in alchemy
             blocks = [int(block, 16) for block in re.findall(r"0x[0-9a-fA-F]+", error_info["message"])]
             block_interval = blocks[1] - blocks[0]
