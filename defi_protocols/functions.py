@@ -189,11 +189,9 @@ class ProviderManager(JSONBaseProvider):
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                     errors.append(e)
                     logger.error("Error when making request: %s", e)
-                    print(e)
                 except Exception as e:
                     errors.append(e)
                     logger.exception("Unexpected exception when making request.")
-                    print(e)
         raise AllProvidersDownError(f"No working provider available. Endpoints {self.endpoints}")
 
 
@@ -1045,7 +1043,6 @@ def get_logs_web3(
             block_interval = error_info["max_block_range"]  # error code in Quicknode
         elif error_info["code"] == -32602:  # error code in alchemy
             blocks = [int(block, 16) for block in re.findall(r"0x[0-9a-fA-F]+", error_info["message"])]
-            print(blocks)
             block_interval = blocks[1] - blocks[0]
         else:
             raise ValueError(error_info)
