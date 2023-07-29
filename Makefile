@@ -95,7 +95,7 @@ pretty: isort black
 
 .PHONY: autogenerate
 autogenerate: build-if-no-image
-	@$(docker_user_run) -t $(image) python defyes/generator.py
+	@$(docker_user_run) -t $(image) python -m defyes.generator
 
 
 .PHONY: cacheclear
