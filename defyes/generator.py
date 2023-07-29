@@ -176,9 +176,9 @@ def generate_contract_class(class_name, abi_path, const_call_methods=[]):
 def generate_classes():
     setup_paths = current_module_path.glob("**/autogen_config.json")
     black_config = get_black_config()
-    is_const_call_used = False
 
     for setup_path in setup_paths:
+        is_const_call_used = False
         with open(setup_path) as f:
             abis_to_process = json.load(f)
 
