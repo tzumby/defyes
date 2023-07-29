@@ -169,3 +169,17 @@ def const_call(f):
     else:
         result = _cache[cache_key]
     return result
+
+
+class CacheToken:
+    def __getitem__(self, addr_chain: tuple):
+        if is_enabled():
+            return _cache[hash(addr_chain)]
+        raise KeyError("Cache disabled")
+
+    def __setitem__(self, addr_chain: tuple, token):
+        if is_enabled():
+            _cache[hash(addr_chain)] = token
+
+
+cache_token = CacheToken()

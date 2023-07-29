@@ -10,20 +10,16 @@ from defyes.types import Addr, Token
 wallet = Addr(0x849D52316331967B6FF1198E5E32A0EB168D039D)
 block_id = 17_772_457
 
-DAI = Token(0x6B175474E89094C44DA98B954EEDEAC495271D0F, "DAI")
-GNO = Token(0x6810E776880C02933D47DB1B9FC05908E5386B96, "GNO")
+DAI = Token(0x6B175474E89094C44DA98B954EEDEAC495271D0F, Chain.ETHEREUM)
+GNO = Token(0x6810E776880C02933D47DB1B9FC05908E5386B96, Chain.ETHEREUM)
 
 expected_positions = {
     GNO: {
-        "holdings": {
-            "sp_GNO": 88_000_000000000000000000,
-        },
+        "holdings": [88_000_000000000000000000],
         "underlying": 88_000_000000000000000000,
     },
     DAI: {
-        "holdings": {
-            "variable_debt_DAI": 1_000_035_715961244421526907,
-        },
+        "holdings": [1_000_035_715961244421526907],
         "underlying": -1_000_035_715961244421526907,
     },
 }
@@ -84,15 +80,17 @@ def test_underlying_all(pdp):
     pretty.print(ret)
     pretty.jprint(ret)
 
-    sp_GNO = ret["positions"][GNO]["holdings"]["sp_GNO"]
-    assert str(sp_GNO) == "88_000.0"
-    assert sp_GNO == 88_000_000000000000000000
-    assert sp_GNO.addr == "0x7b481aCC9fDADDc9af2cBEA1Ff2342CB1733E50F"
+    amount = ret["positions"][GNO]["holdings"][0]
+    assert amount.token.symbol == "spGNO"
+    assert amount.token == "0x7b481aCC9fDADDc9af2cBEA1Ff2342CB1733E50F"
+    assert str(amount) == "88_000.0"
+    assert amount == 88_000_000000000000000000
 
-    variable_debt_DAI = ret["positions"][DAI]["holdings"]["variable_debt_DAI"]
-    assert str(variable_debt_DAI) == "1_000_035.715961244421526907"
-    assert variable_debt_DAI == 1_000_035_715961244421526907
-    assert variable_debt_DAI.addr == "0xf705d2B7e92B3F38e6ae7afaDAA2fEE110fE5914"
+    amount = ret["positions"][DAI]["holdings"][0]
+    assert amount.token.symbol == "variableDebtDAI"
+    assert amount.token == "0xf705d2B7e92B3F38e6ae7afaDAA2fEE110fE5914"
+    assert str(amount) == "1_000_035.715961244421526907"
+    assert amount == 1_000_035_715961244421526907
 
     assert ret == expected_underlying_all(expected_positions)
 
