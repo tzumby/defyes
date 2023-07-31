@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import pretty
-from defyes.constants import Chain
+from defi_protocols import ETHEREUM
 from defyes.protocols import spark
 from defyes.types import Addr, Token
 
@@ -75,7 +75,7 @@ def expected_underlying_all(expected_positions):
 
 @pytest.fixture
 def pdp():
-    return spark.ProtocolDataProvider(Chain.ETHEREUM, block_id)
+    return spark.ProtocolDataProvider(ETHEREUM, block_id)
 
 
 def test_underlying_all(pdp):
@@ -99,7 +99,7 @@ def test_underlying_all(pdp):
 
 @pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal"])
 def test_underlying_all_function(decimal):
-    ret = spark.underlying_all(wallet, block_id, Chain.ETHEREUM, decimal=decimal)
+    ret = spark.underlying_all(wallet, block_id, ETHEREUM, decimal=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
