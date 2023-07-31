@@ -12,7 +12,7 @@ class ProtocolDataProvider(ProtocolDataProvider):
 """
 from web3 import Web3
 
-from defyes.stripped_generator import load_abi
+from future_defyes.stripped_generator import load_abi
 from defi_protocols.functions import get_node
 
 
