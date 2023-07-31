@@ -6,6 +6,7 @@ from typing import Union
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
+from defyes.api import GetABI
 from defyes.cache import const_call
 from defyes.constants import Address, Chain, ETHTokenAddr, GnosisTokenAddr
 from defyes.functions import (
@@ -13,7 +14,6 @@ from defyes.functions import (
     block_to_date,
     date_to_block,
     get_contract,
-    get_contract_abi,
     get_decimals,
     get_logs_web3,
     to_token_amount,
@@ -750,7 +750,7 @@ def get_base_apr(
         blockchain,
     )
     lptoken_address = Web3.to_checksum_address(lptoken_address)
-    address_abi = get_contract_abi(lptoken_address, blockchain)
+    address_abi = GetABI(blockchain).make_request(lptoken_address)
 
     lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
 
@@ -782,7 +782,7 @@ def swap_fees_v2(
         web3 = get_node(blockchain, block=block_end)
     rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
-    address_abi = get_contract_abi(lptoken_address, blockchain)
+    address_abi = GetABI(blockchain).make_request(lptoken_address)
     lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
     balance = []
     for i in range(0, 5):

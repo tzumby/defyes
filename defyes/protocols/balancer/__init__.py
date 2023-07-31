@@ -151,6 +151,7 @@ class LiquidityPool(LiquidityPool):
     def swap_fees(self, vault_address: str, block_start: int, decimals: bool = True) -> list[dict]:
         node = self.contract.w3
         pool_id = "0x" + self.poolid.hex()
+        print(pool_id)
         swap_event = node.keccak(text="Swap(bytes32,address,address,uint256,uint256)").hex()
 
         if block_start < START_BLOCK[self.blockchain]:

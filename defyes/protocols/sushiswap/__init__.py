@@ -9,6 +9,7 @@ from typing import Union
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound
 
+from defyes.api import TXList
 from defyes.cache import const_call
 from defyes.constants import Address, Chain
 from defyes.functions import (
@@ -18,7 +19,6 @@ from defyes.functions import (
     get_decimals,
     get_logs_web3,
     get_token_tx,
-    get_tx_list,
     last_block,
     to_token_amount,
 )
@@ -619,7 +619,7 @@ def get_wallet_by_tx(lptoken_address, block, blockchain, web3=None, signature=DE
             lptoken_txs = get_token_tx(lptoken_address, chef_contract.address, block_start, block, blockchain)
 
             for lptoken_tx in lptoken_txs:
-                txs = get_tx_list(lptoken_tx["from"], block_start, block, blockchain)
+                txs = TXList(blockchain).make_request(lptoken_tx["from"], block_start, block)
 
                 for tx in txs:
                     if tx["input"][0:10] == tx_hex_bytes:

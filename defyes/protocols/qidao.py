@@ -2,9 +2,10 @@ from decimal import Decimal
 
 from web3 import Web3
 
+from defyes.api import BlockToTime, TimeToBlock
 from defyes.cache import const_call
 from defyes.constants import Chain, GnosisTokenAddr, PolygonTokenAddr
-from defyes.functions import block_to_timestamp, get_contract, get_decimals, timestamp_to_block, to_token_amount
+from defyes.functions import get_contract, get_decimals, to_token_amount
 from defyes.node import get_node
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -163,7 +164,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
                 vault_data["liquidation_price"] = Decimal("nan")
 
             # Debt Token USD Value from Polygon Chainlink feed
-            block_polygon = timestamp_to_block(block_to_timestamp(block, blockchain), Chain.POLYGON)
+            block_polygon = TimeToBlock(Chain.POLYGON).make_request(BlockToTime(blockchain).make_request(block))
 
             price_feed_contract = get_contract(
                 CHAINLINK_MATIC_USD, Chain.POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon

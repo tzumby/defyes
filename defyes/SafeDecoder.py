@@ -2,7 +2,7 @@ from typing import Union
 
 from web3 import Web3
 
-from defyes.api import RequestFromScan
+from defyes.api import GetABI
 from defyes.node import get_node
 
 
@@ -16,9 +16,7 @@ def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, we
 
     tx_to_impl_code = bytes.fromhex(Web3.to_hex(web3.eth.get_storage_at(tx_to, 0))[2:])
     proxy_address = Web3.to_checksum_address(tx_to_impl_code[-20:].hex())
-    proxy_address_abi = RequestFromScan(
-        blockchain=blockchain, module="contract", action="getabi", kwargs={"address": proxy_address}
-    ).request()["result"]
+    proxy_address_abi = GetABI(blockchain).make_request(proxy_address)
     proxy_contract = web3.eth.contract(address=proxy_address, abi=proxy_address_abi)
 
     input_data = proxy_contract.decode_function_input(tx_input_data)
@@ -26,12 +24,7 @@ def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, we
     if "execTransaction" in str(functions):
         input_data = proxy_contract.decode_function_input(tx_input_data)
         input_data_contract_address = params["to"]
-        input_data_abi = RequestFromScan(
-            blockchain=blockchain,
-            module="contract",
-            action="getabi",
-            kwargs={"address": input_data_contract_address},
-        ).request()["result"]
+        input_data_abi = GetABI(blockchain).make_request(input_data_contract_address)
 
         input_data_contract = web3.eth.contract(address=input_data_contract_address, abi=input_data_abi)
         input_data_bytes = input_data_contract.decode_function_input(params["data"].hex())
@@ -90,9 +83,7 @@ def decode_function_input(function_address: str, input_hex: str, blockchain: str
         checksum_address = Web3.to_checksum_address(function_address)
     else:
         checksum_address = Web3.to_checksum_address("0x" + function_address)
-    function_abi = RequestFromScan(
-        blockchain=blockchain, module="contract", action="getabi", kwargs={"address": checksum_address}
-    ).request()["result"]
+    function_abi = GetABI(blockchain).make_reuqest(checksum_address)
     function_contract = web3.eth.contract(address=checksum_address, abi=function_abi)
     function_decode = function_contract.decode_function_input(input_hex)
     return function_decode
