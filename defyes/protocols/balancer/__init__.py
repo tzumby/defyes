@@ -157,8 +157,8 @@ class LiquidityPool(LiquidityPool):
             block_start = START_BLOCK[self.blockchain]
 
         swap_logs = get_logs_web3(
-            address=vault_address,
             blockchain=self.blockchain,
+            address=vault_address,
             block_start=block_start,
             block_end=self.block,
             topics=[swap_event, pool_id],
@@ -228,8 +228,8 @@ class GaugeFactory(GaugeFactory):
             gauge_address = Address.ZERO
             if self.block == "latest" or self.block >= block_from:
                 logs = get_logs_web3(
-                    address=self.address,
                     blockchain=self.blockchain,
+                    address=self.address,
                     block_start=block_from,
                     block_end=self.block,
                     topics=[gauge_created_event],

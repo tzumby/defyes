@@ -69,8 +69,8 @@ def get_deposit(
 
     amount = 0
     add_logs = get_logs_web3(
-        address=azuro_pool.addr,
         blockchain=blockchain,
+        address=azuro_pool.addr,
         block_start=azuro_pool.first_block,
         block_end=block,
         topics=[azuro_pool.liquidity_added_topic, wallethex],
@@ -82,8 +82,8 @@ def get_deposit(
         elif azuro_pool.version == 2:
             amount = amount + int(log["data"].hex(), 16)
     remove_logs = get_logs_web3(
-        address=azuro_pool.addr,
         blockchain=blockchain,
+        address=azuro_pool.addr,
         block_start=azuro_pool.first_block,
         block_end=block,
         topics=[azuro_pool.liquidity_removed_topic, wallethex, nfthex],

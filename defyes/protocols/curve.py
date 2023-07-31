@@ -708,7 +708,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     for exchange_event_signature in exchange_event_signatures:
         exchange_event = web3.keccak(text=exchange_event_signature).hex()
         swap_logs = get_logs_web3(
-            address=minter, blockchain=blockchain, block_start=block_start, block_end=block_end, topics=[exchange_event]
+            blockchain=blockchain, address=minter, block_start=block_start, block_end=block_end, topics=[exchange_event]
         )
 
         for swap_log in swap_logs:
