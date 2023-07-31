@@ -151,7 +151,6 @@ class LiquidityPool(LiquidityPool):
     def swap_fees(self, vault_address: str, block_start: int, decimals: bool = True) -> list[dict]:
         node = self.contract.w3
         pool_id = "0x" + self.poolid.hex()
-        print(pool_id)
         swap_event = node.keccak(text="Swap(bytes32,address,address,uint256,uint256)").hex()
 
         if block_start < START_BLOCK[self.blockchain]:
@@ -238,7 +237,9 @@ class GaugeFactory(GaugeFactory):
                 )
                 for log in logs:
                     tx = self.contract.w3.eth.get_transaction(log["transactionHash"])
-                    if lp_address[2 : len(lp_address)].lower() in tx["input"]:
+                    # For some endpoints tx["input"] is a string and for others is a bytes object
+                    tx_input = tx["input"].hex() if isinstance(tx["input"], bytes) else tx["input"]
+                    if lp_address[2 : len(lp_address)].lower() in tx_input:
                         gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
                         break
             else:
