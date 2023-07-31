@@ -195,8 +195,8 @@ def get_gauge_addresses(blockchain, block, web3, lptoken_addr):
 
                 if block >= block_from:
                     logs = get_logs_web3(
-                        address=gauge_factory_address,
                         blockchain=blockchain,
+                        address=gauge_factory_address,
                         block_start=block_from,
                         block_end=block,
                         topics=[gauge_created_event],
@@ -800,8 +800,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
         result["swaps"] = []
         swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
         swap_logs = get_logs_web3(
-            address=VAULT,
             blockchain=blockchain,
+            address=VAULT,
             block_start=block_start,
             block_end=block_end,
             topics=[swap_event, pool_id],

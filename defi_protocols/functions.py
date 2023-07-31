@@ -1010,8 +1010,9 @@ def get_logs_http(block_start, block_end, address, topic0, blockchain, **kwargs)
 
 # get_logs_web3
 def get_logs_web3(
-    address: str,
     blockchain: str,
+    tx_hash: str = None,
+    address: str = None,
     block_start: int | str = None,
     block_end: int | str = None,
     topics: list = None,
@@ -1022,11 +1023,19 @@ def get_logs_web3(
     if web3 is None:
         web3 = get_node(blockchain, block=block_end)
 
-    address = Web3.to_checksum_address(address)
     try:
-        params = {"address": address, "fromBlock": block_start, "toBlock": None, "topics": topics}
-        if block_hash is not None:
+        params = {}
+        if address is not None:
+            address = Web3.to_checksum_address(address)
+            params.update({"address": address})
+        if topics is not None:
+            params.update({"topics": topics})
+        if tx_hash is not None:
+            params.update({"transactionHash": tx_hash})
+        elif block_hash is not None:
             params.update({"blockHash": block_hash})
+        elif block_start is not None:
+            params.update({"fromBlock": block_start, "toBlock": None})
         logs = web3.eth.get_logs(params)
 
         if not isinstance(block_end, str) and block_end is not None:
@@ -1039,8 +1048,8 @@ def get_logs_web3(
 
         if error_info["code"] == -32005:  # error code in infura
             block_interval = int(error_info["data"]["to"], 16) - int(error_info["data"]["from"], 16)
-        elif "max_block_range" in error_info:
-            block_interval = error_info["max_block_range"]  # error code in Quicknode
+        elif "max_block_range" in error_info:  # error code in Quicknode, see ProviderManager class
+            block_interval = error_info["max_block_range"]
         elif error_info["code"] == -32602:  # error code in alchemy
             blocks = [int(block, 16) for block in re.findall(r"0x[0-9a-fA-F]+", error_info["message"])]
             block_interval = blocks[1] - blocks[0]
