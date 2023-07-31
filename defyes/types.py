@@ -3,8 +3,8 @@ from functools import cached_property
 
 from web3 import Web3
 
-from .cache import const_call
-from .constants import ABI_TOKEN_SIMPLIFIED, Address
+from defi_protocols.cache import const_call
+from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ZERO_ADDRESS, E_ADDRESS
 
 abi_token_simplified = json.loads(ABI_TOKEN_SIMPLIFIED)
 
@@ -44,7 +44,7 @@ class TokenAmount(int):
 
     @cached_property
     def decimals(self):
-        if self.addr == Address.ZERO or self.addr == Address.E:
+        if self.addr == ZERO_ADDRESS or self.addr == E_ADDRESS:
             return 18
         else:
             if self.web3 is None:

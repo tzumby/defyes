@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import pretty
-from defi_protocols import ETHEREUM
+from defi_protocols.constants import ETHEREUM
 from defyes.protocols import spark
 from defyes.types import Addr, Token
 
