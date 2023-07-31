@@ -1,4 +1,5 @@
 import logging
+from future_defyes.protocols import spark as Spark
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
