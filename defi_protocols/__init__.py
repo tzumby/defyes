@@ -1,5 +1,6 @@
 import logging
-from future_defyes.protocols import spark as Spark
+
+from future_defyes.protocols import spark as Spark  # noqa
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

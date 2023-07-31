@@ -2,9 +2,9 @@ from decimal import Decimal
 
 import pytest
 
-from future_defyes import pretty
-from defi_protocols.constants import ETHEREUM
 from defi_protocols import Spark as spark
+from defi_protocols.constants import ETHEREUM
+from future_defyes import pretty
 from future_defyes.types import Addr, Token
 
 wallet = Addr(0x849D52316331967B6FF1198E5E32A0EB168D039D)
