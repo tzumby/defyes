@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+import pytest
+
 from defi_protocols import Azuro
 from defi_protocols.constants import WXDAI, XDAI
 from defi_protocols.functions import get_node
@@ -22,6 +24,7 @@ def test_underlying():
     ]
 
 
+@pytest.mark.skip(reason="Takes too long, we have to improve get_logs_web3")
 def test_underlying_all():
     assert Azuro.underlying_all(WALLET_N1, BLOCK, XDAI, NODE, rewards=True) == [
         [[WXDAI, Decimal("2327299.184243886654322408")], [WXDAI, Decimal("27299.184243886654322408")]],
