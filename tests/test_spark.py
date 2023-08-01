@@ -2,10 +2,10 @@ from decimal import Decimal
 
 import pytest
 
-from defyes import pretty
-from defyes.constants import Chain
-from defyes.protocols import spark
-from defyes.types import Addr, Token
+from defi_protocols import Spark as spark
+from defi_protocols.constants import ETHEREUM
+from future_defyes import pretty
+from future_defyes.types import Addr, Token
 
 wallet = Addr(0x849D52316331967B6FF1198E5E32A0EB168D039D)
 block_id = 17_772_457
@@ -121,7 +121,7 @@ expected_get_data_int = {
 
 @pytest.fixture
 def pdp():
-    return spark.ProtocolDataProvider(Chain.ETHEREUM, block_id)
+    return spark.ProtocolDataProvider(ETHEREUM, block_id)
 
 
 def test_underlying_all(pdp):
@@ -148,7 +148,7 @@ decimal = pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal
 
 @decimal
 def test_underlying_all_function(decimal):
-    ret = spark.underlying_all(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+    ret = spark.underlying_all(wallet, block_id, ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
@@ -173,7 +173,7 @@ def test_reserve_tokens_addresses(pdp):
 
 @decimal
 def test_get_data(decimal):
-    ret = spark.get_data(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+    ret = spark.get_data(wallet, block_id, ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
