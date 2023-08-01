@@ -163,7 +163,7 @@ def underlying_all(wallet: Addr, block: int | str, chain: str, decimals: bool = 
     ret["positions"] = {
         str(asset): {
             "holdings": [to_dict(token_amount) for token_amount in position["holdings"].values()],
-            "underlying": to_value(position["underlying"]),
+            "underlying": [to_dict(position["underlying"])],
         }
         for asset, position in positions.items()
     }

@@ -33,13 +33,17 @@ expected_positions_retro = {
         "holdings": [
             {"address": "0x7b481aCC9fDADDc9af2cBEA1Ff2342CB1733E50F", "balance": 88_000_000000000000000000},
         ],
-        "underlying": 88_000_000000000000000000,
+        "underlying": [
+            {"address": str(GNO), "balance": 88_000_000000000000000000},
+        ],
     },
     str(DAI): {
         "holdings": [
             {"address": "0xf705d2B7e92B3F38e6ae7afaDAA2fEE110fE5914", "balance": 1_000_035_715961244421526907},
         ],
-        "underlying": -1_000_035_715961244421526907,
+        "underlying": [
+            {"address": str(DAI), "balance": -1_000_035_715961244421526907},
+        ],
     },
 }
 
@@ -48,7 +52,9 @@ expected_positions_retro_decimal = {
         "holdings": [
             {"address": "0x7b481aCC9fDADDc9af2cBEA1Ff2342CB1733E50F", "balance": Decimal("88_000.0")},
         ],
-        "underlying": Decimal("88_000.0"),
+        "underlying": [
+            {"address": str(GNO), "balance": Decimal("88_000.0")},
+        ],
     },
     str(DAI): {
         "holdings": [
@@ -57,7 +63,9 @@ expected_positions_retro_decimal = {
                 "balance": Decimal("1_000_035.715961244421526907"),
             },
         ],
-        "underlying": Decimal("-1_000_035.715961244421526907"),
+        "underlying": [
+            {"address": str(DAI), "balance": Decimal("-1_000_035.715961244421526907")},
+        ],
     },
 }
 
