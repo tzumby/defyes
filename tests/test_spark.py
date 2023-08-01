@@ -73,6 +73,52 @@ def expected_underlying_all(expected_positions):
     }
 
 
+expected_get_data = {
+    "collateral_ratio": Decimal("1016.357510595627631280679422"),
+    "liquidation_ratio": Decimal("400"),
+    "native_token_price_usd": Decimal("1857.8255"),
+    "collaterals": [
+        {
+            "token_address": "0x6810e776880C02933D47DB1b9fc05908e5386b96",
+            "token_amount": Decimal("88000.0"),
+            "token_price_usd": Decimal("115.48774675"),
+            "token_symbol": "GNO",
+        }
+    ],
+    "debts": [
+        {
+            "token_address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            "token_amount": Decimal("1000035.715961244421526907"),
+            "token_price_usd": Decimal("0.9999"),
+            "token_symbol": "DAI",
+        }
+    ],
+}
+
+
+expected_get_data_int = {
+    "collateral_ratio": Decimal("1016.357510595627631280679422"),
+    "liquidation_ratio": Decimal("400"),
+    "native_token_price_usd": Decimal("1857.8255"),
+    "collaterals": [
+        {
+            "token_address": "0x6810e776880C02933D47DB1b9fc05908e5386b96",
+            "token_amount": 88_000_000000000000000000,
+            "token_price_usd": Decimal("115.48774675"),
+            "token_symbol": "GNO",
+        }
+    ],
+    "debts": [
+        {
+            "token_address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            "token_amount": 1_000_035_715961244421526907,
+            "token_price_usd": Decimal("0.9999"),
+            "token_symbol": "DAI",
+        }
+    ],
+}
+
+
 @pytest.fixture
 def pdp():
     return spark.ProtocolDataProvider(Chain.ETHEREUM, block_id)
@@ -97,13 +143,18 @@ def test_underlying_all(pdp):
     assert ret == expected_underlying_all(expected_positions)
 
 
-@pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal"])
+decimal = pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal"])
+
+
+@decimal
 def test_underlying_all_function(decimal):
-    ret = spark.underlying_all(wallet, block_id, Chain.ETHEREUM, decimal=decimal)
+    ret = spark.underlying_all(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
-    assert ret == expected_underlying_all(expected_positions_retro_decimal if decimal else expected_positions_retro)
+    expected = expected_underlying_all(expected_positions_retro_decimal if decimal else expected_positions_retro)
+    expected["decimals"] = decimal
+    assert ret == expected
 
 
 def test_positions(pdp):
@@ -118,3 +169,12 @@ def test_reserve_tokens_addresses(pdp):
         assert isinstance(tokens.sp, str)
         assert isinstance(tokens.stable_debt, str)
         assert isinstance(tokens.variable_debt, str)
+
+
+@decimal
+def test_get_data(decimal):
+    ret = spark.get_data(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+    print()
+    pretty.print(ret)
+    pretty.jprint(ret)
+    assert ret == expected_get_data if decimal else expected_get_data_int
