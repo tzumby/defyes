@@ -12,8 +12,7 @@ abi_token_simplified = json.loads(ABI_TOKEN_SIMPLIFIED)
 class Addr(str):
     def __new__(cls, addr: int | str, *args, **kwargs):
         if isinstance(addr, str):
-            int_addr = int(addr, base=16)
-            cs_addr = Web3.to_checksum_address(int_addr)
+            cs_addr = Web3.to_checksum_address(addr)
             if cs_addr != addr:
                 raise cls.ChecksumError(f"Provided {addr=!r} differs from expected {cs_addr!r}")
             s = addr

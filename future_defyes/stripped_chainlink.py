@@ -14,7 +14,7 @@ ABI_CHAINLINK_PRICE_FEED = '[{"inputs":[],"name":"latestAnswer","outputs":[{"int
 
 
 def get_native_token_price(web3, block, blockchain, decimals=False):
-    assert blockchain == ETHEREUM:
+    assert blockchain == ETHEREUM
     price_feed_address = CHAINLINK_ETH_USD
 
     price_feed_contract = get_contract(
