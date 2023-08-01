@@ -160,3 +160,20 @@ def get_implemented_contract(blockchain, proxy_address):
         return safe_impl_contract
     else:
         return impl_contract
+
+
+class GetTokenTX(Explorer):
+    query = "https://{url}/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey={key}"
+
+    @cache_call(filter=latest_not_in_params, is_method=True)
+    def make_request(self, token_address: str, contract_address: str, block_start: str, block_end: str):
+        return requests.get(self.query % (contract_address, token_address, block_start, block_end)).json()["result"]
+
+
+class GetEtherscanPrice(Explorer):
+    blockchain = Chain.ETHEREUM
+    query = "https://{url}/api?module=token&action=tokeninfo&contractaddress=%s&apikey={key}"
+
+    def make_request(self, token_address: str):
+        price = requests.get(self.query % token_address).json()["result"][0]["tokenPriceUSD"]
+        return price, "etherscan", Chain.ETHEREUM

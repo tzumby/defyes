@@ -1,11 +1,10 @@
 from time import sleep
 from typing import Tuple
 
-import requests
 from web3 import Web3
 
 from defyes.api import BlockToTime
-from defyes.constants import API_ETHERSCAN_GETTOKENINFO, Address, APIKey, Chain
+from defyes.constants import Address, Chain
 from defyes.node import get_node
 from defyes.prices import Chainlink, CoinGecko, _1inch
 
@@ -108,19 +107,3 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
         price = price[1][1]
 
     return price
-
-
-def get_etherscan_price(token_address):
-    """Get token price from etherscan.
-
-    Args:
-        token_address (str).
-
-    Returns:
-        float, str, str: price, source(etherscan), blockchain
-    """
-    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, APIKey.ETHERSCAN)).json()["result"][0][
-        "tokenPriceUSD"
-    ]
-
-    return price, "etherscan", Chain.ETHEREUM

@@ -191,26 +191,6 @@ EXPLORERS = {
 }
 
 
-API_ETHERSCAN_TOKENTX = "https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_POLYGONSCAN_TOKENTX = "https://api.polygonscan.com/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_GNOSISSCAN_TOKENTX = "https://api.gnosisscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_BLOCKSCOUT_TOKENTX = "https://blockscout.com/xdai/mainnet/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc"
-API_BINANCE_TOKENTX = "https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_AVALANCHE_TOKENTX = "https://api.snowtrace.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_FANTOM_TOKENTX = "https://api.ftmscan.com/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_OPTIMISM_TOKENTX = "https://api-optimistic.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_ARBITRUM_TOKENTX = "https://api.arbiscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_ROPSTEN_TOKENTX = "https://api-ropsten.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_KOVAN_TOKENTX = "https://api-kovan.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-API_GOERLI_TOKENTX = "https://api-goerli.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
-
-# TOKEN INFO
-API_ETHERSCAN_GETTOKENINFO = "https://api.etherscan.io/api?module=token&action=tokeninfo&contractaddress=%s&apikey=%s"
-API_ETHPLORER_GETTOKENINFO = "https://api.ethplorer.io/getTokenInfo/%s?apiKey=%s"
-API_BLOCKSCOUT_GETTOKENCONTRACT = (
-    "https://blockscout.com/xdai/mainnet/api?module=token&action=getToken&contractaddress=%s"
-)
-
 # IMPLEMENTATION SLOTS for OpenZeppelins' EIPs
 IMPLEMENTATION_SLOT_EIP_1967 = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
 IMPLEMENTATION_SLOT_UNSTRUCTURED = "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3"
