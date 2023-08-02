@@ -77,6 +77,10 @@ api_json_result = (
     '{"error": false, "data": [{"decimals": 18, "claimable": "56.771231052533362388", "value": 2835.7229910740416}]}'
 )
 
+api_json_result2 = (
+    '{"error": false, "data": [{"decimals": 18, "claimable": "30.129476128451268451", "value": 1870.1238651237557}]}'
+)
+
 
 def test_underlying_all(monkeypatch):
     monkeypatch.setattr(HiddenHand, "get_api_results", Mock(return_value=api_result))
@@ -86,11 +90,13 @@ def test_underlying_all(monkeypatch):
 
 def test_get_api_result(requests_mock):
     requests_mock.get(f"https://api.hiddenhand.finance/reward/1/{WALLET_N1}", text=api_json_result)
+    requests_mock.get(f"https://api.hiddenhand.finance/reward/1/{WALLET_N1}?legacy=true", text=api_json_result2)
     api_results = HiddenHand.get_api_results(
         wallet=WALLET_N1,
         blockchain=ETHEREUM,
     )
     assert api_results == [
         {"decimals": 18, "claimable": "56.771231052533362388", "value": Decimal("2835.7229910740416")},
+        {"decimals": 18, "claimable": "30.129476128451268451", "value": Decimal("1870.1238651237557")},
     ]
     assert isinstance(api_results[0]["value"], Decimal)
