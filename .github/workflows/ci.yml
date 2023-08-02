@@ -133,6 +133,8 @@ jobs:
         run: |
           sh ci_secrets_helper.sh
           cat /tmp/tmp_config.json
+          echo "Removing defi_protocols and future_defyes directory to ensure testing the installed version."
+          rm -rf defi_protocols future_defyes
           PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs --debug-defiproto
 
       - name: Archive cache
