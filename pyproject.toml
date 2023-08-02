@@ -34,7 +34,7 @@ dependencies = [
 Homepage = "https://github.com/KarpatkeyDAO/defi-protocols"
 
 [tool.setuptools.packages.find]
-include = ["defi_protocols*"]
+include = ["defi_protocols*", "future_defyes*"]
 namespaces = false
 
 # Linter configuruation.
