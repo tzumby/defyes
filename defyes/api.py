@@ -1,4 +1,5 @@
 import math
+import time
 from datetime import datetime
 
 import requests
@@ -7,6 +8,57 @@ from web3 import Web3
 from defyes.cache import cache_call
 from defyes.constants import EXPLORERS, TESTNET_CHAINS, Chain
 from defyes.node import get_node
+
+TESTNET_HEADER = {
+    "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Mobile Safari/537.36"
+}
+
+
+class Explorero(requests.Session):
+    def __init__(self, blockchain: str = None) -> None:
+        super().__init__()
+        self.chain = blockchain
+        if blockchain in TESTNET_CHAINS:
+            self.headers.update(TESTNET_HEADER)
+        domain, apikey = EXPLORERS[blockchain]
+        self.params["apikey"] = apikey
+        self.url = f"https://{domain}/api"
+
+    def _get(self, **params):
+        response = self.request("GET", self.url, params=params)
+        response.raise_for_status()
+        return response
+
+    cached = cache_call(
+        exclude_args=["self"],
+        filter=lambda args: "latest" not in args,
+        include_attrs=[
+            lambda self: self.__class__.__name__,
+            lambda self: self.chain,
+        ],
+    )
+
+    @cached
+    def block_from_time(self, timestamp: int) -> int:
+        response = self._get(module="block", action="getblocknobytime", closest="before", timestamp=int(timestamp))
+        block_id = response.json()["result"]
+        try:
+            return int(block_id)
+        except (TypeError, ValueError):
+            return block_id
+
+    @cached
+    def time_from_block(self, block: int | str) -> int:
+        if isinstance(block, str):
+            if block == "latest":
+                return int(time.time())
+
+        response = self._get(module="block", action="getblockreward", blockno=block)
+        timestamp = response.json()["result"]["timeStamp"]
+        try:
+            return int(timestamp)
+        except (TypeError, ValueError):
+            return timestamp
 
 
 def latest_not_in_params(args):
