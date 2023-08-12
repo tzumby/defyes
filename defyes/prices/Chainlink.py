@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from web3 import Web3
 
 from defyes.cache import const_call
@@ -36,7 +38,7 @@ ABI_CHAINLINK_PRICE_FEED = '[{"inputs":[],"name":"latestAnswer","outputs":[{"int
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_native_token_price
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_native_token_price(web3, block, blockchain):
+def get_native_token_price(web3, block, blockchain, decimals=False):
     """
 
     :param web3:
@@ -57,6 +59,8 @@ def get_native_token_price(web3, block, blockchain):
         price_feed_address, blockchain, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block
     )
     price_feed_decimals = const_call(price_feed_contract.functions.decimals())
+    if decimals:
+        price_feed_decimals = Decimal(price_feed_decimals)
     native_token_price = price_feed_contract.functions.latestAnswer().call(block_identifier=block) / (
         10**price_feed_decimals
     )

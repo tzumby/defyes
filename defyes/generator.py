@@ -1,5 +1,6 @@
 import itertools
 import json
+import keyword
 import re
 import textwrap
 from pathlib import Path
@@ -47,7 +48,9 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
     TYPE_CONVERSION = {
         "uint8": "int",
         "uint64": "int",
+        "uint16": "int",
         "uint256": "int",
+        "uint128": "int",
         "uint40": "int",
         "uint64[]": "list[int]",
         "uint256[]": "list[int]",
@@ -63,7 +66,11 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
 
     methods = []
     for item in abi_list:
-        method_name = item["name"]
+        try:
+            method_name = item["name"]
+        except KeyError as e:
+            raise KeyError(f"{e!r} for {item}") from e
+
         method_name_snake = camel_to_snake(method_name)
         method_str = ""
 
@@ -72,6 +79,8 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
         args_names = []
         for arg, auto_name in zip(item["inputs"], awesome_names):
             arg_name = camel_to_snake(arg.get("name") or auto_name)
+            if keyword.iskeyword(arg_name):
+                arg_name += "_"
             arg_type = TYPE_CONVERSION.get(arg["type"], arg["type"])
             args.append(f"{arg_name}: {arg_type}")
             args_names.append(arg_name)
@@ -84,10 +93,10 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
             args_str = ""
             args_names = ""
 
+        return_str = ""
+        return_docstring = ""
         outputs = item.get("outputs", [])
         if outputs:
-            return_str = ""
-            return_docstring = ""
             return_types = []
             return_names = []
             for output in outputs:
@@ -176,9 +185,9 @@ def generate_contract_class(class_name, abi_path, const_call_methods=[]):
 def generate_classes():
     setup_paths = current_module_path.glob("**/autogen_config.json")
     black_config = get_black_config()
-    is_const_call_used = False
 
     for setup_path in setup_paths:
+        is_const_call_used = False
         with open(setup_path) as f:
             abis_to_process = json.load(f)
 
