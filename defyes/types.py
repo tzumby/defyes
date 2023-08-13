@@ -59,8 +59,6 @@ class Token(Addr):
         """
         Return the cached token, otherwise create a new instance and cache it.
         """
-        return cls(addr, chain)  # TODO: Fix cache_token and check if cached_property is cached
-
         try:
             return cache_token[addr, chain]
         except KeyError:
