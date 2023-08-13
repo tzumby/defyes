@@ -11,7 +11,7 @@ import requests
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 
-from defyes.api import BlockToTime, GetABI, TimeToBlock
+from defyes.api import ChainExplorer, GetABI
 from defyes.cache import cache_call, const_call
 from defyes.constants import (
     ABI_TOKEN_SIMPLIFIED,
@@ -80,17 +80,17 @@ def date_to_block(datestring, blockchain, utc=0) -> int:
     else:
         timestamp = date_to_timestamp(datestring, utc=utc)
 
-    return TimeToBlock(blockchain).make_request(timestamp)
+    return ChainExplorer(blockchain).block_from_time(timestamp)
 
 
 def block_to_date(block, blockchain, utc=0):
-    return timestamp_to_date(BlockToTime(blockchain).make_request(block), utc=utc)
+    return timestamp_to_date(ChainExplorer(blockchain).time_from_block(block), utc=utc)
 
 
 def get_blocks_per_year(blockchain):
     current_block = last_block(blockchain)
     ts = math.floor(datetime.now().timestamp()) - (3600 * 24 * 365)
-    block = TimeToBlock(blockchain).make_request(ts)
+    block = ChainExplorer(blockchain).block_from_time(ts)
 
     block_delta = current_block - block
 
@@ -474,7 +474,7 @@ def get_block_samples(start_date, samples, blockchain, end_date="latest", utc=0,
         datetime.utcfromtimestamp(timestamp + 3600 * utc).strftime("%Y-%m-%d %H:%M:%S") for timestamp in timestamps
     ]
 
-    blocks = [TimeToBlock(blockchain).make_request(timestamps[i]) for i in range(samples)]
+    blocks = [ChainExplorer(blockchain).block_from_time(timestamps[i]) for i in range(samples)]
 
     if dates is True:
         return [blocks, dates_strings]

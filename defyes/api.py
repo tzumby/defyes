@@ -1,6 +1,4 @@
-import math
 import time
-from datetime import datetime
 
 import requests
 from web3 import Web3
@@ -14,7 +12,7 @@ TESTNET_HEADER = {
 }
 
 
-class Explorero(requests.Session):
+class ChainExplorer(requests.Session):
     def __init__(self, blockchain: str = None) -> None:
         super().__init__()
         self.chain = blockchain
@@ -79,40 +77,6 @@ class Explorer:
         self.key = EXPLORERS[self.blockchain][1]
 
         self.query = self.query.format(url=self.url, key=self.key)
-
-
-class TimeToBlock(Explorer):
-    query = "https://{url}/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey={key}"
-
-    @cache_call(is_method=True)
-    def make_request(self, timestamp: int):
-        result = None
-        headers = {}
-        if self.blockchain in TESTNET_CHAINS:
-            headers = self.TESTNET_HEADER
-        result = requests.get(self.query % timestamp, headers=headers).json()["result"]
-        if result:
-            result = int(result)
-        return result
-
-
-class BlockToTime(Explorer):
-    query = "https://{url}/api?module=block&action=getblockreward&blockno=%d&apikey={key}"
-
-    @cache_call(is_method=True)
-    def make_request(self, block: int | str):
-        result = None
-        if isinstance(block, str):
-            if block == "latest":
-                return math.floor(datetime.now().timestamp())
-
-        headers = {}
-        if self.blockchain in TESTNET_CHAINS:
-            headers = self.TESTNET_HEADER
-        result = requests.get(self.query % block, headers=headers).json()["result"]["timeStamp"]
-        if result:
-            result = int(result)
-        return result
 
 
 class ABIError(Exception):

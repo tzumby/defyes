@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from web3 import Web3
 
-from defyes.api import BlockToTime
+from defyes.api import ChainExplorer
 from defyes.cache import const_call
 from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import get_contract, to_token_amount
@@ -128,7 +128,7 @@ def all_note_rewards(wallet, block, blockchain, web3=None, decimals=True, nproxy
 
     note_token_address = const_call(nproxy_contract.functions.getNoteToken())
     note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(
-        wallet, BlockToTime(blockchain).make_request(block)
+        wallet, ChainExplorer(blockchain).time_from_block(block)
     ).call(block_identifier=block)
 
     all_rewards.append(

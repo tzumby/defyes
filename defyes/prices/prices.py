@@ -3,7 +3,7 @@ from typing import Tuple
 
 from web3 import Web3
 
-from defyes.api import BlockToTime
+from defyes.api import ChainExplorer
 from defyes.constants import Address, Chain
 from defyes.node import get_node
 from defyes.prices import Chainlink, CoinGecko, _1inch
@@ -96,7 +96,7 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
             price = None
 
     elif source == "coingecko":
-        unix_timestamp = BlockToTime(blockchain).make_request(block)
+        unix_timestamp = ChainExplorer(blockchain).time_from_block(block)
         price = CoinGecko.get_price(token_address, unix_timestamp, blockchain)
 
         # In case there is the error for too many requests
