@@ -561,8 +561,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
     swap_logs = get_logs_web3(
-        address=lptoken_address,
         blockchain=blockchain,
+        address=lptoken_address,
         block_start=block_start,
         block_end=block_end,
         topics=[swap_event],

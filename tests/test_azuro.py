@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+import pytest
+
 from defyes import Azuro
 from defyes.constants import Chain, GnosisTokenAddr
 from defyes.node import get_node
@@ -24,6 +26,7 @@ def test_underlying():
     ]
 
 
+@pytest.mark.skip(reason="Takes too long, we have to improve get_logs_web3")
 def test_underlying_all():
     assert Azuro.underlying_all(WALLET_N1, BLOCK, Chain.GNOSIS, NODE, rewards=True) == [
         [

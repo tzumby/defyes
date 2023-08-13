@@ -1,3 +1,10 @@
 {
+  "pool_addresses_provider": {
+    "const_call": [
+      "getPool"
+    ]
+  },
+  "pool": {},
+  "oracle": {},    
   "protocol_data_provider": {}
 }

@@ -322,7 +322,7 @@ def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals
 
     underlying_token_decimals = get_decimals(underlying_token, blockchain, web3=web3) if decimals else 0
     mantissa = 18 - ctoken_decimals + underlying_token_decimals
-    underlying_token_balance = ctoken_amount * exchange_rate / Decimal(10**mantissa)
+    underlying_token_balance = Decimal(ctoken_amount * exchange_rate) / Decimal(10**mantissa)
 
     return [underlying_token, underlying_token_balance]
 
