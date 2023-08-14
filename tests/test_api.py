@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from defyes.api import ChainExplorer, GetContractCreation, GetLogs
+from defyes.api import ChainExplorer, GetLogs
 from defyes.constants import Chain
 
 ADDRESS_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
@@ -33,7 +33,7 @@ def test_get_abi_fail():
 
 
 def test_contract_creation():
-    contract = GetContractCreation(Chain.ETHEREUM).make_request("0x6B175474E89094C44Da98b954EedeAC495271d0F")
+    contract = ChainExplorer(Chain.ETHEREUM).get_contract_creation("0x6B175474E89094C44Da98b954EedeAC495271d0F")
     assert contract == [
         {
             "contractAddress": "0x6b175474e89094c44da98b954eedeac495271d0f",

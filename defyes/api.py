@@ -59,14 +59,22 @@ class ChainExplorer(requests.Session):
             return timestamp
 
     @cached
-    def abi_from_address(self, contract_address: str):
-        abi = None
+    def abi_from_address(self, contract_address: str) -> str:
         contract_address = get_implemented_contract(self.chain, contract_address)
         response = self._get(module="contract", action="getabi", address=contract_address)
         abi = response.json()["result"]
         if abi == "Contract source code not verified":
             raise ValueError("ABI not verified.")
         return abi
+
+    @cached
+    def get_contract_creation(self, contract_address: str) -> dict:
+        if self.chain != Chain.ETHEREUM:
+            raise ValueError("Chain should be ethereum for this method")
+        contract_address = get_implemented_contract(self.chain, contract_address)
+        response = self._get(module="contract", action="getcontractcreation", contractaddresses=contract_address)
+        contract = response.json()["result"]
+        return contract
 
 
 def latest_not_in_params(args):
@@ -87,16 +95,6 @@ class Explorer:
         self.key = EXPLORERS[self.blockchain][1]
 
         self.query = self.query.format(url=self.url, key=self.key)
-
-
-class GetContractCreation(Explorer):
-    blockchain = Chain.ETHEREUM
-    query = "https://{url}/api?module=contract&action=getcontractcreation&contractaddresses=%s&apikey={key}"
-
-    @cache_call(filter=latest_not_in_params, is_method=True)
-    def make_request(self, contract_address: str):
-        contract_address = get_implemented_contract(self.blockchain, contract_address)
-        return requests.get(self.query % contract_address).json()["result"]
 
 
 class GetLogs(Explorer):

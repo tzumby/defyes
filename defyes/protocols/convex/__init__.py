@@ -5,7 +5,7 @@ from pathlib import Path
 
 from web3 import Web3
 
-from defyes.api import GetContractCreation
+from defyes.api import ChainExplorer
 from defyes.cache import const_call
 from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import get_contract, last_block, to_token_amount
@@ -345,7 +345,7 @@ def update_db(output_file=DB_FILE, block="latest"):
     for i in range(pools_length):
         pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
 
-        rewarder_data = GetContractCreation(Chain.ETHEREUM).make_request(pool_info[3])
+        rewarder_data = ChainExplorer(Chain.ETHEREUM).get_contract_creation(pool_info[3])
         rewarder_creation_tx = web3.eth.get_transaction(rewarder_data[0]["txHash"])
 
         if pool_info[0] in db_data["pools"].keys():
