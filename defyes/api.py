@@ -58,6 +58,16 @@ class ChainExplorer(requests.Session):
         except (TypeError, ValueError):
             return timestamp
 
+    @cached
+    def abi_from_address(self, contract_address: str):
+        abi = None
+        contract_address = get_implemented_contract(self.chain, contract_address)
+        response = self._get(module="contract", action="getabi", address=contract_address)
+        abi = response.json()["result"]
+        if abi == "Contract source code not verified":
+            raise ValueError("ABI not verified.")
+        return abi
+
 
 def latest_not_in_params(args):
     return "latest" not in args
@@ -77,23 +87,6 @@ class Explorer:
         self.key = EXPLORERS[self.blockchain][1]
 
         self.query = self.query.format(url=self.url, key=self.key)
-
-
-class ABIError(Exception):
-    pass
-
-
-class GetABI(Explorer):
-    query = "https://{url}/api?module=contract&action=getabi&address=%s&apikey={key}"
-
-    @cache_call(is_method=True)
-    def make_request(self, contract_address: str):
-        result = None
-        contract_address = get_implemented_contract(self.blockchain, contract_address)
-        result = requests.get(self.query % contract_address).json()["result"]
-        if result == "Contract source code not verified":
-            raise ABIError("ABI not verified.")
-        return result
 
 
 class GetContractCreation(Explorer):

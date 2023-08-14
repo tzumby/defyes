@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from defyes.api import GetABI, GetContractCreation, GetLogs
+from defyes.api import ChainExplorer, GetContractCreation, GetLogs
 from defyes.constants import Chain
 
 ADDRESS_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
@@ -21,13 +21,13 @@ test_cases = [
 
 @pytest.mark.parametrize("blockchain,address,partial_abi", test_cases)
 def test_get_abi(blockchain, address, partial_abi):
-    abi = GetABI(blockchain).make_request(address)
+    abi = ChainExplorer(blockchain).abi_from_address(address)
     assert partial_abi in abi
 
 
 def test_get_abi_fail():
     with pytest.raises(Exception) as exc_info:
-        GetABI(Chain.GNOSIS).make_request(ADDRESS_N4)
+        ChainExplorer(Chain.GNOSIS).abi_from_address(ADDRESS_N4)
 
     assert exc_info.value.args[0] == "ABI not verified."
 

@@ -11,7 +11,7 @@ import requests
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 
-from defyes.api import ChainExplorer, GetABI
+from defyes.api import ChainExplorer
 from defyes.cache import cache_call, const_call
 from defyes.constants import (
     ABI_TOKEN_SIMPLIFIED,
@@ -30,14 +30,6 @@ logger = logging.getLogger(__name__)
 # CUSTOM EXCEPTIONS
 class BlockchainError(Exception):
     pass
-
-
-class abiNotVerified(Exception):
-    """ """
-
-    def __init__(self, message="Contract source code not verified") -> None:
-        self.message = message
-        super().__init__(self.message)
 
 
 def to_token_amount(
@@ -197,7 +189,7 @@ def infer_symbol(web3, blockchain, token_address):
         with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
             return const_call(getattr(contract.functions, method_name)())
 
-    abi = GetABI(blockchain).make_request(token_address)
+    abi = ChainExplorer(blockchain).abi_from_address(token_address)
     contract = web3.eth.contract(address=token_address, abi=abi)
     with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
         return const_call(contract.functions.symbol())
@@ -213,12 +205,8 @@ def get_contract(contract_address, blockchain, web3=None, abi=None, block="lates
     contract_address = Web3.to_checksum_address(contract_address)
 
     if abi is None:
-        try:
-            abi = GetABI(blockchain).make_request(contract_address)
-            return web3.eth.contract(address=contract_address, abi=abi)
-        except abiNotVerified:
-            logger.exception("ABI not verified")
-            return None
+        abi = ChainExplorer(blockchain).abi_from_address(contract_address)
+        return web3.eth.contract(address=contract_address, abi=abi)
     else:
         return web3.eth.contract(address=contract_address, abi=abi)
 
@@ -229,12 +217,8 @@ def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, w
 
     address = Web3.to_checksum_address(contract_address)
 
-    try:
-        abi = GetABI(blockchain).make_request(abi_contract_address)
-        return web3.eth.contract(address=address, abi=abi)
-    except abiNotVerified as Ex:
-        logger.exception(Ex)
-        return None
+    abi = ChainExplorer(blockchain).abi_from_address(abi_contract_address)
+    return web3.eth.contract(address=address, abi=abi)
 
 
 def search_proxy_impl_address(contract_address, blockchain, web3=None, block="latest"):
