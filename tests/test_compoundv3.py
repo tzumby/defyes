@@ -17,8 +17,8 @@ def test_underlying():
 
 
 def test_get_all_rewards():
-    block = 17151264
+    block = 17836566
     node = get_node(Chain.ETHEREUM, block)
 
     all_rewards = Compoundv3.get_all_rewards(WALLET_N1, TOKEN_ADDRESS, block, Chain.ETHEREUM, web3=node)
-    assert all_rewards == [[ETHTokenAddr.COMP, Decimal("0")]]
+    assert all_rewards == [[ETHTokenAddr.COMP, Decimal("9.743306")]]
