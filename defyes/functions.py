@@ -13,14 +13,7 @@ from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, Contract
 
 from defyes.api import ChainExplorer
 from defyes.cache import cache_call, const_call
-from defyes.constants import (
-    ABI_TOKEN_SIMPLIFIED,
-    IMPLEMENTATION_SLOT_EIP_1967,
-    IMPLEMENTATION_SLOT_UNSTRUCTURED,
-    Address,
-    APIKey,
-    Chain,
-)
+from defyes.constants import ABI_TOKEN_SIMPLIFIED, Address, APIKey, Chain
 from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
 
@@ -230,6 +223,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
     contract_address = Web3.to_checksum_address(contract_address)
 
     # OpenZeppelins' EIP-1967 - Example in mainnet: 0xE95A203B1a91a908F9B9CE46459d101078c2c3cb
+    IMPLEMENTATION_SLOT_EIP_1967 = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
     proxy_impl_address = Web3.to_hex(
         web3.eth.get_storage_at(contract_address, IMPLEMENTATION_SLOT_EIP_1967, block_identifier=block)
     )
@@ -249,6 +243,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
             proxy_impl_address = Web3.to_checksum_address("0x" + bytecode[32:72])
 
     # OpenZeppelins' Unstructured Storage proxy pattern - Example: USDC in mainnet (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48)
+    IMPLEMENTATION_SLOT_UNSTRUCTURED = "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3"
     if proxy_impl_address == Address.ZERO:
         proxy_impl_address = Web3.to_hex(
             web3.eth.get_storage_at(contract_address, IMPLEMENTATION_SLOT_UNSTRUCTURED, block_identifier=block)

@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from defyes.api import ChainExplorer, GetLogs
+from defyes.api import ChainExplorer
 from defyes.constants import Chain
 
 ADDRESS_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
@@ -51,7 +51,7 @@ def test_get_logs():
     swap_event = Web3.keccak(text="Swap(bytes32,address,address,uint256,uint256)").hex()
     pool_id = "0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014"
 
-    logs = GetLogs(Chain.ETHEREUM).make_request(
+    logs = ChainExplorer(Chain.ETHEREUM).get_logs(
         vault_address, blockstart, blockend, swap_event, optional_params={"topic1": pool_id}
     )
     assert logs == [
