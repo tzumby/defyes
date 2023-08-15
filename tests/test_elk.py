@@ -11,6 +11,8 @@ WALLET_N2 = "0x52d49ac444e7FEF91B77B112cc5702d6332CD138"
 
 
 def test_get_pool_address():
+    # FIXME this test may fail because pools are alwayes requested from: https://api.elk.finance/v2/info/latest_pools
+    # It has no history
     block = 17190299
     node = get_node(Chain.ETHEREUM, block)
     addr = Elk.get_pool_address(node, ETHTokenAddr.WETH, ETHTokenAddr.ELK, block, Chain.ETHEREUM)
@@ -21,8 +23,8 @@ def test_get_pool_address():
     assert addr == "0xd7D71e4BC981B50696fa536D330bf745aE563E25"
 
     node = get_node(Chain.GNOSIS, block)
-    addr = Elk.get_pool_address(node, GnosisTokenAddr.XGT, GnosisTokenAddr.ELK, block, Chain.GNOSIS)
-    assert addr == "0xc35EcbcA23597747a11E34e733EFe54c2D774F1a"
+    addr = Elk.get_pool_address(node, GnosisTokenAddr.GNO, GnosisTokenAddr.ELK, block, Chain.GNOSIS)
+    assert addr == "0xDe3f38FD15f566416Fe3941b57e1b0A50a9487e1"
 
 
 def test_get_lptoken_data():
