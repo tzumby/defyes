@@ -11,9 +11,9 @@ import requests
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 
-from defyes.api import ChainExplorer
 from defyes.cache import cache_call, const_call
 from defyes.constants import ABI_TOKEN_SIMPLIFIED, Address, APIKey, Chain
+from defyes.explorer import ChainExplorer
 from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
 

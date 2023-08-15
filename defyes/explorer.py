@@ -4,11 +4,25 @@ import requests
 from web3 import Web3
 
 from defyes.cache import cache_call
-from defyes.constants import EXPLORERS, TESTNET_CHAINS, Chain
+from defyes.constants import TESTNET_CHAINS, APIKey, APIUrl, Chain
 from defyes.node import get_node
 
 TESTNET_HEADER = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Mobile Safari/537.36"
+}
+
+EXPLORERS = {
+    Chain.ETHEREUM: (APIUrl.ETHERSCAN, APIKey.ETHERSCAN),
+    Chain.POLYGON: (APIUrl.POLSCAN, APIKey.POLSCAN),
+    Chain.GNOSIS: (APIUrl.GNOSISSCAN, APIKey.GNOSISSCAN),
+    Chain.BINANCE: (APIUrl.BINANCE, APIKey.BINANCE),
+    Chain.AVALANCHE: (APIUrl.AVALANCHE, APIKey.AVALANCHE),
+    Chain.FANTOM: (APIUrl.FANTOM, APIKey.FANTOM),
+    Chain.ARBITRUM: (APIUrl.ARBITRUM, APIKey.ARBITRUM),
+    Chain.OPTIMISM: (APIUrl.OPTIMISM, APIKey.OPTIMISM),
+    Chain.ROPSTEN: (APIUrl.ROPSTEN, APIKey.ETHERSCAN),
+    Chain.KOVAN: (APIUrl.KOVAN, APIKey.ETHERSCAN),
+    Chain.GOERLI: (APIUrl.GOERLI, APIKey.ETHERSCAN),
 }
 
 

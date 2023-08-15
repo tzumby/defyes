@@ -9,9 +9,9 @@ from typing import Union
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound
 
-from defyes.api import ChainExplorer
 from defyes.cache import const_call
 from defyes.constants import Address, Chain
+from defyes.explorer import ChainExplorer
 from defyes.functions import (
     block_to_date,
     date_to_block,

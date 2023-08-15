@@ -6,9 +6,9 @@ from typing import Union
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
-from defyes.api import ChainExplorer
 from defyes.cache import const_call
 from defyes.constants import Address, Chain, ETHTokenAddr, GnosisTokenAddr
+from defyes.explorer import ChainExplorer
 from defyes.functions import (
     balance_of,
     block_to_date,

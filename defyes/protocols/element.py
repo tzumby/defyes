@@ -3,8 +3,8 @@ from decimal import Decimal
 
 from web3 import Web3
 
-from defyes.api import ChainExplorer
 from defyes.cache import const_call
+from defyes.explorer import ChainExplorer
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 from defyes.topic import decode_address_hexor

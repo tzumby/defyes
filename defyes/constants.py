@@ -174,18 +174,3 @@ class APIUrl(Constants):
     ROPSTEN = "api-ropsten.etherscan.io"
     KOVAN = "api-kovan.etherscan.io"
     GOERLI = "api-goerli.etherscan.io"
-
-
-EXPLORERS = {
-    Chain.ETHEREUM: (APIUrl.ETHERSCAN, APIKey.ETHERSCAN),
-    Chain.POLYGON: (APIUrl.POLSCAN, APIKey.POLSCAN),
-    Chain.GNOSIS: (APIUrl.GNOSISSCAN, APIKey.GNOSISSCAN),
-    Chain.BINANCE: (APIUrl.BINANCE, APIKey.BINANCE),
-    Chain.AVALANCHE: (APIUrl.AVALANCHE, APIKey.AVALANCHE),
-    Chain.FANTOM: (APIUrl.FANTOM, APIKey.FANTOM),
-    Chain.ARBITRUM: (APIUrl.ARBITRUM, APIKey.ARBITRUM),
-    Chain.OPTIMISM: (APIUrl.OPTIMISM, APIKey.OPTIMISM),
-    Chain.ROPSTEN: (APIUrl.ROPSTEN, APIKey.ETHERSCAN),
-    Chain.KOVAN: (APIUrl.KOVAN, APIKey.ETHERSCAN),
-    Chain.GOERLI: (APIUrl.GOERLI, APIKey.ETHERSCAN),
-}
