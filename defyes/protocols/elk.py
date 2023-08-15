@@ -81,7 +81,6 @@ def get_pool_address(web3, token0, token1, block, blockchain):
     :return:
     """
     pools = requests.get(API_ELK_POOLS).json()
-
     symbols = []
     for token in [token0, token1]:
         token_contract = get_contract(token, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
