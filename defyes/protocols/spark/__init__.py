@@ -141,17 +141,11 @@ def get_protocol_data(wallet: Addr, block: int | str, chain: Chain, decimals: bo
         "finantial_metrics": {},
     }
 
-    def to_value(token_amount):
-        return Decimal(str(token_amount)) if decimals else int(token_amount)
-
-    def to_dict(token_amount):
-        return {"balance": to_value(token_amount), "address": token_amount.token}
-
     position = ProtocolDataProvider(chain, block).position(wallet)
     ret["positions"] = {
         "single_position": {
-            "holdings": [to_dict(token_amount) for token_amount in position["holdings"]],
-            "underlyings": [to_dict(token_amount) for token_amount in position["underlyings"]],
+            "holdings": [token_amount.as_dict(decimals) for token_amount in position["holdings"]],
+            "underlyings": [token_amount.as_dict(decimals) for token_amount in position["underlyings"]],
         }
     }
     ret["decimals"] = decimals

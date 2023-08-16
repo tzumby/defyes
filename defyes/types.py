@@ -93,6 +93,9 @@ class TokenAmount(int):
         self.token = token
         return self
 
+    def as_dict(self, decimals: bool = True):
+        return {"balance": Decimal(str(self)) if decimals else int(self), "address": str(self.token)}
+
     def __str__(self):
         decimals = self.token.decimals
         if decimals == 0:
