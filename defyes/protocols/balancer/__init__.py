@@ -161,8 +161,8 @@ class LiquidityPool(LiquidityPool):
             block_start = START_BLOCK[self.blockchain]
 
         swap_logs = get_logs_web3(
-            address=vault_address,
             blockchain=self.blockchain,
+            address=vault_address,
             block_start=block_start,
             block_end=self.block,
             topics=[swap_event, pool_id],
@@ -242,7 +242,9 @@ def get_gauge_addresses(blockchain: str, block: int | str, lp_address: str) -> l
                 )
                 for log in logs:
                     tx = gauge_factory.contract.w3.eth.get_transaction(log["transactionHash"])
-                    if lp_address[2 : len(lp_address)].lower() in tx["input"]:
+                    # For some endpoints tx["input"] is a string and for others is a bytes object
+                    tx_input = tx["input"].hex() if isinstance(tx["input"], bytes) else tx["input"]
+                    if lp_address[2 : len(lp_address)].lower() in tx_input:
                         gauge_address = Web3.to_checksum_address(f"0x{log['topics'][1].hex()[-40:]}")
                         break
                 if gauge_address == Address.ZERO:

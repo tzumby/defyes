@@ -3,8 +3,8 @@ from decimal import Decimal
 
 from web3 import Web3
 
-from defyes.api import RequestFromScan
 from defyes.cache import const_call
+from defyes.explorer import ChainExplorer
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 from defyes.topic import decode_address_hexor
@@ -105,12 +105,7 @@ def get_tranches(block: int, blockchain: str, web3) -> list:
     tranches = []
     for deployer in [ELEMENT_DEPLOYER, ELEMENT_DEPLOYER2]:
         underlying_address = Web3.to_checksum_address(deployer)
-        tx_list = RequestFromScan(
-            blockchain=blockchain,
-            module="account",
-            action="txlist",
-            kwargs={"address": underlying_address, "startblock": 0, "endblock": block},
-        ).request()["result"]
+        tx_list = ChainExplorer(blockchain).get_transactions(underlying_address, 0, block)
 
         for item in tx_list:
             if item["functionName"] == DEPLOYER_FUNCNAMES[deployer]:

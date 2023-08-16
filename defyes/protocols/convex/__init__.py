@@ -7,7 +7,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import Chain, ETHTokenAddr
-from defyes.functions import get_contract, get_contract_creation, last_block, to_token_amount
+from defyes.explorer import ChainExplorer
+from defyes.functions import get_contract, last_block, to_token_amount
 from defyes.node import get_node
 
 from .. import curve
@@ -73,7 +74,7 @@ def get_pool_rewarders(lptoken_address, block):
                 rewarders.append(db_data["pools"][lptoken_address][iblock]["rewarder"])
 
     else:
-        booster_contract = get_contract(BOOSTER, Chain, abi=ABI_BOOSTER, block=block)
+        booster_contract = get_contract(BOOSTER, Chain.ETHEREUM, abi=ABI_BOOSTER, block=block)
         number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
 
         for pool_id in range(number_of_pools):
@@ -337,14 +338,14 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 def update_db(output_file=DB_FILE, block="latest"):
     db_data = {"pools": {}}
 
-    web3 = get_node(Chain, block=block)
-    booster = get_contract(BOOSTER, Chain, web3=web3, abi=ABI_BOOSTER, block=block)
+    web3 = get_node(Chain.ETHEREUM, block=block)
+    booster = get_contract(BOOSTER, Chain.ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
     pools_length = booster.functions.poolLength().call(block_identifier=block)
 
     for i in range(pools_length):
         pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
 
-        rewarder_data = get_contract_creation(pool_info[3], Chain)
+        rewarder_data = ChainExplorer(Chain.ETHEREUM).get_contract_creation(pool_info[3])
         rewarder_creation_tx = web3.eth.get_transaction(rewarder_data[0]["txHash"])
 
         if pool_info[0] in db_data["pools"].keys():

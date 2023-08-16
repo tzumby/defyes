@@ -1,11 +1,10 @@
 from time import sleep
 from typing import Tuple
 
-import requests
 from web3 import Web3
 
-from defyes.constants import API_ETHERSCAN_GETTOKENINFO, API_KEY_ETHERSCAN, Address, Chain
-from defyes.functions import block_to_timestamp
+from defyes.constants import Address, Chain
+from defyes.explorer import ChainExplorer
 from defyes.node import get_node
 from defyes.prices import Chainlink, CoinGecko, _1inch
 
@@ -97,7 +96,7 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
             price = None
 
     elif source == "coingecko":
-        unix_timestamp = block_to_timestamp(block, blockchain)
+        unix_timestamp = ChainExplorer(blockchain).time_from_block(block)
         price = CoinGecko.get_price(token_address, unix_timestamp, blockchain)
 
         # In case there is the error for too many requests
@@ -108,19 +107,3 @@ def _get_price_from_source(source: str, token_address: str, block: int, blockcha
         price = price[1][1]
 
     return price
-
-
-def get_etherscan_price(token_address):
-    """Get token price from etherscan.
-
-    Args:
-        token_address (str).
-
-    Returns:
-        float, str, str: price, source(etherscan), blockchain
-    """
-    price = requests.get(API_ETHERSCAN_GETTOKENINFO % (token_address, API_KEY_ETHERSCAN)).json()["result"][0][
-        "tokenPriceUSD"
-    ]
-
-    return price, "etherscan", Chain.ETHEREUM

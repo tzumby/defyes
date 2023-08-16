@@ -11,14 +11,13 @@ from web3.exceptions import ABIFunctionNotFound
 
 from defyes.cache import const_call
 from defyes.constants import Address, Chain
+from defyes.explorer import ChainExplorer
 from defyes.functions import (
     block_to_date,
     date_to_block,
     get_contract,
     get_decimals,
     get_logs_web3,
-    get_token_tx,
-    get_tx_list,
     last_block,
     to_token_amount,
 )
@@ -28,6 +27,13 @@ from defyes.prices.prices import get_price
 DB_FILE = Path(__file__).parent / "db.json"
 
 logger = logging.getLogger(__name__)
+
+BLOCK_START = {
+    "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd": 10736242,
+    "0xEF0881eC094552b2e128Cf945EF17a6752B4Ec5d": 12428169,
+    "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F": 13911377,
+    "0xdDCbf776dF3dE60163066A5ddDF2277cB445E0F3": 16655565,
+}
 
 MASTERCHEF_V1 = "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd"
 
@@ -53,9 +59,6 @@ ABI_LPTOKEN = '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8
 
 # Swap Event Signature
 SWAP_EVENT_SIGNATURE = "Swap(address,uint256,uint256,uint256,uint256,address)"
-
-# Deposit Event Signature
-DEPOSIT_EVENT_SIGNATURE = "deposit(uint256,uint256,address)"
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -561,8 +564,8 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     swap_event = web3.keccak(text=SWAP_EVENT_SIGNATURE).hex()
     swap_logs = get_logs_web3(
-        address=lptoken_address,
         blockchain=blockchain,
+        address=lptoken_address,
         block_start=block_start,
         block_end=block_end,
         topics=[swap_event],
@@ -588,16 +591,14 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 # 'web3' = web3 (Node) -> Improves performance
 # 'signature' = signature of the type of transaction that will be searched for
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_wallet_by_tx(lptoken_address, block, blockchain, web3=None, signature=DEPOSIT_EVENT_SIGNATURE):
+def get_wallet_by_tx(lptoken_address, block, blockchain, web3=None):
     """
     :param lptoken_address:
     :param block:
     :param blockchain:
     :param web3:
-    :param signature:
     :return:
     """
-
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
@@ -610,20 +611,19 @@ def get_wallet_by_tx(lptoken_address, block, blockchain, web3=None, signature=DE
     chef_contract = get_pool_info(web3, lptoken_address, block, blockchain)["chef_contract"]
 
     if chef_contract is not None:
-        tx_hex_bytes = web3.keccak(text=signature)[0:4].hex()
+        tx_hex_bytes = Web3.keccak(text="deposit(uint256,uint256,address)")[0:4].hex()
 
-        block_start = block
-        while True:
-            block_start = block_start - 1000000
+        lptoken_txs = ChainExplorer(blockchain).get_token_transactions(
+            lptoken_address, chef_contract.address, BLOCK_START[chef_contract.address], block
+        )
+        for lptoken_tx in lptoken_txs:
+            txs = ChainExplorer(blockchain).get_transactions(
+                lptoken_tx["from"], BLOCK_START[chef_contract.address], block
+            )
 
-            lptoken_txs = get_token_tx(lptoken_address, chef_contract.address, block_start, block, blockchain)
-
-            for lptoken_tx in lptoken_txs:
-                txs = get_tx_list(lptoken_tx["from"], block_start, block, blockchain)
-
-                for tx in txs:
-                    if tx["input"][0:10] == tx_hex_bytes:
-                        return tx["from"]
+            for tx in txs:
+                if tx["input"][0:10] == tx_hex_bytes:
+                    return tx["from"]
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

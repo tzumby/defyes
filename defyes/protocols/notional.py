@@ -4,7 +4,8 @@ from web3 import Web3
 
 from defyes.cache import const_call
 from defyes.constants import Chain, ETHTokenAddr
-from defyes.functions import block_to_timestamp, get_contract, to_token_amount
+from defyes.explorer import ChainExplorer
+from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 
 NPROXY_Chain = "0x1344A36A1B56144C3Bc62E7757377D288fDE0369"
@@ -127,7 +128,7 @@ def all_note_rewards(wallet, block, blockchain, web3=None, decimals=True, nproxy
 
     note_token_address = const_call(nproxy_contract.functions.getNoteToken())
     note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(
-        wallet, block_to_timestamp(block, blockchain)
+        wallet, ChainExplorer(blockchain).time_from_block(block)
     ).call(block_identifier=block)
 
     all_rewards.append(

@@ -8,12 +8,12 @@ from web3.exceptions import ContractLogicError
 
 from defyes.cache import const_call
 from defyes.constants import Address, Chain, ETHTokenAddr, GnosisTokenAddr
+from defyes.explorer import ChainExplorer
 from defyes.functions import (
     balance_of,
     block_to_date,
     date_to_block,
     get_contract,
-    get_contract_abi,
     get_decimals,
     get_logs_web3,
     to_token_amount,
@@ -708,7 +708,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     for exchange_event_signature in exchange_event_signatures:
         exchange_event = web3.keccak(text=exchange_event_signature).hex()
         swap_logs = get_logs_web3(
-            address=minter, blockchain=blockchain, block_start=block_start, block_end=block_end, topics=[exchange_event]
+            blockchain=blockchain, address=minter, block_start=block_start, block_end=block_end, topics=[exchange_event]
         )
 
         for swap_log in swap_logs:
@@ -750,7 +750,7 @@ def get_base_apr(
         blockchain,
     )
     lptoken_address = Web3.to_checksum_address(lptoken_address)
-    address_abi = get_contract_abi(lptoken_address, blockchain)
+    address_abi = ChainExplorer(blockchain).abi_from_address(lptoken_address)
 
     lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
 
@@ -782,7 +782,7 @@ def swap_fees_v2(
         web3 = get_node(blockchain, block=block_end)
     rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
-    address_abi = get_contract_abi(lptoken_address, blockchain)
+    address_abi = ChainExplorer(blockchain).abi_from_address(lptoken_address)
     lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
     balance = []
     for i in range(0, 5):

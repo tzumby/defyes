@@ -117,7 +117,7 @@ def cache_contract_method(exclude_args=None, validator=None):
     return decorator
 
 
-def cache_call(exclude_args=None, filter=None):
+def cache_call(exclude_args=None, filter=None, is_method=False, include_attrs=None):
     """Decorator to cache the result of a function.
 
     It has the ability to exclude arguments that the result
@@ -139,12 +139,26 @@ def cache_call(exclude_args=None, filter=None):
             if not is_enabled():
                 logger.debug("The cache is disabled")
                 return f(*args, **kwargs)
-            cache_args = getcallargs(f, *args, **kwargs)
+            all_args = getcallargs(f, *args, **kwargs)
+            cache_args = all_args.copy()
+            if is_method:
+                obj = cache_args.pop("self")
             if filter is None or filter(cache_args):
                 if exclude_args:
                     for arg in exclude_args:
                         cache_args.pop(arg)
-                cache_key = generate_cache_key((f.__qualname__, cache_args))
+
+                if is_method:
+                    key_tuple = obj.__class__.__name__, f.__qualname__, cache_args
+                elif include_attrs:
+                    obj = all_args["self"]
+                    attrs_value = [getter(obj) for getter in include_attrs]
+                    key_tuple = tuple(attrs_value + [f.__qualname__, cache_args])
+                else:
+                    key_tuple = f.__qualname__, cache_args
+
+                cache_key = generate_cache_key(key_tuple)
+
                 if cache_key not in _cache:
                     result = f(*args, **kwargs)
                     _cache[cache_key] = result
@@ -169,3 +183,17 @@ def const_call(f):
     else:
         result = _cache[cache_key]
     return result
+
+
+class CacheToken:
+    def __getitem__(self, addr_chain: tuple):
+        if is_enabled():
+            return _cache[hash(addr_chain)]
+        raise KeyError("Cache disabled")
+
+    def __setitem__(self, addr_chain: tuple, token):
+        if is_enabled():
+            _cache[hash(addr_chain)] = token
+
+
+cache_token = CacheToken()
