@@ -99,6 +99,8 @@ class TokenAmount(int):
             return format(int(self), "_")
         str_value = format(int(self))
         integer_part, decimal_part = str_value[:-decimals], str_value[-decimals:]
+        if not integer_part:
+            integer_part = "0"
         decimal_part = decimal_part.rstrip("0")
         if not decimal_part:
             decimal_part = "0"
