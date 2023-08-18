@@ -87,6 +87,17 @@ class Token(Addr):
         return TokenAmount.from_teu(value, self)
 
 
+def format_amount(amount: Decimal) -> str:
+    value_str = str(amount)
+    if "." in value_str:
+        integer_part, decimal_part = value_str.split(".")
+        formatted_integer_part = "{:,}".format(int(integer_part)).replace(",", "_")
+        formatted_value = f"{formatted_integer_part}.{decimal_part}"
+    else:
+        formatted_value = "{:,}".format(int(value_str)).replace(",", "_")
+    return formatted_value
+
+
 class TokenAmount:
     def __init__(self, amount: int | Decimal, token: Token):
         # amount is expressed in the Token units
@@ -107,21 +118,20 @@ class TokenAmount:
         }
 
     def __str__(self):
-        value_str = str(self.token_amount)
-        if "." in value_str:
-            integer_part, decimal_part = value_str.split(".")
-            formatted_integer_part = "{:,}".format(int(integer_part)).replace(",", "_")
-            formatted_value = f"{formatted_integer_part}.{decimal_part}"
-        else:
-            formatted_value = "{:,}".format(int(value_str)).replace(",", "_")
-
-        return formatted_value
+        return format_amount(self.token_amount)
 
     def __repr__(self):
-        if simple_repr:
-            return str(f"{str(self)}*{self.token.symbol}")
+        _, digits, exp = self.token_amount.as_tuple()
+        zeros_in_decimal_part = abs(exp) - len(digits)
+        if (
+            int(self.token_amount) == 0
+            and exp < 0
+            and zeros_in_decimal_part > 3
+            and (abs(exp) > self.token.decimals / 2)
+        ):
+            return f"{format_amount(self.token_amount * self.teu)}*teu{self.token.symbol}"
         else:
-            return f"{str(self.token_amount * self.teu)}*teu{self.token.symbol})"
+            return str(f"{str(self)}*{self.token.symbol}")
 
     def __eq__(self, other):
         if isinstance(other, TokenAmount):
