@@ -116,12 +116,12 @@ class ProtocolDataProvider(ProtocolDataProvider):
             def holdings():
                 for in_amount, token in zip(ur[:3], tokens):
                     if in_amount != 0:
-                        yield TokenAmount(in_amount, token)
+                        yield TokenAmount.from_teu(in_amount, token)
 
             @helpers.listify
             def underlyings():
                 for holding in holdings():
-                    yield TokenAmount(ur.sp - ur.stable_debt - ur.variable_debt, asset)
+                    yield TokenAmount.from_teu(ur.sp - ur.stable_debt - ur.variable_debt, asset)
 
             all_holdings += holdings()
             all_underlyings += underlyings()
@@ -160,9 +160,6 @@ def get_protocol_data(wallet: Addr, block: int | str, chain: Chain, decimals: bo
 
 
 def get_full_finantial_metrics(wallet: Addr, block: int | str, chain: Chain, decimals: bool = True) -> dict:
-    def to_value(token_amount):
-        return Decimal(str(token_amount)) if decimals else int(token_amount)
-
     wallet = Addr(wallet)
     pap = PoolAddressesProvider(chain, block)
 
@@ -179,7 +176,7 @@ def get_full_finantial_metrics(wallet: Addr, block: int | str, chain: Chain, dec
     for underlying in ProtocolDataProvider(chain, block).position(wallet)["underlyings"]:
         asset = {
             "token_address": underlying.token,
-            "token_amount": abs(amount := to_value(underlying)),
+            "token_amount": abs(amount := underlying.as_dict(decimals)["balance"]),
             "token_price_usd": pap.price_oracle_contract.get_asset_price(underlying.token) / currency_unit,
         }
         if amount < 0:
