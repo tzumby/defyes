@@ -1,5 +1,6 @@
 from decimal import Decimal
 from unittest.mock import patch
+import requests
 
 from defi_protocols import Votium
 
@@ -28,7 +29,11 @@ def test_get_rewards_per_token():
 # Check output
 def test_get_all_rewards():
     with patch("defi_protocols.Votium.get_rewards_per_token") as mock_inner:
-        a = [None] * 44
+        raw_json_url = "https://raw.githubusercontent.com/oo-00/Votium/main/merkle/activeTokens.json"
+        response = requests.get(raw_json_url)
+        json_data = response.json()
+        json_len = len(json_data)
+        a = [None] * json_len
         a[4] = 439.9597422149969
         a[17] = 14.214765596330048
         mock_inner.side_effect = a
