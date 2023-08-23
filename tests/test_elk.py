@@ -20,8 +20,8 @@ def test_get_pool_address():
     assert addr == "0xd7D71e4BC981B50696fa536D330bf745aE563E25"
 
     node = get_node(XDAI, block)
-    addr = Elk.get_pool_address(node, GnosisTokenAddr.XGT, GnosisTokenAddr.ELK, block, XDAI)
-    assert addr == "0xc35EcbcA23597747a11E34e733EFe54c2D774F1a"
+    addr = Elk.get_pool_address(node, GnosisTokenAddr.GNO, GnosisTokenAddr.ELK, block, XDAI)
+    assert addr == "0xDe3f38FD15f566416Fe3941b57e1b0A50a9487e1"
 
 
 def test_get_lptoken_data():
