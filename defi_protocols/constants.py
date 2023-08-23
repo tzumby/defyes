@@ -475,6 +475,9 @@ API_BLOCKSCOUT_GETTOKENCONTRACT = (
     "https://blockscout.com/xdai/mainnet/api?module=token&action=getToken&contractaddress=%s"
 )
 
+# 4BYTE DIRECTORY - SIGNATURES
+API_4BYTE_DIRECTORY_SIGNATURES = "https://www.4byte.directory/api/v1/signatures/?hex_signature=%s"
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # IMPLEMENTATION SLOTS for OpenZeppelins' EIPs

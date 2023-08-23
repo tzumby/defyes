@@ -16,6 +16,7 @@ from defi_protocols import cache
 from defi_protocols.cache import cache_call, const_call
 from defi_protocols.constants import (
     ABI_TOKEN_SIMPLIFIED,
+    API_4BYTE_DIRECTORY_SIGNATURES,
     API_ARBITRUM_GETABI,
     API_ARBITRUM_GETBLOCKNOBYTIME,
     API_ARBITRUM_GETBLOCKREWARD,
@@ -1069,6 +1070,19 @@ def get_logs_web3(
             logs += web3.eth.get_logs(params)
 
     return logs
+
+
+# get_4byte_signature
+def get_4byte_signature(hex_signature: str) -> list:
+    results = []
+
+    data = requests.get(API_4BYTE_DIRECTORY_SIGNATURES % (hex_signature)).json()["results"]
+
+    if len(data) > 0:
+        for result in data:
+            results.append(result["text_signature"])
+
+    return results
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
