@@ -1,5 +1,6 @@
 from decimal import Decimal
 from unittest.mock import patch
+
 import requests
 
 from defi_protocols import Votium
