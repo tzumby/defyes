@@ -399,6 +399,27 @@ API_ETHERSCAN_GETCONTRACTCREATION = (
     "https://api.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=%s&apikey=%s"
 )
 
+# SCANS - MODULE = CONTRACTS - GETSOURCECODE
+API_ETHERSCAN_GETSOURCECODE = "https://api.etherscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+API_POLYGONSCAN_GETSOURCECODE = (
+    "https://api.polygonscan.com/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+)
+API_GNOSISSCAN_GETSOURCECODE = "https://api.gnosisscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+API_BINANCE_GETSOURCECODE = "https://api.bscscan.com/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+API_AVALANCHE_GETSOURCECODE = "https://api.snowtrace.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+API_FANTOM_GETSOURCECODE = "https://api.ftmscan.com/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+API_OPTIMISM_GETSOURCECODE = (
+    "https://api-optimistic.etherscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+)
+API_ARBITRUM_GETSOURCECODE = "https://api.arbiscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+API_ROPSTEN_GETSOURCECODE = (
+    "https://api-ropsten.etherscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+)
+API_KOVAN_GETSOURCECODE = "https://api-kovan.etherscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+API_GOERLI_GETSOURCECODE = (
+    "https://api-goerli.etherscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
+)
+
 
 # SCANS - MODULE = ACCOUNTS - TOKENTX
 API_ETHERSCAN_TOKENTX = "https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=%s&address=%s&startblock=%s&endblock=%s&sort=desc&apikey=%s"
