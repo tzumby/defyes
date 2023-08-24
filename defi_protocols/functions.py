@@ -21,18 +21,21 @@ from defi_protocols.constants import (
     API_ARBITRUM_GETBLOCKNOBYTIME,
     API_ARBITRUM_GETBLOCKREWARD,
     API_ARBITRUM_GETLOGS,
+    API_ARBITRUM_GETSOURCECODE,
     API_ARBITRUM_TOKENTX,
     API_ARBITRUM_TXLIST,
     API_AVALANCHE_GETABI,
     API_AVALANCHE_GETBLOCKNOBYTIME,
     API_AVALANCHE_GETBLOCKREWARD,
     API_AVALANCHE_GETLOGS,
+    API_AVALANCHE_GETSOURCECODE,
     API_AVALANCHE_TOKENTX,
     API_AVALANCHE_TXLIST,
     API_BINANCE_GETABI,
     API_BINANCE_GETBLOCKNOBYTIME,
     API_BINANCE_GETBLOCKREWARD,
     API_BINANCE_GETLOGS,
+    API_BINANCE_GETSOURCECODE,
     API_BINANCE_TOKENTX,
     API_BINANCE_TXLIST,
     API_BLOCKSCOUT_GETABI,
@@ -42,6 +45,7 @@ from defi_protocols.constants import (
     API_ETHERSCAN_GETBLOCKREWARD,
     API_ETHERSCAN_GETCONTRACTCREATION,
     API_ETHERSCAN_GETLOGS,
+    API_ETHERSCAN_GETSOURCECODE,
     API_ETHERSCAN_TOKENTX,
     API_ETHERSCAN_TXLIST,
     API_ETHPLORER_GETTOKENINFO,
@@ -49,12 +53,14 @@ from defi_protocols.constants import (
     API_FANTOM_GETBLOCKNOBYTIME,
     API_FANTOM_GETBLOCKREWARD,
     API_FANTOM_GETLOGS,
+    API_FANTOM_GETSOURCECODE,
     API_FANTOM_TOKENTX,
     API_FANTOM_TXLIST,
     API_GNOSISSCAN_GETABI,
     API_GNOSISSCAN_GETBLOCKNOBYTIME,
     API_GNOSISSCAN_GETBLOCKREWARD,
     API_GNOSISSCAN_GETLOGS,
+    API_GNOSISSCAN_GETSOURCECODE,
     API_GNOSISSCAN_TOKENTX,
     API_GNOSISSCAN_TXLIST,
     API_GOERLI_GETABI,
@@ -82,12 +88,14 @@ from defi_protocols.constants import (
     API_OPTIMISM_GETBLOCKNOBYTIME,
     API_OPTIMISM_GETBLOCKREWARD,
     API_OPTIMISM_GETLOGS,
+    API_OPTIMISM_GETSOURCECODE,
     API_OPTIMISM_TOKENTX,
     API_OPTIMISM_TXLIST,
     API_POLYGONSCAN_GETABI,
     API_POLYGONSCAN_GETBLOCKNOBYTIME,
     API_POLYGONSCAN_GETBLOCKREWARD,
     API_POLYGONSCAN_GETLOGS,
+    API_POLYGONSCAN_GETSOURCECODE,
     API_POLYGONSCAN_TOKENTX,
     API_POLYGONSCAN_TXLIST,
     API_ROPSTEN_GETABI,
@@ -622,6 +630,42 @@ def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, w
         return None
 
 
+def get_impl_address_from_scan(contract_address, blockchain):
+    implementation_address = ZERO_ADDRESS
+
+    if blockchain == ETHEREUM:
+        data = requests.get(API_ETHERSCAN_GETSOURCECODE % (contract_address, API_KEY_ETHERSCAN)).json()
+
+    elif blockchain == POLYGON:
+        data = requests.get(API_POLYGONSCAN_GETSOURCECODE % (contract_address, API_KEY_POLSCAN)).json()
+
+    elif blockchain == XDAI:
+        data = requests.get(API_GNOSISSCAN_GETSOURCECODE % (contract_address, API_KEY_GNOSISSCAN)).json()
+
+    elif blockchain == BINANCE:
+        data = requests.get(API_BINANCE_GETSOURCECODE % (contract_address, API_KEY_BINANCE)).json()
+
+    elif blockchain == AVALANCHE:
+        data = requests.get(API_AVALANCHE_GETSOURCECODE % (contract_address, API_KEY_AVALANCHE)).json()
+
+    elif blockchain == FANTOM:
+        data = requests.get(API_FANTOM_GETSOURCECODE % (contract_address, API_KEY_FANTOM)).json()
+
+    elif blockchain == OPTIMISM:
+        data = requests.get(API_OPTIMISM_GETSOURCECODE % (contract_address, API_KEY_OPTIMISM)).json()
+
+    elif blockchain == ARBITRUM:
+        data = requests.get(API_ARBITRUM_GETSOURCECODE % (contract_address, API_KEY_ARBITRUM)).json()
+
+    if data["message"] == "OK":
+        implementation_address = data["result"][0]["Implementation"]
+
+        if Web3.is_address(implementation_address):
+            implementation_address = Web3.to_checksum_address(implementation_address)
+
+    return implementation_address
+
+
 def search_proxy_impl_address(contract_address, blockchain, web3=None, block="latest"):
     if web3 is None:
         web3 = get_node(blockchain)
@@ -687,6 +731,10 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
         except Exception as e:
             if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput:
                 pass
+
+    # Query Scans to get the Implementation Address
+    if proxy_impl_address == ZERO_ADDRESS:
+        proxy_impl_address = get_impl_address_from_scan(contract_address, blockchain)
 
     return proxy_impl_address
 
