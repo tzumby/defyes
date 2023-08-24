@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from web3 import Web3
+
 from defyes import Balancer
 from defyes.constants import Chain, ETHTokenAddr, GnosisTokenAddr
 from defyes.functions import date_to_block
@@ -182,10 +184,10 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "ethereum",
-        "block": 16978206,
+        "block_id": 16978206,
+        "wallet": WALLET_N1,
         "positions": {
             "0x0b09deA16768f0799065C475bE02919503cB2a35": {
-                "liquidity": {},
                 "staked": {
                     "staked_key": "gauge_address",
                     "0x4ca6AC0509E6381Ca7CD872a6cdC0Fbf00600Fa1": {
@@ -213,8 +215,6 @@ def test_protocol_data():
                         ],
                     },
                 },
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
@@ -227,7 +227,8 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "ethereum",
-        "block": 16978206,
+        "wallet": WALLET_N2,
+        "block_id": 16978206,
         "positions": {
             "0x96646936b91d6B9D7D0c47C496AfBF3D6ec7B6f8": {
                 "liquidity": {
@@ -287,11 +288,8 @@ def test_protocol_data():
                         },
                     ]
                 },
-                "financial_metrics": {},
             },
             "0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56": {
-                "liquidity": {},
-                "staked": {},
                 "locked": {
                     "holdings": [
                         {
@@ -320,7 +318,6 @@ def test_protocol_data():
                         },
                     ],
                 },
-                "financial_metrics": {},
             },
         },
         "positions_key": "liquidity_pool_address",
@@ -332,7 +329,8 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "ethereum",
-        "block": 17117344,
+        "block_id": 17117344,
+        "wallet": WALLET_N4,
         "positions": {
             "0x32296969Ef14EB0c6d29669C550D4a0449130230": {
                 "liquidity": {
@@ -353,9 +351,6 @@ def test_protocol_data():
                         },
                     ],
                 },
-                "staked": {},
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
@@ -366,7 +361,8 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "ethereum",
-        "block": 17117344,
+        "block_id": 17117344,
+        "wallet": WALLET_N5,
         "positions": {
             "0x5f1f4E50ba51D723F12385a8a9606afc3A0555f5": {
                 "liquidity": {
@@ -387,9 +383,6 @@ def test_protocol_data():
                         },
                     ],
                 },
-                "staked": {},
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
@@ -400,7 +393,8 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "ethereum",
-        "block": 17117344,
+        "block_id": 17117344,
+        "wallet": WALLET_N6,
         "positions": {
             "0xA13a9247ea42D743238089903570127DdA72fE44": {
                 "liquidity": {
@@ -425,9 +419,6 @@ def test_protocol_data():
                         },
                     ],
                 },
-                "staked": {},
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
@@ -438,7 +429,8 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "ethereum",
-        "block": 17117344,
+        "block_id": 17117344,
+        "wallet": WALLET_39d,
         "positions": {
             "0xA13a9247ea42D743238089903570127DdA72fE44": {
                 "liquidity": {
@@ -463,9 +455,6 @@ def test_protocol_data():
                         },
                     ],
                 },
-                "staked": {},
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
@@ -479,10 +468,10 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "gnosis",
-        "block": 28721619,
+        "block_id": 28721619,
+        "wallet": Web3.to_checksum_address(WALLET_e6f),
         "positions": {
             "0xbAd20c15A773bf03ab973302F61FAbceA5101f0A": {
-                "liquidity": {},
                 "staked": {
                     "staked_key": "gauge_address",
                     "0x27519F69b2Ac912aeb6fE066180FB25a17c71755": {
@@ -510,8 +499,6 @@ def test_protocol_data():
                         ],
                     },
                 },
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
@@ -523,10 +510,10 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "gnosis",
-        "block": 28275634,
+        "block_id": 28275634,
+        "wallet": Web3.to_checksum_address(WALLET_e6f),
         "positions": {
             "0xFEdb19Ec000d38d92Af4B21436870F115db22725": {
-                "liquidity": {},
                 "staked": {
                     "staked_key": "gauge_address",
                     "0xDe3B7eC86B67B05D312ac8FD935B6F59836F2c41": {
@@ -558,8 +545,6 @@ def test_protocol_data():
                         ],
                     },
                 },
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
@@ -570,10 +555,10 @@ def test_protocol_data():
     assert {
         "protocol": "Balancer",
         "blockchain": "gnosis",
-        "block": 28275634,
+        "block_id": 28275634,
+        "wallet": Web3.to_checksum_address(WALLET_e6f),
         "positions": {
             "0xB973Ca96a3f0D61045f53255E319AEDb6ED49240": {
-                "liquidity": {},
                 "staked": {
                     "staked_key": "gauge_address",
                     "0x7E13b8b95d887c2326C25e71815F33Ea10A2674e": {
@@ -609,8 +594,6 @@ def test_protocol_data():
                         ],
                     },
                 },
-                "locked": {},
-                "financial_metrics": {},
             }
         },
         "positions_key": "liquidity_pool_address",
