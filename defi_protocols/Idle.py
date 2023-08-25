@@ -165,7 +165,7 @@ def get_amounts(
         )
     else:
         gauge_balance = 0
-    
+
     # FIXME: added this try because if the tranch does not exist for the given block the balanceOf function reverts
     try:
         aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
@@ -174,7 +174,7 @@ def get_amounts(
     except Exception as e:
         if type(e) == BadFunctionCallOutput:
             aa_balance = 0
-    
+
     # FIXME: added this try because if the tranch does not exist for the given block the balanceOf function reverts
     try:
         bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
