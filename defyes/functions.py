@@ -282,6 +282,10 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
             if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput:
                 pass
 
+    # Query Scans to get the Implementation Address
+    if proxy_impl_address == Address.ZERO:
+        proxy_impl_address = ChainExplorer(blockchain).get_impl_address(contract_address)
+
     return proxy_impl_address
 
 
