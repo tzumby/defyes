@@ -446,6 +446,20 @@ def get_logs_web3(
     return logs
 
 
+# get_4byte_signature
+def get_4byte_signature(hex_signature: str) -> list:
+    API_4BYTE_DIRECTORY_SIGNATURES = "https://www.4byte.directory/api/v1/signatures/?hex_signature=%s"
+    results = []
+
+    data = requests.get(API_4BYTE_DIRECTORY_SIGNATURES % (hex_signature)).json()["results"]
+
+    if len(data) > 0:
+        for result in data:
+            results.append(result["text_signature"])
+
+    return results
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_block_samples(start_date, samples, blockchain, end_date="latest", utc=0, dates=False):
     start_timestamp = date_to_timestamp(start_date, utc=utc)
