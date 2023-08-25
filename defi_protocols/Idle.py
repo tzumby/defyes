@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Union
 
 from web3 import Web3
+from web3.exceptions import BadFunctionCallOutput
 
 from defi_protocols.cache import const_call
 from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
@@ -164,12 +165,24 @@ def get_amounts(
         )
     else:
         gauge_balance = 0
-    aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-        cdo_contract.functions.virtualPrice(aa_address).call(block_identifier=block) / Decimal(10**18)
-    )
-    bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-        cdo_contract.functions.virtualPrice(bb_address).call(block_identifier=block) / Decimal(10**18)
-    )
+    
+    # FIXME: added this try because if the tranch does not exist for the given block the balanceOf function reverts
+    try:
+        aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
+            cdo_contract.functions.virtualPrice(aa_address).call(block_identifier=block) / Decimal(10**18)
+        )
+    except Exception as e:
+        if type(e) == BadFunctionCallOutput:
+            aa_balance = 0
+    
+    # FIXME: added this try because if the tranch does not exist for the given block the balanceOf function reverts
+    try:
+        bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
+            cdo_contract.functions.virtualPrice(bb_address).call(block_identifier=block) / Decimal(10**18)
+        )
+    except Exception as e:
+        if type(e) == BadFunctionCallOutput:
+            bb_balance = 0
 
     for balance in [aa_balance, bb_balance, gauge_balance]:
         if balance != 0:

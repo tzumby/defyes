@@ -52,7 +52,7 @@ def test_get_pool_rewarder():
     block = 17012817
     node = get_node(ETHEREUM, block)
     booster_contract = get_contract(Aura.BOOSTER, ETHEREUM, web3=node, abi=Aura.ABI_BOOSTER, block=block)
-    rewarders = Aura.get_pool_rewarders(booster_contract, balancer_50OHM50wstETH_ADDR, block)
+    rewarders = Aura.get_pool_rewarders(booster_contract, balancer_50OHM50wstETH_ADDR, ETHEREUM, block)
 
     assert rewarders == [aura_OHMwstETHvault_ADDR]
 
