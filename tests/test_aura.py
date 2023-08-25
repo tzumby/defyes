@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 import pytest
 
 from defi_protocols import Aura
-from defi_protocols.constants import ETHEREUM, ETHTokenAddr
+from defi_protocols.constants import ETHEREUM, XDAI, ETHTokenAddr, GnosisTokenAddr
 from defi_protocols.functions import get_contract, get_node
 
 balancer_50OHM50wstETH_ADDR = "0xd4f79CA0Ac83192693bce4699d0c10C66Aa6Cf0F"
@@ -34,6 +34,10 @@ WALLET_N7 = "0x245cc372c84b3645bf0ffe6538620b04a217988b"  # olympusdao.eth
 WALLET_N8 = "0x7cb71c594febace6b6ba11126abeb8cc860cb24a"
 WALLET_39d = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 WALLET_e1c = "0x58e6c7ab55aa9012eacca16d1ed4c15795669e1c"
+
+# Gnosis Chain Test Data
+WALLET_N1_GC = "0x2E15D7AA0650dE1009710FDd45C3468d75AE1392"
+bb_WETH_wstETH_GC = "0xbad20c15a773bf03ab973302f61fabcea5101f0a"
 
 
 @pytest.mark.skip(reason="Takes too long")
@@ -168,6 +172,14 @@ def test_underlying():
     assert balances[ETHTokenAddr.GNO] == Decimal("2896.528986560673411023728067")
     assert balances[ETHTokenAddr.WETH] == Decimal("42.53030185358673865030664650")
 
+    block = 29644045
+    node = get_node(XDAI, block)
+    underlying = Aura.underlying(WALLET_N1_GC, bb_WETH_wstETH_GC, block, XDAI, web3=node, reward=True)
+    assert underlying["balances"][GnosisTokenAddr.WETH] == Decimal("567.2201935195299328414182591")
+    assert underlying["balances"][GnosisTokenAddr.wstETH] == Decimal("495.0387012245886911692522812")
+    assert underlying["rewards"][GnosisTokenAddr.BAL] == Decimal("10.282343642703308831")
+    assert underlying["rewards"][GnosisTokenAddr.AURA] == Decimal("63.00650369330178948597852008")
+
 
 def test_pool_balances():
     block = 17030603
@@ -185,3 +197,6 @@ def test_get_compounded():
     aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, ETHEREUM, web3=node, reward=True)
     assert aurabal == [ETHTokenAddr.auraBAL, Decimal("173638.950900193303875756")]
     assert aura_rewards == [ETHTokenAddr.AURA, Decimal("518.423812233736947225")]
+
+
+test_underlying()
