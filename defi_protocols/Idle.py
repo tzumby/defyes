@@ -272,24 +272,3 @@ def update_db(block="latest") -> dict:
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/Idle_db.json", "w") as db_file:
         addresses = get_addresses(block, ETHEREUM)
         json.dump(addresses, db_file, indent=4)
-
-
-# wallet = '0x849d52316331967b6ff1198e5e32a0eb168d039d'
-# gauge = '0x675eC042325535F6e176638Dd2d4994F645502B9'
-# rewors = get_all_rewards(wallet, gauge, 'latest', ETHEREUM)
-# print(rewors)
-
-# CDO_address = '0xae7ab96520de3a18e5e111b5eaab095312d7fe84'
-# wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-
-# haha = underlying(token_address=CDO_address, wallet=wallet,block='latest',blockchain=ETHEREUM,rewards=True)
-# print(haha)
-
-# yo = get_gauges('latest',ETHEREUM)
-# print(yo)
-
-# aabhar = get_addresses('latest',ETHEREUM)
-# print(aabhar)
-
-# aabhar2 = update_db()
-# print(aabhar2)

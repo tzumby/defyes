@@ -398,6 +398,21 @@ API_GOERLI_GETABI = "https://api-goerli.etherscan.io/api?module=contract&action=
 API_ETHERSCAN_GETCONTRACTCREATION = (
     "https://api.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=%s&apikey=%s"
 )
+API_POLYGONSCAN_GETCONTRACTCREATION = (
+    "https://api.polygonscan.com/api?module=contract&action=getcontractcreation&address=%s&apikey=%s"
+)
+API_GNOSISSCAN_GETCONTRACTCREATION = (
+    "https://api.gnosisscan.io/api?module=contract&action=getcontractcreation&address=%s&apikey=%s"
+)
+API_AVALANCHE_GETCONTRACTCREATION = (
+    "https://api.snowtrace.io/api?module=contract&action=getcontractcreation&address=%s&apikey=%s"
+)
+API_OPTIMISM_GETCONTRACTCREATION = (
+    "https://api-optimistic.etherscan.io/api?module=contract&action=getcontractcreation&address=%s&apikey=%s"
+)
+API_ARBITRUM_GETCONTRACTCREATION = (
+    "https://api.arbiscan.io/api?module=contract&action=getcontractcreation&address=%s&apikey=%s"
+)
 
 # SCANS - MODULE = CONTRACTS - GETSOURCECODE
 API_ETHERSCAN_GETSOURCECODE = "https://api.etherscan.io/api?module=contract&action=getsourcecode&address=%s&apikey=%s"
