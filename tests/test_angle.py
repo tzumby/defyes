@@ -36,7 +36,8 @@ def test_protocol_data(decimals):
     block = 17451062
     underlying = Angle.get_protocol_data(Chain.ETHEREUM, WALLET, block, decimals=decimals)
     assert {
-        "block": 17451062,
+        "block_id": 17451062,
+        "wallet": WALLET,
         "blockchain": "ethereum",
         "positions": {
             "19": {
@@ -66,8 +67,6 @@ def test_protocol_data(decimals):
                         },
                     ]
                 },
-                "locked": {},
-                "staked": {},
             }
         },
         "positions_key": "vault_id",
