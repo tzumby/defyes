@@ -5,17 +5,25 @@ import pytest
 from defyes import pretty
 from defyes.constants import Chain
 from defyes.protocols import spark
-from defyes.types import Addr, Token
+from defyes.types import Addr, Token, TokenAmount
 
 wallet = Addr(0x849D52316331967B6FF1198E5E32A0EB168D039D)
 block_id = 17_772_457
 
-DAI = Token(0x6B175474E89094C44DA98B954EEDEAC495271D0F, "DAI")
-GNO = Token(0x6810E776880C02933D47DB1B9FC05908E5386B96, "GNO")
+DAI = Token.get_instance(0x6B175474E89094C44DA98B954EEDEAC495271D0F, Chain.ETHEREUM)
+GNO = Token.get_instance(0x6810E776880C02933D47DB1B9FC05908E5386B96, Chain.ETHEREUM)
+vDAI = Token("0xf705d2B7e92B3F38e6ae7afaDAA2fEE110fE5914", Chain.ETHEREUM)
+spGNO = Token("0x7b481aCC9fDADDc9af2cBEA1Ff2342CB1733E50F", Chain.ETHEREUM)
 
 expected_position = {
-    "holdings": [1_000_035_715961244421526907, 88_000_000000000000000000],
-    "underlyings": [-1_000_035_715961244421526907, 88_000_000000000000000000],
+    "holdings": [
+        TokenAmount.from_teu(1000035715961244421526907, vDAI),
+        TokenAmount.from_teu(88000000000000000000000, spGNO),
+    ],
+    "underlyings": [
+        TokenAmount.from_teu(Decimal("-1000035715961244421526907"), DAI),
+        TokenAmount.from_teu(88000000000000000000000, GNO),
+    ],
 }
 
 expected_position_retro = {
@@ -122,7 +130,10 @@ def test_get_protocol_data(decimal):
 
 
 def test_positions(pdp):
-    assert dict(pdp.position(wallet)) == expected_position
+    ret = dict(pdp.position(wallet))
+    print()
+    pretty.print(ret)
+    assert ret == expected_position
 
 
 def test_reserve_tokens_addresses(pdp):
