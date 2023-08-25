@@ -4,7 +4,7 @@ import requests
 from web3 import Web3
 
 from defyes.cache import cache_call
-from defyes.constants import TESTNET_CHAINS, APIKey, APIUrl, Chain
+from defyes.constants import TESTNET_CHAINS, Address, APIKey, APIUrl, Chain
 from defyes.node import get_node
 
 TESTNET_HEADER = {
@@ -192,10 +192,17 @@ class ChainExplorer(requests.Session):
             raise ValueError("Chain should be ethereum for this method")
         response = self._get(module="token", action="tokeninfo", contractaddresses=token_address)
         price_usd = response.json()["result"][0]["tokenPriceUSD"]
+
         return price_usd
 
-    query = "https://{url}/api?module=token&action=tokeninfo&contractaddress=%s&apikey={key}"
+    @cached
+    def get_impl_address(self, address: str):
+        implementation_address = Address.ZERO
+        response = self._get(module="contract", action="getsourcecode", address=address)
+        data = response.json()
+        if data["message"] == "OK":
+            implementation_address = data["result"][0]["Implementation"]
+            if Web3.is_address(implementation_address):
+                implementation_address = Web3.to_checksum_address(implementation_address)
 
-    def make_request(self, token_address: str):
-        price = requests.get(self.query % token_address).json()["result"][0]["tokenPriceUSD"]
-        return price, "etherscan", Chain.ETHEREUM
+        return implementation_address
