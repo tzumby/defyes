@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Union
 
 from web3 import Web3
+from web3.exceptions import BadFunctionCallOutput
 
 from defi_protocols.cache import const_call
 from defi_protocols.constants import ABI_TOKEN_SIMPLIFIED, ETHEREUM
@@ -164,12 +165,24 @@ def get_amounts(
         )
     else:
         gauge_balance = 0
-    aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-        cdo_contract.functions.virtualPrice(aa_address).call(block_identifier=block) / Decimal(10**18)
-    )
-    bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
-        cdo_contract.functions.virtualPrice(bb_address).call(block_identifier=block) / Decimal(10**18)
-    )
+
+    # FIXME: added this try because if the tranch does not exist for the given block the balanceOf function reverts
+    try:
+        aa_balance = aa_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
+            cdo_contract.functions.virtualPrice(aa_address).call(block_identifier=block) / Decimal(10**18)
+        )
+    except Exception as e:
+        if type(e) == BadFunctionCallOutput:
+            aa_balance = 0
+
+    # FIXME: added this try because if the tranch does not exist for the given block the balanceOf function reverts
+    try:
+        bb_balance = bb_contract.functions.balanceOf(wallet).call(block_identifier=block) * (
+            cdo_contract.functions.virtualPrice(bb_address).call(block_identifier=block) / Decimal(10**18)
+        )
+    except Exception as e:
+        if type(e) == BadFunctionCallOutput:
+            bb_balance = 0
 
     for balance in [aa_balance, bb_balance, gauge_balance]:
         if balance != 0:
@@ -272,24 +285,3 @@ def update_db(block="latest") -> dict:
     with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/Idle_db.json", "w") as db_file:
         addresses = get_addresses(block, ETHEREUM)
         json.dump(addresses, db_file, indent=4)
-
-
-# wallet = '0x849d52316331967b6ff1198e5e32a0eb168d039d'
-# gauge = '0x675eC042325535F6e176638Dd2d4994F645502B9'
-# rewors = get_all_rewards(wallet, gauge, 'latest', ETHEREUM)
-# print(rewors)
-
-# CDO_address = '0xae7ab96520de3a18e5e111b5eaab095312d7fe84'
-# wallet = '0x849D52316331967b6fF1198e5E32A0eB168D039d'
-
-# haha = underlying(token_address=CDO_address, wallet=wallet,block='latest',blockchain=ETHEREUM,rewards=True)
-# print(haha)
-
-# yo = get_gauges('latest',ETHEREUM)
-# print(yo)
-
-# aabhar = get_addresses('latest',ETHEREUM)
-# print(aabhar)
-
-# aabhar2 = update_db()
-# print(aabhar2)

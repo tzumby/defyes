@@ -20,6 +20,7 @@ from defi_protocols.constants import (
     API_ARBITRUM_GETABI,
     API_ARBITRUM_GETBLOCKNOBYTIME,
     API_ARBITRUM_GETBLOCKREWARD,
+    API_ARBITRUM_GETCONTRACTCREATION,
     API_ARBITRUM_GETLOGS,
     API_ARBITRUM_GETSOURCECODE,
     API_ARBITRUM_TOKENTX,
@@ -27,6 +28,7 @@ from defi_protocols.constants import (
     API_AVALANCHE_GETABI,
     API_AVALANCHE_GETBLOCKNOBYTIME,
     API_AVALANCHE_GETBLOCKREWARD,
+    API_AVALANCHE_GETCONTRACTCREATION,
     API_AVALANCHE_GETLOGS,
     API_AVALANCHE_GETSOURCECODE,
     API_AVALANCHE_TOKENTX,
@@ -87,6 +89,7 @@ from defi_protocols.constants import (
     API_OPTIMISM_GETABI,
     API_OPTIMISM_GETBLOCKNOBYTIME,
     API_OPTIMISM_GETBLOCKREWARD,
+    API_OPTIMISM_GETCONTRACTCREATION,
     API_OPTIMISM_GETLOGS,
     API_OPTIMISM_GETSOURCECODE,
     API_OPTIMISM_TOKENTX,
@@ -94,6 +97,7 @@ from defi_protocols.constants import (
     API_POLYGONSCAN_GETABI,
     API_POLYGONSCAN_GETBLOCKNOBYTIME,
     API_POLYGONSCAN_GETBLOCKREWARD,
+    API_POLYGONSCAN_GETCONTRACTCREATION,
     API_POLYGONSCAN_GETLOGS,
     API_POLYGONSCAN_GETSOURCECODE,
     API_POLYGONSCAN_TOKENTX,
@@ -962,6 +966,28 @@ def get_contract_creation(contract_addresses, blockchain):
         data = requests.get(API_ETHERSCAN_GETCONTRACTCREATION % (contract_addresses, API_KEY_ETHERSCAN)).json()[
             "result"
         ]
+
+    elif blockchain == POLYGON:
+        data = requests.get(API_POLYGONSCAN_GETCONTRACTCREATION % (contract_addresses, API_KEY_POLSCAN)).json()[
+            "result"
+        ]
+
+    # Not implemented in GC
+    # elif blockchain == XDAI:
+    #     data = requests.get(API_GNOSISSCAN_GETCONTRACTCREATION % (contract_addresses, API_KEY_GNOSISSCAN)).json()[
+    #         "result"
+    #     ]
+
+    elif blockchain == AVALANCHE:
+        data = requests.get(API_AVALANCHE_GETCONTRACTCREATION % (contract_addresses, API_KEY_AVALANCHE)).json()[
+            "result"
+        ]
+
+    elif blockchain == OPTIMISM:
+        data = requests.get(API_OPTIMISM_GETCONTRACTCREATION % (contract_addresses, API_KEY_OPTIMISM)).json()["result"]
+
+    elif blockchain == ARBITRUM:
+        data = requests.get(API_ARBITRUM_GETCONTRACTCREATION % (contract_addresses, API_KEY_ARBITRUM)).json()["result"]
 
     return data
 
