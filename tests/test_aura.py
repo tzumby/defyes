@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 import pytest
 
 from defyes import Aura
-from defyes.constants import Chain, ETHTokenAddr
+from defyes.constants import Chain, ETHTokenAddr, GnosisTokenAddr
 from defyes.functions import get_contract
 from defyes.node import get_node
 
@@ -36,6 +36,10 @@ WALLET_N8 = "0x7cb71c594febace6b6ba11126abeb8cc860cb24a"
 WALLET_39d = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 WALLET_e1c = "0x58e6c7ab55aa9012eacca16d1ed4c15795669e1c"
 
+# Gnosis Chain Test Data
+WALLET_N1_GC = "0x2E15D7AA0650dE1009710FDd45C3468d75AE1392"
+bb_WETH_wstETH_GC = "0xbad20c15a773bf03ab973302f61fabcea5101f0a"
+
 
 @pytest.mark.skip(reason="Takes too long")
 def test_db_uptodate():
@@ -53,7 +57,7 @@ def test_get_pool_rewarder():
     block = 17012817
     node = get_node(Chain.ETHEREUM, block)
     booster_contract = get_contract(Aura.BOOSTER, Chain.ETHEREUM, web3=node, abi=Aura.ABI_BOOSTER, block=block)
-    rewarders = Aura.get_pool_rewarders(booster_contract, balancer_50OHM50wstETH_ADDR, block)
+    rewarders = Aura.get_pool_rewarders(booster_contract, balancer_50OHM50wstETH_ADDR, Chain.ETHEREUM, block)
 
     assert rewarders == [aura_OHMwstETHvault_ADDR]
 
@@ -172,6 +176,14 @@ def test_underlying():
     balances = Aura.underlying(WALLET_e1c, balancer_80GNO_20WETH, block, Chain.ETHEREUM, web3=node)["balances"]
     assert balances[ETHTokenAddr.GNO] == Decimal("2896.528986560673411023728067")
     assert balances[ETHTokenAddr.WETH] == Decimal("42.53030185358673865030664650")
+
+    block = 29644045
+    node = get_node(Chain.GNOSIS, block)
+    underlying = Aura.underlying(WALLET_N1_GC, bb_WETH_wstETH_GC, block, Chain.GNOSIS, web3=node, reward=True)
+    assert underlying["balances"][GnosisTokenAddr.WETH] == Decimal("567.2201935195299328414182591")
+    assert underlying["balances"][GnosisTokenAddr.wstETH] == Decimal("495.0387012245886911692522812")
+    assert underlying["rewards"][GnosisTokenAddr.BAL] == Decimal("10.282343642703308831")
+    assert underlying["rewards"][GnosisTokenAddr.AURA] == Decimal("63.00650369330178948597852008")
 
 
 def test_pool_balances():

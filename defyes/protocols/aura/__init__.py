@@ -16,46 +16,50 @@ from .. import balancer
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Booster (Main Deposit Contract) Address
+# Booster (Main Deposit Contract) - Mainnet
 # BOOSTER = '0x7818A1DA7BD1E64c199029E86Ba244a9798eEE10' (Old Version)
 BOOSTER = "0xA57b8d98dAE62B26Ec3bcC4a365338157060B234"
 
+# Booster Lite for side-chains
+BOOSTER_LITE = "0x98Ef32edd24e2c92525E59afc4475C1242a30184"
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# STAKED Aura BAL
+# stkauraBAL
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# stkauraBAL - Mainnet
 stkauraBAL = "0xfAA2eD111B4F580fCb85C48E6DC6782Dc5FCD7a6"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # AURA LOCKER TOKEN ADDRESS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# AURA locker token address
+# AURA locker token address - Mainnet
 AURA_LOCKER = "0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # AURABAL REWARD CONTRACT ADDRESS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# auraBAL Reward Contract Address
+# auraBAL Reward Contract Address - Mainnet
 # AURABAL_REWARDER = '0x5e5ea2048475854a5702f5b8468a51ba1296efcc' (Old Version)
 AURABAL_REWARDER = "0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # REWARD POOL DEPOSIT WRAPPER
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Reward Pool Deposit Wrapper
+# Reward Pool Deposit Wrapper - Mainnet
 REWARD_POOL_DEPOSIT_WRAPPER = "0xB188b1CB84Fb0bA13cb9ee1292769F903A9feC59"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # EXTRA REWARDS DISTRIBUTOR
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Extra Rewards Distributor
+# Extra Rewards Distributor - Mainnet
 # Extra Rewards are from those that claimed the initial AURA airdrop to their wallet instead of locking it
 EXTRA_REWARDS_DISTRIBUTOR = "0xA3739b206097317c72EF416F0E75BB8f58FbD308"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Booster ABI - poolInfo, poolLength
-ABI_BOOSTER = '[{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"poolInfo","outputs":[{"internalType":"address","name":"lptoken","type":"address"},{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"gauge","type":"address"},{"internalType":"address","name":"crvRewards","type":"address"},{"internalType":"address","name":"stash","type":"address"},{"internalType":"bool","name":"shutdown","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"poolLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+# Booster ABI - poolInfo, poolLength, rewardFactory, minter
+ABI_BOOSTER = '[{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"poolInfo","outputs":[{"internalType":"address","name":"lptoken","type":"address"},{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"gauge","type":"address"},{"internalType":"address","name":"crvRewards","type":"address"},{"internalType":"address","name":"stash","type":"address"},{"internalType":"bool","name":"shutdown","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"poolLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rewardFactory","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"minter","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
 # REWARDER ABI - balanceOf, earned, extraRewards, extraRewardsLength, rewardToken, rewards, stakingToken, totalSupply
 ABI_REWARDER = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"earned","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"extraRewards","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"extraRewardsLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rewardToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"rewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"stakingToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
@@ -75,6 +79,9 @@ ABI_EXTRA_REWARDS_DISTRIBUTOR = '[{"inputs":[{"internalType":"address","name":"_
 # EXTRA REWARD TOKEN ABI - baseToken
 ABI_EXTRA_REWARDS_TOKEN = '[{"inputs":[],"name":"baseToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
 
+# L2COORDINATOR ABI - auraOFT, mintRate
+ABI_L2COORDINATOR = '[{"inputs":[],"name":"auraOFT","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"mintRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
+
 # DB
 # Format
 # { balancerLPcontractAddr: {
@@ -88,14 +95,17 @@ ABI_EXTRA_REWARDS_TOKEN = '[{"inputs":[],"name":"baseToken","outputs":[{"interna
 # }
 DB_FILE = Path(__file__).parent / "db.json"
 
+# Reward Pool Created Event Signature
+REWARD_POOL_CREATED_EVENT_SIGNATURE = "RewardPoolCreated(address,uint256,address)"
+
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_pool_rewarders
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def get_pool_rewarders(booster_contract, lptoken_address, block):
+def get_pool_rewarders(booster_contract, lptoken_address, blockchain, block):
     if isinstance(block, str):
         if block == "latest":
-            block = last_block(Chain)
+            block = last_block(blockchain)
         else:
             raise ValueError("Incorrect block.")
 
@@ -103,11 +113,11 @@ def get_pool_rewarders(booster_contract, lptoken_address, block):
         db_data = json.load(db_file)
 
     rewarders = []
-    if lptoken_address in db_data["pools"].keys():
-        blocks = list(db_data["pools"][lptoken_address].keys())[::-1]
+    if lptoken_address in db_data[blockchain].keys():
+        blocks = list(db_data[blockchain][lptoken_address].keys())[::-1]
         for iblock in blocks:
             if block >= int(iblock):
-                rewarders.append(db_data["pools"][lptoken_address][iblock]["rewarder"])
+                rewarders.append(db_data[blockchain][lptoken_address][iblock]["rewarder"])
 
     else:
         number_of_pools = booster_contract.functions.poolLength().call(block_identifier=block)
@@ -204,34 +214,46 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
 def get_aura_mint_amount(web3, bal_earned, block, blockchain, decimals=True):
     aura_amount = 0
 
-    aura_contract = get_contract(ETHTokenAddr.AURA, blockchain, web3=web3, abi=ABI_AURA, block=block)
+    if blockchain == Chain.ETHEREUM:
+        aura_address = ETHTokenAddr.AURA
 
-    aura_total_supply = aura_contract.functions.totalSupply().call(block_identifier=block)
-    init_mint_amount = aura_contract.functions.INIT_MINT_AMOUNT().call(block_identifier=block)
-    reduction_per_cliff = aura_contract.functions.reductionPerCliff().call(block_identifier=block)
+        aura_contract = get_contract(aura_address, blockchain, web3=web3, abi=ABI_AURA, block=block)
 
-    emissions_minted = aura_total_supply - init_mint_amount
-    cliff = int(emissions_minted / Decimal(reduction_per_cliff))
+        aura_total_supply = aura_contract.functions.totalSupply().call(block_identifier=block)
+        init_mint_amount = aura_contract.functions.INIT_MINT_AMOUNT().call(block_identifier=block)
+        reduction_per_cliff = aura_contract.functions.reductionPerCliff().call(block_identifier=block)
 
-    total_cliffs = aura_contract.functions.totalCliffs().call(block_identifier=block)
+        emissions_minted = aura_total_supply - init_mint_amount
+        cliff = int(emissions_minted / Decimal(reduction_per_cliff))
 
-    if cliff < total_cliffs:
-        reduction = int(((total_cliffs - cliff) * Decimal(2.5)) + 700)
+        total_cliffs = aura_contract.functions.totalCliffs().call(block_identifier=block)
 
-        aura_amount = (bal_earned * reduction) / total_cliffs
+        if cliff < total_cliffs:
+            reduction = int(((total_cliffs - cliff) * Decimal(2.5)) + 700)
 
-        amount_till_max = (
-            Decimal(aura_contract.functions.EMISSIONS_MAX_SUPPLY().call(block_identifier=block)) - emissions_minted
+            aura_amount = (bal_earned * reduction) / total_cliffs
+
+            amount_till_max = (
+                Decimal(aura_contract.functions.EMISSIONS_MAX_SUPPLY().call(block_identifier=block)) - emissions_minted
+            )
+
+            if aura_amount > amount_till_max:
+                aura_amount = amount_till_max
+
+    else:
+        booster_contract = get_contract(BOOSTER_LITE, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+        minter_address = const_call(booster_contract.functions.minter())
+        minter_contract = get_contract(minter_address, blockchain, web3=web3, abi=ABI_L2COORDINATOR, block=block)
+        aura_address = const_call(minter_contract.functions.auraOFT())
+        aura_amount = bal_earned * (
+            minter_contract.functions.mintRate().call(block_identifier=block) / Decimal(10**18)
         )
 
-        if aura_amount > amount_till_max:
-            aura_amount = amount_till_max
-
     if not decimals:
-        aura_decimals = get_decimals(ETHTokenAddr.AURA, blockchain, web3=web3)
+        aura_decimals = get_decimals(aura_address, blockchain, web3=web3)
         aura_amount = aura_amount * Decimal(10**aura_decimals)
 
-    return [ETHTokenAddr.AURA, aura_amount]
+    return [aura_address, aura_amount]
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -248,8 +270,13 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
     if rewarders == []:
-        booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
-        rewarders = get_pool_rewarders(booster_contract, lptoken_address, block)
+        if blockchain == Chain.ETHEREUM:
+            booster_address = BOOSTER
+        else:
+            booster_address = BOOSTER_LITE
+
+        booster_contract = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+        rewarders = get_pool_rewarders(booster_contract, lptoken_address, blockchain, block)
 
     for rewarder in rewarders:
         rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
@@ -384,9 +411,14 @@ def underlying(
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+    if blockchain == Chain.ETHEREUM:
+        booster_address = BOOSTER
+    else:
+        booster_address = BOOSTER_LITE
 
-    rewarders = get_pool_rewarders(booster_contract, lptoken_address, block)
+    booster_contract = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+
+    rewarders = get_pool_rewarders(booster_contract, lptoken_address, blockchain, block)
 
     for rewarder in rewarders:
         rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
@@ -420,27 +452,49 @@ def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: 
 
 
 def update_db(output_file=DB_FILE, block="latest"):
-    db_data = {"pools": {}}
+    db_data = {}
 
-    web3 = get_node(Chain.ETHEREUM, block=block)
-    booster = get_contract(BOOSTER, Chain.ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
-    pools_length = booster.functions.poolLength().call(block_identifier=block)
+    for blockchain in [Chain.GNOSIS, Chain.ETHEREUM, Chain.POLYGON, Chain.ARBITRUM, Chain.OPTIMISM]:
+        db_data[blockchain] = {}
 
-    for i in range(pools_length):
-        pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
+        web3 = get_node(blockchain, block=block)
 
-        rewarder_data = ChainExplorer(Chain.ETHEREUM).get_contract_creation(pool_info[3])
-        rewarder_creation_tx = web3.eth.get_transaction(rewarder_data[0]["txHash"])
-
-        if pool_info[0] in db_data["pools"].keys():
-            db_data["pools"][pool_info[0]][rewarder_creation_tx["blockNumber"]] = {
-                "poolId": i,
-                "rewarder": pool_info[3],
-            }
+        if blockchain == Chain.ETHEREUM:
+            booster_address = BOOSTER
         else:
-            db_data["pools"][pool_info[0]] = {
-                rewarder_creation_tx["blockNumber"]: {"poolId": i, "rewarder": pool_info[3]}
-            }
+            booster_address = BOOSTER_LITE
+
+        booster = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+        pools_length = booster.functions.poolLength().call(block_identifier=block)
+        rewarder_pool_created_event = web3.keccak(text=REWARD_POOL_CREATED_EVENT_SIGNATURE).hex()
+
+        for i in range(pools_length):
+            pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
+
+            # IMPORTANT: This only works if the rewarder factory never changes
+            rewarder_factory_address = const_call(booster.functions.rewardFactory())
+
+            # block_start could be retrieved from a dictionary with the block number of the rewarder factory creation on each
+            # blockchain, but I don't think it's going to improve the performance that much
+            rewarder_logs = ChainExplorer(blockchain).get_logs(
+                rewarder_factory_address, 0, last_block(blockchain), rewarder_pool_created_event
+            )
+
+            for rewarder_log in rewarder_logs:
+                if rewarder_log["data"][26:66] == pool_info[3][2:].lower():
+                    break
+
+            rewarder_creation_tx = web3.eth.get_transaction(rewarder_log["transactionHash"])
+
+            if pool_info[0] in db_data[blockchain].keys():
+                db_data[blockchain][pool_info[0]][rewarder_creation_tx["blockNumber"]] = {
+                    "poolId": i,
+                    "rewarder": pool_info[3],
+                }
+            else:
+                db_data[blockchain][pool_info[0]] = {
+                    rewarder_creation_tx["blockNumber"]: {"poolId": i, "rewarder": pool_info[3]}
+                }
 
     with open(output_file, "w") as db_file:
         json.dump(db_data, db_file, indent=2)
