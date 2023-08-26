@@ -171,7 +171,7 @@ class APIUrl(Constants):
     AVALANCHE = "api.snowtrace.io"
     FANTOM = "api.ftmscan.io"
     OPTIMISM = "api-optimistic.etherscan.io"
-    ARBITRUM = "api.arbisscan.io"
+    ARBITRUM = "api.arbiscan.io"
     ZAPPER = "api.zapper.fi"
     ETHPLORER = "api.ethplorer.io"
     ROPSTEN = "api-ropsten.etherscan.io"
