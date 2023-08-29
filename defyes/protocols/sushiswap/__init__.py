@@ -857,15 +857,3 @@ def update_db():
     if update is True:
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/SushiSwap_db.json", "w") as db_file:
             json.dump(db_data, db_file)
-
-
-# blockchain = Chain.ETHEREUM
-# lptoken = '0xceff51756c56ceffca006cd410b03ffc46dd3a58'
-# blockstart = date_to_block('2023-02-20 18:24:00',blockchain)
-# blockend = date_to_block('2023-02-21 18:24:00',blockchain)
-
-# # feess = swap_fees(lptoken,blockstart,blockend,blockchain)
-# # print(feess)
-
-# feesss = get_swap_fees_APR(lptoken,blockend,blockchain)
-# print(feesss)
