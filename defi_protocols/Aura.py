@@ -8,7 +8,7 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 from defi_protocols import Balancer
 from defi_protocols.cache import const_call
 from defi_protocols.constants import ARBITRUM, AURA_ETH, ETHEREUM, OPTIMISM, POLYGON, XDAI
-from defi_protocols.functions import get_contract, get_decimals, get_logs_http, get_node, last_block, to_token_amount
+from defi_protocols.functions import get_contract, get_decimals, get_logs_web3, get_node, last_block, to_token_amount
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # BOOSTER
@@ -53,6 +53,25 @@ REWARD_POOL_DEPOSIT_WRAPPER = "0xB188b1CB84Fb0bA13cb9ee1292769F903A9feC59"
 EXTRA_REWARDS_DISTRIBUTOR = "0xA3739b206097317c72EF416F0E75BB8f58FbD308"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# REWARDER FACTORY
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Ethereum Rewarder Factory Contract Address
+REWARDER_FACTORY_ETHEREUM = "0xBC8d9cAf4B6bf34773976c5707ad1F2778332DcA"
+REWARDER_FACTORY_ETHEREUM_V2 = "0xBC8d9cAf4B6bf34773976c5707ad1F2778332DcB"
+
+# Polygon Rewarder Factory Contract Address
+REWARDER_FACTORY_POLYGON = "0xB292BE31649A0b079DBdb772FCf5c7a02a6E0144"
+
+# Arbitrum Rewarder Factory Contract Address
+REWARDER_FACTORY_ARBITRUM = "0xda2e6bA0B1aBBCA925b70E9747AFbD481C16e7dB"
+
+# Optimism Rewarder Factory Contract Address
+REWARDER_FACTORY_OPTIMISM = "0x2F4CdF0D46F4E3E6D4d37836E73073046138D4f7"
+
+# Gnosis Chain Rewarder Factory Contract Address
+REWARDER_FACTORY_XDAI = "0x0F641b291Ba374Ec9B17a878c54B98005a0BAcaE"
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Booster ABI - poolInfo, poolLength, rewardFactory, minter
@@ -94,6 +113,15 @@ DB_FILE = Path(__file__).parent / "db" / "Aura_db.json"
 
 # Reward Pool Created Event Signature
 REWARD_POOL_CREATED_EVENT_SIGNATURE = "RewardPoolCreated(address,uint256,address)"
+
+# This dict holds the block in which each deployed Rewarder Factory was created
+REWARDER_FACTORIES = {
+    ETHEREUM: {REWARDER_FACTORY_ETHEREUM: "16176243"},
+    POLYGON: {REWARDER_FACTORY_POLYGON: "45241040"},
+    ARBITRUM: {REWARDER_FACTORY_ARBITRUM: "101062073"},
+    XDAI: {REWARDER_FACTORY_XDAI: "29283300"},
+    OPTIMISM: {REWARDER_FACTORY_OPTIMISM: "106269709"},
+}
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -488,33 +516,37 @@ def update_db(output_file=DB_FILE, block="latest"):
         pools_length = booster.functions.poolLength().call(block_identifier=block)
         rewarder_pool_created_event = web3.keccak(text=REWARD_POOL_CREATED_EVENT_SIGNATURE).hex()
 
-        for i in range(pools_length):
-            pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
-
-            # IMPORTANT: This only works if the rewarder factory never changes
-            rewarder_factory_address = const_call(booster.functions.rewardFactory())
-
-            # block_start could be retrieved from a dictionary with the block number of the rewarder factory creation on each
-            # blockchain, but I don't think it's going to improve the performance that much
-            rewarder_logs = get_logs_http(
-                0, last_block(blockchain), rewarder_factory_address, rewarder_pool_created_event, blockchain
+        # rewarder_factory_address = const_call(booster.functions.rewardFactory()) -> IMPORTANT: This only works if the rewarder factory never changes
+        # This solution considers that in the future Aura could deploy a new rewarder factory
+        rewarder_factory_addresses = list(REWARDER_FACTORIES[blockchain].keys())
+        for rewarder_factory_address in rewarder_factory_addresses:
+            rewarder_logs = get_logs_web3(
+                blockchain=blockchain,
+                address=rewarder_factory_address,
+                block_start=int(REWARDER_FACTORIES[blockchain][rewarder_factory_address]),
+                topics=[rewarder_pool_created_event],
             )
 
-            for rewarder_log in rewarder_logs:
-                if rewarder_log["data"][26:66] == pool_info[3][2:].lower():
-                    break
+            for i in range(pools_length):
+                pool_info = booster.functions.poolInfo(i).call(block_identifier=block)  # can't be const_call!
 
-            rewarder_creation_tx = web3.eth.get_transaction(rewarder_log["transactionHash"])
+                for rewarder_log in rewarder_logs:
+                    # For some endpoints rewarder_log["data"] is a string and for others is a bytes object
+                    data = (
+                        rewarder_log["data"].hex() if isinstance(rewarder_log["data"], bytes) else rewarder_log["data"]
+                    )
+                    if data[26:66] == pool_info[3][2:].lower():
+                        rewarder_creation_tx = web3.eth.get_transaction(rewarder_log["transactionHash"])
 
-            if pool_info[0] in db_data[blockchain].keys():
-                db_data[blockchain][pool_info[0]][rewarder_creation_tx["blockNumber"]] = {
-                    "poolId": i,
-                    "rewarder": pool_info[3],
-                }
-            else:
-                db_data[blockchain][pool_info[0]] = {
-                    rewarder_creation_tx["blockNumber"]: {"poolId": i, "rewarder": pool_info[3]}
-                }
+                        if pool_info[0] in db_data[blockchain].keys():
+                            db_data[blockchain][pool_info[0]][rewarder_creation_tx["blockNumber"]] = {
+                                "poolId": i,
+                                "rewarder": pool_info[3],
+                            }
+                        else:
+                            db_data[blockchain][pool_info[0]] = {
+                                rewarder_creation_tx["blockNumber"]: {"poolId": i, "rewarder": pool_info[3]}
+                            }
 
     with open(output_file, "w") as db_file:
         json.dump(db_data, db_file, indent=2)
