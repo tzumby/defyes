@@ -393,7 +393,7 @@ def get_logs_web3(
     tx_hash: str = None,
     address: str = None,
     block_start: int | str = None,
-    block_end: int | str = None,
+    block_end: int | str = "latest",
     topics: list = None,
     block_hash: str = None,
     web3: Web3 = None,
@@ -401,7 +401,6 @@ def get_logs_web3(
     # FIXME: Add documentation
     if web3 is None:
         web3 = get_node(blockchain, block=block_end)
-
     try:
         params = {}
         if address is not None:
@@ -414,17 +413,17 @@ def get_logs_web3(
         elif block_hash is not None:
             params.update({"blockHash": block_hash})
         elif block_start is not None:
-            params.update({"fromBlock": block_start, "toBlock": None})
+            params.update({"fromBlock": block_start})
+            if block_end != "latest":
+                params.update({"toBlock": block_end})
         logs = web3.eth.get_logs(params)
-
-        if not isinstance(block_end, str) and block_end is not None:
+        if not isinstance(block_end, str):
             for n in range(len(logs)):
                 if logs[n]["blockNumber"] > block_end:
                     logs = logs[:n]
                     break
     except ValueError as error:
         error_info = error.args[0]
-
         if error_info["code"] == -32005:  # error code in infura
             block_interval = int(error_info["data"]["to"], 16) - int(error_info["data"]["from"], 16)
         elif "max_block_range" in error_info:  # error code in Quicknode, see ProviderManager class
@@ -432,9 +431,10 @@ def get_logs_web3(
         elif error_info["code"] == -32602:  # error code in alchemy
             blocks = [int(block, 16) for block in re.findall(r"0x[0-9a-fA-F]+", error_info["message"])]
             block_interval = blocks[1] - blocks[0]
+        elif error_info["code"] == -32600:  # error code in anker: "block range is too wide"
+            block_interval = 3000
         else:
             raise ValueError(error_info)
-
         logger.debug(
             f"Web3.eth.get_logs: query returned more than 10000 results. Trying with a {block_interval} block range."
         )
@@ -442,11 +442,9 @@ def get_logs_web3(
         params = {"address": address, "topics": topics}
         if block_hash is not None:
             params.update({"blockHash": block_hash})
-
         for from_block, to_block in get_block_intervals(blockchain, block_start, block_end, block_interval):
             params.update({"fromBlock": from_block, "toBlock": to_block})
             logs += web3.eth.get_logs(params)
-
     return logs
 
 
