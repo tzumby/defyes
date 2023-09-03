@@ -8,7 +8,6 @@ from decimal import Decimal, DivisionByZero, InvalidOperation
 from functools import cached_property
 from typing import Iterator, NamedTuple
 
-from defyes import helpers
 from defyes.constants import Chain
 from defyes.prices import Chainlink as chainlink
 from defyes.types import Addr, Token, TokenAmount
@@ -112,19 +111,12 @@ class ProtocolDataProvider(ProtocolDataProvider):
         for asset, tokens in self.assets_with_reserve_tokens:
             ur = UserReserveData(*self.get_user_reserve_data(asset, wallet))
 
-            @helpers.listify
-            def holdings():
-                for in_amount, token in zip(ur[:3], tokens):
-                    if in_amount != 0:
-                        yield TokenAmount.from_teu(in_amount, token)
+            for in_amount, token in zip(ur[:3], tokens):
+                if in_amount != 0:
+                    all_holdings.append(TokenAmount.from_teu(in_amount, token))
+                    underlying_amount = Decimal(-1 * in_amount) if in_amount < 0 else in_amount
+                    all_underlyings.append(TokenAmount.from_teu(underlying_amount, asset))
 
-            @helpers.listify
-            def underlyings():
-                for holding in holdings():
-                    yield TokenAmount.from_teu(ur.sp - ur.stable_debt - ur.variable_debt, asset)
-
-            all_holdings += holdings()
-            all_underlyings += underlyings()
         return {"holdings": all_holdings, "underlyings": all_underlyings}
 
 
