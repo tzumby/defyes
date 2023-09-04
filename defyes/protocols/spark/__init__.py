@@ -32,6 +32,10 @@ class UserReserveData(NamedTuple):
     timestamp: int
     is_collateral: bool
 
+    @property
+    def underlying(self):
+        return self.sp - self.stable_debt - self.variable_debt
+
 
 class UserAccountData(NamedTuple):
     total_collateral_base: int
@@ -83,12 +87,6 @@ class ProtocolDataProvider(ProtocolDataProvider):
     }
 
     @property
-    def assets_with_reserve_tokens(self) -> Iterator[tuple[Token, Token]]:
-        for _, main_token in self.all_reserves_tokens:
-            tokens = self.get_reserve_tokens_addresses(main_token)
-            yield main_token, tokens
-
-    @property
     def all_reserves_tokens(self) -> Iterator[tuple[str, Token]]:
         for symbol, addr in self.get_all_reserves_tokens:
             yield symbol, Token.get_instance(addr, self.blockchain)
@@ -105,30 +103,27 @@ class ProtocolDataProvider(ProtocolDataProvider):
     def block_id(self):
         return self.block if isinstance(self.block, int) else self.last_block_id
 
-    def holding_underlying_iter(self, wallet: Addr) -> Iterator[tuple[TokenAmount, TokenAmount]]:
-        for asset, tokens in self.assets_with_reserve_tokens:
-            user_reserve_data = UserReserveData(*self.get_user_reserve_data(asset, wallet))
-            teu_balance = user_reserve_data.sp - user_reserve_data.stable_debt - user_reserve_data.variable_debt
-            balance = TokenAmount(teu_balance, asset)
+    def all_user_reserve_data(self, wallet: Addr) -> Iterator[tuple[Token, UserReserveData]]:
+        for _, asset in self.all_reserves_tokens:
+            yield asset, UserReserveData(*self.get_user_reserve_data(asset, wallet))
 
-            for teu_amount, token in zip(user_reserve_data[:3], tokens):
-                if teu_amount != 0:
-                    yield TokenAmount.from_teu(teu_amount, token), balance
+    def underlyings(self, wallet: Addr) -> Iterator[TokenAmount]:
+        for asset, user_reserve_data in self.all_user_reserve_data(wallet):
+            return TokenAmount.from_teu(user_reserve_data.underlying, asset)
 
-    class HoldingsUnderlyings(NamedTuple):
-        holdings: list[TokenAmount]
-        underlying: list[TokenAmount]
-
-    def position(self, wallet: Addr) -> HoldingsUnderlyings:
-        """This is just a column-wise version of the holding/underlying pair list."""
-        return self.HoldingsUnderlyings(*zip(*self.holding_underlying_iter(wallet)))
+    def holdings(self, wallet: Addr) -> Iterator[TokenAmount]:
+        for asset, user_reserve_data in self.all_user_reserve_data(wallet):
+            tokens = self.get_reserve_tokens_addresses(asset)
+            for amount, token in zip(user_reserve_data, tokens):  # sp, stable_debt, variable_debt
+                if amount != 0:
+                    yield TokenAmount.from_teu(amount, token)
 
 
 def get_protocol_data(wallet: Addr, block: int | str, chain: Chain, decimals: bool = True) -> dict:
     wallet = Addr(wallet)
-    holdings, underlyings = ProtocolDataProvider(chain, block).position(wallet)
     pap = PoolAddressesProvider(chain, block)
     user_account_data = pap.pool_contract.user_account_data(wallet)
+    pdp = ProtocolDataProvider(chain, block)
 
     def as_dict_list(token_amounts):
         return [token_amount.as_dict(decimals) for token_amount in token_amounts]
@@ -142,8 +137,8 @@ def get_protocol_data(wallet: Addr, block: int | str, chain: Chain, decimals: bo
         "decimals": decimals,
         "positions": {
             "single_position": {
-                "holdings": as_dict_list(holdings),
-                "underlyings": as_dict_list(underlyings),
+                "underlyings": as_dict_list(pdp.underlyings(wallet)),
+                "holdings": as_dict_list(pdp.holdings(wallet)),
             }
         },
         "positions_key": None,
@@ -168,13 +163,13 @@ def get_full_finantial_metrics(wallet: Addr, block: int | str, chain: Chain, dec
     }
 
     currency_unit = Decimal(pap.price_oracle_contract.base_currency_unit)
-    for _, underlying in ProtocolDataProvider(chain, block).holding_underlying_iter(wallet):
+    for underlying in ProtocolDataProvider(chain, block).underlyings(wallet):
         asset = {
             "token_address": underlying.token,
-            "token_amount": abs(amount := underlying.as_dict(decimals)["balance"]),
+            "token_amount": abs(underlying.as_dict(decimals)["balance"]),
             "token_price_usd": pap.price_oracle_contract.get_asset_price(underlying.token) / currency_unit,
         }
-        if amount < 0:
+        if underlying.amount < 0:
             debts.append(asset)
         else:
             collaterals.append(asset)

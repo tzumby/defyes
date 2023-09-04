@@ -136,16 +136,6 @@ def test_positions(pdp):
     assert ret == expected_position
 
 
-def test_reserve_tokens_addresses(pdp):
-    asset_tokens = list(pdp.assets_with_reserve_tokens)
-    assert len(asset_tokens) == 8
-    for asset, tokens in asset_tokens:
-        assert isinstance(asset, str)
-        assert isinstance(tokens.sp, str)
-        assert isinstance(tokens.stable_debt, str)
-        assert isinstance(tokens.variable_debt, str)
-
-
 @decimal
 def test_get_full_finantial_metrics(decimal):
     ret = spark.get_full_finantial_metrics(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
