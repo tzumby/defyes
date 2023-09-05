@@ -29,7 +29,6 @@ from defi_protocols.functions import (
     get_decimals,
     get_logs_web3,
     get_node,
-    get_symbol,
     last_block,
     to_token_amount,
 )
@@ -129,7 +128,7 @@ ABI_LPTOKEN = '[{"inputs":[],"name":"getPoolId","outputs":[{"internalType":"byte
 ABI_GAUGE = '[{"stateMutability":"nonpayable","type":"function","name":"claimable_tokens","inputs":[{"name":"addr","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"claimable_reward","inputs":[{"name":"_user","type":"address"},{"name":"_reward_token","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}, {"stateMutability":"view","type":"function","name":"reward_tokens","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}]}, {"stateMutability":"view","type":"function","name":"reward_contract","inputs":[],"outputs":[{"name":"","type":"address"}]}]'
 
 # ABI Pool Tokens - decimals, getRate, UNDERLYING_ASSET_ADDRESS, rate, stETH, UNDERLYING
-ABI_POOL_TOKENS_BALANCER = '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getMainToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"UNDERLYING_ASSET_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"stETH","outputs":[{"internalType":"contract IStETH","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"UNDERLYING","outputs":[{"internalType":"contract IERC20Upgradeable","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
+ABI_POOL_TOKENS_BALANCER = '[{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}, {"inputs":[],"name":"getRate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getMainToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"UNDERLYING_ASSET_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"rate","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"stETH","outputs":[{"internalType":"contract IStETH","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"UNDERLYING","outputs":[{"internalType":"contract IERC20Upgradeable","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"getPoolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"}]'
 
 # ABI Child Gauge Reward Helper - getPendingRewards
 ABI_CHILD_CHAIN_GAUGE_REWARD_HELPER = '[{"inputs":[{"internalType":"contract IRewardsOnlyGauge","name":"gauge","type":"address"},{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"token","type":"address"}],"name":"getPendingRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]'
@@ -514,7 +513,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
 
             unwrapped_balances = []
 
-            if call_contract_method(token_contract.functions.getRate(), block) is not None:
+            if call_contract_method(token_contract.functions.getPoolId(), block) is not None:
                 unwrapped_balances = unwrap(
                     pool_balances[i] / (10**token_decimals),
                     token_address,
@@ -524,29 +523,13 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                     decimals=decimals,
                 )
             else:
-                is_wsteth = False
                 main_token = call_contract_method(token_contract.functions.UNDERLYING(), block)
                 if main_token is None:
                     main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
                     if main_token is None:
                         main_token = token_address
-                        main_token_symbol = get_symbol(main_token, blockchain, web3=web3)
-                        if "wsteth" in main_token_symbol.lower():
-                            is_wsteth = True
-                        # The previous 4 lines can be replaced by the commented code below to have stETH being returned instead of stETH
-                        # stETH = call_contract_method(token_contract.functions.stETH(), block)
-                        # if stETH is not None:
-                        #    if lptoken_data["scalingFactors"] is not None and lptoken_data["scalingFactors"][i] != (
-                        #        10**18
-                        #    ):
-                        #        main_token = stETH
-                        #    else:
-                        #        main_token = token_address
-                        # else:
-                        #    main_token = token_address
 
-                # if lptoken_data["scalingFactors"] is not None:
-                if lptoken_data["scalingFactors"] is not None and not is_wsteth:
+                if lptoken_data["scalingFactors"] is not None and lptoken_data["isBoosted"]:
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / (10 ** (2 * 18 - token_decimals))
                     )
@@ -624,7 +607,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
             token_decimals = const_call(token_contract.functions.decimals())
 
             unwrapped_balances = []
-            if call_contract_method(token_contract.functions.getRate(), block) is not None:
+            if call_contract_method(token_contract.functions.getPoolId(), block) is not None:
                 unwrapped_balances = unwrap(
                     pool_balances[i] / Decimal(10**token_decimals),
                     token_address,
@@ -634,29 +617,13 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
                     decimals=decimals,
                 )
             else:
-                is_wsteth = False
                 main_token = call_contract_method(token_contract.functions.UNDERLYING(), block)
                 if main_token is None:
                     main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
                     if main_token is None:
                         main_token = token_address
-                        main_token_symbol = get_symbol(main_token, blockchain, web3=web3)
-                        if "wsteth" in main_token_symbol.lower():
-                            is_wsteth = True
-                        # The previous 4 lines can be replaced by the commented code below to have stETH being returned instead of stETH
-                        # stETH = call_contract_method(token_contract.functions.stETH(), block)
-                        # if stETH is not None:
-                        #    if lptoken_data["scalingFactors"] is not None and lptoken_data["scalingFactors"][i] != (
-                        #        10**18
-                        #    ):
-                        #        main_token = stETH
-                        #    else:
-                        #        main_token = token_address
-                        # else:
-                        #    main_token = token_address
 
-                # if lptoken_data["scalingFactors"] is not None:
-                if lptoken_data["scalingFactors"] is not None and not is_wsteth:
+                if lptoken_data["scalingFactors"] is not None and lptoken_data["isBoosted"]:
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / Decimal(10 ** (2 * 18 - token_decimals))
                     )
@@ -720,7 +687,7 @@ def unwrap(
             token_decimals = const_call(token_contract.functions.decimals())
 
             unwrapped_balances = []
-            if call_contract_method(token_contract.functions.getRate(), block) is not None:
+            if call_contract_method(token_contract.functions.getPoolId(), block) is not None:
                 unwrapped_balances = unwrap(
                     pool_balances[i] / Decimal(10**token_decimals),
                     token_address,
@@ -730,29 +697,13 @@ def unwrap(
                     decimals=decimals,
                 )
             else:
-                is_wsteth = False
                 main_token = call_contract_method(token_contract.functions.UNDERLYING(), block)
                 if main_token is None:
                     main_token = call_contract_method(token_contract.functions.UNDERLYING_ASSET_ADDRESS(), block)
                     if main_token is None:
                         main_token = token_address
-                        main_token_symbol = get_symbol(main_token, blockchain, web3=web3)
-                        if "wsteth" in main_token_symbol.lower():
-                            is_wsteth = True
-                        # The previous 4 lines can be replaced by the commented code below to have stETH being returned instead of stETH
-                        # stETH = call_contract_method(token_contract.functions.stETH(), block)
-                        # if stETH is not None:
-                        #    if lptoken_data["scalingFactors"] is not None and lptoken_data["scalingFactors"][i] != (
-                        #        10**18
-                        #    ):
-                        #        main_token = stETH
-                        #    else:
-                        #        main_token = token_address
-                        # else:
-                        #    main_token = token_address
 
-                # if lptoken_data["scalingFactors"] is not None:
-                if lptoken_data["scalingFactors"] is not None and not is_wsteth:
+                if lptoken_data["scalingFactors"] is not None and lptoken_data["isBoosted"]:
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / (10 ** (2 * 18 - token_decimals))
                     )
