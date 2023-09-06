@@ -218,6 +218,28 @@ def get_gauge_addresses(blockchain, block, web3, lptoken_addr):
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# is_meta_pool
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def is_meta_pool(web3, vault_contract, bpt_index, pool_id, block, blockchain):
+    pool_tokens_data = vault_contract.functions.getPoolTokens(pool_id).call(block_identifier=block)
+    pool_tokens = pool_tokens_data[0]
+
+    is_meta = True
+    for i in range(len(pool_tokens)):
+        if i == bpt_index:
+            continue
+
+        token_address = pool_tokens[i]
+        token_contract = get_contract(token_address, blockchain, web3=web3, abi=ABI_POOL_TOKENS_BALANCER, block=block)
+
+        if call_contract_method(token_contract.functions.getPoolId(), block) is None:
+            is_meta = False
+            break
+
+    return is_meta
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # get_lptoken_data
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
@@ -240,24 +262,17 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     try:
         lptoken_data["totalSupply"] = lptoken_data["contract"].functions.getActualSupply().call(block_identifier=block)
-        lptoken_data["isBoosted"] = True
     except:
         try:
             lptoken_data["totalSupply"] = (
                 lptoken_data["contract"].functions.getVirtualSupply().call(block_identifier=block)
             )
-            lptoken_data["isBoosted"] = True
         except:
             lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
-            lptoken_data["isBoosted"] = False
 
-    if lptoken_data["isBoosted"]:
-        try:
-            lptoken_data["bptIndex"] = const_call(lptoken_data["contract"].functions.getBptIndex())
-        except:
-            lptoken_data["isBoosted"] = False
-            lptoken_data["bptIndex"] = None
-    else:
+    try:
+        lptoken_data["bptIndex"] = const_call(lptoken_data["contract"].functions.getBptIndex())
+    except:
         lptoken_data["bptIndex"] = None
 
     try:
@@ -529,7 +544,9 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, reward=Fal
                     if main_token is None:
                         main_token = token_address
 
-                if lptoken_data["scalingFactors"] is not None and lptoken_data["isBoosted"]:
+                if lptoken_data["scalingFactors"] is not None and is_meta_pool(
+                    web3, vault_contract, lptoken_data["bptIndex"], lptoken_data["poolId"], block, blockchain
+                ):
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / (10 ** (2 * 18 - token_decimals))
                     )
@@ -623,7 +640,9 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
                     if main_token is None:
                         main_token = token_address
 
-                if lptoken_data["scalingFactors"] is not None and lptoken_data["isBoosted"]:
+                if lptoken_data["scalingFactors"] is not None and is_meta_pool(
+                    web3, vault_contract, lptoken_data["bptIndex"], lptoken_data["poolId"], block, blockchain
+                ):
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / Decimal(10 ** (2 * 18 - token_decimals))
                     )
@@ -703,7 +722,9 @@ def unwrap(
                     if main_token is None:
                         main_token = token_address
 
-                if lptoken_data["scalingFactors"] is not None and lptoken_data["isBoosted"]:
+                if lptoken_data["scalingFactors"] is not None and is_meta_pool(
+                    web3, vault_contract, lptoken_data["bptIndex"], lptoken_data["poolId"], block, blockchain
+                ):
                     token_balance = (
                         pool_balances[i] * lptoken_data["scalingFactors"][i] / (10 ** (2 * 18 - token_decimals))
                     )
