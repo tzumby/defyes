@@ -78,6 +78,12 @@ class PoolToken(PoolToken):
 
         return main_token
 
+    def calc_amount(self, token_amount: int, decimals: bool = True) -> Decimal:
+        token_amount = Decimal(token_amount)
+        if decimals:
+            token_amount = token_amount / Decimal(10**self.decimals)
+        return token_amount
+
 
 class LiquidityPool(LiquidityPool):
     @cached_property
@@ -107,6 +113,21 @@ class LiquidityPool(LiquidityPool):
         with suppress(ContractLogicError):
             return self.get_scaling_factors
 
+    @cached_property
+    def is_meta(self) -> bool:
+        pool_tokens = Vault(self.blockchain, self.block).get_pool_data(self.poolid)
+        is_meta = True
+        for n, (token_addr, balance) in enumerate(pool_tokens):
+            if n == self.bpt_index:
+                continue
+
+            token = PoolToken(self.blockchain, self.block, token_addr)
+            if token.pool_id is None:
+                is_meta = False
+                break
+
+        return is_meta
+
     def balance_of(self, wallet: str) -> int:
         wallet = Web3.to_checksum_address(wallet)
         return super().balance_of(wallet)
@@ -114,7 +135,7 @@ class LiquidityPool(LiquidityPool):
     def calc_amount(self, token_id: int, token_amount: int, token_decimals: int, decimals: bool = True) -> Decimal:
         token_amount = Decimal(token_amount)
         scaling_factor = None if self.scaling_factors is None else self.scaling_factors[token_id]
-        if scaling_factor and token_id == self.bpt_index:
+        if scaling_factor is not None and self.is_meta:
             token_amount = token_amount * Decimal(scaling_factor) / Decimal(10 ** (2 * 18 - token_decimals))
         if decimals:
             token_amount = token_amount / Decimal(10**token_decimals)
@@ -349,7 +370,7 @@ def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, 
         token = PoolToken(blockchain, block, token_addr)
         if token.pool_id is not None:
             for token_addr, token_balance in unwrap(
-                blockchain, token.address, lp.calc_amount(n, balance, token.decimals, decimals), block
+                blockchain, token.address, token.calc_amount(balance, decimals), block
             ).items():
                 balances[token_addr] = balances.get(token_addr, 0) + token_balance * pool_balance_fraction
         else:
@@ -369,12 +390,12 @@ def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: 
         token = PoolToken(blockchain, block, token_addr)
         if token.pool_id is not None:
             for token_addr, token_balance in unwrap(
-                blockchain, token.address, lp.calc_amount(n, balance, token.decimals, decimals), block
+                blockchain, token.address, token.calc_amount(balance, decimals), block
             ).items():
                 balances[token_addr] = balances.get(token_addr, 0) + token_balance
         else:
             token_balance = lp.calc_amount(n, balance, token.decimals, decimals)
-            balances[token.main_addr] = balances.get(token.main_addr, 0) + token_balance
+            balances[token_addr] = balances.get(token_addr, 0) + token_balance
     return balances
 
 

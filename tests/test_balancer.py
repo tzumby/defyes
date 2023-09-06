@@ -83,11 +83,11 @@ def test_pool_balances():
         ETHTokenAddr.DAI: Decimal("13011285.62447645590205757650"),
     }
 
-    # usdt = Balancer.pool_balances(Chain.ETHEREUM, bbaUSDT_ADDR, block)
-    # assert usdt[ETHTokenAddr.USDT] == Decimal("11014973.47418")
+    usdt = Balancer.pool_balances(Chain.ETHEREUM, bbaUSDT_ADDR, block)
+    assert usdt[ETHTokenAddr.USDT] == Decimal("11014973.47418")
 
-    # usdc = Balancer.pool_balances(Chain.ETHEREUM, bbaUSDC_ADDR, block)
-    # assert usdc[ETHTokenAddr.USDC] == Decimal("13116091.667863")
+    usdc = Balancer.pool_balances(Chain.ETHEREUM, bbaUSDC_ADDR, block)
+    assert usdc[ETHTokenAddr.USDC] == Decimal("13116091.667863")
 
     dai = Balancer.pool_balances(Chain.ETHEREUM, bbaDAI_ADDR, block)
     assert dai[ETHTokenAddr.DAI] == Decimal("8173013.460308747444345661")
@@ -136,10 +136,10 @@ def test_unwrap():
     lptoken_amount = 1000
     unwrap = Balancer.unwrap(Chain.GNOSIS, B50bbagGNO50bbagUSD_ADDR, lptoken_amount, block)
     assert unwrap == {
-        GnosisTokenAddr.WXDAI: Decimal("2072.099936394024014750631244"),
-        GnosisTokenAddr.USDT: Decimal("1157.485706971609760143788076"),
-        GnosisTokenAddr.USDC: Decimal("1926.222064722662625127836312"),
-        GnosisTokenAddr.GNO: Decimal("48.76410736953816262713084976"),
+        GnosisTokenAddr.WXDAI: Decimal("2057.534932715631909526303472"),
+        GnosisTokenAddr.USDT: Decimal("1154.268905869372659697240476"),
+        GnosisTokenAddr.USDC: Decimal("1912.892948230578252436479469"),
+        GnosisTokenAddr.GNO: Decimal("48.74728477215118382303378165"),
     }
 
     block = 17543299
