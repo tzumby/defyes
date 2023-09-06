@@ -1,5 +1,4 @@
 import json
-from contextlib import suppress
 from decimal import Decimal
 from pathlib import Path
 from typing import Union
@@ -14,7 +13,6 @@ from defyes.cache import const_call
 from defyes.constants import ABI_TOKEN_SIMPLIFIED, Chain
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
-from defyes.topic import decode_address_hexor
 
 DB_FILE = Path(__file__).parent / "db.json"
 
@@ -412,5 +410,5 @@ def update_db(block="latest") -> dict:
     :return:
     """
     with open(DB_FILE, "w") as db_file:
-        cdos = get_addresses_subgraph(block, ETHEREUM)
+        cdos = get_addresses_subgraph(block, Chain.ETHEREUM)
         json.dump(cdos, db_file, indent=4)
