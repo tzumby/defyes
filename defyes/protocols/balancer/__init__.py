@@ -416,7 +416,7 @@ def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: 
 def get_protocol_data_for(
     blockchain: str,
     wallet: str,
-    lp_addrs: str | list,
+    lptoken_address: str | list,
     block: int | str = "latest",
     reward: bool = False,
     decimals: bool = True,
@@ -433,10 +433,10 @@ def get_protocol_data_for(
         "positions_key": "liquidity_pool_address",
     }
 
-    if isinstance(lp_addrs, str):
-        lp_addrs = [lp_addrs]
+    if isinstance(lptoken_address, str):
+        lptoken_address = [lptoken_address]
 
-    for lp_address in lp_addrs:
+    for lp_address in lptoken_address:
         lp_address = Addr(Web3.to_checksum_address(lp_address))
         ret["positions"][lp_address] = {}
         lp_address = Web3.to_checksum_address(lp_address)
