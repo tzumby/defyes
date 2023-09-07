@@ -109,7 +109,9 @@ class ProtocolDataProvider(ProtocolDataProvider):
 
     def underlyings(self, wallet: Addr) -> Iterator[TokenAmount]:
         for asset, user_reserve_data in self.all_user_reserve_data(wallet):
-            yield TokenAmount.from_teu(user_reserve_data.underlying, asset)
+            underlying = user_reserve_data.underlying
+            if underlying != 0:
+                yield TokenAmount.from_teu(underlying, asset)
 
     def holdings(self, wallet: Addr) -> Iterator[TokenAmount]:
         for asset, user_reserve_data in self.all_user_reserve_data(wallet):

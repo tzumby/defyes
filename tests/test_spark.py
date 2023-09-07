@@ -12,17 +12,17 @@ block_id = 17_772_457
 
 DAI = Token.get_instance(0x6B175474E89094C44DA98B954EEDEAC495271D0F, Chain.ETHEREUM)
 GNO = Token.get_instance(0x6810E776880C02933D47DB1B9FC05908E5386B96, Chain.ETHEREUM)
-vDAI = Token("0xf705d2B7e92B3F38e6ae7afaDAA2fEE110fE5914", Chain.ETHEREUM)
-spGNO = Token("0x7b481aCC9fDADDc9af2cBEA1Ff2342CB1733E50F", Chain.ETHEREUM)
+variableDebtDAI = Token.get_instance("0xf705d2B7e92B3F38e6ae7afaDAA2fEE110fE5914", Chain.ETHEREUM)
+spGNO = Token.get_instance("0x7b481aCC9fDADDc9af2cBEA1Ff2342CB1733E50F", Chain.ETHEREUM)
 
 expected_position = {
     "holdings": [
-        TokenAmount.from_teu(1000035715961244421526907, vDAI),
-        TokenAmount.from_teu(88000000000000000000000, spGNO),
+        TokenAmount.from_teu(1_000_035_715961244421526907, variableDebtDAI),
+        TokenAmount.from_teu(88_000_000000000000000000, spGNO),
     ],
     "underlyings": [
-        TokenAmount.from_teu(Decimal("-1000035715961244421526907"), DAI),
-        TokenAmount.from_teu(88000000000000000000000, GNO),
+        TokenAmount.from_teu(-1_000_035_715961244421526907, DAI),
+        TokenAmount.from_teu(88_000_000000000000000000, GNO),
     ],
 }
 
@@ -89,7 +89,7 @@ expected_finantial_metrics = {
 }
 
 
-expected_finantial_metrics_int = {
+expected_finantial_metrics_teu = {
     "collateral_ratio": Decimal("1016.357510595627631280679422"),
     "liquidation_ratio": Decimal("400"),
     "native_token_price_usd": Decimal("1857.8255"),
@@ -129,11 +129,18 @@ def test_get_protocol_data(decimal):
     assert ret == expected
 
 
-def test_positions(pdp):
-    ret = dict(pdp.position(wallet))
+def test_underlyings(pdp):
+    ret = list(pdp.underlyings(wallet))
     print()
     pretty.print(ret)
-    assert ret == expected_position
+    assert ret == expected_position["underlyings"]
+
+
+def test_holdings(pdp):
+    ret = list(pdp.holdings(wallet))
+    print()
+    pretty.print(ret)
+    assert ret == expected_position["holdings"]
 
 
 @decimal
@@ -142,4 +149,4 @@ def test_get_full_finantial_metrics(decimal):
     print()
     pretty.print(ret)
     pretty.jprint(ret)
-    assert ret == expected_finantial_metrics if decimal else expected_finantial_metrics_int
+    assert ret == expected_finantial_metrics if decimal else expected_finantial_metrics_teu

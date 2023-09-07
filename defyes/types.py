@@ -113,7 +113,7 @@ class TokenAmount:
 
     def as_dict(self, not_in_teu: bool = False) -> dict:
         return {
-            "balance": self.amount if not_in_teu else self.amount * self.teu,
+            "balance": self.amount if not_in_teu else int(self.amount * self.teu),
             "address": str(self.token),
         }
 
