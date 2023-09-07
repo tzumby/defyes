@@ -91,7 +91,7 @@ VEBAL_FEE_DISTRIBUTORS = {
 # veBAL Reward Tokens - BAL, bb-a-USD old deployment, bb-a-USD, bb-a-USDv3
 VEBAL_REWARD_TOKENS = {
     "14623899": [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD],
-    "16981440": [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD, ETHTokenAddr.BB_A_USD_V3],
+    "16981440": [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD, ETHTokenAddr.BB_A_USD_V3, ETHTokenAddr.USDC],
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
