@@ -121,17 +121,17 @@ class ProtocolDataProvider(ProtocolDataProvider):
                     yield TokenAmount.from_teu(amount, token)
 
 
-def get_protocol_data(wallet: Addr, block: int | str, chain: Chain, decimals: bool = True) -> dict:
+def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
     wallet = Addr(wallet)
-    pap = PoolAddressesProvider(chain, block)
+    pap = PoolAddressesProvider(blockchain, block)
     user_account_data = pap.pool_contract.user_account_data(wallet)
-    pdp = ProtocolDataProvider(chain, block)
+    pdp = ProtocolDataProvider(blockchain, block)
 
     def as_dict_list(token_amounts):
         return [token_amount.as_dict(decimals) for token_amount in token_amounts]
 
     return {
-        "blockchain": chain,
+        "blockchain": blockchain,
         "block_id": block,
         "protocol": "Spark",
         "version": 0,
@@ -151,21 +151,21 @@ def get_protocol_data(wallet: Addr, block: int | str, chain: Chain, decimals: bo
     }
 
 
-def get_full_finantial_metrics(wallet: Addr, block: int | str, chain: Chain, decimals: bool = True) -> dict:
+def get_full_finantial_metrics(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
     wallet = Addr(wallet)
-    pap = PoolAddressesProvider(chain, block)
+    pap = PoolAddressesProvider(blockchain, block)
 
     user_account_data = pap.pool_contract.user_account_data(wallet)
     ret = {
         "collateral_ratio": user_account_data.collateral_ratio,
         "liquidation_ratio": user_account_data.liquidation_ratio,
-        "native_token_price_usd": chainlink.get_native_token_price(pap.contract.w3, block, chain, decimals=True),
+        "native_token_price_usd": chainlink.get_native_token_price(pap.contract.w3, block, blockchain, decimals=True),
         "collaterals": (collaterals := []),
         "debts": (debts := []),
     }
 
     currency_unit = Decimal(pap.price_oracle_contract.base_currency_unit)
-    for underlying in ProtocolDataProvider(chain, block).underlyings(wallet):
+    for underlying in ProtocolDataProvider(blockchain, block).underlyings(wallet):
         asset = {
             "token_address": underlying.token,
             "token_amount": abs(underlying.as_dict(decimals)["balance"]),
