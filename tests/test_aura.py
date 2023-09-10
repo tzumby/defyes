@@ -197,6 +197,3 @@ def test_get_compounded():
     aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, ETHEREUM, web3=node, reward=True)
     assert aurabal == [ETHTokenAddr.auraBAL, Decimal("173638.950900193303875756")]
     assert aura_rewards == [ETHTokenAddr.AURA, Decimal("518.423812233736947225")]
-
-
-test_underlying()
