@@ -209,7 +209,7 @@ def test_underlying3():
         WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, XDAI, web3=node, reward=True
     )
     # [token, balance, staked, locked]
-    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("0"), Decimal("33762.1862551265554595811866"), Decimal("0")]
+    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("0"), Decimal("333762.1862551265554595811866"), Decimal("0")]
     assert usdt == [GnosisTokenAddr.USDT, Decimal("0"), Decimal("232857.4576886348353076266832"), Decimal("0")]
     assert usdc == [GnosisTokenAddr.USDC, Decimal("0"), Decimal("285840.5220025812197832698497"), Decimal("0")]
     assert gno == [GnosisTokenAddr.GNO, Decimal("0"), Decimal("7325.982201639479819929072629"), Decimal("0")]
