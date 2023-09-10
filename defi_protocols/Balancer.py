@@ -585,7 +585,7 @@ def unwrap(
         pool_balances = pool_tokens_data[1]
 
         exit_balances = [
-            int((Decimal(lptoken_amount) / Decimal(lptoken_data["totalSupply"])) * Decimal((pool_balance)))
+            (Decimal(lptoken_amount) / Decimal(lptoken_data["totalSupply"])) * Decimal((pool_balance))
             for pool_balance in pool_balances
         ]
 
@@ -738,11 +738,3 @@ def get_swap_fees_APR(
         return (1 + (apr / seconds_per_year)) ** seconds_per_year - 1
     else:
         return apr
-
-
-# print(unwrap(103182.263386421408763710, '0xfebb0bbf162e64fb9d0dfe186e517d84c395f016', 'latest', 'ethereum'))
-# print(unwrap(389904.063429487357617408, '0xfebb0bbf162e64fb9d0dfe186e517d84c395f016', 17929097, 'ethereum'))
-# print(pool_balances('0xfedb19ec000d38d92af4b21436870f115db22725', 'latest', 'xdai'))
-
-# print(underlying('0x849d52316331967b6ff1198e5e32a0eb168d039d','0xfebb0bbf162e64fb9d0dfe186e517d84c395f016', 'latest', 'ethereum', decimals=False, reward=True))
-# print(underlying('0x238b4d4ebd41c8570bfa2fc859cad272e1042502','0xfedb19ec000d38d92af4b21436870f115db22725', 'latest', 'xdai'))

@@ -131,22 +131,22 @@ def test_underlying():
 
     dai, weth = Balancer.underlying(WALLET_N1, B60WETH40DAI_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert dai == [ETHTokenAddr.DAI, Decimal("0"), Decimal("0.406452476758568423"), Decimal("0")]
-    assert weth == [ETHTokenAddr.WETH, Decimal("0"), Decimal("0.000324988287459604"), Decimal("0")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("0"), Decimal("0.4064524767585684232500351728"), Decimal("0")]
+    assert weth == [ETHTokenAddr.WETH, Decimal("0"), Decimal("0.0003249882874596042694139236462"), Decimal("0")]
 
     tokens, rewards = Balancer.underlying(WALLET_N2, B50USDC50WETH_ADDR, block, ETHEREUM, web3=node, reward=True)
     usdc, weth = tokens
     # [token, balance, staked, locked]
     assert usdc == [
         ETHTokenAddr.USDC,
-        Decimal("10.246082"),
-        Decimal("10.589629"),
+        Decimal("10.24608281454370054240898545"),
+        Decimal("10.58962966563745330384918783"),
         Decimal("0"),
     ]
     assert weth == [
         ETHTokenAddr.WETH,
-        Decimal("0.005458806906415149"),
-        Decimal("0.005641838408050662"),
+        Decimal("0.005458806906415149638057440356"),
+        Decimal("0.005641838408050662404836892297"),
         Decimal("0"),
     ]
 
@@ -156,8 +156,8 @@ def test_underlying():
     tokens, rewards = Balancer.underlying(WALLET_N2, B80BAL20WETH_ADDR, block, ETHEREUM, web3=node, reward=True)
     bal, weth = tokens
     # [token, balance, staked, locked]
-    assert bal == [ETHTokenAddr.BAL, Decimal("0"), Decimal("0"), Decimal("1.000114468622601307")]
-    assert weth == [ETHTokenAddr.WETH, Decimal("0"), Decimal("0"), Decimal("0.000940538133500707")]
+    assert bal == [ETHTokenAddr.BAL, Decimal("0"), Decimal("0"), Decimal("1.000114468622601307282666145")]
+    assert weth == [ETHTokenAddr.WETH, Decimal("0"), Decimal("0"), Decimal("0.0009405381335007070147710888177")]
 
     bal, bb_a_usd_old, bb_a_usd = rewards
     assert bal == [ETHTokenAddr.BAL, Decimal("0.000019372013715193")]
@@ -171,26 +171,25 @@ def test_underlying2():
 
     wsteth, weth = Balancer.underlying(WALLET_N4, BstETHSTABLE_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert wsteth == [ETHTokenAddr.wstETH, Decimal("10.151694312260399974"), Decimal("0"), Decimal("0")]
-    assert weth == [ETHTokenAddr.WETH, Decimal("10.939145284307902595"), Decimal("0"), Decimal("0")]
+    assert wsteth == [ETHTokenAddr.wstETH, Decimal("10.15169431226039997458582647"), Decimal("0"), Decimal("0")]
+    assert weth == [ETHTokenAddr.WETH, Decimal("10.93914528430790259522572181"), Decimal("0"), Decimal("0")]
 
     ldo, wsteth = Balancer.underlying(WALLET_N5, B50wstETH50LDO_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert ldo == [ETHTokenAddr.LDO, Decimal("576.506624625384758265"), Decimal("0"), Decimal("0")]
-    assert wsteth == [ETHTokenAddr.wstETH, Decimal("0.587124248685099852"), Decimal("0"), Decimal("0")]
+    assert ldo == [ETHTokenAddr.LDO, Decimal("576.5066246253847582651532174"), Decimal("0"), Decimal("0")]
+    assert wsteth == [ETHTokenAddr.wstETH, Decimal("0.5871242486850998522269758922"), Decimal("0"), Decimal("0")]
 
     usdt, usdc, dai = Balancer.underlying(WALLET_N6, bbaUSD_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert usdt == [ETHTokenAddr.USDT, Decimal("34610.413239"), Decimal("0"), Decimal("0")]
-
-    assert usdc == [ETHTokenAddr.USDC, Decimal("40468.56976"), Decimal("0"), Decimal("0")]
-    assert dai == [ETHTokenAddr.DAI, Decimal("40612.732836573013079316"), Decimal("0"), Decimal("0")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("34610.41324079832871100489629"), Decimal("0"), Decimal("0")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("40468.5697612968356975786432"), Decimal("0"), Decimal("0")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("40612.73283657301313797551385"), Decimal("0"), Decimal("0")]
 
     usdt, usdc, dai = Balancer.underlying(WALLET_39d, bbaUSD_ADDR, block, ETHEREUM, web3=node)
     # [token, balance, staked, locked]
-    assert usdt == [ETHTokenAddr.USDT, Decimal("8539.12863"), Decimal("0"), Decimal("0")]
-    assert usdc == [ETHTokenAddr.USDC, Decimal("9984.461043"), Decimal("0"), Decimal("0")]
-    assert dai == [ETHTokenAddr.DAI, Decimal("10020.029156141767377134"), Decimal("0"), Decimal("0")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("8539.128631212054149950370351"), Decimal("0"), Decimal("0")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("9984.461044150477800069020774"), Decimal("0"), Decimal("0")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("10020.02915614176748146386576"), Decimal("0"), Decimal("0")]
 
 
 def test_underlying3():
@@ -201,19 +200,19 @@ def test_underlying3():
         WALLET_e6f, bb_ag_USD_ADDR, block, XDAI, web3=node, reward=True
     )
     # [token, balance, staked, locked]
-    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("0"), Decimal("225689.579020231073937317"), Decimal("0")]
-    assert usdt == [GnosisTokenAddr.USDT, Decimal("0"), Decimal("157457.925916"), Decimal("0")]
-    assert usdc == [GnosisTokenAddr.USDC, Decimal("0"), Decimal("193285.00871"), Decimal("0")]
+    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("0"), Decimal("225689.5790202310752030940992"), Decimal("0")]
+    assert usdt == [GnosisTokenAddr.USDT, Decimal("0"), Decimal("157457.9259174494684655467638"), Decimal("0")]
+    assert usdc == [GnosisTokenAddr.USDC, Decimal("0"), Decimal("193285.0087104341250050914671"), Decimal("0")]
     assert bal_rewards == [GnosisTokenAddr.BAL, Decimal("72.028749058272541921")]
 
     [[wxdai, usdt, usdc, gno], [bal_rewards]] = Balancer.underlying(
         WALLET_e6f, B50bbagGNO50bbagUSD_ADDR, block, XDAI, web3=node, reward=True
     )
     # [token, balance, staked, locked]
-    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("0"), Decimal("333762.186255126550301984"), Decimal("0")]
-    assert usdt == [GnosisTokenAddr.USDT, Decimal("0"), Decimal("232857.457688"), Decimal("0")]
-    assert usdc == [GnosisTokenAddr.USDC, Decimal("0"), Decimal("285840.522001"), Decimal("0")]
-    assert gno == [GnosisTokenAddr.GNO, Decimal("0"), Decimal("7325.98220163947983927"), Decimal("0")]
+    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("0"), Decimal("33762.1862551265554595811866"), Decimal("0")]
+    assert usdt == [GnosisTokenAddr.USDT, Decimal("0"), Decimal("232857.4576886348353076266832"), Decimal("0")]
+    assert usdc == [GnosisTokenAddr.USDC, Decimal("0"), Decimal("285840.5220025812197832698497"), Decimal("0")]
+    assert gno == [GnosisTokenAddr.GNO, Decimal("0"), Decimal("7325.982201639479819929072629"), Decimal("0")]
     assert bal_rewards == [GnosisTokenAddr.BAL, Decimal("422.039676607937704001")]
 
 
@@ -231,9 +230,9 @@ def test_pool_balances2():
     node = get_node(ETHEREUM, block)
 
     usdt, usdc, dai = Balancer.pool_balances(bbaUSD_ADDR, block, ETHEREUM, web3=node)
-    assert usdt == [ETHTokenAddr.USDT, Decimal("11433582.315546")]
-    assert usdc == [ETHTokenAddr.USDC, Decimal("13368829.789507")]
-    assert dai == [ETHTokenAddr.DAI, Decimal("13416454.195660385492393442")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("11433582.31554707184754119439")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("13368829.78950765227902185395")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("13416454.19566038579649334722")]
 
     usdt = Balancer.pool_balances(bbaUSDT_ADDR, block, ETHEREUM, web3=node)[0]
     assert usdt == [ETHTokenAddr.USDT, Decimal("11433698.535868")]
@@ -242,12 +241,12 @@ def test_pool_balances2():
     assert usdc == [ETHTokenAddr.USDC, Decimal("13369125.008063")]
 
     dai = Balancer.pool_balances(bbaDAI_ADDR, block, ETHEREUM, web3=node)[0]
-    assert dai == [ETHTokenAddr.DAI, Decimal("13416679.315704101925346109")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("13416679.315704101974857931")]
 
     dai, usdt, usdc = Balancer.pool_balances(bbaUSDV3_ADDR, block, ETHEREUM, web3=node)
     assert dai == [ETHTokenAddr.DAI, Decimal("1050266.066617679685909312")]
-    assert usdt == [ETHTokenAddr.USDT, Decimal("765001.854036")]
-    assert usdc == [ETHTokenAddr.USDC, Decimal("908244.46754")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("765001.854036999984446620123")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("908244.4675409999892750711044")]
 
 
 def test_pool_balances3():
@@ -255,16 +254,16 @@ def test_pool_balances3():
     node = get_node(XDAI, block)
 
     wxdai = Balancer.pool_balances(bb_ag_WXDAI_ADDR, block, XDAI, web3=node)[0]
-    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("639.239207094095729194")]
+    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("639.239207094095760572")]
 
     wxdai, usdt, usdc, gno = Balancer.pool_balances(B50bbagGNO50bbagUSD_ADDR, block, XDAI, web3=node)
-    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("12.70639312454898716")]
-    assert usdt == [GnosisTokenAddr.USDT, Decimal("28.823811")]
-    assert usdc == [GnosisTokenAddr.USDC, Decimal("12.107675")]
-    assert gno == [GnosisTokenAddr.GNO, Decimal("0.534933003750897099")]
+    assert wxdai == [GnosisTokenAddr.WXDAI, Decimal("12.70639312454898709331038428")]
+    assert usdt == [GnosisTokenAddr.USDT, Decimal("28.82381113179263306642755105")]
+    assert usdc == [GnosisTokenAddr.USDC, Decimal("12.10767593560824518845171832")]
+    assert gno == [GnosisTokenAddr.GNO, Decimal("0.5349330037508970997513992748")]
 
     gno = Balancer.pool_balances(bb_ag_GNO_ADDR, block, XDAI, web3=node)[0]
-    assert gno == [GnosisTokenAddr.GNO, Decimal("13.944052060960831441")]
+    assert gno == [GnosisTokenAddr.GNO, Decimal("13.944052060960831413")]
 
     block = 28721619
     node = get_node("xdai", block)
@@ -272,8 +271,8 @@ def test_pool_balances3():
         WALLET_e6f, "0xbad20c15a773bf03ab973302f61fabcea5101f0a", block, "xdai", node, reward=True
     )
     assert tokens == [
-        ["0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1", 0, Decimal("1330.644525157873920497"), 0],
-        ["0x6C76971f98945AE98dD7d4DFcA8711ebea946eA6", 0, Decimal("1142.204886390243725927"), 0],
+        ["0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1", 0, Decimal("1330.644525157873920497987352"), 0],
+        ["0x6C76971f98945AE98dD7d4DFcA8711ebea946eA6", 0, Decimal("1142.204886390243725927584743"), 0],
     ]
     assert rewards == [["0x7eF541E2a22058048904fE5744f9c7E4C57AF717", Decimal("470.98333553991963146")]]
 
@@ -284,21 +283,21 @@ def test_unwrap():
 
     lptoken_amount = 1
     usdt, usdc, dai = Balancer.unwrap(lptoken_amount, bbaUSD_ADDR, block, ETHEREUM, web3=node)
-    assert usdt == [ETHTokenAddr.USDT, Decimal("0.254484")]
-    assert usdc == [ETHTokenAddr.USDC, Decimal("0.369527")]
-    assert dai == [ETHTokenAddr.DAI, Decimal("0.380476147099213834")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("0.2544854780809326522677630221")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("0.3695271510149183089116189954")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("0.3804761470992138341528223912")]
 
     lptoken_amount = Decimal("0.0106223377584825466601881061023959773592650890350341796875")
     dai, weth = Balancer.unwrap(lptoken_amount, B60WETH40DAI_ADDR, block, ETHEREUM, web3=node)
-    assert dai == [ETHTokenAddr.DAI, Decimal("0.399880238790137285")]
-    assert weth == [ETHTokenAddr.WETH, Decimal("0.000328448772648097")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("0.3998802387901372854585400832")]
+    assert weth == [ETHTokenAddr.WETH, Decimal("0.0003284487726480976258782343735")]
 
     block = 17543299
     lptoken_amount = 1
     dai, usdt, usdc = Balancer.unwrap(lptoken_amount, bbaUSDV3_ADDR, block, ETHEREUM, web3=node)
-    assert dai == [ETHTokenAddr.DAI, Decimal("0.383661381978348616")]
-    assert usdt == [ETHTokenAddr.USDT, Decimal("0.247289")]
-    assert usdc == [ETHTokenAddr.USDC, Decimal("0.370135")]
+    assert dai == [ETHTokenAddr.DAI, Decimal("0.383661381978348619423138525")]
+    assert usdt == [ETHTokenAddr.USDT, Decimal("0.2472903528366287435333171411")]
+    assert usdc == [ETHTokenAddr.USDC, Decimal("0.370135423516758157100011437")]
 
 
 def test_swap_fees():
