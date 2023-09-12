@@ -618,7 +618,7 @@ def unwrap(
                     else:
                         # Aave Linear Pool after vulnerability removed the wrappedTokenRate
                         token_balance = call_contract_method(
-                            token_contract.functions.previewRedeem(exit_balances[i]), block
+                            token_contract.functions.previewRedeem(int(exit_balances[i])), block
                         )
                 else:
                     main_token = token_address
