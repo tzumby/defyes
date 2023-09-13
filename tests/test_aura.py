@@ -137,7 +137,7 @@ def test_underlying():
     node = get_node(Chain.ETHEREUM, block)
 
     balances = Aura.underlying(WALLET_N6, balancer_auraBALSTABLE_ADDR, block, Chain.ETHEREUM, web3=node)["balances"]
-    assert balances[ETHTokenAddr.BAL] == Decimal("38369.18588053512759139996168")
+    assert balances[ETHTokenAddr.BAL] == Decimal("38369.1858805351275913999617")
     assert balances[ETHTokenAddr.WETH] == Decimal("25.93597482398118254851195716")
     assert balances[ETHTokenAddr.auraBAL] == Decimal("23621.36000159691559589201902")
 
