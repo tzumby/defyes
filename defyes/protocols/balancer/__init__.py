@@ -7,7 +7,7 @@ from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.constants import Address, Chain, ETHTokenAddr
-from defyes.functions import block_to_date, date_to_block, get_logs_web3, last_block, to_token_amount
+from defyes.functions import block_to_date, date_to_block, get_decimals, get_logs_web3, last_block, to_token_amount
 from defyes.helpers import suppress_error_codes
 from defyes.node import get_node
 from defyes.prices.prices import get_price
@@ -53,36 +53,14 @@ class Vault(Vault):
 
 
 class PoolToken(PoolToken):
-    @cached_property
-    def underlying(self) -> str | None:
+    def preview_redeem(self, shares: int) -> str | None:
         with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
-            return super().underlying
-
-    @cached_property
-    def underlying_asset_address(self) -> str | None:
-        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
-            return super().underlying_asset_address
+            return super().preview_redeem(shares)
 
     @cached_property
     def pool_id(self) -> str | None:
         with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
             return super().get_pool_id
-
-    @cached_property
-    def main_addr(self) -> str:
-        main_token = self.underlying
-        if main_token is None:
-            main_token = self.underlying_asset_address
-            if main_token is None:
-                main_token = self.address
-
-        return main_token
-
-    def calc_amount(self, token_amount: int, decimals: bool = True) -> Decimal:
-        token_amount = Decimal(token_amount)
-        if decimals:
-            token_amount = token_amount / Decimal(10**self.decimals)
-        return token_amount
 
 
 class LiquidityPool(LiquidityPool):
@@ -109,37 +87,47 @@ class LiquidityPool(LiquidityPool):
         return self.total_supply
 
     @cached_property
-    def scaling_factors(self) -> int | None:
-        with suppress(ContractLogicError):
-            return self.get_scaling_factors
+    def main_token(self) -> int | None:
+        with suppress(ContractLogicError), suppress_error_codes():
+            return self.get_main_token
 
     @cached_property
-    def is_meta(self) -> bool:
-        pool_tokens = Vault(self.blockchain, self.block).get_pool_data(self.poolid)
-        is_meta = True
-        for n, (token_addr, balance) in enumerate(pool_tokens):
-            if n == self.bpt_index:
-                continue
+    def wrapped_token(self) -> int | None:
+        with suppress(ContractLogicError), suppress_error_codes():
+            return self.get_wrapped_token
 
-            token = PoolToken(self.blockchain, self.block, token_addr)
-            if token.pool_id is None:
-                is_meta = False
-                break
-
-        return is_meta
+    @cached_property
+    def wrapped_token_rate(self) -> int | None:
+        with suppress(ContractLogicError), suppress_error_codes():
+            return self.get_wrapped_token_rate
 
     def balance_of(self, wallet: str) -> int:
         wallet = Web3.to_checksum_address(wallet)
         return super().balance_of(wallet)
 
-    def calc_amount(self, token_id: int, token_amount: int, token_decimals: int, decimals: bool = True) -> Decimal:
-        token_amount = Decimal(token_amount)
-        scaling_factor = None if self.scaling_factors is None else self.scaling_factors[token_id]
-        if scaling_factor is not None and self.is_meta:
-            token_amount = token_amount * Decimal(scaling_factor) / Decimal(10 ** (2 * 18 - token_decimals))
+    def exit_balance(self, lp_amount: Decimal, token_balance: Decimal) -> Decimal:
+        return Decimal(lp_amount) * Decimal(10**self.decimals) / Decimal(self.supply) * Decimal(token_balance)
+
+    def calc_amount(
+        self, token: PoolToken, lp_amount: Decimal, token_amount: Decimal, decimals: bool = True
+    ) -> Decimal:
+        if token.address == self.wrapped_token:
+            main_token = self.main_token
+            token_decimals = get_decimals(main_token, self.blockchain, web3=self.contract.w3) if decimals else 0
+            if self.wrapped_token_rate:
+                balance = self.exit_balance(lp_amount, token_amount) * self.wrapped_token_rate / Decimal(10**18)
+            else:
+                # FIXME: preview_redeem receives an int and the result of exit_balance may not be an integer
+                balance = Decimal(token.preview_redeem(int(self.exit_balance(lp_amount, token_amount))))
+        else:
+            main_token = token.address
+            token_decimals = token.decimals
+            balance = self.exit_balance(lp_amount, token_amount)
+
         if decimals:
-            token_amount = token_amount / Decimal(10**token_decimals)
-        return token_amount
+            balance = balance / Decimal(10**token_decimals)
+
+        return main_token, balance
 
     def swap_fee_percentage_for(self, block: int | str) -> int:
         return self.contract.functions.getSwapFeePercentage().call(block_identifier=block)
@@ -333,7 +321,16 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
     ]
 
     REWARD_TOKENS: list = [
-        (16981440, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD, ETHTokenAddr.BB_A_USD_V3]),
+        (
+            16981440,
+            [
+                ETHTokenAddr.BAL,
+                ETHTokenAddr.BB_A_USD_OLD,
+                ETHTokenAddr.BB_A_USD,
+                ETHTokenAddr.BB_A_USD_V3,
+                ETHTokenAddr.USDC,
+            ],
+        ),
         (14623899, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD]),
     ]
 
@@ -361,42 +358,28 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
 def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, decimals: bool = True) -> None:
     lp = LiquidityPool(blockchain, block, lp_address)
     pool_tokens = Vault(blockchain, block).get_pool_data(lp.poolid)
-    pool_balance_fraction = Decimal(amount) * Decimal(10**lp.decimals) / Decimal(lp.supply)
     balances = {}
-    for n, (token_addr, balance) in enumerate(pool_tokens):
+    for n, (addr, balance) in enumerate(pool_tokens):
         if n == lp.bpt_index:
             continue
 
-        token = PoolToken(blockchain, block, token_addr)
+        token = PoolToken(blockchain, block, addr)
         if token.pool_id is not None:
+            pool_token_balance = lp.exit_balance(amount, balance) / Decimal(10**token.decimals if decimals else 1)
             for token_addr, token_balance in unwrap(
-                blockchain, token.address, token.calc_amount(balance, decimals), block
+                blockchain, token.address, pool_token_balance, block, decimals
             ).items():
-                balances[token_addr] = balances.get(token_addr, 0) + token_balance * pool_balance_fraction
+                balances[token_addr] = balances.get(token_addr, 0) + token_balance
         else:
-            token_balance = lp.calc_amount(n, balance, token.decimals, decimals)
-            balances[token.main_addr] = balances.get(token.main_addr, 0) + token_balance * pool_balance_fraction
+            token_addr, token_balance = lp.calc_amount(token, amount, balance, decimals)
+            balances[token_addr] = balances.get(token_addr, 0) + token_balance
     return balances
 
 
 def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: bool = True) -> None:
     lp = LiquidityPool(blockchain, block, lp_address)
-    pool_tokens = Vault(blockchain, block).get_pool_data(lp.poolid)
-    balances = {}
-    for n, (token_addr, balance) in enumerate(pool_tokens):
-        if n == lp.bpt_index:
-            continue
-
-        token = PoolToken(blockchain, block, token_addr)
-        if token.pool_id is not None:
-            for token_addr, token_balance in unwrap(
-                blockchain, token.address, token.calc_amount(balance, decimals), block
-            ).items():
-                balances[token_addr] = balances.get(token_addr, 0) + token_balance
-        else:
-            token_balance = lp.calc_amount(n, balance, token.decimals, decimals)
-            balances[token_addr] = balances.get(token_addr, 0) + token_balance
-    return balances
+    lp_amount = lp.supply / Decimal(10**lp.decimals if decimals else 1)
+    return unwrap(blockchain, lp_address, lp_amount, block, decimals)
 
 
 def get_protocol_data_for(

@@ -173,6 +173,51 @@ class LiquidityPool:
     def pool_id(self) -> bytes:
         return const_call(self.contract.functions.POOL_ID())
 
+    @property
+    def in_recovery_mode(self) -> bool:
+        return self.contract.functions.inRecoveryMode().call(block_identifier=self.block)
+
+    @property
+    def version(self) -> str:
+        return self.contract.functions.version().call(block_identifier=self.block)
+
+    def on_exit_pool(
+        self,
+        pool_id: bytes,
+        sender: str,
+        recipient: str,
+        balances: list[int],
+        last_change_block: int,
+        protocol_swap_fee_percentage: int,
+        user_data: bytes,
+    ) -> tuple[list[int], list[int]]:
+        """
+        Output: ,
+        """
+        return self.contract.functions.onExitPool(
+            pool_id, sender, recipient, balances, last_change_block, protocol_swap_fee_percentage, user_data
+        ).call(block_identifier=self.block)
+
+    @property
+    def get_main_token(self) -> str:
+        return self.contract.functions.getMainToken().call(block_identifier=self.block)
+
+    @property
+    def get_wrapped_token(self) -> str:
+        return self.contract.functions.getWrappedToken().call(block_identifier=self.block)
+
+    @property
+    def get_wrapped_token_rate(self) -> int:
+        return self.contract.functions.getWrappedTokenRate().call(block_identifier=self.block)
+
+    @property
+    def get_main_index(self) -> int:
+        return self.contract.functions.getMainIndex().call(block_identifier=self.block)
+
+    @property
+    def get_wrapped_index(self) -> int:
+        return self.contract.functions.getWrappedIndex().call(block_identifier=self.block)
+
 
 class PoolToken:
     default_addresses: dict[str, str]
@@ -225,6 +270,9 @@ class PoolToken:
     @property
     def get_pool_id(self) -> bytes:
         return self.contract.functions.getPoolId().call(block_identifier=self.block)
+
+    def preview_redeem(self, shares: int) -> int:
+        return self.contract.functions.previewRedeem(shares).call(block_identifier=self.block)
 
 
 class Vault:
