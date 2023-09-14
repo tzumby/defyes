@@ -102,7 +102,7 @@ class TokenAmount:
     def __init__(self, amount: int | Decimal, token: Token):
         # amount is expressed in the Token units
         # 1 Token = 1e^(token.decimals) teuToken
-        self.token_amount = Decimal(amount)
+        self.amount = Decimal(amount)
         self.token = token
         self.teu = Decimal(10**self.token.decimals)
 
@@ -113,29 +113,27 @@ class TokenAmount:
 
     def as_dict(self, not_in_teu: bool = False) -> dict:
         return {
-            "balance": self.token_amount if not_in_teu else self.token_amount * self.teu,
+            "balance": self.balance(not_in_teu),
             "address": str(self.token),
         }
 
+    def balance(self, not_in_teu: bool = False) -> int | Decimal:
+        return self.amount if not_in_teu else self.amount * self.teu
+
     def __str__(self):
-        return format_amount(self.token_amount)
+        return format_amount(self.amount)
 
     def __repr__(self):
-        _, digits, exp = self.token_amount.as_tuple()
+        _, digits, exp = self.amount.as_tuple()
         zeros_in_decimal_part = abs(exp) - len(digits)
-        if (
-            int(self.token_amount) == 0
-            and exp < 0
-            and zeros_in_decimal_part > 3
-            and (abs(exp) > self.token.decimals / 2)
-        ):
-            return f"{format_amount(self.token_amount * self.teu)}*teu{self.token.symbol}"
+        if int(self.amount) == 0 and exp < 0 and zeros_in_decimal_part > 3 and (abs(exp) > self.token.decimals / 2):
+            return f"{format_amount(self.amount * self.teu)}*teu{self.token.symbol}"
         else:
             return str(f"{str(self)}*{self.token.symbol}")
 
     def __eq__(self, other):
         if isinstance(other, TokenAmount):
-            return self.token_amount == other.token_amount and self.token == other.token
+            return self.amount == other.amount and self.token == other.token
         elif isinstance(other, str):
             return repr(self) == other
         return False

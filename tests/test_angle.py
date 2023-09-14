@@ -57,13 +57,11 @@ def test_protocol_data(decimals):
                     "underlyings": [
                         {
                             "address": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
-                            "balance": Decimal("-235029.284458768826450263")
-                            if decimals
-                            else Decimal("-235029284458768826450263"),
+                            "balance": Decimal("-235029.284458768826450263") if decimals else -235029284458768826450263,
                         },
                         {
                             "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
-                            "balance": Decimal("475") if decimals else Decimal("475000000000000000000"),
+                            "balance": Decimal("475") if decimals else 475000000000000000000,
                         },
                     ]
                 },
