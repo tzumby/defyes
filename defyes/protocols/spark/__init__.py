@@ -8,6 +8,8 @@ from decimal import Decimal, DivisionByZero, InvalidOperation
 from functools import cached_property
 from typing import Iterator, NamedTuple
 
+from web3 import Web3
+
 from defyes.constants import Chain
 from defyes.prices import Chainlink as chainlink
 from defyes.types import Addr, Token, TokenAmount
@@ -122,7 +124,7 @@ class ProtocolDataProvider(ProtocolDataProvider):
 
 
 def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
-    wallet = Addr(wallet)
+    wallet = Web3.to_checksum_address(wallet)
     pap = PoolAddressesProvider(blockchain, block)
     user_account_data = pap.pool_contract.user_account_data(wallet)
     pdp = ProtocolDataProvider(blockchain, block)
@@ -152,7 +154,7 @@ def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimal
 
 
 def get_full_finantial_metrics(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
-    wallet = Addr(wallet)
+    wallet = Web3.to_checksum_address(wallet)
     pap = PoolAddressesProvider(blockchain, block)
 
     user_account_data = pap.pool_contract.user_account_data(wallet)
@@ -167,7 +169,7 @@ def get_full_finantial_metrics(wallet: Addr, block: int | str, blockchain: Chain
     currency_unit = Decimal(pap.price_oracle_contract.base_currency_unit)
     for underlying in ProtocolDataProvider(blockchain, block).underlyings(wallet):
         asset = {
-            "token_address": underlying.token,
+            "token_address": str(underlying.token),
             "token_amount": abs(underlying.as_dict(decimals)["balance"]),
             "token_price_usd": pap.price_oracle_contract.get_asset_price(underlying.token) / currency_unit,
         }
