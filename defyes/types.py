@@ -113,9 +113,12 @@ class TokenAmount:
 
     def as_dict(self, not_in_teu: bool = False) -> dict:
         return {
-            "balance": self.amount if not_in_teu else int(self.amount * self.teu),
+            "balance": self.balance(not_in_teu),
             "address": str(self.token),
         }
+
+    def balance(self, not_in_teu: bool = False) -> int | Decimal:
+        return self.amount if not_in_teu else self.amount * self.teu
 
     def __str__(self):
         return format_amount(self.amount)
