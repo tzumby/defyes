@@ -146,14 +146,14 @@ def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimal
             }
         },
         "positions_key": None,
-        "finantial_metrics": {
+        "financial_metrics": {
             "collateral_ratio": user_account_data.collateral_ratio,
             "liquidation_ratio": user_account_data.liquidation_ratio,
         },
     }
 
 
-def get_full_finantial_metrics(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
+def get_full_financial_metrics(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
     wallet = Web3.to_checksum_address(wallet)
     pap = PoolAddressesProvider(blockchain, block)
 
