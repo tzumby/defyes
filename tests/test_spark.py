@@ -61,14 +61,14 @@ def expected_protocol_data(expected_position):
         "protocol": "Spark",
         "version": 0,
         "wallet": wallet,
-        "finantial_metrics": {
+        "financial_metrics": {
             "collateral_ratio": Decimal("1016.357510595627631280679422"),
             "liquidation_ratio": Decimal("400"),
         },
     }
 
 
-expected_finantial_metrics = {
+expected_financial_metrics = {
     "collateral_ratio": Decimal("1016.357510595627631280679422"),
     "liquidation_ratio": Decimal("400"),
     "native_token_price_usd": Decimal("1857.8255"),
@@ -89,7 +89,7 @@ expected_finantial_metrics = {
 }
 
 
-expected_finantial_metrics_teu = {
+expected_financial_metrics_teu = {
     "collateral_ratio": Decimal("1016.357510595627631280679422"),
     "liquidation_ratio": Decimal("400"),
     "native_token_price_usd": Decimal("1857.8255"),
@@ -144,9 +144,9 @@ def test_holdings(pdp):
 
 
 @decimal
-def test_get_full_finantial_metrics(decimal):
-    ret = spark.get_full_finantial_metrics(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+def test_get_full_financial_metrics(decimal):
+    ret = spark.get_full_financial_metrics(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
-    assert ret == expected_finantial_metrics if decimal else expected_finantial_metrics_teu
+    assert ret == expected_financial_metrics if decimal else expected_financial_metrics_teu
