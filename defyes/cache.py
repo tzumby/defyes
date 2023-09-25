@@ -10,7 +10,7 @@ from .helpers import suppressed_error_codes
 
 logger = logging.getLogger(__name__)
 
-VERSION = 5
+VERSION = 6
 VERSION_CACHE_KEY = "VERSION"
 
 _cache = None
