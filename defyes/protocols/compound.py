@@ -296,7 +296,7 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, decimals=True):
 # Output: a list with 1 elements:
 # 1 - List of Tuples: [liquidity_token_address, balance]
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def unwrap(ctoken_amount, ctoken_address, block, blockchain, web3=None, decimals=True):
+def unwrap(ctoken_amount: float | Decimal, ctoken_address, block, blockchain, web3=None, decimals=True):
     """
     :param ctoken_amount:
     :param ctoken_address:

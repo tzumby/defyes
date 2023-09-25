@@ -13,7 +13,14 @@ def get_api_results(wallet: str, blockchain: str) -> Union[List[dict], str]:
 
     response = requests.get(f"https://api.hiddenhand.finance/reward/{chain_id}/{wallet}")
     result = json.loads(response.text, parse_float=Decimal)
-    if not result["error"]:
+
+    # legacy rewards request api
+    legacy_response = requests.get(f"https://api.hiddenhand.finance/reward/{chain_id}/{wallet}?legacy=true")
+    legacy_result = json.loads(legacy_response.text, parse_float=Decimal)
+
+    if not result["error"] and not legacy_result["error"]:
+        result["data"] += legacy_result["data"]
+
         return result["data"]
     else:
         return "request returns error"

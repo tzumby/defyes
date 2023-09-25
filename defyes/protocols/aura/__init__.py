@@ -66,6 +66,25 @@ REWARDER_FACTORIES = {
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# REWARDER FACTORY
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Ethereum Rewarder Factory Contract Address
+REWARDER_FACTORY_ETHEREUM = "0xBC8d9cAf4B6bf34773976c5707ad1F2778332DcA"
+REWARDER_FACTORY_ETHEREUM_V2 = "0xBC8d9cAf4B6bf34773976c5707ad1F2778332DcB"
+
+# Polygon Rewarder Factory Contract Address
+REWARDER_FACTORY_POLYGON = "0xB292BE31649A0b079DBdb772FCf5c7a02a6E0144"
+
+# Arbitrum Rewarder Factory Contract Address
+REWARDER_FACTORY_ARBITRUM = "0xda2e6bA0B1aBBCA925b70E9747AFbD481C16e7dB"
+
+# Optimism Rewarder Factory Contract Address
+REWARDER_FACTORY_OPTIMISM = "0x2F4CdF0D46F4E3E6D4d37836E73073046138D4f7"
+
+# Gnosis Chain Rewarder Factory Contract Address
+REWARDER_FACTORY_XDAI = "0x0F641b291Ba374Ec9B17a878c54B98005a0BAcaE"
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # ABIs
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Booster ABI - poolInfo, poolLength, rewardFactory, minter

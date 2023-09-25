@@ -71,6 +71,16 @@ def test_get_locked():
         ["0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0", Decimal("5.806260846190998503")],
     ]
 
+    locked = Convex.get_locked(
+        wallet="0x849d52316331967b6ff1198e5e32a0eb168d039d", block=17499865, blockchain="ethereum", reward=True
+    )
+    assert locked == [
+        [CVX_ETH, Decimal("15141.040500434822549545")],
+        [CVXCRV_ETH, Decimal("498.957290776022003025")],
+        ["0xFEEf77d3f69374f66429C91d732A244f074bdf74", Decimal("0.706414240457270942")],
+        ["0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0", Decimal("5.806260846190998503")],
+    ]
+
 
 def test_get_staked():
     staked = Convex.get_staked(

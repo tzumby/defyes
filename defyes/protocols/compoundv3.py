@@ -19,6 +19,7 @@ COMET_ABI = '[{"inputs":[],"name":"baseToken","outputs":[{"internalType":"addres
 COMET_REWARDS_ABI = '[{"inputs":[{"internalType":"address","name":"comet","type":"address"},{"internalType":"address","name":"account","type":"address"}],"name":"getRewardOwed","outputs":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"owed","type":"uint256"}],"internalType":"struct CometRewards.RewardOwed","name":"","type":"tuple"}],"stateMutability":"nonpayable","type":"function"}]'
 
 # TODO: till 29-4-2023 only cUSDC and cWETH exists, there will be more and then a token list would be nice to fetch from blockchain.
+# TODO: the protocol is incomplete since it doesn't have the logic to get the amount of collateral and borrowed tokens.
 
 
 def underlying(
