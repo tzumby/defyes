@@ -15,11 +15,11 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
   f1 = Convex.get_pool_info('0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest')
 
@@ -48,15 +48,15 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
-  f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', ETHEREUM)
-  f2 = Convex.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+  f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', Chain.ETHEREUM)
+  f2 = Convex.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
   print(f2)
 
   ```
@@ -79,15 +79,15 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
-  f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', ETHEREUM)
-  f3 = Convex.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
+  f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', Chain.ETHEREUM)
+  f3 = Convex.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
   print(f3)
 
   ```
@@ -108,11 +108,11 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
   ```
 
@@ -135,14 +135,14 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
-  f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', ETHEREUM)
-  f4 = Convex.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'f1', 'latest', ETHEREUM)
+  f1 = get_contract('0xf34DFF761145FF0B05e917811d488B441F33a968', Chain.ETHEREUM)
+  f4 = Convex.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'f1', 'latest', Chain.ETHEREUM)
   print(f4)
 
   ```
@@ -168,13 +168,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
-  f5 = Convex.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f5 = Convex.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
   
   print(f5)
 
@@ -202,13 +202,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
-  f6 = Convex.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f6 = Convex.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
   
   print(f6)
   
@@ -235,13 +235,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
-  f7 = Convex.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', ETHEREUM)
+  f7 = Convex.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', Chain.ETHEREUM)
   
   print(f7)
   
@@ -267,13 +267,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Convex
+  from defyes import Convex
 
-  f8 = Convex.pool_balances('0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', ETHEREUM)
+  f8 = Convex.pool_balances('0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23', 'latest', Chain.ETHEREUM)
   
   print(f8)
   

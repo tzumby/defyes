@@ -10,15 +10,15 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Swapr
+  from defyes import Swapr
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = Swapr.get_staking_rewards_contract(web3, 'latest', ETHEREUM)
+  f1 = Swapr.get_staking_rewards_contract(web3, 'latest', Chain.ETHEREUM)
 
   print(f1)
 
@@ -41,17 +41,17 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Swapr
+  from defyes import Swapr
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = Swapr.get_staking_rewards_contract(web3, 'latest', ETHEREUM)
+  f1 = Swapr.get_staking_rewards_contract(web3, 'latest', Chain.ETHEREUM)
 
-  f2 = Swapr.get_distribution_contracts(web3, '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', f1, 1, 'latest', ETHEREUM)
+  f2 = Swapr.get_distribution_contracts(web3, '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', f1, 1, 'latest', Chain.ETHEREUM)
 
   print(f2)
 
@@ -71,13 +71,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Swapr
+  from defyes import Swapr
 
-  f3 = Swapr.get_lptoken_data('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+  f3 = Swapr.get_lptoken_data('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
   print(f3)
 
@@ -104,13 +104,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Swapr
+  from defyes import Swapr
 
-  f4 = Swapr.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+  f4 = Swapr.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
   print(f4)
 
@@ -136,13 +136,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Swapr
+  from defyes import Swapr
 
-  f5 = Swapr.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+  f5 = Swapr.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
   print(f5)
 
@@ -166,13 +166,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Swapr
+  from defyes import Swapr
 
-  f6 = Swapr.pool_balances('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', ETHEREUM)
+  f6 = Swapr.pool_balances('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 'latest', Chain.ETHEREUM)
 
   print(f6)
 
@@ -193,13 +193,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Swapr
+  from defyes import Swapr
 
-  f7 = Swapr.swap_fees('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 16392504, 'latest', ETHEREUM)
+  f7 = Swapr.swap_fees('0x7515Be43D16f871588ADc135d58a9c30A71Eb34F', 16392504, 'latest', Chain.ETHEREUM)
 
   print(f7)
 

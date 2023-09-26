@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import requests
 
-from defi_protocols import Votium
+from defyes import Votium
 
 WALLET = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 
@@ -29,7 +29,7 @@ def test_get_rewards_per_token():
 
 # Check output
 def test_get_all_rewards():
-    with patch("defi_protocols.Votium.get_rewards_per_token") as mock_inner:
+    with patch("defyes.Votium.get_rewards_per_token") as mock_inner:
         raw_json_url = "https://raw.githubusercontent.com/oo-00/Votium/main/merkle/activeTokens.json"
         response = requests.get(raw_json_url)
         json_data = response.json()

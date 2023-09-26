@@ -1,6 +1,6 @@
 CONFIG_PATH ?= config.json
-image := defi-protocols
-path := defi_protocols tests
+image := defyes
+path := defyes tests
 repo_dir := $(shell git rev-parse --show-toplevel)
 docker_base_run := docker run --rm -i \
   -v $(PWD):/repo \
@@ -93,9 +93,14 @@ isort: build-if-no-image  ## Apply isort.
 pretty: isort black
 
 
+.PHONY: autogenerate
+autogenerate: build-if-no-image
+	@$(docker_user_run) -t $(image) python -m defyes.generator
+
+
 .PHONY: cacheclear
 cacheclear: build-if-no-image
 	@echo "Clearing the API requests cache..."
 	@echo "=================================="
 	@echo
-	@$(docker_user_run) $(image) python -c "import defi_protocols.cache as c; c.clear()" 
+	@$(docker_user_run) $(image) python -c "import defyes.cache as c; c.clear()" 

@@ -9,13 +9,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Reflexer
+  from defyes import Reflexer
 
-  f1 = Reflexer.lptoken_underlying('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 10000, 'latest', ETHEREUM)
+  f1 = Reflexer.lptoken_underlying('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 10000, 'latest', Chain.ETHEREUM)
 
   print(f1)
 
@@ -38,13 +38,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Reflexer
+  from defyes import Reflexer
 
-  f2 = Reflexer.pool_balance('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', ETHEREUM)
+  f2 = Reflexer.pool_balance('0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', Chain.ETHEREUM)
 
   print(f2)
 
@@ -66,13 +66,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Reflexer
+  from defyes import Reflexer
 
-  f3 = Reflexer.balance_of_lptoken_underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', ETHEREUM)
+  f3 = Reflexer.balance_of_lptoken_underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', Chain.ETHEREUM)
 
   print(f3)
   ```
@@ -92,14 +92,14 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Reflexer
+  from defyes import Reflexer
 
   
-  f4 = Reflexer.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', ETHEREUM)
+  f4 = Reflexer.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xd6F3768E62Ef92a9798E5A8cEdD2b78907cEceF9', 'latest', Chain.ETHEREUM)
 
   print(f4)
   ```

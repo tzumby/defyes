@@ -2,9 +2,9 @@ from decimal import Decimal
 
 import pytest
 
-from defi_protocols import Unit
-from defi_protocols.constants import ETHEREUM
-from defi_protocols.functions import get_node
+from defyes import Unit
+from defyes.constants import Chain
+from defyes.node import get_node
 
 USDP = "0x1456688345527bE1f37E9e627DA0837D6f08C925"
 FTM_ETH = "0x4E15361FD6b4BB609Fa63C81A2be19d873717870"
@@ -19,12 +19,12 @@ USG_ETH = "0x0770E27F92F0D0e716dc531037B8b87FEFEbE561"
 TEST_BLOCK = 17225800
 TEST_WALLET = "0x8442e4FCbbA519B4f4C1EA1FcE57a5379C55906C"
 COLLATERAL_ADDRESS = FTM_ETH
-WEB3 = get_node(blockchain=ETHEREUM, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.ETHEREUM, block=TEST_BLOCK)
 
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_get_cdp_viewer_data(decimals):
-    x = Unit.get_cdp_viewer_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, decimals=decimals)
+    x = Unit.get_cdp_viewer_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, Chain.ETHEREUM, WEB3, decimals=decimals)
     y = Decimal(10**18 if decimals else 1)
     assert x == {
         "icr": 69,
@@ -40,7 +40,7 @@ def test_get_cdp_viewer_data(decimals):
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_get_cdp_data(decimals):
-    x = Unit.get_cdp_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, ETHEREUM, WEB3, decimals=decimals)
+    x = Unit.get_cdp_data(TEST_WALLET, COLLATERAL_ADDRESS, TEST_BLOCK, Chain.ETHEREUM, WEB3, decimals=decimals)
     y = Decimal(10**18 if decimals else 1)
     assert x == {
         "icr": 69,
@@ -63,7 +63,7 @@ def test_get_cdp_data(decimals):
 
 @pytest.mark.parametrize("decimals", [True, False])
 def test_underlying(decimals):
-    x = Unit.underlying(TEST_WALLET, TEST_BLOCK, ETHEREUM, WEB3, decimals=decimals)
+    x = Unit.underlying(TEST_WALLET, TEST_BLOCK, Chain.ETHEREUM, WEB3, decimals=decimals)
     y18 = Decimal(10**18 if decimals else 1)
     y12 = Decimal(10**12 if decimals else 1)
     y2 = Decimal(10**2 if decimals else 1)

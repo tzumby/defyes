@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from defi_protocols import Idle
-from defi_protocols.constants import ETHEREUM, ETHTokenAddr
+from defyes import Idle
+from defyes.constants import Chain, ETHTokenAddr
 
 TEST_WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 TEST_WALLET2 = "0x542256Ef33279C5545AA71f4b3B6298990f30Ffc"
@@ -10,7 +10,7 @@ TEST_BLOCK = 18073189
 
 def test_get_all_rewards():
     gauge = "0x675eC042325535F6e176638Dd2d4994F645502B9"
-    rewards = Idle.get_all_rewards(TEST_WALLET2, gauge, TEST_BLOCK, ETHEREUM)
+    rewards = Idle.get_all_rewards(TEST_WALLET2, gauge, TEST_BLOCK, Chain.ETHEREUM)
     assert rewards == [
         [ETHTokenAddr.IDLE, Decimal("11.966264216568462645")],
         [ETHTokenAddr.LDO, Decimal("36.724756125561987935")],
@@ -24,7 +24,7 @@ def test_get_balances():
         underlying_token=ETHTokenAddr.stETH,
         wallet=TEST_WALLET,
         block=TEST_BLOCK,
-        blockchain=ETHEREUM,
+        blockchain=Chain.ETHEREUM,
     )
     assert amounts == {
         "0xdf17c739b666B259DA3416d01f0310a6e429f592": {
@@ -46,7 +46,7 @@ def test_underlying():
         wallet=TEST_WALLET2,
         tranche_address="0x2688FC68c4eac90d9E5e1B94776cF14eADe8D877",
         block=TEST_BLOCK,
-        blockchain=ETHEREUM,
+        blockchain=Chain.ETHEREUM,
         reward=True,
     )
 
@@ -100,7 +100,7 @@ def test_underlying():
 
 
 def test_get_addresses_subgraph():
-    addresses = Idle.get_addresses_subgraph(TEST_BLOCK, ETHEREUM)
+    addresses = Idle.get_addresses_subgraph(TEST_BLOCK, Chain.ETHEREUM)
     assert addresses == {
         "cdos": [
             {
@@ -381,7 +381,7 @@ def test_get_addresses_subgraph():
 
 
 def test_get_gauges():
-    gauges = Idle.get_gauges(TEST_BLOCK, ETHEREUM)
+    gauges = Idle.get_gauges(TEST_BLOCK, Chain.ETHEREUM)
     assert gauges == [
         ["0x21dDA17dFF89eF635964cd3910d167d562112f57", "0x790E38D85a364DD03F682f5EcdC88f8FF7299908"],
         ["0x675eC042325535F6e176638Dd2d4994F645502B9", "0x2688FC68c4eac90d9E5e1B94776cF14eADe8D877"],

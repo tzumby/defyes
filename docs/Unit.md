@@ -10,13 +10,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Unit
+  from defyes import Unit
 
-  f1 = Unit.get_vault_address(ETHEREUM)
+  f1 = Unit.get_vault_address(Chain.ETHEREUM)
 
   print(f1)
 
@@ -37,13 +37,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Unit
+  from defyes import Unit
 
-  f2 = Unit.get_cdp_registry_address(ETHEREUM)
+  f2 = Unit.get_cdp_registry_address(Chain.ETHEREUM)
 
   print(f2)
 
@@ -63,13 +63,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Unit
+  from defyes import Unit
 
-  f3 = Unit.get_cdp_manager_address(ETHEREUM)
+  f3 = Unit.get_cdp_manager_address(Chain.ETHEREUM)
 
   print(f3)
 
@@ -90,13 +90,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Unit
+  from defyes import Unit
 
-  f4 = Unit.get_cdp_viewer_address(ETHEREUM)
+  f4 = Unit.get_cdp_viewer_address(Chain.ETHEREUM)
 
   print(f4)
 
@@ -115,13 +115,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Unit
+  from defyes import Unit
 
-  f5 = Unit.get_cdp_viewer_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', ETHEREUM)
+  f5 = Unit.get_cdp_viewer_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', Chain.ETHEREUM)
 
   print(f5)
 
@@ -141,13 +141,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Unit
+  from defyes import Unit
 
-  f6 = Unit.get_cdp_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', ETHEREUM)
+  f6 = Unit.get_cdp_data('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'latest', Chain.ETHEREUM)
 
   print(f6)
 
@@ -172,13 +172,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Unit
+  from defyes import Unit
 
-  f7 = Unit.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f7 = Unit.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f7)
 

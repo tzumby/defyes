@@ -11,15 +11,15 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-  f1 = Symmetric.get_vault_contract(web3, 'latest', XDAI)
+  f1 = Symmetric.get_vault_contract(web3, 'latest', Chain.GNOSIS)
 
   print(f1)
 
@@ -42,15 +42,15 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-  f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+  f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
   print(f2)
 
@@ -72,15 +72,15 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-  f3 = Symmetric.get_pool_info(web3, '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+  f3 = Symmetric.get_pool_info(web3, '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
   print(f3)
 
@@ -102,15 +102,15 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-  f4 = Symmetric.get_lptoken_data('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+  f4 = Symmetric.get_lptoken_data('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
   print(f4)
 
@@ -132,17 +132,17 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-  f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+  f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
-  f5 = Symmetric.get_rewarder_contract(web3, 'latest', XDAI, f2, 0)
+  f5 = Symmetric.get_rewarder_contract(web3, 'latest', Chain.GNOSIS, f2, 0)
 
   print(f5)
 
@@ -167,17 +167,17 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-  f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+  f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
-  f6 = Symmetric.get_symm_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', XDAI, 0)
+  f6 = Symmetric.get_symm_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.GNOSIS, 0)
 
   print(f6)
 
@@ -203,17 +203,17 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  web3 = get_node(XDAI, 'latest', 0)
+  web3 = get_node(Chain.GNOSIS, 'latest', 0)
 
-  f2 = Symmetric.get_chef_contract(web3, 'latest', XDAI)
+  f2 = Symmetric.get_chef_contract(web3, 'latest', Chain.GNOSIS)
 
-  f7 = Symmetric.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', XDAI, 0)
+  f7 = Symmetric.get_rewards(web3, '0x849D52316331967b6fF1198e5E32A0eB168D039d', f2, 0, 'latest', Chain.GNOSIS, 0)
 
   print(f7)
 
@@ -240,13 +240,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  f8 = Symmetric.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+  f8 = Symmetric.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
   print(f8)
 
@@ -276,13 +276,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  f9 = Symmetric.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+  f9 = Symmetric.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
   print(f9)
 
@@ -310,13 +310,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  f10 = Symmetric.pool_balances('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+  f10 = Symmetric.pool_balances('0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
   print(f10)
 
@@ -337,13 +337,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  f11 = Symmetric.get_rewards_per_unit('0x8B78873717981F18C9B8EE67162028BD7479142b', XDAI)
+  f11 = Symmetric.get_rewards_per_unit('0x8B78873717981F18C9B8EE67162028BD7479142b', Chain.GNOSIS)
 
   print(f11)
 
@@ -373,13 +373,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  f13 = Symmetric.underlyingv1('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', XDAI)
+  f13 = Symmetric.underlyingv1('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0x8B78873717981F18C9B8EE67162028BD7479142b', 'latest', Chain.GNOSIS)
 
   print(f13)
 
@@ -404,13 +404,13 @@
 
   ```
 
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Symmetric
+  from defyes import Symmetric
 
-  f14 = Symmetric.swap_fees('0x65b0e9418e102a880c92790f001a9c5810b0ef32', 25928795, 'latest', XDAI)
+  f14 = Symmetric.swap_fees('0x65b0e9418e102a880c92790f001a9c5810b0ef32', 25928795, 'latest', Chain.GNOSIS)
 
   print(f14)
 

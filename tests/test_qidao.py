@@ -1,17 +1,17 @@
 from decimal import Decimal
 
-from defi_protocols import QiDao
-from defi_protocols.constants import XDAI, GnosisTokenAddr
+from defyes import QiDao
+from defyes.constants import Chain, GnosisTokenAddr
 
 
 def test_get_vaul_address():
-    address = QiDao.get_vault_address(GnosisTokenAddr.WETH, XDAI)
+    address = QiDao.get_vault_address(GnosisTokenAddr.WETH, Chain.GNOSIS)
     assert address == "0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b"
 
 
 def test_get_vault_data():
     block = 27814350
-    data = QiDao.get_vault_data(0, GnosisTokenAddr.GNO, block, XDAI)
+    data = QiDao.get_vault_data(0, GnosisTokenAddr.GNO, block, Chain.GNOSIS)
     assert data.pop("liquidation_price").is_nan()
     assert data == {
         "collateral_address": GnosisTokenAddr.GNO,
@@ -29,5 +29,5 @@ def test_get_vault_data():
 
 def test_underlying():
     block = 27814350
-    underlying = QiDao.underlying(0, GnosisTokenAddr.GNO, block, XDAI)
+    underlying = QiDao.underlying(0, GnosisTokenAddr.GNO, block, Chain.GNOSIS)
     assert underlying == [[GnosisTokenAddr.GNO, Decimal("12.669153514705549101")], [GnosisTokenAddr.MAI, Decimal("0")]]

@@ -10,13 +10,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Honeyswap
+  from defyes import Honeyswap
 
-  f1 = Honeyswap.get_lptoken_data('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', ETHEREUM)
+  f1 = Honeyswap.get_lptoken_data('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', Chain.ETHEREUM)
   
   print(f1)
 
@@ -42,13 +42,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Honeyswap
+  from defyes import Honeyswap
 
-  f2 = Honeyswap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', ETHEREUM)
+  f2 = Honeyswap.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', Chain.ETHEREUM)
 
   print(f2)
 
@@ -74,13 +74,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Honeyswap
+  from defyes import Honeyswap
 
-  f3 = Honeyswap.pool_balances('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', ETHEREUM)
+  f3 = Honeyswap.pool_balances('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 'latest', Chain.ETHEREUM)
 
   print(f3)
   
@@ -100,13 +100,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Honeyswap
+  from defyes import Honeyswap
 
-  f4 = Honeyswap.swap_fees('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 0, 'latest', ETHEREUM)
+  f4 = Honeyswap.swap_fees('0xCd9652F006EFDE64f07030F10A1945EAD8AC1855', 0, 'latest', Chain.ETHEREUM)
 
   print(f4)
 

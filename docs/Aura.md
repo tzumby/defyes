@@ -15,13 +15,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  f0 = get_contract('0xA57b8d98dAE62B26Ec3bcC4a365338157060B234', ETHEREUM)
+  f0 = get_contract('0xA57b8d98dAE62B26Ec3bcC4a365338157060B234', Chain.ETHEREUM)
 
   f1 = Aura.get_pool_info(f0, '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest')
 
@@ -44,17 +44,17 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', ETHEREUM)
+  f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', Chain.ETHEREUM)
 
-  f2 = Aura.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f2 = Aura.get_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f2)
 
@@ -75,17 +75,17 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  web3 = get_node(ETHEREUM, 'latest', 0)
+  web3 = get_node(Chain.ETHEREUM, 'latest', 0)
 
-  f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', ETHEREUM)
+  f1 = get_contract('0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2', Chain.ETHEREUM)
 
-  f3 = Aura.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f3 = Aura.get_extra_rewards(web3, f1, '0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f3)
 
@@ -105,13 +105,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  f4 = Aura.get_extra_rewards_airdrop('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f4 = Aura.get_extra_rewards_airdrop('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f4)
 
@@ -132,11 +132,11 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
   ```
 
@@ -160,13 +160,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  f6 = Aura.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', ETHEREUM)
+  f6 = Aura.get_all_rewards('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', Chain.ETHEREUM)
 
   print(f6)
 
@@ -191,13 +191,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  f7 = Aura.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f7 = Aura.get_locked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f7)
 
@@ -224,13 +224,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  f8 = Aura.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', ETHEREUM)
+  f8 = Aura.get_staked('0x849D52316331967b6fF1198e5E32A0eB168D039d', 'latest', Chain.ETHEREUM)
 
   print(f8)
 
@@ -257,13 +257,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  f9 = Aura.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', ETHEREUM)
+  f9 = Aura.underlying('0x849D52316331967b6fF1198e5E32A0eB168D039d', '0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', Chain.ETHEREUM)
 
   print(f9)
 
@@ -288,13 +288,13 @@
 - <details><summary><b>Example</b></summary>
 
   ```
-  from defi_protocols import *
+  from defyes import *
 
-  from defi_protocols.functions import *
+  from defyes.functions import *
 
-  from defi_protocols import Aura
+  from defyes import Aura
 
-  f10 = Aura.pool_balances('0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', ETHEREUM)
+  f10 = Aura.pool_balances('0xCfCA23cA9CA720B6E98E3Eb9B6aa0fFC4a5C08B9', 'latest', Chain.ETHEREUM)
 
   print(f10)
 
