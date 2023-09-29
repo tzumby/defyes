@@ -497,17 +497,19 @@ def get_protocol_data_for(
                         )
 
             if blockchain == Chain.ETHEREUM:
-                vebal_rewards = get_vebal_rewards(wallet, blockchain, block, decimals)
-                for addr, reward_balance in vebal_rewards.items():
-                    if reward_balance:
-                        token_amount = TokenAmount(reward_balance, Token.get_instance(addr, blockchain))
-                        ret["positions"][lp_address].update(locked=ret["positions"][lp_address].get("locked", {}))
-                        ret["positions"][lp_address]["locked"].update(
-                            unclaimed_rewards=ret["positions"][lp_address]["locked"].get("unclaimed_rewards", [])
-                        )
-                        ret["positions"][lp_address]["locked"]["unclaimed_rewards"].append(
-                            token_amount.as_dict(decimals)
-                        )
+                vebal = Vebal(blockchain, block)
+                if lp_address == vebal.token:
+                    vebal_rewards = get_vebal_rewards(wallet, blockchain, block, decimals)
+                    for addr, reward_balance in vebal_rewards.items():
+                        if reward_balance:
+                            token_amount = TokenAmount(reward_balance, Token.get_instance(addr, blockchain))
+                            ret["positions"][lp_address].update(locked=ret["positions"][lp_address].get("locked", {}))
+                            ret["positions"][lp_address]["locked"].update(
+                                unclaimed_rewards=ret["positions"][lp_address]["locked"].get("unclaimed_rewards", [])
+                            )
+                            ret["positions"][lp_address]["locked"]["unclaimed_rewards"].append(
+                                token_amount.as_dict(decimals)
+                            )
 
     return ret
 

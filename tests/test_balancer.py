@@ -276,18 +276,6 @@ def test_protocol_data():
                         ],
                     },
                 },
-                "locked": {
-                    "unclaimed_rewards": [
-                        {
-                            "address": "0xba100000625a3754423978a60c9317c58a424e3D",
-                            "balance": Decimal("0.000019372013715193"),
-                        },
-                        {
-                            "address": "0xA13a9247ea42D743238089903570127DdA72fE44",
-                            "balance": Decimal("0.000210261212072964"),
-                        },
-                    ]
-                },
             },
             "0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56": {
                 "locked": {
