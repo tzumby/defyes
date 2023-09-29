@@ -148,24 +148,24 @@ def get_decimals(token_address, blockchain, web3=None, block="latest"):
 
 
 def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
+    token_address = Web3.to_checksum_address(token_address)
+
     if web3 is None:
         web3 = get_node(blockchain, block=block)
 
-    token_address = Web3.to_checksum_address(token_address)
+    special_addr_mapping = {
+        Chain.ETHEREUM: "ETH",
+        Chain.OPTIMISM: "ETH",
+        Chain.ARBITRUM: "ETH",
+        Chain.POLYGON: "MATIC",
+        Chain.GNOSIS: "GNOSIS",
+        Chain.FANTOM: "FTM",
+        Chain.AVALANCHE: "AVAX",
+        Chain.BINANCE: "BNB",
+    }
 
-    if token_address == Address.ZERO or token_address == Address.E:
-        if blockchain is Chain.ETHEREUM or blockchain is Chain.OPTIMISM or blockchain is Chain.ARBITRUM:
-            symbol = "ETH"
-        elif blockchain is Chain.POLYGON:
-            symbol = "MATIC"
-        elif blockchain is Chain.GNOSIS:
-            symbol = "Chain.GNOSIS"
-        elif blockchain is Chain.FANTOM:
-            symbol = "FTM"
-        elif blockchain is Chain.AVALANCHE:
-            symbol = "AVAX"
-        elif blockchain is Chain.BINANCE:
-            symbol = "BNB"
+    if token_address in [Address.ZERO, Address.E]:
+        symbol = special_addr_mapping[blockchain]
     else:
         symbol = infer_symbol(web3, blockchain, token_address)
 
@@ -179,7 +179,7 @@ def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
 def infer_symbol(web3, blockchain, token_address):
     contract = web3.eth.contract(address=token_address, abi=ABI_TOKEN_SIMPLIFIED)
     for method_name in ("symbol", "SYMBOL"):
-        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
+        with suppress(ContractLogicError, BadFunctionCallOutput, OverflowError), suppress_error_codes():
             return const_call(getattr(contract.functions, method_name)())
 
     abi = ChainExplorer(blockchain).abi_from_address(token_address)

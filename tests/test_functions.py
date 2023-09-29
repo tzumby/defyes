@@ -31,7 +31,10 @@ def test_get_symbol():
     assert symbol == "ETH"
 
     symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.GNOSIS, block=17380523)
-    assert symbol == "Chain.GNOSIS"
+    assert symbol == "GNOSIS"
+
+    symbol = get_symbol("0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359", "ethereum")
+    assert symbol == "DAI"
 
 
 def test_search_proxy_impl_address():
