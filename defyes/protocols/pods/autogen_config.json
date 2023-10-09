@@ -1,0 +1,9 @@
+{
+  "base_vault": {
+    "const_call": [
+        "decimals",
+        "symbol",
+        "name"
+    ]
+  }
+}
