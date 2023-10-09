@@ -1,4 +1,6 @@
-from typing import Iterator
+from typing import Any, Iterator
+
+from web3 import Web3
 
 from defyes.constants import Chain
 from defyes.types import Addr, Token, TokenAmount
@@ -54,36 +56,46 @@ vault_classes = {
     UsdcFudVault,
 }
 
-wallet = Addr("0x58e6c7ab55Aa9012eAccA16d1ED4c15795669E1C")
-block_id = 18293661
 
-
-def all_assets_of(wallet: Addr, block_id="latest"):
+def underlyings(wallet: Addr, block_id="latest", blockchain: Chain = Chain.ETHEREUM) -> Iterator[TokenAmount]:
     for vault_class in vault_classes:
-        vault = vault_class(Chain.ETHEREUM, block_id)
-        token = Token.get_instance(vault.address, vault.blockchain, vault.block)
-        token_amount = TokenAmount.from_teu(vault.assets_of(wallet), token)
-        yield token_amount
+        vault = vault_class(blockchain, block_id)
+        asset = Token.get_instance(vault.asset, vault.blockchain, vault.block)
+        yield TokenAmount.from_teu(vault.assets_of(wallet), asset)
 
 
-def non_zero(values: Iterator):
+def holdings(wallet: Addr, block_id="latest", blockchain: Chain = Chain.ETHEREUM) -> Iterator[TokenAmount]:
+    for vault_class in vault_classes:
+        vault = vault_class(blockchain, block_id)
+        share = Token.get_instance(vault.address, vault.blockchain, vault.block)
+        yield TokenAmount.from_teu(vault.balance_of(wallet), share)
+
+
+def non_zero(values: Iterator[Any]) -> Iterator[Any]:
     for value in values:
         if value != 0:
             yield value
 
 
-def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
+def get_protocol_data(
+    wallet: Addr, block: int | str, blockchain: Chain = Chain.ETHEREUM, decimals: bool = True
+) -> dict:
+    wallet = Web3.to_checksum_address(wallet)
+
+    def as_dict_list(token_amounts):
+        return [token_amount.as_dict(decimals) for token_amount in token_amounts]
+
     return {
         "blockchain": blockchain,
         "block_id": block,
-        "protocol": "Spark",
+        "protocol": "Pods",
         "version": 0,
         "wallet": wallet,
         "decimals": decimals,
         "positions": {
             "single_position": {
-                #        "underlyings": as_dict_list(pdp.underlyings(wallet)),
-                #        "holdings": as_dict_list(pdp.holdings(wallet)),
+                "underlyings": as_dict_list(non_zero(underlyings(wallet))),
+                "holdings": as_dict_list(non_zero(holdings(wallet))),
             }
         },
         "positions_key": None,
