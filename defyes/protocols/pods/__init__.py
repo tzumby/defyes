@@ -70,7 +70,7 @@ def underlyings_holdings(
         vault = vault_class(blockchain, block_id)
         asset = Token.get_instance(vault.asset, vault.blockchain, vault.block)
         share = Token.get_instance(vault.address, vault.blockchain, vault.block)
-        yield (
+        yield VaultAssetShare(
             vault,
             TokenAmount.from_teu(vault.assets_of(wallet), asset),
             TokenAmount.from_teu(vault.balance_of(wallet), share),
@@ -88,7 +88,7 @@ def get_protocol_data(
             "holdings": [share_amount.as_dict(decimals)],
         }
         for vault, asset_amount, share_amount in underlyings_holdings(wallet, block_id=block, blockchain=blockchain)
-        if asset_amount != 0 and share_amount != 0
+        if asset_amount != 0 or share_amount != 0
     }
 
     return {
