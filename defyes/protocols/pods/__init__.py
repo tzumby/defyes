@@ -57,15 +57,15 @@ class UsdcFudVault(BaseVault):
     }
 
 
-vault_classes = {
+vault_classes = (
     StEthVolatilityVault,
     EthphoriaVault,
     UsdcFudVault,
-}
+)
 
 
 class VaultAssetShare(NamedTuple):
-    valut: BaseVault
+    vault: BaseVault
     asset_amount: TokenAmount
     share_amount: TokenAmount
 
