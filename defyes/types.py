@@ -27,9 +27,9 @@ class Addr(str):
 
 
 class Token(Addr):
-    def __init__(self, addr: int | str, chain: Chain = Chain.ETHEREUM, block_id: int | str = "latest", **kwargs):
+    def __init__(self, addr: int | str, chain: Chain = Chain.ETHEREUM, block: int | str = "latest", **kwargs):
         self.chain = chain
-        self.block_id = block_id
+        self.block = block
 
     def __hash__(self):
         return hash((str(self), self.chain))
@@ -46,7 +46,7 @@ class Token(Addr):
 
     @cached_property
     def contract(self):
-        return Erc20(self.chain, self.block_id, self)
+        return Erc20(self.chain, self.block, self)
 
     @cached_property
     def decimals(self):
@@ -56,14 +56,14 @@ class Token(Addr):
             return self.contract.decimals
 
     @classmethod
-    def get_instance(cls, addr: int | str, chain: Chain = Chain.ETHEREUM, block_id: int | str = "latest"):
+    def get_instance(cls, addr: int | str, chain: Chain = Chain.ETHEREUM, block: int | str = "latest"):
         """
         Return the cached token, otherwise create a new instance and cache it.
         """
         try:
             return cache_token[addr, chain]
         except KeyError:
-            cache_token[addr, chain] = (token := cls(addr, chain, block_id))
+            cache_token[addr, chain] = (token := cls(addr, chain, block))
             return token
 
     def __rmul__(self, left_value):
