@@ -40,6 +40,15 @@ def last_block(blockchain, web3=None, block="latest"):
     return web3.eth.block_number
 
 
+def ensure_a_block_number(block: int | str, blockchain: Chain):
+    if isinstance(block, int):
+        return block
+    elif block == "latest":
+        return last_block(blockchain)
+    else:
+        raise ValueError("block should be an integer or just the string 'latest'")
+
+
 def timestamp_to_date(timestamp, utc=0):
     return datetime.utcfromtimestamp(timestamp + 3600 * utc).strftime("%Y-%m-%d %H:%M:%S")
 
