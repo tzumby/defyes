@@ -223,7 +223,9 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
     contract_address = Web3.to_checksum_address(contract_address)
 
     # Query Scans to get the Implementation Address
-    proxy_impl_address = ChainExplorer(blockchain).get_impl_address(contract_address)
+    if isinstance(block, str):
+        if block == "latest":
+            proxy_impl_address = ChainExplorer(blockchain).get_impl_address(contract_address)
 
     # OpenZeppelins' EIP-1967 - Example in mainnet: 0xE95A203B1a91a908F9B9CE46459d101078c2c3cb
     if proxy_impl_address == Address.ZERO:
