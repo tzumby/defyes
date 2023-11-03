@@ -208,7 +208,7 @@ class ChainExplorer(requests.Session):
         implementation_address = Address.ZERO
         response = self._get(module="contract", action="getsourcecode", address=address)
         data = response.json()
-        if data["message"] == "OK":
+        if data["message"] == "OK" and data["result"][0]["Implementation"] != "":
             implementation_address = data["result"][0]["Implementation"]
             if Web3.is_address(implementation_address):
                 implementation_address = Web3.to_checksum_address(implementation_address)
