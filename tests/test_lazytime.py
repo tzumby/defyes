@@ -114,7 +114,7 @@ def test_duration_neg():
 
 
 def test_time_is_float():
-    assert isinstance(t := Time.from_now(), Time)
+    assert isinstance(t := Time.now(), Time)
     assert isinstance(t, float)
 
 

@@ -166,7 +166,7 @@ class Time(float):
         return cls(dt.timestamp())
 
     @classmethod
-    def from_now(cls):
+    def now(cls):
         return cls(time.time())
 
     def __sub__(self, other) -> time_interval_class | TimeOrDerived:
