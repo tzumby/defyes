@@ -11,6 +11,7 @@ from typing import Iterator, NamedTuple
 from web3 import Web3
 
 from defyes.constants import Chain
+from defyes.functions import ensure_a_block_number
 from defyes.prices import Chainlink as chainlink
 from defyes.types import Addr, Token, TokenAmount
 
@@ -127,16 +128,17 @@ class ProtocolDataProvider(ProtocolDataProvider):
 
 def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
     wallet = Web3.to_checksum_address(wallet)
-    pap = PoolAddressesProvider(blockchain, block)
+    block_id = ensure_a_block_number(block, blockchain)
+    pap = PoolAddressesProvider(blockchain, block_id)
     user_account_data = pap.pool_contract.user_account_data(wallet)
-    pdp = ProtocolDataProvider(blockchain, block)
+    pdp = ProtocolDataProvider(blockchain, block_id)
 
     def as_dict_list(token_amounts):
         return [token_amount.as_dict(decimals) for token_amount in token_amounts]
 
     return {
         "blockchain": blockchain,
-        "block_id": block,
+        "block_id": block_id,
         "protocol": "Spark",
         "version": 0,
         "wallet": wallet,
@@ -157,19 +159,22 @@ def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimal
 
 def get_full_financial_metrics(wallet: Addr, block: int | str, blockchain: Chain, decimals: bool = True) -> dict:
     wallet = Web3.to_checksum_address(wallet)
-    pap = PoolAddressesProvider(blockchain, block)
+    block_id = ensure_a_block_number(block, blockchain)
+    pap = PoolAddressesProvider(blockchain, block_id)
 
     user_account_data = pap.pool_contract.user_account_data(wallet)
     ret = {
         "collateral_ratio": user_account_data.collateral_ratio,
         "liquidation_ratio": user_account_data.liquidation_ratio,
-        "native_token_price_usd": chainlink.get_native_token_price(pap.contract.w3, block, blockchain, decimals=True),
+        "native_token_price_usd": chainlink.get_native_token_price(
+            pap.contract.w3, block_id, blockchain, decimals=True
+        ),
         "collaterals": (collaterals := []),
         "debts": (debts := []),
     }
 
     currency_unit = Decimal(pap.price_oracle_contract.base_currency_unit)
-    for underlying in ProtocolDataProvider(blockchain, block).underlyings(wallet):
+    for underlying in ProtocolDataProvider(blockchain, block_id).underlyings(wallet):
         asset = {
             "token_address": str(underlying.token),
             "token_amount": abs(underlying.as_dict(decimals)["balance"]),
