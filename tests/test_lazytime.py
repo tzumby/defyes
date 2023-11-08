@@ -1,3 +1,4 @@
+import time
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -229,3 +230,17 @@ def test_relative_time(sign, template):
     assert lazytime.RelativeTime.days(sign * 365).humanized == template.format("1 year")
     assert lazytime.RelativeTime.days(sign * (365 * 2 - 1)).humanized == template.format("1 year")
     assert lazytime.RelativeTime.days(sign * 365 * 2).humanized == template.format("2 years")
+
+
+@pytest.fixture
+def present(monkeypatch):
+    present = time.time()
+    monkeypatch.setattr(time, "time", lambda: present)
+    return present
+
+
+def test_time_since_now(present):
+    assert lazytime.Time(present + 3).since_now == 3
+    assert lazytime.Time(present + 3).since_now.humanized == "in about 3 seconds"
+    assert lazytime.Time(present - 4000).since_now == -4000
+    assert lazytime.Time(present - 4000).since_now.humanized == "about 1 hour ago"
