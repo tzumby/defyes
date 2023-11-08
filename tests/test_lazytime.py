@@ -188,72 +188,44 @@ def test_time_add(d):
     assert d == 19
 
 
-def test_relative_time():
+@pytest.mark.parametrize("sign,template", [(-1, "about {} ago"), (1, "in about {}")])
+def test_relative_time(sign, template):
     assert lazytime.RelativeTime(0).humanized == "now"
     assert lazytime.RelativeTime.seconds(0.9).humanized == "now"
     assert lazytime.RelativeTime.seconds(-0.9).humanized == "now"
 
-    assert lazytime.RelativeTime.seconds(1).humanized == "in about 1 second"
-    assert lazytime.RelativeTime.seconds(-1).humanized == "about 1 second ago"
-    assert lazytime.RelativeTime.seconds(1.9).humanized == "in about 1 second"
-    assert lazytime.RelativeTime.seconds(-1.9).humanized == "about 1 second ago"
-    assert lazytime.RelativeTime.seconds(2).humanized == "in about 2 seconds"
-    assert lazytime.RelativeTime.seconds(-2).humanized == "about 2 seconds ago"
-    assert lazytime.RelativeTime.seconds(59.9).humanized == "in about 59 seconds"
-    assert lazytime.RelativeTime.seconds(-59.9).humanized == "about 59 seconds ago"
+    assert lazytime.RelativeTime.seconds(sign * 1).humanized == template.format("1 second")
+    assert lazytime.RelativeTime.seconds(sign * 1.9).humanized == template.format("1 second")
+    assert lazytime.RelativeTime.seconds(sign * 2).humanized == template.format("2 seconds")
+    assert lazytime.RelativeTime.seconds(sign * 59.9).humanized == template.format("59 seconds")
 
-    assert lazytime.RelativeTime.minutes(1).humanized == "in about 1 minute"
-    assert lazytime.RelativeTime.minutes(-1).humanized == "about 1 minute ago"
-    assert lazytime.RelativeTime.minutes(1.9).humanized == "in about 1 minute"
-    assert lazytime.RelativeTime.minutes(-1.9).humanized == "about 1 minute ago"
-    assert lazytime.RelativeTime.minutes(2).humanized == "in about 2 minutes"
-    assert lazytime.RelativeTime.minutes(-2).humanized == "about 2 minutes ago"
-    assert lazytime.RelativeTime.minutes(59.9).humanized == "in about 59 minutes"
-    assert lazytime.RelativeTime.minutes(-59.9).humanized == "about 59 minutes ago"
+    assert lazytime.RelativeTime.minutes(sign * 1).humanized == template.format("1 minute")
+    assert lazytime.RelativeTime.minutes(sign * 1.9).humanized == template.format("1 minute")
+    assert lazytime.RelativeTime.minutes(sign * 2).humanized == template.format("2 minutes")
+    assert lazytime.RelativeTime.minutes(sign * 59.9).humanized == template.format("59 minutes")
 
-    assert lazytime.RelativeTime.hours(1).humanized == "in about 1 hour"
-    assert lazytime.RelativeTime.hours(-1).humanized == "about 1 hour ago"
-    assert lazytime.RelativeTime.hours(1.9).humanized == "in about 1 hour"
-    assert lazytime.RelativeTime.hours(-1.9).humanized == "about 1 hour ago"
-    assert lazytime.RelativeTime.hours(2).humanized == "in about 2 hours"
-    assert lazytime.RelativeTime.hours(-2).humanized == "about 2 hours ago"
-    assert lazytime.RelativeTime.hours(23.9).humanized == "in about 23 hours"
-    assert lazytime.RelativeTime.hours(-23.9).humanized == "about 23 hours ago"
+    assert lazytime.RelativeTime.hours(sign * 1).humanized == template.format("1 hour")
+    assert lazytime.RelativeTime.hours(sign * 1.9).humanized == template.format("1 hour")
+    assert lazytime.RelativeTime.hours(sign * 2).humanized == template.format("2 hours")
+    assert lazytime.RelativeTime.hours(sign * 23.9).humanized == template.format("23 hours")
 
-    assert lazytime.RelativeTime.days(1).humanized == "in about 1 day"
-    assert lazytime.RelativeTime.days(-1).humanized == "about 1 day ago"
-    assert lazytime.RelativeTime.days(1.9).humanized == "in about 1 day"
-    assert lazytime.RelativeTime.days(-1.9).humanized == "about 1 day ago"
-    assert lazytime.RelativeTime.days(2).humanized == "in about 2 days"
-    assert lazytime.RelativeTime.days(-2).humanized == "about 2 days ago"
-    assert lazytime.RelativeTime.days(6.9).humanized == "in about 6 days"
-    assert lazytime.RelativeTime.days(-6.9).humanized == "about 6 days ago"
+    assert lazytime.RelativeTime.days(sign * 1).humanized == template.format("1 day")
+    assert lazytime.RelativeTime.days(sign * 1.9).humanized == template.format("1 day")
+    assert lazytime.RelativeTime.days(sign * 2).humanized == template.format("2 days")
+    assert lazytime.RelativeTime.days(sign * 6.9).humanized == template.format("6 days")
 
-    assert lazytime.RelativeTime.days(7).humanized == "in about 1 week"
-    assert lazytime.RelativeTime.days(-7).humanized == "about 1 week ago"
-    assert lazytime.RelativeTime.days(13).humanized == "in about 1 week"
-    assert lazytime.RelativeTime.days(-13).humanized == "about 1 week ago"
-    assert lazytime.RelativeTime.days(14).humanized == "in about 2 weeks"
-    assert lazytime.RelativeTime.days(-14).humanized == "about 2 weeks ago"
-    assert lazytime.RelativeTime.days(29).humanized == "in about 4 weeks"
-    assert lazytime.RelativeTime.days(-29).humanized == "about 4 weeks ago"
+    assert lazytime.RelativeTime.days(sign * 7).humanized == template.format("1 week")
+    assert lazytime.RelativeTime.days(sign * 13).humanized == template.format("1 week")
+    assert lazytime.RelativeTime.days(sign * 14).humanized == template.format("2 weeks")
+    assert lazytime.RelativeTime.days(sign * 29).humanized == template.format("4 weeks")
 
-    assert lazytime.RelativeTime.days(30).humanized == "in about 1 month"
-    assert lazytime.RelativeTime.days(-30).humanized == "about 1 month ago"
-    assert lazytime.RelativeTime.days(59).humanized == "in about 1 month"
-    assert lazytime.RelativeTime.days(-59).humanized == "about 1 month ago"
-    assert lazytime.RelativeTime.days(60).humanized == "in about 2 months"
-    assert lazytime.RelativeTime.days(-60).humanized == "about 2 months ago"
-    assert lazytime.RelativeTime.days(359).humanized == "in about 11 months"
-    assert lazytime.RelativeTime.days(-359).humanized == "about 11 months ago"
-    assert lazytime.RelativeTime.days(360).humanized == "in about 12 months"
-    assert lazytime.RelativeTime.days(-360).humanized == "about 12 months ago"
-    assert lazytime.RelativeTime.days(364).humanized == "in about 12 months"
-    assert lazytime.RelativeTime.days(-364).humanized == "about 12 months ago"
+    assert lazytime.RelativeTime.days(sign * 30).humanized == template.format("1 month")
+    assert lazytime.RelativeTime.days(sign * 59).humanized == template.format("1 month")
+    assert lazytime.RelativeTime.days(sign * 60).humanized == template.format("2 months")
+    assert lazytime.RelativeTime.days(sign * 359).humanized == template.format("11 months")
+    assert lazytime.RelativeTime.days(sign * 360).humanized == template.format("12 months")
+    assert lazytime.RelativeTime.days(sign * 364).humanized == template.format("12 months")
 
-    assert lazytime.RelativeTime.days(365).humanized == "in about 1 year"
-    assert lazytime.RelativeTime.days(-365).humanized == "about 1 year ago"
-    assert lazytime.RelativeTime.days(365 * 2 - 1).humanized == "in about 1 year"
-    assert lazytime.RelativeTime.days(-365 * 2 + 1).humanized == "about 1 year ago"
-    assert lazytime.RelativeTime.days(365 * 2).humanized == "in about 2 years"
-    assert lazytime.RelativeTime.days(-365 * 2).humanized == "about 2 years ago"
+    assert lazytime.RelativeTime.days(sign * 365).humanized == template.format("1 year")
+    assert lazytime.RelativeTime.days(sign * (365 * 2 - 1)).humanized == template.format("1 year")
+    assert lazytime.RelativeTime.days(sign * 365 * 2).humanized == template.format("2 years")
