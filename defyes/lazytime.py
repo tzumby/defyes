@@ -121,6 +121,38 @@ class Duration(float):
 TimeOrDerived = TypeVar("TimeOrDerived", bound="Time")
 
 
+class RelativeTime(Duration):
+    cases = [
+        ("second", "seconds", Duration.minutes(1)),
+        ("minute", "minutes", Duration.hours(1)),
+        ("hour", "hours", Duration.days(1)),
+        ("day", "days", Duration.weeks(1)),
+        ("week", "weeks", Duration.days(30)),
+        ("month", "months", Duration.days(365)),
+        ("year", "years", float("inf")),
+    ]
+
+    @classmethod
+    def _abs_unit(cls, time):
+        abs_t = abs(time)
+        divider = 1
+        for singular, plural, limit in cls.cases:
+            if abs_t < limit:
+                t_units = int(abs_t / divider)
+                return (1, singular) if t_units == 1 else (t_units, plural)
+            divider = limit
+
+    @cached_property
+    def humanized(self):
+        if abs(self) < 1:
+            return "now"
+        abs_t_units, unit = self._abs_unit(self)
+        if self < 0:
+            return f"about {abs_t_units:.0f} {unit} ago"
+        else:
+            return f"in about {abs_t_units:.0f} {unit}"
+
+
 class Time(float):
     """
     A regular float class which represents the float POSIX timestamp in seconds, with a lazy conversion to an aware
@@ -135,6 +167,7 @@ class Time(float):
         return self.utc_format if repr_tz == timezone.utc else self.general_format
 
     time_interval_class = Duration
+    relative_time_class = RelativeTime
 
     @cached_property
     def calendar(self) -> datetime:
@@ -168,6 +201,10 @@ class Time(float):
     @classmethod
     def from_now(cls):
         return cls(time.time())
+
+    @property
+    def since_now(self) -> relative_time_class:
+        return self.relative_time_class(self - time.time())
 
     def __sub__(self, other) -> time_interval_class | TimeOrDerived:
         result = super().__sub__(other)
