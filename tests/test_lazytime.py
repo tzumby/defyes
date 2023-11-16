@@ -1,3 +1,4 @@
+import time
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -186,3 +187,60 @@ def test_time_add(d):
     assert isinstance(d, Time)
     assert isinstance(d, float)
     assert d == 19
+
+
+@pytest.mark.parametrize("sign,template", [(-1, "about {} ago"), (1, "in about {}")])
+def test_relative_time(sign, template):
+    assert lazytime.RelativeTime(0).humanized == "now"
+    assert lazytime.RelativeTime.seconds(0.9).humanized == "now"
+    assert lazytime.RelativeTime.seconds(-0.9).humanized == "now"
+
+    assert lazytime.RelativeTime.seconds(sign * 1).humanized == template.format("1 second")
+    assert lazytime.RelativeTime.seconds(sign * 1.9).humanized == template.format("1 second")
+    assert lazytime.RelativeTime.seconds(sign * 2).humanized == template.format("2 seconds")
+    assert lazytime.RelativeTime.seconds(sign * 59.9).humanized == template.format("59 seconds")
+
+    assert lazytime.RelativeTime.minutes(sign * 1).humanized == template.format("1 minute")
+    assert lazytime.RelativeTime.minutes(sign * 1.9).humanized == template.format("1 minute")
+    assert lazytime.RelativeTime.minutes(sign * 2).humanized == template.format("2 minutes")
+    assert lazytime.RelativeTime.minutes(sign * 59.9).humanized == template.format("59 minutes")
+
+    assert lazytime.RelativeTime.hours(sign * 1).humanized == template.format("1 hour")
+    assert lazytime.RelativeTime.hours(sign * 1.9).humanized == template.format("1 hour")
+    assert lazytime.RelativeTime.hours(sign * 2).humanized == template.format("2 hours")
+    assert lazytime.RelativeTime.hours(sign * 23.9).humanized == template.format("23 hours")
+
+    assert lazytime.RelativeTime.days(sign * 1).humanized == template.format("1 day")
+    assert lazytime.RelativeTime.days(sign * 1.9).humanized == template.format("1 day")
+    assert lazytime.RelativeTime.days(sign * 2).humanized == template.format("2 days")
+    assert lazytime.RelativeTime.days(sign * 6.9).humanized == template.format("6 days")
+
+    assert lazytime.RelativeTime.days(sign * 7).humanized == template.format("1 week")
+    assert lazytime.RelativeTime.days(sign * 13).humanized == template.format("1 week")
+    assert lazytime.RelativeTime.days(sign * 14).humanized == template.format("2 weeks")
+    assert lazytime.RelativeTime.days(sign * 29).humanized == template.format("4 weeks")
+
+    assert lazytime.RelativeTime.days(sign * 30).humanized == template.format("1 month")
+    assert lazytime.RelativeTime.days(sign * 59).humanized == template.format("1 month")
+    assert lazytime.RelativeTime.days(sign * 60).humanized == template.format("2 months")
+    assert lazytime.RelativeTime.days(sign * 359).humanized == template.format("11 months")
+    assert lazytime.RelativeTime.days(sign * 360).humanized == template.format("12 months")
+    assert lazytime.RelativeTime.days(sign * 364).humanized == template.format("12 months")
+
+    assert lazytime.RelativeTime.days(sign * 365).humanized == template.format("1 year")
+    assert lazytime.RelativeTime.days(sign * (365 * 2 - 1)).humanized == template.format("1 year")
+    assert lazytime.RelativeTime.days(sign * 365 * 2).humanized == template.format("2 years")
+
+
+@pytest.fixture
+def present(monkeypatch):
+    present = time.time()
+    monkeypatch.setattr(time, "time", lambda: present)
+    return present
+
+
+def test_time_since_now(present):
+    assert lazytime.Time(present + 3).since_now == 3
+    assert lazytime.Time(present + 3).since_now.humanized == "in about 3 seconds"
+    assert lazytime.Time(present - 4000).since_now == -4000
+    assert lazytime.Time(present - 4000).since_now.humanized == "about 1 hour ago"
