@@ -199,7 +199,7 @@ class Time(float):
         return cls(dt.timestamp())
 
     @classmethod
-    def from_now(cls):
+    def now(cls):
         return cls(time.time())
 
     @property
