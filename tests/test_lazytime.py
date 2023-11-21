@@ -189,6 +189,31 @@ def test_time_add(d):
     assert d == 19
 
 
+@pytest.fixture(params=["UTC", "America/Argentina/Buenos_Aires"])
+def tz(request, monkeypatch):
+    monkeypatch.setenv("TZ", request.param)
+    time.tzset()  # Reset the time conversion rules used by the library routines.
+    try:
+        yield request.param
+    finally:
+        monkeypatch.undo()
+        time.tzset()  # Reset the time conversion rules used by the library routines.
+
+
+def test_time_utc_is_default(repr_tz_utc, tz):
+    """
+    datetime tzinfo defaults to localtime depending on the TZ env var, but
+    lazytime.Time doesn't depends on TZ, even doesn't depends on lazytime.repr_tz
+    """
+    if tz == "UTC":
+        assert datetime(1970, 1, 1, 0, 0).timestamp() == 0
+        lazytime.repr_tz = lazytime.utc(0)
+    if tz == "America/Argentina/Buenos_Aires":
+        assert datetime(1970, 1, 1, 0, 0).timestamp() == 10_800
+        lazytime.repr_tz = lazytime.utc(-3)
+    assert lazytime.Time.from_string("1970-01-01 00:00:00") == 0
+
+
 @pytest.mark.parametrize("sign,template", [(-1, "about {} ago"), (1, "in about {}")])
 def test_relative_time(sign, template):
     assert lazytime.RelativeTime(0).humanized == "now"
