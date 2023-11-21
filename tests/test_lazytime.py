@@ -137,7 +137,7 @@ def test_time_calendar_just_change_representation(repr_tz_utc):
 def test_time_repr(repr_tz_utc):
     assert repr(Time(0)) == "'1970-01-01 00:00:00'"
     lazytime.repr_tz = lazytime.utc(2)
-    assert repr(Time(0)) == "'1970-01-01 02:00:00 UTC+0200'"
+    assert repr(Time(0)) == "'1970-01-01 02:00:00+02:00'"
 
 
 def test_time_from_calendar_is_always_utc_default(repr_tz_utc):
@@ -154,7 +154,7 @@ def test_time_from_calendar_different_tzinfo(repr_tz_utc):
 
 def test_time_from_string(repr_tz_utc):
     assert Time.from_string("1970-01-01 00:00:00") == 0
-    assert Time.from_string("1970-01-01 02:00:00 UTC+0200") == 0
+    assert Time.from_string("1970-01-01 02:00:00+02:00") == 0
 
 
 def test_time_from_string_invariant(repr_tz_utc):
@@ -163,7 +163,7 @@ def test_time_from_string_invariant(repr_tz_utc):
     """
     lazytime.repr_tz = lazytime.utc(2)
     assert Time.from_string("1970-01-01 00:00:00") == 0
-    assert Time.from_string("1970-01-01 02:00:00 UTC+0200") == 0
+    assert Time.from_string("1970-01-01 02:00:00+02:00") == 0
 
 
 def test_time_sub():
