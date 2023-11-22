@@ -159,12 +159,10 @@ class Time(float):
     datetime, or string, using `repr_tz` as default timezone for representation.
     """
 
-    utc_format = "%Y-%m-%d %H:%M:%S"
-    general_format = "%Y-%m-%d %H:%M:%S %Z%z"
-
-    @property
-    def format(self):
-        return self.utc_format if repr_tz == timezone.utc else self.general_format
+    isoformat = {
+        "sep": " ",
+        "timespec": "auto",
+    }
 
     time_interval_class = Duration
     relative_time_class = RelativeTime
@@ -177,7 +175,8 @@ class Time(float):
         return repr(str(self))
 
     def __str__(self):
-        return self.calendar.strftime(self.format)
+        string = self.calendar.isoformat(**self.isoformat)
+        return string[:-6] if string.endswith("+00:00") else string
 
     @classmethod
     def from_calendar(
@@ -186,14 +185,12 @@ class Time(float):
         try:
             return cls(datetime(year, month, day, hour, minute, second, microsecond, tzinfo=tzinfo).timestamp())
         except TypeError:
-            return cls(datetime.strptime(year, cls.format).replace(tzinfo=timezone.utc).timestamp())
+            string = year
+            return cls.from_string(string)
 
     @classmethod
     def from_string(cls, string: str):
-        try:
-            dt = datetime.strptime(string, cls.utc_format)
-        except ValueError:
-            dt = datetime.strptime(string, cls.general_format)
+        dt = datetime.fromisoformat(string)
         if not dt.tzinfo:
             dt = dt.replace(tzinfo=timezone.utc)
         return cls(dt.timestamp())

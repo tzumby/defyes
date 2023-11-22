@@ -137,7 +137,7 @@ def test_time_calendar_just_change_representation(repr_tz_utc):
 def test_time_repr(repr_tz_utc):
     assert repr(Time(0)) == "'1970-01-01 00:00:00'"
     lazytime.repr_tz = lazytime.utc(2)
-    assert repr(Time(0)) == "'1970-01-01 02:00:00 UTC+0200'"
+    assert repr(Time(0)) == "'1970-01-01 02:00:00+02:00'"
 
 
 def test_time_from_calendar_is_always_utc_default(repr_tz_utc):
@@ -154,7 +154,7 @@ def test_time_from_calendar_different_tzinfo(repr_tz_utc):
 
 def test_time_from_string(repr_tz_utc):
     assert Time.from_string("1970-01-01 00:00:00") == 0
-    assert Time.from_string("1970-01-01 02:00:00 UTC+0200") == 0
+    assert Time.from_string("1970-01-01 02:00:00+02:00") == 0
 
 
 def test_time_from_string_invariant(repr_tz_utc):
@@ -163,7 +163,7 @@ def test_time_from_string_invariant(repr_tz_utc):
     """
     lazytime.repr_tz = lazytime.utc(2)
     assert Time.from_string("1970-01-01 00:00:00") == 0
-    assert Time.from_string("1970-01-01 02:00:00 UTC+0200") == 0
+    assert Time.from_string("1970-01-01 02:00:00+02:00") == 0
 
 
 def test_time_sub():
@@ -187,6 +187,31 @@ def test_time_add(d):
     assert isinstance(d, Time)
     assert isinstance(d, float)
     assert d == 19
+
+
+@pytest.fixture(params=["UTC", "America/Argentina/Buenos_Aires"])
+def tz(request, monkeypatch):
+    monkeypatch.setenv("TZ", request.param)
+    time.tzset()  # Reset the time conversion rules used by the library routines.
+    try:
+        yield request.param
+    finally:
+        monkeypatch.undo()
+        time.tzset()  # Reset the time conversion rules used by the library routines.
+
+
+def test_time_utc_is_default(repr_tz_utc, tz):
+    """
+    datetime tzinfo defaults to localtime depending on the TZ env var, but
+    lazytime.Time doesn't depends on TZ, even doesn't depends on lazytime.repr_tz
+    """
+    if tz == "UTC":
+        assert datetime(1970, 1, 1, 0, 0).timestamp() == 0
+        lazytime.repr_tz = lazytime.utc(0)
+    if tz == "America/Argentina/Buenos_Aires":
+        assert datetime(1970, 1, 1, 0, 0).timestamp() == 10_800
+        lazytime.repr_tz = lazytime.utc(-3)
+    assert lazytime.Time.from_string("1970-01-01 00:00:00") == 0
 
 
 @pytest.mark.parametrize("sign,template", [(-1, "about {} ago"), (1, "in about {}")])
