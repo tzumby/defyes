@@ -7,6 +7,7 @@ from web3 import Web3
 from web3.exceptions import ContractCustomError, ContractLogicError
 
 from defyes.cache import cache_contract_method
+from defyes.constants import Chain
 
 # from defyes.functions import get_decimals
 from defyes.helpers import listify, suppress_value
@@ -29,6 +30,7 @@ class Treasury(Treasury):
         "ethereum": "0x8667DBEBf68B0BFa6Db54f550f41Be16c4067d60",
         "polygon": "0x2F2e0ba9746aae15888cf234c4EB5B301710927e",
         "arbitrum": "0x0D710512E100C171139D2Cf5708f22C680eccF52",
+        Chain.GNOSIS: "0x5adDc89785D75C86aB939E9e15bfBBb7Fc086A87",
     }
 
     @listify
