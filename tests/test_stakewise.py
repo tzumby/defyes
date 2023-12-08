@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Stakewise
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.node import get_node
 
 WALLET_N1 = "0x05E61adDCef87ad8548236eb5Cbf2f699C834935"

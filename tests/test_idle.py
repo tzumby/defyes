@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from defyes import Idle
-from defyes.constants import Chain, ETHTokenAddr
+from defyes.constants import ETHTokenAddr
+from defabipedia import Chain
 
 TEST_WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 TEST_WALLET2 = "0x542256Ef33279C5545AA71f4b3B6298990f30Ffc"

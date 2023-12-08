@@ -9,7 +9,8 @@ from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound
 
 from karpatkit.cache import const_call
-from defyes.constants import Address, Chain
+from defyes.constants import Address
+from defabipedia import Chain
 from defyes.explorer import ChainExplorer
 from defyes.functions import get_contract, get_decimals, get_logs_web3, last_block, to_token_amount
 from defyes.lazytime import Duration, Time

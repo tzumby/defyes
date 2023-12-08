@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from defyes import Elk
-from defyes.constants import Chain, ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
+from defyes.constants import ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
+from defabipedia import Chain
 from defyes.functions import get_contract
 from defyes.node import get_node
 

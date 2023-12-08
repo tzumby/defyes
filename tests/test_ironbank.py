@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import IronBank
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.node import get_node
 
 # 2023.04.27

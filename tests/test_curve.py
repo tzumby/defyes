@@ -3,7 +3,8 @@ from decimal import Decimal
 import pytest
 
 from defyes import Curve
-from defyes.constants import Chain, ETHTokenAddr
+from defyes.constants import ETHTokenAddr
+from defabipedia import Chain
 from defyes.node import get_node
 
 # 2023.04.06

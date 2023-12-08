@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Unit
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.node import get_node
 
 USDP = "0x1456688345527bE1f37E9e627DA0837D6f08C925"

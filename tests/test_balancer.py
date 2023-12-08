@@ -3,7 +3,8 @@ from decimal import Decimal
 from web3 import Web3
 
 from defyes import Balancer
-from defyes.constants import Chain, ETHTokenAddr, GnosisTokenAddr
+from defyes.constants import ETHTokenAddr, GnosisTokenAddr
+from defabipedia import Chain
 from defyes.functions import date_to_block
 
 WALLET_N1 = "0x31cD267D34EC6368eac930Be4f412dfAcc71A844"

@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 
 from karpatkit.cache import const_call
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.functions import get_contract, get_decimals
 from defyes.node import get_node
 

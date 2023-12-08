@@ -4,7 +4,8 @@ from decimal import Decimal
 import pytest
 
 from defyes import pretty
-from defyes.constants import Chain, ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
+from defyes.constants import ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
+from defabipedia import Chain
 from defyes.types import Addr, Token, TokenAmount
 
 

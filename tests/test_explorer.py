@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.explorer import ChainExplorer
 
 ADDRESS_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"

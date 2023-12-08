@@ -1,7 +1,8 @@
 from decimal import Decimal
 from typing import Union
 
-from defyes.constants import Chain, ETHTokenAddr
+from defyes.constants import ETHTokenAddr
+from defabipedia import Chain
 from defyes.functions import balance_of, get_contract
 from defyes.node import get_node
 

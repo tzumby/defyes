@@ -6,7 +6,7 @@ from typing import Iterator
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.explorer import ChainExplorer
 from defyes.financial import ChainedPrice, Interval
 from defyes.functions import ensure_a_block_number

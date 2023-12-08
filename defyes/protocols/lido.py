@@ -3,7 +3,8 @@ from typing import Union
 
 from web3 import Web3
 
-from defyes.constants import Address, Chain, ETHTokenAddr
+from defyes.constants import Address, ETHTokenAddr
+from defabipedia import Chain
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 

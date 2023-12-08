@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 from pytest import approx
 
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.lazytime import Time
 from defyes.protocols import pods
 from defyes.protocols.pods import ChainedPrice

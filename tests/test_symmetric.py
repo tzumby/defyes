@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from defyes import Symmetric
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.node import get_node
 
 

@@ -3,7 +3,8 @@ from decimal import Decimal
 import pytest
 
 from defyes import Bancor
-from defyes.constants import Address, Chain, ETHTokenAddr
+from defyes.constants import Address, ETHTokenAddr
+from defabipedia import Chain
 from defyes.node import get_node
 
 WALLET_N1 = "0x849d52316331967b6ff1198e5e32a0eb168d039d"

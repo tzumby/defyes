@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from defyes import Notional
-from defyes.constants import Address, Chain, ETHTokenAddr
+from defyes.constants import Address, ETHTokenAddr
+from defabipedia import Chain
 from defyes.node import get_node
 
 cETH = "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"

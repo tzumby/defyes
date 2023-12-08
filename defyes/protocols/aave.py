@@ -6,7 +6,8 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from karpatkit.cache import const_call
-from defyes.constants import Chain, ETHTokenAddr
+from defyes.constants import ETHTokenAddr
+from defabipedia import Chain
 from defyes.functions import balance_of, get_contract, to_token_amount
 from defyes.node import get_node
 

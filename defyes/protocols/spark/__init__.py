@@ -10,7 +10,7 @@ from typing import Iterator, NamedTuple
 
 from web3 import Web3
 
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.prices import Chainlink as chainlink
 from defyes.types import Addr, Token, TokenAmount
 

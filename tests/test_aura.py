@@ -5,7 +5,8 @@ from tempfile import NamedTemporaryFile
 import pytest
 
 from defyes import Aura
-from defyes.constants import Chain, ETHTokenAddr, GnosisTokenAddr
+from defyes.constants import ETHTokenAddr, GnosisTokenAddr
+from defabipedia import Chain
 from defyes.functions import get_contract
 from defyes.node import get_node
 

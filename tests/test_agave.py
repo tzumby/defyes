@@ -3,7 +3,8 @@ from decimal import Decimal
 import pytest
 
 from defyes import Agave
-from defyes.constants import Chain, GnosisTokenAddr
+from defyes.constants import GnosisTokenAddr
+from defabipedia import Chain
 from defyes.functions import get_contract
 from defyes.node import get_node
 

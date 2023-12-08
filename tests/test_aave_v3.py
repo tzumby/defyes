@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import aavev3
-from defyes.constants import Chain
+from defabipedia import Chain
 
 TEST_ADDRESS = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 

@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from defyes import RocketPool
-from defyes.constants import Address, Chain
+from defyes.constants import Address
+from defabipedia import Chain
 
 ROCKET_ADDR = "0xae78736Cd615f374D3085123A210448E74Fc6393"
 WALLET = "0xEADB3840596cabF312F2bC88A4Bb0b93A4E1FF5F"

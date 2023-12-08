@@ -5,7 +5,8 @@ from functools import cached_property
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from defyes.constants import Address, Chain, ETHTokenAddr
+from defyes.constants import Address, ETHTokenAddr
+from defabipedia import Chain
 from defyes.explorer import ChainExplorer
 from defyes.functions import get_decimals, get_logs_web3, last_block, to_token_amount
 from karpatkit.helpers import suppress_error_codes

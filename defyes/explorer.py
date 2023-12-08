@@ -4,7 +4,8 @@ import requests
 from web3 import Web3
 
 from karpatkit.cache import cache_call
-from defyes.constants import TESTNET_CHAINS, Address, Chain
+from defyes.constants import TESTNET_CHAINS, Address
+from defabipedia import Chain
 from karpatkit.constants import APIKey, APIUrl
 from defyes.node import get_node
 

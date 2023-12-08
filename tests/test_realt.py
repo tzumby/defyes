@@ -3,7 +3,8 @@ from decimal import Decimal
 import pytest
 
 from defyes import RealT
-from defyes.constants import Chain, GnosisTokenAddr
+from defyes.constants import GnosisTokenAddr
+from defabipedia import Chain
 from defyes.node import get_node
 
 TEST_BLOCK = 27450341

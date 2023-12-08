@@ -2,7 +2,8 @@ from decimal import Decimal
 
 from defyes import SushiSwap
 from karpatkit.cache import const_call
-from defyes.constants import Chain, ETHTokenAddr
+from defyes.constants import ETHTokenAddr
+from defabipedia import Chain
 from defyes.node import get_node
 
 SUSHISWAP_POOL_USDC_WETH = "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0"

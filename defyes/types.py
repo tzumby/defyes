@@ -4,7 +4,8 @@ from functools import cached_property
 from web3 import Web3
 
 from karpatkit.cache import cache_token
-from .constants import Address, Chain
+from .constants import Address
+from defabipedia import Chain
 from .contracts import Erc20
 
 simple_repr = True
