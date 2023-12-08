@@ -8,7 +8,7 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 from defyes.constants import Address, Chain, ETHTokenAddr
 from defyes.explorer import ChainExplorer
 from defyes.functions import get_decimals, get_logs_web3, last_block, to_token_amount
-from defyes.helpers import suppress_error_codes
+from karpatkit.helpers import suppress_error_codes
 from defyes.lazytime import Duration, Time
 from defyes.node import get_node
 from defyes.prices.prices import get_price

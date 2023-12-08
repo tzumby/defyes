@@ -8,7 +8,7 @@ from web3 import Web3
 from defyes.cache import const_call
 from defyes.constants import Chain
 from defyes.functions import balance_of, get_contract, get_decimals
-from defyes.helpers import call_contract_method
+from karpatkit.helpers import call_contract_method
 from defyes.node import get_node
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

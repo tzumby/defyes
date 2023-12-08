@@ -9,7 +9,7 @@ from web3.exceptions import ContractCustomError, ContractLogicError
 from defyes.cache import cache_contract_method
 
 # from defyes.functions import get_decimals
-from defyes.helpers import listify, suppress_value
+from karpatkit.helpers import suppress_value, listify
 
 # from defyes.node import get_node
 from defyes.types import Token, TokenAmount

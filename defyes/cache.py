@@ -6,7 +6,7 @@ from inspect import getcallargs
 import diskcache
 from web3.middleware.cache import generate_cache_key
 
-from .helpers import suppressed_error_codes
+from karpatkit.helpers import suppressed_error_codes
 
 logger = logging.getLogger(__name__)
 
