@@ -4,7 +4,8 @@ import requests
 from web3 import Web3
 
 from defyes.cache import cache_call
-from defyes.constants import TESTNET_CHAINS, Address, APIKey, APIUrl, Chain
+from defyes.constants import TESTNET_CHAINS, Address, Chain
+from karpatkit.constants import APIKey, APIUrl
 from defyes.node import get_node
 
 TESTNET_HEADER = {

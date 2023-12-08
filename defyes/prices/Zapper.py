@@ -4,7 +4,8 @@ from datetime import datetime
 import requests
 from dateutil.relativedelta import relativedelta
 
-from defyes.constants import APIKey, Chain
+from defyes.constants import Chain
+from karpatkit.constants import APIKey
 
 URL_ZAPPER_PRICE = "https://api.zapper.fi/v2/prices/%s?network=%s&timeFrame=%s&currency=USD&api_key=%s"
 
