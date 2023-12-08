@@ -8,7 +8,7 @@ from typing import Union
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound
 
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.constants import Address, Chain
 from defyes.explorer import ChainExplorer
 from defyes.functions import get_contract, get_decimals, get_logs_web3, last_block, to_token_amount

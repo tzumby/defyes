@@ -5,7 +5,7 @@ from gql import Client, gql  # thegraph queries
 from gql.transport.requests import RequestsHTTPTransport
 from web3 import Web3
 
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.constants import Chain
 from defyes.functions import balance_of, get_contract, get_decimals
 from karpatkit.helpers import call_contract_method

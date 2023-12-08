@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from web3 import Web3
 
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.constants import Chain, GnosisTokenAddr, PolygonTokenAddr
 from defyes.explorer import ChainExplorer
 from defyes.functions import get_contract, get_decimals, to_token_amount

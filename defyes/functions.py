@@ -10,7 +10,7 @@ import requests
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 
-from defyes.cache import cache_call, const_call
+from karpatkit.cache import cache_call, const_call
 from defyes.constants import ABI_TOKEN_SIMPLIFIED, Address, Chain
 from karpatkit.constants import APIKey
 from defyes.explorer import ChainExplorer

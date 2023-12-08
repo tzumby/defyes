@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from web3 import Web3
 
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.functions import get_contract, get_decimals, get_logs_web3, to_token_amount
 from defyes.node import get_node
 

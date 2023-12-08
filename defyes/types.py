@@ -3,7 +3,7 @@ from functools import cached_property
 
 from web3 import Web3
 
-from .cache import cache_token
+from karpatkit.cache import cache_token
 from .constants import Address, Chain
 from .contracts import Erc20
 

@@ -1,6 +1,6 @@
 from unittest import mock
 
-from defyes.cache import cache_call, cache_contract_method, const_call, disk_cache_middleware
+from karpatkit.cache import cache_call, cache_contract_method, const_call, disk_cache_middleware
 
 
 def build_web3_contract_mock():

@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from defyes import SushiSwap
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.constants import Chain, ETHTokenAddr
 from defyes.node import get_node
 

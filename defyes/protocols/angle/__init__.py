@@ -6,7 +6,7 @@ from typing import Iterator
 from web3 import Web3
 from web3.exceptions import ContractCustomError, ContractLogicError
 
-from defyes.cache import cache_contract_method
+from karpatkit.cache import cache_contract_method
 
 # from defyes.functions import get_decimals
 from karpatkit.helpers import suppress_value, listify

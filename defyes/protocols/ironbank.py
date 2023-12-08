@@ -3,7 +3,7 @@ from decimal import Decimal
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.constants import Address, Chain
 from defyes.functions import get_contract, get_decimals, last_block, to_token_amount
 from defyes.node import get_node

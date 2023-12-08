@@ -9,7 +9,7 @@ from gql.transport.requests import RequestsHTTPTransport
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.constants import ABI_TOKEN_SIMPLIFIED, Chain
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node

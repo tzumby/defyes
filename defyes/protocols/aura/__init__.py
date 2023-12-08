@@ -4,7 +4,7 @@ from pathlib import Path
 
 from web3 import Web3
 
-from defyes.cache import const_call
+from karpatkit.cache import const_call
 from defyes.constants import Chain, ETHTokenAddr
 from defyes.functions import get_contract, get_decimals, get_logs_web3, last_block, to_token_amount
 from karpatkit.helpers import call_contract_method
