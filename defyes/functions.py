@@ -6,6 +6,7 @@ from contextlib import suppress
 from datetime import datetime
 from decimal import Decimal
 
+import pytz
 import requests
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
@@ -59,10 +60,11 @@ def date_to_block(datestring, blockchain) -> int:
     An example datestring: '2023-02-20 18:30:00'.
     """
     if isinstance(datestring, datetime):
+        if datestring.tzinfo is None:
+            datestring = datestring.replace(tzinfo=pytz.UTC)
         timestamp = datestring.timestamp()
     else:
         timestamp = Time.from_string(datestring)
-
     return timestamp_to_block(timestamp, blockchain)
 
 
