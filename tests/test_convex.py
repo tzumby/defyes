@@ -63,7 +63,7 @@ def test_get_locked():
     assert locked == [[ETHTokenAddr.CVX, Decimal("2269137508655082138108")]]
 
     locked = Convex.get_locked(
-        wallet="0x849d52316331967b6ff1198e5e32a0eb168d039d", block=17499865, blockchain="ethereum", reward=True
+        wallet="0x849d52316331967b6ff1198e5e32a0eb168d039d", block=17499865, blockchain=Chain.ETHEREUM, reward=True
     )
     assert locked == [
         [ETHTokenAddr.CVX, Decimal("15141.040500434822549545")],
@@ -73,7 +73,7 @@ def test_get_locked():
     ]
 
     locked = Convex.get_locked(
-        wallet="0x849d52316331967b6ff1198e5e32a0eb168d039d", block=17499865, blockchain="ethereum", reward=True
+        wallet="0x849d52316331967b6ff1198e5e32a0eb168d039d", block=17499865, blockchain=Chain.ETHEREUM, reward=True
     )
     assert locked == [
         [ETHTokenAddr.CVX, Decimal("15141.040500434822549545")],

@@ -1,6 +1,5 @@
 import logging
 
-import diskcache
 import pytest
 
 from defyes import add_stderr_logger
@@ -16,11 +15,3 @@ def debug_defi_proto(request):
         add_stderr_logger(logging.DEBUG)
 
 
-@pytest.fixture
-def temporary_cache(monkeypatch):
-    monkeypatch.setattr("defyes.cache._cache", diskcache.Cache())
-
-
-@pytest.fixture
-def disable_cache(monkeypatch):
-    monkeypatch.setattr("defyes.cache._cache", None)

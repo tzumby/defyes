@@ -1,6 +1,6 @@
 import pytest
 
-from defyes.constants import Constants
+from karpatkit.constants import Constants
 
 
 class TestingConstants(Constants):

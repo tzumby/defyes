@@ -2,7 +2,7 @@ from typing import Union
 
 from web3 import Web3
 
-from defyes.explorer import ChainExplorer
+from karpatkit.explorer import ChainExplorer
 from defyes.node import get_node
 
 

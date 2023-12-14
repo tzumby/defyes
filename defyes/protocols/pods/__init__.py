@@ -7,7 +7,7 @@ from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
 from defabipedia import Chain
-from defyes.explorer import ChainExplorer
+from karpatkit.explorer import ChainExplorer
 from defyes.financial import ChainedPrice, Interval
 from defyes.functions import ensure_a_block_number
 from defyes.lazytime import Duration, Time

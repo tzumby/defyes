@@ -5,7 +5,7 @@ from web3 import Web3
 
 from defyes.constants import Address
 from defabipedia import Chain
-from defyes.explorer import ChainExplorer
+from karpatkit.explorer import ChainExplorer
 from defyes.node import get_node
 from defyes.prices import Chainlink, CoinGecko, _1inch
 

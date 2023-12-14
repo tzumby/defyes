@@ -14,7 +14,7 @@ from karpatkit.cache import cache_call, const_call
 from defyes.constants import ABI_TOKEN_SIMPLIFIED, Address
 from defabipedia import Chain
 from karpatkit.constants import APIKey
-from defyes.explorer import ChainExplorer
+from karpatkit.explorer import ChainExplorer
 from karpatkit.helpers import suppress_error_codes
 from defyes.lazytime import Time
 from defyes.node import get_node

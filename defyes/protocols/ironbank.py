@@ -480,7 +480,7 @@ def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals
 #     wallet='0x5ed64f02588c8b75582f2f8efd7a5521e3f897cc',
 #     token_address='0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
 #     block=block,
-#     blockchain='optimism',
+#     blockchain=Chain.OPTIMISM,
 #     reward=True
 # )
 # print(x)

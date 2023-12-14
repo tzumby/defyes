@@ -8,7 +8,7 @@ from web3.exceptions import ContractLogicError
 from karpatkit.cache import const_call
 from defyes.constants import Address, ETHTokenAddr, GnosisTokenAddr
 from defabipedia import Chain
-from defyes.explorer import ChainExplorer
+from karpatkit.explorer import ChainExplorer
 from defyes.functions import balance_of, get_contract, get_decimals, get_logs_web3, to_token_amount
 from defyes.lazytime import Duration, Time
 from defyes.node import get_node

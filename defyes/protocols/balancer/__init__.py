@@ -7,7 +7,7 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.constants import Address, ETHTokenAddr
 from defabipedia import Chain
-from defyes.explorer import ChainExplorer
+from karpatkit.explorer import ChainExplorer
 from defyes.functions import get_decimals, get_logs_web3, last_block, to_token_amount
 from karpatkit.helpers import suppress_error_codes
 from defyes.lazytime import Duration, Time
@@ -392,7 +392,7 @@ def get_protocol_data_for(
     reward: bool = False,
     decimals: bool = True,
     aura_staked: Decimal = None,
-) -> None:
+) -> dict:
     wallet = Addr(Web3.to_checksum_address(wallet))
     ret = {
         "blockchain": blockchain,

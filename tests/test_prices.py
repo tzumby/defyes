@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from defyes.constants import Chain
+from defabipedia import Chain
 from defyes.prices.db_functions import TOKEN_MAPPING_FILE
 from defyes.prices.prices import get_price
 
@@ -28,7 +28,7 @@ def test_price(token, block, blockchain, expected_price):
 
 
 def test_get_price():
-    price = get_price("0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", 17628203, "ethereum", source="coingecko")
+    price = get_price("0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", 17628203, Chain.ETHEREUM, source="coingecko")
     assert price == (5.426491078544339, "coingecko", "ethereum")
 
 
