@@ -259,7 +259,11 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
     # OpenZeppelins' EIP-897 DelegateProxy - Examples: stETH in mainnet (0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84)
     # It also includes the custom proxy implementation of the Comptroller: 0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B
     if proxy_impl_address == Address.ZERO:
-        contract = get_contract(contract_address, blockchain, web3=web3)
+        try:
+            contract = get_contract(contract_address, blockchain, web3=web3)
+        except:
+            contract = None
+
         if contract is not None:
             for func in [obj for obj in contract.abi if obj["type"] == "function"]:
                 name = str(func["name"].lower())
@@ -278,7 +282,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
     if proxy_impl_address == Address.ZERO:
         contract_custom_abi = get_contract(
             contract_address,
-            Chain.ETHEREUM,
+            blockchain,
             abi='[{"inputs":[{"internalType":"uint256","name":"offset","type":"uint256"},{"internalType":"uint256","name":"length","type":"uint256"}],"name":"getStorageAt","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"}]',
         )
         try:
