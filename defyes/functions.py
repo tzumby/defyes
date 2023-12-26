@@ -6,7 +6,6 @@ from contextlib import suppress
 from datetime import datetime
 from decimal import Decimal
 
-import pytz
 import requests
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
