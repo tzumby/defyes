@@ -1,5 +1,6 @@
 import datetime
 
+import pytest
 import pytz
 
 from defyes.constants import ETHTokenAddr
@@ -10,10 +11,12 @@ from defyes.functions import block_to_date, date_to_block, get_symbol, search_pr
 def test_date_to_block():
     block = 16671547
     assert date_to_block("2023-02-20 18:30:00", Chain.ETHEREUM) == block
-    date = datetime.datetime(year=2023, month=2, day=20, hour=18, minute=30, second=0)
-    assert date_to_block(date, Chain.ETHEREUM) == block
     date = datetime.datetime(year=2023, month=2, day=20, hour=18, minute=30, second=0, tzinfo=pytz.UTC)
     assert date_to_block(date, Chain.ETHEREUM) == block
+
+    with pytest.raises(ValueError):
+        date = datetime.datetime(year=2023, month=2, day=20, hour=18, minute=30, second=0)
+        assert date_to_block(date, Chain.ETHEREUM) == block
 
 
 def test_block_to_date():

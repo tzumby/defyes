@@ -27,6 +27,8 @@ logger = logging.getLogger(__name__)
 class BlockchainError(Exception):
     pass
 
+def tz_aware(dt):
+    return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
 
 def to_token_amount(
     token_address: str, amount: int | Decimal, blockchain: str, web3: Web3, decimals: bool = True
@@ -60,8 +62,8 @@ def date_to_block(datestring, blockchain) -> int:
     An example datestring: '2023-02-20 18:30:00'.
     """
     if isinstance(datestring, datetime):
-        if datestring.tzinfo is None:
-            datestring = datestring.replace(tzinfo=pytz.UTC)
+        if not tz_aware(datestring):
+            raise ValueError("Naive datetimes are unsupported.")
         timestamp = datestring.timestamp()
     else:
         timestamp = Time.from_string(datestring)
