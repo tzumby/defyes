@@ -216,7 +216,7 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
     extra_rewards_airdrop = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -301,7 +301,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     all_rewards = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -354,7 +354,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True):
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -381,7 +381,7 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True):
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -415,7 +415,7 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_compounded(wallet, block, blockchain, web3=None, reward=False, decimals=True):
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -447,7 +447,7 @@ def underlying(
     balances = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -499,7 +499,7 @@ def update_db(output_file=DB_FILE, block="latest"):
     for blockchain in [Chain.GNOSIS, Chain.ETHEREUM, Chain.POLYGON, Chain.ARBITRUM, Chain.OPTIMISM]:
         db_data[blockchain] = {}
 
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
         if blockchain == Chain.ETHEREUM:
             booster_address = BOOSTER

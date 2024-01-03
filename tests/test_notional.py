@@ -28,7 +28,7 @@ def test_get_snote_address():
 
 def test_get_markets_data():
     block = 17049450
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     eth, dai, usdc, wbtc = Notional.get_markets_data(block, Chain.ETHEREUM, web3=node)
     assert eth["currencyId"] == 1
@@ -59,7 +59,7 @@ def test_get_markets_data():
 
 def test_get_all_note_rewards():
     block = 17049450
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     note_reward = Notional.all_note_rewards(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert note_reward == [[ETHTokenAddr.NOTE, Decimal("20787.1858851")]]
@@ -67,7 +67,7 @@ def test_get_all_note_rewards():
 
 def test_get_staked():
     block = 17049450
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     staked = Notional.get_staked(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert staked == [[ETHTokenAddr.WETH, Decimal("0")], [ETHTokenAddr.NOTE, Decimal("0")]]
@@ -75,7 +75,7 @@ def test_get_staked():
 
 def test_underlying_all():
     block = 17049450
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     underlying = Notional.underlying_all(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert underlying == [
@@ -87,7 +87,7 @@ def test_underlying_all():
 
 def test_underlying():
     block = 17049450
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     underlying = Notional.underlying(WALLET_N1, ETHTokenAddr.USDC, block, Chain.ETHEREUM, web3=node)
     assert underlying == [[ETHTokenAddr.USDC, Decimal("836657.9853193511111313755831")]]

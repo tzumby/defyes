@@ -59,7 +59,7 @@ def get_deposit(
     wallet: str, nftid: int, contract_address: str, block: Union[int, str], blockchain: str, web3: Web3 = None
 ) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     azuro_pool = AzuroPools(contract_address)
     wallet = Web3.to_checksum_address(wallet)
@@ -105,7 +105,7 @@ def underlying(
     rewards: bool = False,
 ) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -145,7 +145,7 @@ def underlying_all(
     rewards: bool = False,
 ) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)

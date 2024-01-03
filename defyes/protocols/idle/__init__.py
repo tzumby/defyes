@@ -100,7 +100,7 @@ def get_addresses_subgraph(block: Union[int, str], blockchain: str, web3=None) -
     result = {"cdos": []}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     gauges = get_gauges(block, blockchain, web3=web3)
 
@@ -137,7 +137,7 @@ def get_addresses_subgraph(block: Union[int, str], blockchain: str, web3=None) -
 #     addresses = {"tranches": []}
 
 #     if web3 is None:
-#         web3 = get_node(blockchain, block=block)
+#         web3 = get_node(blockchain)
 
 #     cdo_events = web3.eth.get_logs({"fromBlock": 0, "toBlock": block, "address": CDO_PROXY})
 #     gauges = get_gauges(block, blockchain, web3=web3)
@@ -167,7 +167,7 @@ def get_gauges(block: Union[int, str], blockchain: str, web3=None, decimals=True
     gauges = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     gauge_controller_contract = get_contract(
         GAUGE_CONTROLLER, blockchain, web3=web3, abi=ABI_GAUGE_CONTROLLER, block=block
@@ -188,7 +188,7 @@ def get_all_rewards(
     rewards = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
@@ -220,7 +220,7 @@ def get_balances(
     decimals: bool = True,
 ) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     cdo_contract = get_contract(cdo_address, blockchain, web3=web3, abi=ABI_CDO_IDLE, block=block)
@@ -307,7 +307,7 @@ def underlying(
     }
 
     if web3 is None:
-        web3 = get_node(blockchain, block)
+        web3 = get_node(blockchain)
 
     tranche_address = Web3.to_checksum_address(tranche_address)
 

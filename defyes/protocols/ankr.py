@@ -35,7 +35,7 @@ def underlying(
 ) -> list:
     # The blockchain argument is not used but it could be in the future if Ankr deploys on other ETHEREUM
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
     value = Ankr.underlying(wallet=wallet, block=block, decimals=decimals, web3=web3, unwrapped=unwrapped)
     if unwrapped:
         return [[Ankr.underlying_token, value]]
@@ -62,6 +62,6 @@ def unwrap(amount: int | float | Decimal, block: int | str, blockchain: str, web
     """
     # The blockchain argument is not used but it could be in the future if Ankr deploys on other ETHEREUM
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
     value = Ankr.unwrap(amount=amount, block=block, web3=web3)
     return [[Ankr.underlying_token, value]]

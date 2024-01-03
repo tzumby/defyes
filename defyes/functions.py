@@ -39,7 +39,7 @@ def to_token_amount(
 
 def last_block(blockchain, web3=None, block="latest"):
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     return web3.eth.block_number
 
@@ -105,7 +105,7 @@ def token_info(token_address, blockchain):  # NO ESTÁ Chain.POLYGON
 
 def balance_of(address, contract_address, block, blockchain, web3=None, decimals=True) -> Decimal:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     address = Web3.to_checksum_address(address)
     contract_address = Web3.to_checksum_address(contract_address)
@@ -127,7 +127,7 @@ def total_supply(
     token_address: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True
 ) -> Decimal:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     token_address = Web3.to_checksum_address(token_address)
 
@@ -139,7 +139,7 @@ def total_supply(
 
 def get_decimals(token_address, blockchain, web3=None, block="latest"):
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     token_address = Web3.to_checksum_address(token_address)
 
@@ -156,7 +156,7 @@ def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
     token_address = Web3.to_checksum_address(token_address)
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     special_addr_mapping = {
         Chain.ETHEREUM: "ETH",
@@ -198,7 +198,7 @@ def infer_symbol(web3, blockchain, token_address):
 # CONTRACTS AND ABIS
 def get_contract(contract_address, blockchain, web3=None, abi=None, block="latest"):
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     contract_address = Web3.to_checksum_address(contract_address)
 
@@ -211,7 +211,7 @@ def get_contract(contract_address, blockchain, web3=None, abi=None, block="lates
 
 def get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, web3=None, block="latest"):
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     address = Web3.to_checksum_address(contract_address)
 
@@ -424,7 +424,7 @@ def get_logs_web3(
 ) -> dict:
     # FIXME: Add documentation
     if web3 is None:
-        web3 = get_node(blockchain, block=block_end)
+        web3 = get_node(blockchain)
     try:
         params = {}
         if address is not None:

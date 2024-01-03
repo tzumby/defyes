@@ -15,7 +15,7 @@ TEST_WALLET = "0xf929122994e177079c924631ba13fb280f5cd1f9"
 CURVE_3POOL = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
 CURVE_3POOL_GAUGE = "0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A"
 
-WEB3 = get_node(blockchain=Chain.ETHEREUM, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.ETHEREUM)
 
 
 @pytest.mark.parametrize("_id", [0, 3, 5, 6])

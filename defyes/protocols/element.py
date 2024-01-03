@@ -126,7 +126,7 @@ def get_tranches(block: int, blockchain: str, web3) -> list:
 
 def get_addresses(block: int, blockchain: str, web3=None) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     principal_tokens = get_tranches(block, blockchain, web3)
 
@@ -146,7 +146,7 @@ def get_amount(
     decimals=True,
 ) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -185,7 +185,7 @@ def get_amount(
 
 def underlying(name: str, wallet: str, block: int, blockchain: str, web3=None, decimals=True) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     balances = []
     for tranche in get_tranches(block, blockchain, web3):
@@ -207,7 +207,7 @@ def underlying(name: str, wallet: str, block: int, blockchain: str, web3=None, d
 
 def underlying_all(wallet: str, block: int, blockchain: str, web3=None, decimals=True) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     balances = []
     for tranche in get_tranches(block, blockchain, web3):

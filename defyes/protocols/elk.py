@@ -49,7 +49,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     lptoken_data = {}
 
@@ -177,7 +177,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     all_rewards = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
@@ -222,7 +222,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
     result = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
@@ -280,7 +280,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     balances = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
@@ -314,7 +314,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
     result = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block_end)
+        web3 = get_node(blockchain)
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
@@ -354,7 +354,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 # #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # def get_apr(lptoken_address, blockchain, block, web3=None, index=0):
 #     if web3 is None:
-#         web3 = get_node(blockchain, block=block)
+#         web3 = get_node(blockchain)
 
 #     lptoken_address = Web3.to_checksum_address(lptoken_address)
 #     lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)

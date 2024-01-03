@@ -36,7 +36,7 @@ def underlying(
         a list where each element is a list with two elements, the underlying token address and its corresponding amount
     """
     if web3 is None:
-        web3 = get_node(Chain.ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -75,7 +75,7 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool = Fals
         a list where the first element is the underlying token address and the second one is the balance
     """
     if web3 is None:
-        web3 = get_node(Chain.ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM)
 
     wsteth_contract = get_contract(ETHTokenAddr.wstETH, Chain.ETHEREUM, block=block, web3=web3)
     stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10**18)

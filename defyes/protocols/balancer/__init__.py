@@ -351,7 +351,7 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
 
                 balances = VebalFeeDistributor(blockchain, block, addr).claim_tokens(wallet, reward_list)
                 for reward_token, balance in zip(reward_tokens, balances):
-                    balance = to_token_amount(reward_token, balance, blockchain, get_node(blockchain, block), decimals)
+                    balance = to_token_amount(reward_token, balance, blockchain, get_node(blockchain), decimals)
                     rewards[reward_token] = rewards.get(reward_token, 0) + balance
 
     return rewards
@@ -522,7 +522,7 @@ def get_swap_fees_apr(
     chain_explorer = ChainExplorer(blockchain)
     block_start = chain_explorer.block_from_time(Time(chain_explorer.time_from_block(block)) - Duration.days(days))
 
-    node = get_node(blockchain, block)
+    node = get_node(blockchain)
     vault_address = Vault(blockchain, block).address
     lp = LiquidityPool(blockchain, block, lptoken_address)
     swaps = lp.swap_fees(vault_address, block_start)

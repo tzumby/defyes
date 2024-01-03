@@ -94,7 +94,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     ctoken_data = {}
@@ -160,7 +160,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     balances = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
     wallet = Web3.to_checksum_address(wallet)
     token_address = Web3.to_checksum_address(token_address)
 
@@ -212,7 +212,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     balances = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -267,7 +267,7 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, decimals=True):
 
     all_rewards = []
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -308,7 +308,7 @@ def unwrap(ctoken_amount: float | Decimal, ctoken_address, block, blockchain, we
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     ctoken_contract = get_contract(ctoken_address, blockchain, abi=ABI_CTOKEN, web3=web3, block=block)
     ctoken_decimals = const_call(ctoken_contract.functions.decimals())
@@ -349,7 +349,7 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     result = []
     token_address = Web3.to_checksum_address(token_address)
@@ -417,7 +417,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     result = []
     token_address = Web3.to_checksum_address(token_address)

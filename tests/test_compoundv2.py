@@ -49,7 +49,7 @@ def test_get_compound_token_address():
 
 def test_get_ctokens_contract_list():
     block = 16904422
-    web3 = get_node(Chain.ETHEREUM, block)
+    web3 = get_node(Chain.ETHEREUM)
     ctokens_list = Compound.get_ctokens_contract_list(Chain.ETHEREUM, web3, block)
     assert ctokens_list == list(CTOKEN_CONTRACTS.values())
 
@@ -82,7 +82,7 @@ def test_get_ctoken_data():
 
 def test_underlying():
     block = 16904422
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     dai_underlying = Compound.underlying(WALLET_N1, ETHTokenAddr.DAI, block, Chain.ETHEREUM, web3=node)
     assert dai_underlying == [["0x6B175474E89094C44Da98b954EedeAC495271d0F", Decimal("0.9999999998429369002850268805")]]
 
@@ -95,7 +95,7 @@ def test_underlying():
 
 def test_underlying_all():
     block = 16906410
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     underlyings = Compound.underlying_all(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert underlyings == [
         [ETHTokenAddr.DAI, Decimal("1.000010884057654258470225384")],
@@ -105,7 +105,7 @@ def test_underlying_all():
 
 def test_all_comp_rewards():
     block = 16924820
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     rewards = Compound.all_comp_rewards(WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert rewards[0][0] == ETHTokenAddr.COMP
     assert rewards[0][1] == Decimal("0.000001508535739321")
@@ -113,7 +113,7 @@ def test_all_comp_rewards():
 
 def test_unwrap():
     block = 16924820
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     wallet1_cdai = Compound.get_ctoken_data(
         CTOKEN_CONTRACTS["cdai_contract"], WALLET_N1, block, Chain.ETHEREUM, web3=node
     )
@@ -125,7 +125,7 @@ def test_unwrap():
 
 def test_get_apr():
     block = 16924820
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     comp_apr = Compound.get_apr(ETHTokenAddr.COMP, block, Chain.ETHEREUM, web3=node)
     assert comp_apr == [
         {"metric": "apr", "type": "supply", "value": Decimal("0.002830267264410439852176000")},
@@ -149,7 +149,7 @@ def test_get_apr():
 
 def test_get_comp_apr():
     block = 16924820
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     usdt_comp_apr = Compound.get_comp_apr(ETHTokenAddr.USDT, block, Chain.ETHEREUM, web3=node)
     assert usdt_comp_apr == [
         {"metric": "apr", "type": "supply", "value": Decimal("0")},

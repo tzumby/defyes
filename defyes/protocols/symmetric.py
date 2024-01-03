@@ -67,7 +67,7 @@ pool_ids_farming = {
 
 
 def get_pool_ids_farming():
-    web3 = get_node(Chain.GNOSIS, "latest")
+    web3 = get_node(Chain.GNOSIS)
 
     chef_contract = web3.eth.contract(address=SYMMCHEF_GNOSIS, abi=ABI_CHEF_V2)
     poolLength = chef_contract.functions.poolLength().call(block_identifier="latest")
@@ -123,7 +123,7 @@ def get_all_rewards(
         raise BlockchainError(f"{blockchain} not {Chain.GNOSIS}")
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
@@ -228,7 +228,7 @@ def underlying(
         raise BlockchainError(f"{blockchain} not {Chain.GNOSIS}")
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
@@ -344,7 +344,7 @@ def pool_balances(
         raise BlockchainError(f"{blockchain} not {Chain.GNOSIS}")
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
@@ -439,7 +439,7 @@ def get_rewards_per_second(
         raise BlockchainError(f"{blockchain} not {Chain.GNOSIS}")
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 

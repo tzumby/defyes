@@ -16,7 +16,7 @@ bnETH_ADDR = "0x256Ed1d83E3e4EfDda977389A5389C3433137DDA"
 
 def test_underlying():
     block = 17067718
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     underlying = Bancor.underlying(bnICHI_ADDR, WALLET_N1, block, Chain.ETHEREUM, web3=node)
     assert underlying == [[ETHTokenAddr.ICHI, Decimal("44351.005182315")], [ETHTokenAddr.BNT, Decimal("0")]]
@@ -27,7 +27,7 @@ def test_underlying():
 @pytest.mark.skip(reason="It takes to long.")
 def test_underlying_all():
     block = 17067718
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     underlying = Bancor.underlying_all(WALLET_N2, block, Chain.ETHEREUM, web3=node)
     assert underlying == [

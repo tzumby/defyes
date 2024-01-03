@@ -105,7 +105,7 @@ class Connext:
             raise ValueError(f"{self.blockchain} not supported yet")
 
         if self.web3 is None:
-            self.web3 = get_node(self.blockchain, block=self.block)
+            self.web3 = get_node(self.blockchain)
         else:
             assert isinstance(self.web3, Web3), "web3 is not a Web3 instance"
 

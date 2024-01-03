@@ -95,7 +95,7 @@ def get_fee_dist_address(blockchain):
 
 def get_itoken_data(itoken_address, wallet, block, blockchain, web3=None, underlying_token=None):
     if not web3:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     itoken_data = {}
 
@@ -126,7 +126,7 @@ def get_all_rewards(wallet, itoken, block, blockchain, web3=None, decimals=True,
     all_rewards = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -160,7 +160,7 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     result = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -215,7 +215,7 @@ def all_rewards(wallet, block, blockchain, web3=None, decimals=True):
 
 def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, decimals=True):
     if not web3:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -270,7 +270,7 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
 # 2 - List of Tuples: [reward_token_address, balance]
 def underlying(wallet, token_address, block, blockchain, web3=None, decimals=True, reward=False):
     if not web3:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     token_address = Web3.to_checksum_address(token_address)
@@ -351,7 +351,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     balances = []
 
     if not web3:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -437,7 +437,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
 # 1 - List of Tuples: [liquidity_token_address, balance]
 def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals=True):
     if not web3:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     itoken_contract = get_contract(itoken_address, blockchain, abi=ABI_ITOKEN, web3=web3, block=block)
     itoken_decimals = const_call(itoken_contract.functions.decimals())

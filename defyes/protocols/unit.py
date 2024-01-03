@@ -112,7 +112,7 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
     cdp_data = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -222,7 +222,7 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, decim
     cdp_data = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -380,7 +380,7 @@ def underlying(wallet, block, blockchain, web3=None, decimals=True):
     result = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 

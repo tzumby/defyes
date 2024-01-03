@@ -56,7 +56,7 @@ def test_db_uptodate():
 
 def test_get_pool_rewarder():
     block = 17012817
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     booster_contract = get_contract(Aura.BOOSTER, Chain.ETHEREUM, web3=node, abi=Aura.ABI_BOOSTER, block=block)
     rewarders = Aura.get_pool_rewarders(booster_contract, balancer_50OHM50wstETH_ADDR, Chain.ETHEREUM, block)
 
@@ -65,7 +65,7 @@ def test_get_pool_rewarder():
 
 def test_get_rewards():
     block = 17020318
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     rewarder_contract = get_contract(
         aura_OHMwstETHvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block
     )
@@ -76,7 +76,7 @@ def test_get_rewards():
 
 def test_get_extra_rewards():
     block = 17020318
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     rewarder_contract = get_contract(
         aura_auraBALSTABLEvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block
     )
@@ -87,7 +87,7 @@ def test_get_extra_rewards():
 
 def test_get_extra_rewards_airdrop():
     block = 16795239
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     rewards = Aura.get_extra_rewards_airdrop(WALLET_N3, block, Chain.ETHEREUM, web3=node)
     assert rewards == [ETHTokenAddr.AURA, Decimal("4.902499061089478666")]
@@ -95,7 +95,7 @@ def test_get_extra_rewards_airdrop():
 
 def test_get_aura_mint_amount():
     block = 17020318
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     rewarder_contract = get_contract(
         aura_OHMwstETHvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block
     )
@@ -108,7 +108,7 @@ def test_get_aura_mint_amount():
 
 def test_get_all_rewards():
     block = 17437365
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     rewards = Aura.get_all_rewards(WALLET_N6, balancer_auraBALSTABLE_ADDR, block, Chain.ETHEREUM, web3=node)
     assert rewards[ETHTokenAddr.BAL] == Decimal("152.434820779238777988")
     assert rewards[ETHTokenAddr.AURA] == Decimal("1321.548837567568249031232")
@@ -116,7 +116,7 @@ def test_get_all_rewards():
 
 def test_get_locked():
     block = 17026907
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     aura_locked, reward = Aura.get_locked(WALLET_N4, block, Chain.ETHEREUM, web3=node, reward=True)
     assert aura_locked == [ETHTokenAddr.AURA, Decimal("1001043.348600000136133708")]
@@ -125,7 +125,7 @@ def test_get_locked():
 
 def test_get_staked():
     block = 17030603
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
     aurabal, bal, bb_a_usd, aura = Aura.get_staked(WALLET_N5, block, Chain.ETHEREUM, web3=node, reward=True)
     assert aurabal == [ETHTokenAddr.auraBAL, Decimal("76788.355753847540232985")]
     assert bal == [ETHTokenAddr.BAL, Decimal("5.959443245175147934")]
@@ -135,7 +135,7 @@ def test_get_staked():
 
 def test_underlying():
     block = 17437427
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     balances = Aura.underlying(WALLET_N6, balancer_auraBALSTABLE_ADDR, block, Chain.ETHEREUM, web3=node)["balances"]
     assert balances[ETHTokenAddr.BAL] == Decimal("38369.1858805351275913999617")
@@ -157,7 +157,7 @@ def test_underlying():
     assert balances[ETHTokenAddr.WETH] == Decimal("44.91525928857763211653589999")
 
     block = 17030603
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     balances = Aura.underlying(WALLET_N5, balancer_auraBALSTABLE_ADDR, block, Chain.ETHEREUM, web3=node)["balances"]
     assert balances[ETHTokenAddr.BAL] == Decimal("116433.7136895592470998702397")
@@ -179,7 +179,7 @@ def test_underlying():
     assert balances[ETHTokenAddr.WETH] == Decimal("42.53030185358673865030664650")
 
     block = 29644045
-    node = get_node(Chain.GNOSIS, block)
+    node = get_node(Chain.GNOSIS)
     underlying = Aura.underlying(WALLET_N1_GC, bb_WETH_wstETH_GC, block, Chain.GNOSIS, web3=node, reward=True)
     assert underlying["balances"][GnosisTokenAddr.WETH] == Decimal("567.2201935195299328414182591")
     assert underlying["balances"][GnosisTokenAddr.wstETH] == Decimal("495.0387012245886911692522812")
@@ -198,7 +198,7 @@ def test_pool_balances():
 
 def test_get_compounded():
     block = 17131068
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     aurabal, aura_rewards = Aura.get_compounded(WALLET_39d, block, Chain.ETHEREUM, web3=node, reward=True)
     assert aurabal == [ETHTokenAddr.auraBAL, Decimal("173638.950900193303875756")]

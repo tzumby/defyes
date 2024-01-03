@@ -44,7 +44,7 @@ def get_price(token_address, block, blockchain, web3=None, source: str = "chainl
     assert source in SOURCES_LIST, "Please input an existing oracle."
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     token_address = Web3.to_checksum_address(token_address)
 

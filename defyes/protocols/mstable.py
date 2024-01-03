@@ -20,7 +20,7 @@ def underlying(token_address: str, wallet: str, block: int, blockchain: str, web
     balances = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     token_address = Web3.to_checksum_address(token_address)

@@ -15,7 +15,7 @@ NFT_ID = 358770
 @pytest.mark.parametrize("decimals", [False, True])
 def test_underlying(decimals):
     block = 17094489
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     x = UniswapV3.underlying(WALLET_N1, NFT_ID, block, Chain.ETHEREUM, web3=node, decimals=decimals, fee=True)
     y = Decimal(10**18 if decimals else 1)
@@ -27,7 +27,7 @@ def test_underlying(decimals):
 
 def test_allnfts():
     block = 17094489
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     nfts = UniswapV3.allnfts(WALLET_N1, block, Chain.ETHEREUM, node)
     assert nfts == [
@@ -70,7 +70,7 @@ def test_underlying_all():
 
 def test_get_rate():
     block = 17094489
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     position_nft = UniswapV3.NFTPosition(NFT_ID, Chain.ETHEREUM, block, node, decimals=True)
     assert UniswapV3.get_rate_uniswap_v3(
@@ -81,7 +81,7 @@ def test_get_rate():
 @pytest.mark.parametrize("decimals", [False, True])
 def test_get_fee(decimals):
     block = 17094489
-    node = get_node(Chain.ETHEREUM, block)
+    node = get_node(Chain.ETHEREUM)
 
     x = UniswapV3.get_fee(NFT_ID, block, web3=node, blockchain=Chain.ETHEREUM, decimals=decimals)
     y = Decimal(10**18 if decimals else 1)

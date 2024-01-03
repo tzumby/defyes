@@ -14,7 +14,7 @@ WALLET_N2 = "0x53811010085382D49eF12bCC55902bbFCEB57790"
 def test_check_uniswap_v3_pools(reward):
     block = 17438389
     blockchain = Chain.ETHEREUM
-    node = get_node(blockchain, block)
+    node = get_node(blockchain)
     pools = Stakewise.check_uniswap_v3_pools(WALLET_N1, block, blockchain, web3=node, reward=reward)
     assert (
         pools
@@ -66,7 +66,7 @@ def test_check_uniswap_v3_pools(reward):
 def test_check_curve_pools(reward):
     block = 28357764
     blockchain = Chain.GNOSIS
-    node = get_node(blockchain, block)
+    node = get_node(blockchain)
     pools = Stakewise.check_curve_pools(WALLET_N2, block, blockchain, web3=node, reward=reward)
     assert (
         pools
@@ -144,7 +144,7 @@ def test_check_curve_pools(reward):
 def test_underlying(pools):
     block = 17438389
     blockchain = Chain.ETHEREUM
-    node = get_node(blockchain, block)
+    node = get_node(blockchain)
     underlying = Stakewise.underlying(WALLET_N1, block, blockchain, web3=node, pools=pools, decimals=False)
     assert (
         underlying
@@ -218,7 +218,7 @@ def test_underlying(pools):
 
     block = 28357764
     blockchain = Chain.GNOSIS
-    node = get_node(blockchain, block)
+    node = get_node(blockchain)
     underlying = Stakewise.underlying(WALLET_N2, block, blockchain, web3=node, pools=pools, decimals=False)
     assert (
         underlying

@@ -86,7 +86,7 @@ ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"c
 
 def get_aave_v3_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> dict:
     if web3 is None:
-        web3 = get_node(blockchain, block)
+        web3 = get_node(blockchain)
 
     pdp_contract = get_contract(PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP, block=block)
     reserve_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
@@ -113,7 +113,7 @@ def get_all_rewards(
     all_rewards = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -130,7 +130,7 @@ def get_all_rewards(
 
 def underlying_all(wallet: str, block: int | str, blockchain: str, web3: Web3 = None, decimals: bool = True) -> dict:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     protocol_data_provider_contract = get_contract(
         PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP, block=block
@@ -239,7 +239,7 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     debts = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 

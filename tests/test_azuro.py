@@ -11,7 +11,7 @@ WALLET_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
 NFT_ID = 1099511627781
 
 BLOCK = 27532353
-NODE = get_node(Chain.GNOSIS, BLOCK)
+NODE = get_node(Chain.GNOSIS)
 
 
 def test_get_deposit():

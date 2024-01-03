@@ -65,7 +65,7 @@ def check_curve_pools(
         raise ValueError("Stakewise Curve pools are only deployed on Gnosis Chain.")
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     # FIXME: this will change once we change curve.underlying so that it returns a dictionary
     result = {}
@@ -93,7 +93,7 @@ def check_uniswap_v3_pools(
         raise ValueError("Stakewise Uniswap V3 pools are only deployed on Ethereum.")
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     nft_ids = uniswapv3.allnfts(wallet, block, blockchain, web3=web3)
     result = {}
@@ -135,7 +135,7 @@ def get_all_rewards(
         )
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     chain = "mainnet" if blockchain is Chain.ETHEREUM else Chain.GNOSIS
     response = requests.get(f"https://api.stakewise.io/distributor-claims/{wallet}/?network={chain}")
@@ -237,7 +237,7 @@ def underlying(
             )
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 

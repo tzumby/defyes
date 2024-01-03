@@ -90,7 +90,7 @@ def get_rate(token_src, block, blockchain, web3=None, use_wrappers=False, token_
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     token_src = Web3.to_checksum_address(token_src)
 
@@ -141,7 +141,7 @@ def get_price(token_src, block, blockchain, web3=None, use_wrappers=False, conne
     """
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     token_src = Web3.to_checksum_address(token_src)
 

@@ -83,7 +83,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
     vault_data = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     collateral_address = Web3.to_checksum_address(collateral_address)
 
@@ -209,7 +209,7 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, decim
     result = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     collateral_address = Web3.to_checksum_address(collateral_address)
     vault_address = get_vault_address(collateral_address, blockchain)

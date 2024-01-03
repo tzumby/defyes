@@ -147,7 +147,7 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     debts = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -243,7 +243,7 @@ def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     all_rewards = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -279,7 +279,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     """
     result = []
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -316,7 +316,7 @@ def get_apr(token_address, block, blockchain, web3=None, apy=False):
     """
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     lpapr_address = POOL_ADDRESSES_PROVIDER[blockchain]
     lpapr_contract = get_contract(lpapr_address, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
@@ -370,7 +370,7 @@ def get_staking_apr(block, blockchain, web3=None, apy=False):
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     seconds_per_year = 31536000
     stk_aave_address = get_stkaave_address(blockchain)
@@ -403,7 +403,7 @@ def get_staked(
     balances = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     aave_wallet = Web3.to_checksum_address(wallet)
 

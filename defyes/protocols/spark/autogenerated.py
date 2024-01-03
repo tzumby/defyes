@@ -34,7 +34,7 @@ class PoolAddressesProvider:
                 raise ValueError(
                     f"{blockchain!r} not defined in default_addresses when trying to guess the address."
                 ) from e
-        node = get_node(blockchain, block)
+        node = get_node(blockchain)
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "pool_addresses_provider.json"))
 
     @property
@@ -137,7 +137,7 @@ class Pool:
                 raise ValueError(
                     f"{blockchain!r} not defined in default_addresses when trying to guess the address."
                 ) from e
-        node = get_node(blockchain, block)
+        node = get_node(blockchain)
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "pool.json"))
 
     @property
@@ -380,7 +380,7 @@ class Oracle:
                 raise ValueError(
                     f"{blockchain!r} not defined in default_addresses when trying to guess the address."
                 ) from e
-        node = get_node(blockchain, block)
+        node = get_node(blockchain)
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "oracle.json"))
 
     @property
@@ -432,7 +432,7 @@ class ProtocolDataProvider:
                 raise ValueError(
                     f"{blockchain!r} not defined in default_addresses when trying to guess the address."
                 ) from e
-        node = get_node(blockchain, block)
+        node = get_node(blockchain)
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "protocol_data_provider.json"))
 
     @property

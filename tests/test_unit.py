@@ -19,7 +19,7 @@ USG_ETH = "0x0770E27F92F0D0e716dc531037B8b87FEFEbE561"
 TEST_BLOCK = 17225800
 TEST_WALLET = "0x8442e4FCbbA519B4f4C1EA1FcE57a5379C55906C"
 COLLATERAL_ADDRESS = FTM_ETH
-WEB3 = get_node(blockchain=Chain.ETHEREUM, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.ETHEREUM)
 
 
 @pytest.mark.parametrize("decimals", [True, False])

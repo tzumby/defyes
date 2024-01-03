@@ -48,7 +48,7 @@ def get_markets_data(block, blockchain, web3=None, decimals=True, nproxy_contrac
     """
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     markets_data = []
 
@@ -119,7 +119,7 @@ def all_note_rewards(wallet, block, blockchain, web3=None, decimals=True, nproxy
     all_rewards = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -164,7 +164,7 @@ def get_staked(wallet, block, blockchain, web3=None, decimals=True, reward=False
     result = []
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -251,7 +251,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -291,7 +291,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     :return:
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     token_address = Web3.to_checksum_address(token_address)

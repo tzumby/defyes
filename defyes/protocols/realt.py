@@ -19,7 +19,7 @@ TOKEN_CONTRACT_ABI = '[{"type":"function","stateMutability":"view","outputs":[{"
 
 def underlying(wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals=True) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     token_contract = get_contract(TOKEN_CONTRACT_XDAI, blockchain, web3, abi=TOKEN_CONTRACT_ABI)

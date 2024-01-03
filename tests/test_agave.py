@@ -16,7 +16,7 @@ TEST_BLOCK = 27187881
 # 2023.04.14
 # TEST_BLOCK = 27450341
 
-WEB3 = get_node(blockchain=Chain.GNOSIS, block=TEST_BLOCK)
+WEB3 = get_node(blockchain=Chain.GNOSIS)
 
 # 2023.03.29
 TOP_WALLET_ADDRESS = "0xb4c575308221caa398e0dd2cdeb6b2f10d7b000a"

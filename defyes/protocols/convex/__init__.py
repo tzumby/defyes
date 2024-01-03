@@ -164,7 +164,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     all_rewards = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -211,7 +211,7 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     2 - List of Tuples: [reward_token_address, balance]
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -245,7 +245,7 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
     2 - List of Tuples: [reward_token_address, balance]
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -285,7 +285,7 @@ def underlying(
     balances = {}
 
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
@@ -327,7 +327,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     # 1 - List of Tuples: [liquidity_token_address, balance]
     """
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
@@ -339,7 +339,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
 def update_db(output_file=DB_FILE, block="latest"):
     db_data = {"pools": {}}
 
-    web3 = get_node(Chain.ETHEREUM, block=block)
+    web3 = get_node(Chain.ETHEREUM)
     booster = get_contract(BOOSTER, Chain.ETHEREUM, web3=web3, abi=ABI_BOOSTER, block=block)
     pools_length = booster.functions.poolLength().call(block_identifier=block)
 

@@ -50,7 +50,7 @@ def get_vault_data(vault_id, block, web3=None):
     vault_data = {}
 
     if web3 is None:
-        web3 = get_node(Chain.ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM)
 
     cpd_manager_contract = get_contract(
         CDP_MANAGER_ADDRESS, Chain.ETHEREUM, web3=web3, abi=ABI_CDP_MANAGER, block=block
@@ -94,7 +94,7 @@ def underlying(vault_id, block, web3=None):
     result = []
 
     if web3 is None:
-        web3 = get_node(Chain.ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM)
 
     vault_data = get_vault_data(vault_id, block, web3=web3)
 
@@ -110,7 +110,7 @@ def underlying(vault_id, block, web3=None):
 
 def get_delegated_MKR(wallet: str, block: Union[int, str], web3=None, decimals=True) -> Union[int, float]:
     if web3 is None:
-        web3 = get_node(Chain.ETHEREUM, block=block)
+        web3 = get_node(Chain.ETHEREUM)
 
     IOU_token_address = "0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7"
     balance = balance_of(wallet, IOU_token_address, block, Chain.ETHEREUM, web3=web3, decimals=decimals)

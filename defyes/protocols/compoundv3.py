@@ -36,7 +36,7 @@ def underlying(
         decimals (bool, optional): _description_. Defaults to True.
     """
     balances = []
-    web3 = get_node(blockchain, block=block)
+    web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     comet_address = Web3.to_checksum_address(comet_address)
@@ -65,7 +65,7 @@ def get_all_rewards(
         List[List]: _description_
     """
     rewards = []
-    web3 = get_node(blockchain, block=block)
+    web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
     comet_address = Web3.to_checksum_address(comet_address)
