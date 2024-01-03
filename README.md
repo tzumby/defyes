@@ -12,11 +12,11 @@ and Gnosis Chain.
 
 ## Configuration 
 
-- First you will have to modify the [config.json](https://github.com/KarpatkeyDAO/defyes/blob/main/defyes/config.json)
+- First you will have to copy, rename and modify the [config.json](https://github.com/karpatkey/defyes/blob/main/example_config.json)
 
 - You should provide `RPC` endpoints and `EXPLORER API KEYS`
 
-- You should set the env `CONFIG_PATH` env with the config.json's absolute path or the config.json can be placed under default package path `/path/to/python/site-packages/defyes/config.json`
+- You should set the env `CONFIG_PATH` env with the config.json's absolute path.
 
 ## Cache
 
