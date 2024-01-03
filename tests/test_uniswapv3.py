@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 import pytest
+from defabipedia import Chain
 
 from defyes import UniswapV3
 from defyes.constants import ETHTokenAddr
-from defabipedia import Chain
 from defyes.node import get_node
 
 WALLET_N1 = "0x849D52316331967b6fF1198e5E32A0eB168D039d"

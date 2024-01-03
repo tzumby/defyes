@@ -2,10 +2,10 @@ import itertools
 from decimal import Decimal
 
 import pytest
+from defabipedia import Chain
 
 from defyes import pretty
 from defyes.constants import ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
-from defabipedia import Chain
 from defyes.types import Addr, Token, TokenAmount
 
 

@@ -1,9 +1,9 @@
 from decimal import Decimal
 
 import pytest
+from defabipedia import Chain
 
 from defyes import IronBank
-from defabipedia import Chain
 from defyes.node import get_node
 
 # 2023.04.27

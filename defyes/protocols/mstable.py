@@ -1,8 +1,8 @@
 from decimal import Decimal
 
+from karpatkit.cache import const_call
 from web3 import Web3
 
-from karpatkit.cache import const_call
 from defyes.functions import get_contract
 from defyes.node import get_node
 

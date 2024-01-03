@@ -8,9 +8,9 @@ from decimal import Decimal, DivisionByZero, InvalidOperation
 from functools import cached_property
 from typing import Iterator, NamedTuple
 
+from defabipedia import Chain
 from web3 import Web3
 
-from defabipedia import Chain
 from defyes.prices import Chainlink as chainlink
 from defyes.types import Addr, Token, TokenAmount
 

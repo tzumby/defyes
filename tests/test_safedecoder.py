@@ -1,4 +1,5 @@
 from defabipedia import Chain
+
 from defyes.SafeDecoder import get_safe_functions
 
 

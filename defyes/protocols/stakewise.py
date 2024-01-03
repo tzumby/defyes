@@ -3,10 +3,10 @@ import logging
 from decimal import Decimal
 
 import requests
+from defabipedia import Chain
 from web3 import Web3
 
 from defyes.constants import Address
-from defabipedia import Chain
 from defyes.functions import balance_of, last_block, to_token_amount
 from defyes.node import get_node
 

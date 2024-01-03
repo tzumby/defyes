@@ -1,8 +1,8 @@
 from typing import Union
 
+from karpatkit.explorer import ChainExplorer
 from web3 import Web3
 
-from karpatkit.explorer import ChainExplorer
 from defyes.node import get_node
 
 

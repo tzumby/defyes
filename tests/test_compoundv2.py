@@ -1,8 +1,9 @@
 from decimal import Decimal
 
+from defabipedia import Chain
+
 from defyes import Compound
 from defyes.constants import Address, ETHTokenAddr
-from defabipedia import Chain
 from defyes.node import get_node
 
 CTOKEN_CONTRACTS = {

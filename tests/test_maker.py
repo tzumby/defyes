@@ -1,8 +1,9 @@
 from decimal import Decimal
 
+from defabipedia import Chain
+
 from defyes import Maker
 from defyes.constants import ETHTokenAddr
-from defabipedia import Chain
 from defyes.node import get_node
 
 TEST_BLOCK = 17070386

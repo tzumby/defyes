@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 import pytest
+from defabipedia import Chain
 
 from defyes import Convex
 from defyes.constants import ETHTokenAddr
-from defabipedia import Chain
 from defyes.functions import get_contract
 from defyes.node import get_node
 

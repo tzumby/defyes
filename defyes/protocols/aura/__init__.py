@@ -2,13 +2,13 @@ import json
 from decimal import Decimal
 from pathlib import Path
 
+from defabipedia import Chain
+from karpatkit.cache import const_call
+from karpatkit.helpers import call_contract_method
 from web3 import Web3
 
-from karpatkit.cache import const_call
 from defyes.constants import ETHTokenAddr
-from defabipedia import Chain
 from defyes.functions import get_contract, get_decimals, get_logs_web3, last_block, to_token_amount
-from karpatkit.helpers import call_contract_method
 from defyes.node import get_node
 
 from .. import balancer

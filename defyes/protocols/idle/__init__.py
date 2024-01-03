@@ -3,15 +3,16 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Union
 
+from defabipedia import Chain
+
 # thegraph queries
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
+from karpatkit.cache import const_call
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
-from karpatkit.cache import const_call
 from defyes.constants import ABI_TOKEN_SIMPLIFIED
-from defabipedia import Chain
 from defyes.functions import get_contract, to_token_amount
 from defyes.node import get_node
 

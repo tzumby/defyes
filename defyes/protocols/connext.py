@@ -1,14 +1,14 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
 
+from defabipedia import Chain
 from gql import Client, gql  # thegraph queries
 from gql.transport.requests import RequestsHTTPTransport
+from karpatkit.cache import const_call
+from karpatkit.helpers import call_contract_method
 from web3 import Web3
 
-from karpatkit.cache import const_call
-from defabipedia import Chain
 from defyes.functions import balance_of, get_contract, get_decimals
-from karpatkit.helpers import call_contract_method
 from defyes.node import get_node
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

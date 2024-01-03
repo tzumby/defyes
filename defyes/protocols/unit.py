@@ -1,9 +1,9 @@
 from decimal import Decimal
 
+from defabipedia import Chain
+from karpatkit.cache import const_call
 from web3 import Web3
 
-from karpatkit.cache import const_call
-from defabipedia import Chain
 from defyes.functions import get_contract, get_decimals
 from defyes.node import get_node
 

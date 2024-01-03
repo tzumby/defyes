@@ -1,8 +1,9 @@
 from decimal import Decimal
 
+from defabipedia import Chain
+
 from defyes import Compoundv3
 from defyes.constants import ETHTokenAddr
-from defabipedia import Chain
 from defyes.node import get_node
 
 WALLET_N1 = "0x616dE58c011F8736fa20c7Ae5352F7f6FB9F0669"

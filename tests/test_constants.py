@@ -1,5 +1,4 @@
 import pytest
-
 from karpatkit.constants import Constants
 
 

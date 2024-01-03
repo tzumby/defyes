@@ -1,7 +1,7 @@
+from defabipedia import Chain
 from web3 import Web3
 
 from defyes.constants import Address
-from defabipedia import Chain
 from defyes.functions import get_contract, get_decimals
 from defyes.node import get_node
 from defyes.prices import Chainlink

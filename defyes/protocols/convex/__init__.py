@@ -3,12 +3,12 @@ import logging
 from decimal import Decimal
 from pathlib import Path
 
+from defabipedia import Chain
+from karpatkit.cache import const_call
+from karpatkit.explorer import ChainExplorer
 from web3 import Web3
 
-from karpatkit.cache import const_call
 from defyes.constants import ETHTokenAddr
-from defabipedia import Chain
-from karpatkit.explorer import ChainExplorer
 from defyes.functions import get_contract, last_block, to_token_amount
 from defyes.node import get_node
 

@@ -1,11 +1,11 @@
 from decimal import Decimal
 
+from defabipedia import Chain
+from karpatkit.cache import const_call
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from karpatkit.cache import const_call
 from defyes.constants import Address
-from defabipedia import Chain
 from defyes.functions import get_contract, get_decimals, last_block, to_token_amount
 from defyes.node import get_node
 

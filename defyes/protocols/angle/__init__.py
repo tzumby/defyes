@@ -3,13 +3,12 @@ import logging
 from decimal import Decimal
 from typing import Iterator
 
-from web3 import Web3
-from web3.exceptions import ContractCustomError, ContractLogicError
-
 from karpatkit.cache import cache_contract_method
 
 # from defyes.functions import get_decimals
-from karpatkit.helpers import suppress_value, listify
+from karpatkit.helpers import listify, suppress_value
+from web3 import Web3
+from web3.exceptions import ContractCustomError, ContractLogicError
 
 # from defyes.node import get_node
 from defyes.types import Token, TokenAmount

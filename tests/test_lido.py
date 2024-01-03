@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 import pytest
+from defabipedia import Chain
 
 from defyes import Lido
 from defyes.constants import Address, ETHTokenAddr
-from defabipedia import Chain
 from defyes.node import get_node
 
 WALLET_N1 = "0x3591D9351C736Daa7867fA6629D3A10880d78b83"

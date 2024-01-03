@@ -1,9 +1,9 @@
 import datetime
 
 import pytest
+from defabipedia import Chain
 
 from defyes.constants import ETHTokenAddr
-from defabipedia import Chain
 from defyes.functions import block_to_date, date_to_block, get_symbol, search_proxy_impl_address
 
 

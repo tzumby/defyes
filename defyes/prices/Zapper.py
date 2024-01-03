@@ -3,7 +3,6 @@ from datetime import datetime
 
 import requests
 from dateutil.relativedelta import relativedelta
-
 from defabipedia import Chain
 from karpatkit.constants import APIKey
 

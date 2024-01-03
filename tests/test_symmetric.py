@@ -1,9 +1,9 @@
 from decimal import Decimal
 
 import pytest
+from defabipedia import Chain
 
 from defyes import Symmetric
-from defabipedia import Chain
 from defyes.node import get_node
 
 

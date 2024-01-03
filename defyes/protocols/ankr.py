@@ -1,9 +1,9 @@
 import logging
 from decimal import Decimal
 
+from defabipedia import Chain
 from web3 import Web3
 
-from defabipedia import Chain
 from defyes.eth_derivs import EthDerivative
 from defyes.node import get_node
 

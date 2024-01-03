@@ -1,8 +1,9 @@
 from decimal import Decimal
 
+from defabipedia import Chain
+
 from defyes import QiDao
 from defyes.constants import GnosisTokenAddr
-from defabipedia import Chain
 
 
 def test_get_vaul_address():

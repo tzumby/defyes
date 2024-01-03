@@ -1,8 +1,8 @@
 import json
 
 import pytest
-
 from defabipedia import Chain
+
 from defyes.prices.db_functions import TOKEN_MAPPING_FILE
 from defyes.prices.prices import get_price
 

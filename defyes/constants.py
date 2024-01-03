@@ -1,5 +1,5 @@
-from defabipedia.tokens import EthereumTokenAddr, GnosisTokenAddr, ArbitrumTokenAddr, PolygonTokenAddr
-from karpatkit.constants import Address, ABI_TOKEN_SIMPLIFIED, TESTNET_CHAINS
+from defabipedia.tokens import ArbitrumTokenAddr, EthereumTokenAddr, GnosisTokenAddr, PolygonTokenAddr
+from karpatkit.constants import ABI_TOKEN_SIMPLIFIED, TESTNET_CHAINS, Address
 
 # TODO: finish the refactor of the imports into karpatkit
 __all__ = [

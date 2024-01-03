@@ -2,11 +2,11 @@ import json
 from decimal import Decimal
 from pathlib import Path
 
+from defabipedia import Chain
+from karpatkit.cache import const_call
 from tqdm import tqdm
 from web3 import Web3
 
-from karpatkit.cache import const_call
-from defabipedia import Chain
 from defyes.functions import get_contract, get_decimals, get_logs_web3
 from defyes.node import get_node
 

@@ -1,8 +1,9 @@
 from decimal import Decimal
 
+from defabipedia import Chain
+
 from defyes import Connext
 from defyes.constants import GnosisTokenAddr
-from defabipedia import Chain
 from defyes.node import get_node
 
 WALLET_969 = "0x10e4597ff93cbee194f4879f8f1d54a370db6969"

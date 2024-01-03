@@ -13,9 +13,9 @@ import logging
 from decimal import Decimal
 from typing import Dict, List, Union
 
+from karpatkit.cache import const_call
 from web3 import Web3
 
-from karpatkit.cache import const_call
 from defyes.constants import GnosisTokenAddr
 from defyes.functions import balance_of, get_contract, to_token_amount
 from defyes.node import get_node

@@ -3,9 +3,9 @@ from decimal import Decimal
 from typing import Dict
 
 import requests
+from defabipedia import Blockchain, Chain
 from web3 import Web3
 
-from defabipedia import Chain, Blockchain
 from defyes.functions import get_contract
 
 logger = logging.getLogger(__name__)
