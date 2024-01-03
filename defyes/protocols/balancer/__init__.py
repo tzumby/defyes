@@ -357,7 +357,7 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
     return rewards
 
 
-def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, decimals: bool = True) -> None:
+def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, decimals: bool = True) -> dict:
     lp = LiquidityPool(blockchain, block, lp_address)
     pool_tokens = Vault(blockchain, block).get_pool_data(lp.poolid)
     balances = {}
@@ -378,7 +378,7 @@ def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, 
     return balances
 
 
-def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: bool = True) -> None:
+def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: bool = True) -> dict:
     lp = LiquidityPool(blockchain, block, lp_address)
     lp_amount = lp.supply / Decimal(10**lp.decimals if decimals else 1)
     return unwrap(blockchain, lp_address, lp_amount, block, decimals)
