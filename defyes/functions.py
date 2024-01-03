@@ -26,8 +26,10 @@ logger = logging.getLogger(__name__)
 class BlockchainError(Exception):
     pass
 
+
 def tz_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
+
 
 def to_token_amount(
     token_address: str, amount: int | Decimal, blockchain: str, web3: Web3, decimals: bool = True

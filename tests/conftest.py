@@ -13,5 +13,3 @@ def pytest_addoption(parser):
 def debug_defi_proto(request):
     if request.config.getoption("--debug-defiproto"):
         add_stderr_logger(logging.DEBUG)
-
-
