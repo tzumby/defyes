@@ -91,7 +91,7 @@ def test_get_protocol_data_latest():
         "positions_key": "vault_address",
     }
     assert isinstance(d["block_id"], int)
-    return all(expected.get(key) == expected.get(key) for key in expected)
+    assert all(expected.get(key) == expected.get(key) for key in expected)
 
 
 def test_underlyings_holdings():
