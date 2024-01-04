@@ -12,12 +12,12 @@ from karpatkit.cache import cache_call, const_call
 from karpatkit.constants import APIKey
 from karpatkit.explorer import ChainExplorer
 from karpatkit.helpers import suppress_error_codes
+from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 
 from defyes.constants import ABI_TOKEN_SIMPLIFIED, Address
 from defyes.lazytime import Time
-from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 

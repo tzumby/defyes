@@ -6,10 +6,10 @@ from gql import Client, gql  # thegraph queries
 from gql.transport.requests import RequestsHTTPTransport
 from karpatkit.cache import const_call
 from karpatkit.helpers import call_contract_method
+from karpatkit.node import get_node
 from web3 import Web3
 
 from defyes.functions import balance_of, get_contract, get_decimals
-from defyes.node import get_node
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # SUBGRAPH API ENDPOINTS

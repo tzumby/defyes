@@ -2,9 +2,9 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import IronBank
-from defyes.node import get_node
 
 # 2023.04.27
 TEST_BLOCK = 94882677

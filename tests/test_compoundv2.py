@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Compound
 from defyes.constants import Address, ETHTokenAddr
-from defyes.node import get_node
 
 CTOKEN_CONTRACTS = {
     "cbat_contract": "0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E",

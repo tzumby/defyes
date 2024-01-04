@@ -2,10 +2,11 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Swapr
 from defyes.constants import GnosisTokenAddr
-from defyes.functions import get_contract, get_node
+from defyes.functions import get_contract
 
 TEST_BLOCK = 27450341
 TEST_WALLET = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"

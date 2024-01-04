@@ -3,11 +3,11 @@ from decimal import Decimal
 from defabipedia import Chain
 from karpatkit.cache import const_call
 from karpatkit.explorer import ChainExplorer
+from karpatkit.node import get_node
 from web3 import Web3
 
 from defyes.constants import ETHTokenAddr
 from defyes.functions import get_contract, to_token_amount
-from defyes.node import get_node
 
 NPROXY_Chain = "0x1344A36A1B56144C3Bc62E7757377D288fDE0369"
 

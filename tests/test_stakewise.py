@@ -2,9 +2,9 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Stakewise
-from defyes.node import get_node
 
 WALLET_N1 = "0x05E61adDCef87ad8548236eb5Cbf2f699C834935"
 WALLET_N2 = "0x53811010085382D49eF12bCC55902bbFCEB57790"

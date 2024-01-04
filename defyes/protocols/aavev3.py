@@ -4,12 +4,12 @@ from typing import List, Union
 
 from defabipedia import Chain
 from karpatkit.cache import const_call
+from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
 from defyes.constants import ETHTokenAddr
 from defyes.functions import get_contract, last_block, to_token_amount
-from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 

@@ -11,10 +11,10 @@ class PoolAddressesProvider(PoolAddressesProvider):
     ...
 """
 from karpatkit.cache import const_call
+from karpatkit.node import get_node
 from web3 import Web3
 
 from defyes.generator import load_abi
-from defyes.node import get_node
 
 
 class PoolAddressesProvider:

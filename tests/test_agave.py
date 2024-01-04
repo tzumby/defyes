@@ -2,11 +2,11 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Agave
 from defyes.constants import GnosisTokenAddr
 from defyes.functions import get_contract
-from defyes.node import get_node
 
 STK_AGAVE = "0x610525b415c1BFAeAB1a3fc3d85D87b92f048221"
 TEST_WALLET_ADDRESS = "0xc4d46395c01aa86389d4216c2830167878d7cab8"

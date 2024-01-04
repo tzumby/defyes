@@ -1,9 +1,8 @@
 from typing import Union
 
 from karpatkit.explorer import ChainExplorer
+from karpatkit.node import get_node
 from web3 import Web3
-
-from defyes.node import get_node
 
 
 def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, web3=None) -> list:

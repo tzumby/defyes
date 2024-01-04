@@ -2,9 +2,9 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Unit
-from defyes.node import get_node
 
 USDP = "0x1456688345527bE1f37E9e627DA0837D6f08C925"
 FTM_ETH = "0x4E15361FD6b4BB609Fa63C81A2be19d873717870"

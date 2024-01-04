@@ -2,10 +2,10 @@ import logging
 from decimal import Decimal
 
 from defabipedia import Chain
+from karpatkit.node import get_node
 from web3 import Web3
 
 from defyes.eth_derivs import EthDerivative
-from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 

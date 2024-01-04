@@ -1,10 +1,10 @@
 from typing import List, Union
 
 from karpatkit.cache import const_call
+from karpatkit.node import get_node
 from web3 import Web3
 
 from defyes.functions import get_contract, to_token_amount
-from defyes.node import get_node
 
 CUSDCV3_ADDRESS = "0xc3d688B66703497DAA19211EEdff47f25384cdc3"
 CWETHV3_ADDRESS = "0xA17581A9E3356d9A858b789D68B4d866e593aE94"

@@ -2,10 +2,10 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Curve
 from defyes.constants import ETHTokenAddr
-from defyes.node import get_node
 
 # 2023.04.06
 TEST_BLOCK = 16993460

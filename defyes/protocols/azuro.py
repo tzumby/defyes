@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Union
 
+from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import get_contract, get_logs_web3, to_token_amount
-from defyes.node import get_node
 from defyes.topic import address_hexor, topic_creator
 
 POOL_ADDR_V1 = "0xac004b512c33D029cf23ABf04513f1f380B3FD0a"

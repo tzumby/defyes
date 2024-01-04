@@ -2,11 +2,11 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Convex
 from defyes.constants import ETHTokenAddr
 from defyes.functions import get_contract
-from defyes.node import get_node
 
 web3 = get_node(Chain.ETHEREUM)
 

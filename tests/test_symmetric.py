@@ -2,9 +2,9 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Symmetric
-from defyes.node import get_node
 
 
 @pytest.mark.parametrize("decimals", [True, False])

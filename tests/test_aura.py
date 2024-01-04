@@ -4,11 +4,11 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes import Aura
 from defyes.constants import ETHTokenAddr, GnosisTokenAddr
 from defyes.functions import get_contract
-from defyes.node import get_node
 
 balancer_50OHM50wstETH_ADDR = "0xd4f79CA0Ac83192693bce4699d0c10C66Aa6Cf0F"
 aura_OHMwstETH_TOKEN = "0x0EF97ef0e20F84e82ec2D79CBD9Eda923C3DAF09"

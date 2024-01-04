@@ -2,10 +2,10 @@ from decimal import Decimal
 from typing import Union
 
 from defabipedia import Chain
+from karpatkit.node import get_node
 
 from defyes.constants import ETHTokenAddr
 from defyes.functions import balance_of, get_contract
-from defyes.node import get_node
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # CDP MANAGER

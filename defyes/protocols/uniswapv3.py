@@ -4,10 +4,10 @@ from decimal import Decimal
 from enum import IntEnum
 from typing import ClassVar, Union
 
+from karpatkit.node import get_node
 from web3 import Web3
 
 from defyes.functions import get_contract, get_decimals
-from defyes.node import get_node
 
 logger = logging.getLogger(__name__)
 
