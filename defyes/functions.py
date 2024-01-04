@@ -39,7 +39,7 @@ def to_token_amount(
     return amount / Decimal(10**decimals)
 
 
-def last_block(blockchain, web3=None, block="latest"):
+def last_block(blockchain, web3=None):
     if web3 is None:
         web3 = get_node(blockchain)
 
