@@ -293,7 +293,9 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
             abi='[{"inputs":[{"internalType":"uint256","name":"offset","type":"uint256"},{"internalType":"uint256","name":"length","type":"uint256"}],"name":"getStorageAt","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"}]',
         )
         try:
-            proxy_impl_address = Web3.to_hex(contract_custom_abi.functions.getStorageAt(0, 1).call())
+            proxy_impl_address = Web3.to_hex(
+                contract_custom_abi.functions.getStorageAt(0, 1).call(block_identifier=block)
+            )
             proxy_impl_address = Web3.to_checksum_address("0x" + proxy_impl_address[-40:])
         except Exception as e:
             if type(e) == ContractLogicError or type(e) == BadFunctionCallOutput:
