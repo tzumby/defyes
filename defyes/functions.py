@@ -305,7 +305,7 @@ def search_proxy_impl_address(contract_address, blockchain, web3=None, block="la
 
 
 def get_abi_function_signatures(
-    contract_address, blockchain, web3=None, abi_address=None, block="latest", func_names=[]
+    contract_address, blockchain, web3=None, abi_address=None, block="latest", func_names=None
 ):
     if web3 is None:
         web3 = get_node(blockchain)
@@ -325,7 +325,7 @@ def get_abi_function_signatures(
 
         functions = []
         for func in [obj for obj in abi if obj["type"] == "function"]:
-            if len(func_names) > 0 and func["name"] not in func_names:
+            if func_names and func["name"] not in func_names:
                 continue
             else:
                 name = func["name"]
@@ -376,8 +376,6 @@ def get_data(contract_address, function_name, parameters, blockchain, web3=None,
         web3 = get_node(blockchain)
 
     contract_address = Web3.to_checksum_address(contract_address)
-
-    contract = None
 
     if abi_address is None:
         contract = get_contract(contract_address, blockchain, web3=web3)

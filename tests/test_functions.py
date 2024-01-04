@@ -4,7 +4,13 @@ import pytest
 from defabipedia import Chain
 
 from defyes.constants import ETHTokenAddr
-from defyes.functions import block_to_date, date_to_block, get_symbol, search_proxy_impl_address
+from defyes.functions import (
+    block_to_date,
+    date_to_block,
+    get_symbol,
+    search_proxy_impl_address,
+    get_abi_function_signatures,
+)
 
 
 def test_date_to_block():
@@ -77,3 +83,52 @@ def test_search_proxy_impl_address():
     # Custom proxy implementation (used by Safes)
     implementation = search_proxy_impl_address("0x4F2083f5fBede34C2714aFfb3105539775f7FE64", Chain.ETHEREUM)
     assert implementation == "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+
+
+def test_get_abi_function_signatures():
+    signatures = get_abi_function_signatures("0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016", Chain.GNOSIS, block=16477000)
+    assert signatures == [
+        {
+            "name": "claimValues",
+            "signature": "claimValues(address,address)",
+            "inline_signature": "claimValues(address,address)",
+            "components": ["address", "address"],
+            "components_names": ["_token", "_to"],
+            "stateMutability": "nonpayable",
+        },
+        {
+            "name": "owner",
+            "signature": "owner()",
+            "inline_signature": "owner()",
+            "components": [],
+            "components_names": [],
+            "stateMutability": "view",
+        },
+        {
+            "name": "transferOwnership",
+            "signature": "transferOwnership(address)",
+            "inline_signature": "transferOwnership(address)",
+            "components": ["address"],
+            "components_names": ["newOwner"],
+            "stateMutability": "nonpayable",
+        },
+    ]
+
+    signatures = get_abi_function_signatures(
+        "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016", Chain.GNOSIS, block=16477000, func_names=["foo"]
+    )
+    assert signatures == []
+
+    signatures = get_abi_function_signatures(
+        "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016", Chain.GNOSIS, block=16477000, func_names=["claimValues"]
+    )
+    assert signatures == [
+        {
+            "name": "claimValues",
+            "signature": "claimValues(address,address)",
+            "inline_signature": "claimValues(address,address)",
+            "components": ["address", "address"],
+            "components_names": ["_token", "_to"],
+            "stateMutability": "nonpayable",
+        }
+    ]
