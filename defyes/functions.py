@@ -7,7 +7,7 @@ from datetime import datetime
 from decimal import Decimal
 
 import requests
-from defabipedia import Chain
+from defabipedia import Blockchain, Chain
 from karpatkit.cache import cache_call, const_call
 from karpatkit.constants import APIKey
 from karpatkit.explorer import ChainExplorer
@@ -46,7 +46,7 @@ def last_block(blockchain, web3=None):
     return web3.eth.block_number
 
 
-def ensure_a_block_number(block: int | str, blockchain: Chain):
+def ensure_a_block_number(block: int | str, blockchain: Blockchain):
     if isinstance(block, int):
         return block
     elif block == "latest":
@@ -423,7 +423,7 @@ def get_logs_web3(
     topics: list = None,
     block_hash: str = None,
     web3: Web3 = None,
-) -> dict:
+) -> list:
     # FIXME: Add documentation
     if web3 is None:
         web3 = get_node(blockchain)
