@@ -4,7 +4,7 @@ import keyword
 import re
 import textwrap
 from pathlib import Path
-
+import importlib.resources as pkg_resources
 
 def get_module_path(module_file):
     return Path(module_file).resolve().parent
@@ -12,10 +12,22 @@ def get_module_path(module_file):
 
 current_module_path = get_module_path(__file__)
 
+def get_defabipedia_path(protocol):
+    try:
+        with pkg_resources.path(f'defabipedia.{protocol}', '') as dir_path:
+            if dir_path.exists() and dir_path.is_dir():
+                return dir_path
+    except ModuleNotFoundError:
+        pass
+    return None
 
 def load_abi(module_file_path, abi_filename):
     protocol_path = get_module_path(module_file_path)
-    path = protocol_path / "abis" / abi_filename
+    defabipedia_path = get_defabipedia_path(protocol_path.name)
+    if defabipedia_path:
+        path = defabipedia_path / abi_filename
+    else:
+        path = protocol_path / "abis" / abi_filename
     with open(path) as f:
         return f.read()
 
@@ -144,7 +156,7 @@ class %(first_class)s(%(first_class)s):
 from web3 import Web3
 
 from defyes.generator import load_abi
-from defyes.node import get_node
+from karpatkit.node import get_node
 """
 
 contract_class_template = """
@@ -211,7 +223,7 @@ def generate_classes():
 
         final_header_template = header_template
         if is_const_call_used:
-            final_header_template += "from defyes.cache import const_call\n"
+            final_header_template += "from karpatkit.cache import const_call\n"
 
         content = final_header_template % dict(classes=", ".join(classes_name), first_class=classes_name[0]) + content
 
