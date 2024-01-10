@@ -1,8 +1,8 @@
 import math
 
 import requests
-
-from defyes.constants import Address, Chain
+from defabipedia import Chain
+from karpatkit.constants import Address
 
 URL_COINID_PRICE_RANGE = "https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=usd&from=%d&to=%d"
 URL_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE = (

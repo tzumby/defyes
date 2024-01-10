@@ -1,14 +1,13 @@
 from typing import Union
 
+from karpatkit.explorer import ChainExplorer
+from karpatkit.node import get_node
 from web3 import Web3
-
-from defyes.explorer import ChainExplorer
-from defyes.node import get_node
 
 
 def get_safe_functions(tx_hash: str, block: Union[int, str], blockchain: str, web3=None) -> list:
     if web3 is None:
-        web3 = get_node(blockchain, block=block)
+        web3 = get_node(blockchain)
 
     tx_receipt = web3.eth.get_transaction(tx_hash)
     tx_to = tx_receipt["to"]
