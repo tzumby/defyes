@@ -2,10 +2,11 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
+from karpatkit.constants import Address
 from karpatkit.node import get_node
 
 from defyes import Bancor
-from defyes.constants import Address, ETHTokenAddr
 
 WALLET_N1 = "0x849d52316331967b6ff1198e5e32a0eb168d039d"
 WALLET_N2 = "0xc0167f4B1bb78912DF9920Bd146151942620Da15"
@@ -19,9 +20,9 @@ def test_underlying():
     node = get_node(Chain.ETHEREUM)
 
     underlying = Bancor.underlying(bnICHI_ADDR, WALLET_N1, block, Chain.ETHEREUM, web3=node)
-    assert underlying == [[ETHTokenAddr.ICHI, Decimal("44351.005182315")], [ETHTokenAddr.BNT, Decimal("0")]]
+    assert underlying == [[EthereumTokenAddr.ICHI, Decimal("44351.005182315")], [EthereumTokenAddr.BNT, Decimal("0")]]
     underlying = Bancor.underlying(bnETH_ADDR, WALLET_N2, block, Chain.ETHEREUM, web3=node)
-    assert underlying == [[Address.E, Decimal("0.149703304228299349")], [ETHTokenAddr.BNT, Decimal("0")]]
+    assert underlying == [[Address.E, Decimal("0.149703304228299349")], [EthereumTokenAddr.BNT, Decimal("0")]]
 
 
 @pytest.mark.skip(reason="It takes to long.")
@@ -31,6 +32,6 @@ def test_underlying_all():
 
     underlying = Bancor.underlying_all(WALLET_N2, block, Chain.ETHEREUM, web3=node)
     assert underlying == [
-        [[Address.E, Decimal("0.149703304228299349")], [ETHTokenAddr.BNT, Decimal("0")]],
+        [[Address.E, Decimal("0.149703304228299349")], [EthereumTokenAddr.BNT, Decimal("0")]],
         *(list() for _ in range(147)),  # plus 147 empty lists
     ]

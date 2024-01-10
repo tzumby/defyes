@@ -3,13 +3,14 @@ from decimal import Decimal
 from functools import cached_property
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
+from karpatkit.constants import Address
 from karpatkit.explorer import ChainExplorer
 from karpatkit.helpers import suppress_error_codes
 from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from defyes.constants import Address, ETHTokenAddr
 from defyes.functions import get_decimals, get_logs_web3, last_block, to_token_amount
 from defyes.lazytime import Duration, Time
 from defyes.prices.prices import get_price
@@ -326,17 +327,22 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
         (
             16981440,
             [
-                ETHTokenAddr.BAL,
-                ETHTokenAddr.BB_A_USD_OLD,
-                ETHTokenAddr.BB_A_USD,
-                ETHTokenAddr.BB_A_USD_V3,
-                ETHTokenAddr.USDC,
+                EthereumTokenAddr.BAL,
+                EthereumTokenAddr.BB_A_USD_OLD,
+                EthereumTokenAddr.BB_A_USD,
+                EthereumTokenAddr.BB_A_USD_V3,
+                EthereumTokenAddr.USDC,
             ],
         ),
-        (14623899, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD]),
+        (14623899, [EthereumTokenAddr.BAL, EthereumTokenAddr.BB_A_USD_OLD, EthereumTokenAddr.BB_A_USD]),
     ]
 
-    rewards = {ETHTokenAddr.BAL: 0, ETHTokenAddr.BB_A_USD_OLD: 0, ETHTokenAddr.BB_A_USD: 0, ETHTokenAddr.BB_A_USD_V3: 0}
+    rewards = {
+        EthereumTokenAddr.BAL: 0,
+        EthereumTokenAddr.BB_A_USD_OLD: 0,
+        EthereumTokenAddr.BB_A_USD: 0,
+        EthereumTokenAddr.BB_A_USD_V3: 0,
+    }
 
     if isinstance(block, str) and block == "latest":
         block = last_block(blockchain)

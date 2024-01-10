@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.node import get_node
 
 from defyes import Maker
-from defyes.constants import ETHTokenAddr
 
 TEST_BLOCK = 17070386
 WEB3 = get_node(blockchain=Chain.ETHEREUM)
@@ -18,8 +18,8 @@ def test_get_vault_data():
     x = Maker.get_vault_data(VAULT_ID, TEST_BLOCK, WEB3)
     assert x == {
         "mat": Decimal("1.6"),
-        "gem": ETHTokenAddr.wstETH,
-        "dai": ETHTokenAddr.DAI,
+        "gem": EthereumTokenAddr.wstETH,
+        "dai": EthereumTokenAddr.DAI,
         "ink": Decimal("57328.918780519001386926"),
         "art": Decimal("21811755.174275192209603126"),
         "Art": Decimal("131281671.560444627089962248"),
@@ -33,11 +33,11 @@ def test_get_vault_data():
 def test_underlying():
     x = Maker.underlying(VAULT_ID, TEST_BLOCK, WEB3)
     assert x == [
-        [ETHTokenAddr.wstETH, Decimal("57328.918780519001386926")],
-        [ETHTokenAddr.DAI, Decimal("-22548608.44423451266093976218")],
+        [EthereumTokenAddr.wstETH, Decimal("57328.918780519001386926")],
+        [EthereumTokenAddr.DAI, Decimal("-22548608.44423451266093976218")],
     ]
 
 
 def test_get_delegated_MKR():
     x = Maker.get_delegated_MKR(TEST_WALLET, TEST_BLOCK, WEB3, decimals=False)
-    assert x == [[ETHTokenAddr.MKR, Decimal("583805204609736124092")]]
+    assert x == [[EthereumTokenAddr.MKR, Decimal("583805204609736124092")]]

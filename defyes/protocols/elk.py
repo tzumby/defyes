@@ -4,11 +4,11 @@ from decimal import Decimal
 import requests
 from defabipedia import Chain
 from karpatkit.cache import const_call
+from karpatkit.constants import ABI_TOKEN_SIMPLIFIED, Address
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import Address
-from defyes.functions import ABI_TOKEN_SIMPLIFIED, get_contract, get_decimals, get_logs_web3, to_token_amount
+from defyes.functions import get_contract, get_decimals, get_logs_web3, to_token_amount
 
 logger = logging.getLogger(__name__)
 

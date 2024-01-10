@@ -2,9 +2,9 @@ from decimal import Decimal
 from functools import cached_property
 
 from defabipedia import Blockchain, Chain
+from karpatkit.constants import Address
 from web3 import Web3
 
-from .constants import Address
 from .contracts import Erc20
 
 simple_repr = True

@@ -3,12 +3,12 @@ from decimal import Decimal
 from typing import List, Union
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.cache import const_call
 from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
-from defyes.constants import ETHTokenAddr
 from defyes.functions import balance_of, get_contract, to_token_amount
 
 logger = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"c
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_stkaave_address(blockchain):
     if blockchain == Chain.ETHEREUM:
-        return ETHTokenAddr.STKAAVE
+        return EthereumTokenAddr.STKAAVE
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -413,10 +413,10 @@ def get_staked(
     stkaave_balance = balance_of(aave_wallet, stk_aave_address, block, blockchain, web3, decimals)
 
     if stkaave:
-        balances.append([ETHTokenAddr.STKAAVE, stkaave_balance])
+        balances.append([EthereumTokenAddr.STKAAVE, stkaave_balance])
         balances.append([STAKED_ABPT_TOKEN, stkabpt_balance])
     else:
-        balances.append([ETHTokenAddr.AAVE, stkaave_balance])
-        balances.append([ETHTokenAddr.ABPT, stkabpt_balance])
+        balances.append([EthereumTokenAddr.AAVE, stkaave_balance])
+        balances.append([EthereumTokenAddr.ABPT, stkabpt_balance])
 
     return balances

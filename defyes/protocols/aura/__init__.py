@@ -3,12 +3,12 @@ from decimal import Decimal
 from pathlib import Path
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.cache import const_call
 from karpatkit.helpers import call_contract_method
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import ETHTokenAddr
 from defyes.functions import get_contract, get_decimals, get_logs_web3, last_block, to_token_amount
 
 from .. import balancer
@@ -224,14 +224,14 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
         EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block
     )
 
-    extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, ETHTokenAddr.AURA).call(
+    extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, EthereumTokenAddr.AURA).call(
         block_identifier=block
     )
 
     if extra_reward > 0:
         extra_rewards_airdrop = [
-            ETHTokenAddr.AURA,
-            to_token_amount(ETHTokenAddr.AURA, extra_reward, blockchain, web3, decimals),
+            EthereumTokenAddr.AURA,
+            to_token_amount(EthereumTokenAddr.AURA, extra_reward, blockchain, web3, decimals),
         ]
 
     return extra_rewards_airdrop
@@ -245,7 +245,7 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, rewarder, decimals
     aura_amount = 0
 
     if blockchain == Chain.ETHEREUM:
-        aura_address = ETHTokenAddr.AURA
+        aura_address = EthereumTokenAddr.AURA
 
         booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
         reward_multiplier = booster_contract.functions.getRewardMultipliers(rewarder).call(block_identifier=block)
@@ -362,7 +362,9 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 
     aura_locker = aura_locker_contract.functions.balances(wallet).call(block_identifier=block)[0]
 
-    result = [[ETHTokenAddr.AURA, to_token_amount(ETHTokenAddr.AURA, aura_locker, blockchain, web3, decimals)]]
+    result = [
+        [EthereumTokenAddr.AURA, to_token_amount(EthereumTokenAddr.AURA, aura_locker, blockchain, web3, decimals)]
+    ]
 
     if reward is True:
         rewards = []

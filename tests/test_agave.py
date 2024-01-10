@@ -2,10 +2,10 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from defabipedia.tokens import GnosisTokenAddr
 from karpatkit.node import get_node
 
 from defyes import Agave
-from defyes.constants import GnosisTokenAddr
 from defyes.functions import get_contract
 
 STK_AGAVE = "0x610525b415c1BFAeAB1a3fc3d85D87b92f048221"

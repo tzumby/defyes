@@ -2,8 +2,8 @@ import datetime
 
 import pytest
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 
-from defyes.constants import ETHTokenAddr
 from defyes.functions import (
     block_to_date,
     date_to_block,
@@ -30,7 +30,7 @@ def test_block_to_date():
 
 
 def test_get_symbol():
-    symbol = get_symbol(ETHTokenAddr.DAI, blockchain=Chain.ETHEREUM, block=17380523)
+    symbol = get_symbol(EthereumTokenAddr.DAI, blockchain=Chain.ETHEREUM, block=17380523)
     assert symbol == "DAI"
 
     symbol = get_symbol("0x0000000000000000000000000000000000000000", blockchain=Chain.ETHEREUM, block=17380523)
@@ -71,14 +71,14 @@ def test_search_proxy_impl_address():
     assert implementation == "0x2157A7894439191e520825fe9399aB8655E0f708"
 
     # OpenZeppelins' Unstructured Storage proxy pattern
-    implementation = search_proxy_impl_address(ETHTokenAddr.USDC, Chain.ETHEREUM, block=16475978)
+    implementation = search_proxy_impl_address(EthereumTokenAddr.USDC, Chain.ETHEREUM, block=16475978)
     assert implementation == "0xa2327a938Febf5FEC13baCFb16Ae10EcBc4cbDCF"
 
-    implementation = search_proxy_impl_address(ETHTokenAddr.USDC, Chain.ETHEREUM, block=10800000)
+    implementation = search_proxy_impl_address(EthereumTokenAddr.USDC, Chain.ETHEREUM, block=10800000)
     assert implementation == "0xB7277a6e95992041568D9391D09d0122023778A2"
 
     # OpenZeppelins' EIP-897 DelegateProxy
-    implementation = search_proxy_impl_address(ETHTokenAddr.stETH, Chain.ETHEREUM, block=18934617)
+    implementation = search_proxy_impl_address(EthereumTokenAddr.stETH, Chain.ETHEREUM, block=18934617)
     assert implementation == "0x17144556fd3424EDC8Fc8A4C940B2D04936d17eb"
 
     implementation = search_proxy_impl_address(

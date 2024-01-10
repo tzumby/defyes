@@ -9,14 +9,13 @@ from decimal import Decimal
 import requests
 from defabipedia import Blockchain, Chain
 from karpatkit.cache import cache_call, const_call
-from karpatkit.constants import APIKey
+from karpatkit.constants import ABI_TOKEN_SIMPLIFIED, Address, APIKey
 from karpatkit.explorer import ChainExplorer
 from karpatkit.helpers import suppress_error_codes
 from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 
-from defyes.constants import ABI_TOKEN_SIMPLIFIED, Address
 from defyes.lazytime import Time
 
 logger = logging.getLogger(__name__)
@@ -175,7 +174,6 @@ def get_symbol(token_address, blockchain, web3=None, block="latest") -> str:
         symbol = special_addr_mapping[blockchain]
     else:
         symbol = infer_symbol(web3, blockchain, token_address)
-
         if not isinstance(symbol, str):
             symbol = symbol.hex()
             symbol = bytes.fromhex(symbol).decode("utf-8").rstrip("\x00")

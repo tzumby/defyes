@@ -1,12 +1,12 @@
 from decimal import Decimal
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.cache import const_call
 from karpatkit.explorer import ChainExplorer
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import ETHTokenAddr
 from defyes.functions import get_contract, to_token_amount
 
 NPROXY_Chain = "0x1344A36A1B56144C3Bc62E7757377D288fDE0369"
@@ -28,7 +28,7 @@ def get_nproxy_address(blockchain):
 
 def get_snote_address(blockchain):
     if blockchain == Chain.ETHEREUM:
-        return ETHTokenAddr.SNOTE
+        return EthereumTokenAddr.SNOTE
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

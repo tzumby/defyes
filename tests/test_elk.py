@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr, GnosisTokenAddr, PolygonTokenAddr
 from karpatkit.node import get_node
 
 from defyes import Elk
-from defyes.constants import ETHTokenAddr, GnosisTokenAddr, PolygonTokenAddr
 from defyes.functions import get_contract
 
 WALLET_N1 = "0x61BEC4cAa9493Df4D8600B63bfC0Ec5FE5A52caC"
@@ -17,7 +17,7 @@ def test_get_pool_address():
     # It has no history
     block = 17190299
     node = get_node(Chain.ETHEREUM)
-    addr = Elk.get_pool_address(node, ETHTokenAddr.WETH, ETHTokenAddr.ELK, block, Chain.ETHEREUM)
+    addr = Elk.get_pool_address(node, EthereumTokenAddr.WETH, EthereumTokenAddr.ELK, block, Chain.ETHEREUM)
     assert addr == "0xF220eA963D27Ebe782f09403017B29692A4fC4aE"
 
     node = get_node(Chain.POLYGON)

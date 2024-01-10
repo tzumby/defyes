@@ -2,10 +2,10 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.node import get_node
 
 from defyes import UniswapV3
-from defyes.constants import ETHTokenAddr
 
 WALLET_N1 = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 WALLET_N2 = "0x0EFcCBb9E2C09Ea29551879bd9Da32362b32fc89"
@@ -20,8 +20,8 @@ def test_underlying(decimals):
     x = UniswapV3.underlying(WALLET_N1, NFT_ID, block, Chain.ETHEREUM, web3=node, decimals=decimals, fee=True)
     y = Decimal(10**18 if decimals else 1)
     assert x == [
-        [ETHTokenAddr.GNO, Decimal("98419156383881089964338.69948") / y],
-        [ETHTokenAddr.WETH, Decimal("2210998677615110963219.938648") / y],
+        [EthereumTokenAddr.GNO, Decimal("98419156383881089964338.69948") / y],
+        [EthereumTokenAddr.WETH, Decimal("2210998677615110963219.938648") / y],
     ]
 
 
@@ -54,16 +54,16 @@ def test_underlying_all():
     balances = UniswapV3.underlying_all(WALLET_N2, block, Chain.ETHEREUM, fee=True)
     assert balances == [
         [
-            [ETHTokenAddr.WBTC, Decimal("0.000007761923265277525510526250729")],
-            [ETHTokenAddr.WETH, Decimal("0.001896950944013546473011431266")],
+            [EthereumTokenAddr.WBTC, Decimal("0.000007761923265277525510526250729")],
+            [EthereumTokenAddr.WETH, Decimal("0.001896950944013546473011431266")],
         ],
         [
-            [ETHTokenAddr.WETH, Decimal("0.0005397922732214861340191702537")],
-            [ETHTokenAddr.sETH2, Decimal("0.001391854480130107973608729216")],
+            [EthereumTokenAddr.WETH, Decimal("0.0005397922732214861340191702537")],
+            [EthereumTokenAddr.sETH2, Decimal("0.001391854480130107973608729216")],
         ],
         [
-            [ETHTokenAddr.WBTC, Decimal("8.020662601714621409987468151")],
-            [ETHTokenAddr.WETH, Decimal("194.4352083634992021665618551")],
+            [EthereumTokenAddr.WBTC, Decimal("8.020662601714621409987468151")],
+            [EthereumTokenAddr.WETH, Decimal("194.4352083634992021665618551")],
         ],
     ]
 

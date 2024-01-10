@@ -2,9 +2,9 @@ from decimal import Decimal
 from typing import Union
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.node import get_node
 
-from defyes.constants import ETHTokenAddr
 from defyes.functions import balance_of, get_contract
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ def get_vault_data(vault_id, block, web3=None):
 
     vault_data["mat"] = spot_contract.functions.ilks(ilk).call(block_identifier=block)[1] / Decimal(10**27)
     vault_data["gem"] = ilk_info[4]
-    vault_data["dai"] = ETHTokenAddr.DAI
+    vault_data["dai"] = EthereumTokenAddr.DAI
     vault_data["ink"] = urn_data[0] / Decimal(10**18)
     vault_data["art"] = urn_data[1] / Decimal(10**18)
 
@@ -116,4 +116,4 @@ def get_delegated_MKR(wallet: str, block: Union[int, str], web3=None, decimals=T
     IOU_token_address = "0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7"
     balance = balance_of(wallet, IOU_token_address, block, Chain.ETHEREUM, web3=web3, decimals=decimals)
 
-    return [[ETHTokenAddr.MKR, balance]]
+    return [[EthereumTokenAddr.MKR, balance]]

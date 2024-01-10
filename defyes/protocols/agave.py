@@ -13,11 +13,11 @@ import logging
 from decimal import Decimal
 from typing import Dict, List, Union
 
+from defabipedia.tokens import GnosisTokenAddr
 from karpatkit.cache import const_call
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import GnosisTokenAddr
 from defyes.functions import balance_of, get_contract, to_token_amount
 
 logger = logging.getLogger(__name__)

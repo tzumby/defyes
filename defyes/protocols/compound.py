@@ -1,11 +1,12 @@
 from decimal import Decimal
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.cache import const_call
+from karpatkit.constants import Address
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import Address, ETHTokenAddr
 from defyes.functions import balance_of, get_contract, get_decimals, to_token_amount
 from defyes.prices import prices
 
@@ -63,7 +64,7 @@ def get_compound_lens_address(blockchain):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_compound_token_address(blockchain):
     if blockchain == Chain.ETHEREUM:
-        return ETHTokenAddr.COMP
+        return EthereumTokenAddr.COMP
 
 
 def get_ctokens_contract_list(blockchain, web3, block):
@@ -454,7 +455,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
             )
             comp_borrow_per_day = comp_borrow_speed_per_block * blocks_per_day
 
-            comp_price = Decimal(prices.get_price(ETHTokenAddr.COMP, block, blockchain, web3=web3)[0])
+            comp_price = Decimal(prices.get_price(EthereumTokenAddr.COMP, block, blockchain, web3=web3)[0])
             underlying_token_price = Decimal(prices.get_price(underlying_token, block, blockchain, web3=web3)[0])
 
             ctoken_decimals = const_call(ctoken_contract.functions.decimals())

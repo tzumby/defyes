@@ -1,8 +1,8 @@
 from defabipedia import Chain
+from karpatkit.constants import Address
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import Address
 from defyes.functions import get_contract, get_decimals
 from defyes.prices import Chainlink
 

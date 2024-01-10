@@ -4,10 +4,10 @@ from decimal import Decimal
 
 import requests
 from defabipedia import Chain
+from karpatkit.constants import Address
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import Address
 from defyes.functions import balance_of, last_block, to_token_amount
 
 from . import curve, uniswapv3

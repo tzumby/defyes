@@ -2,11 +2,11 @@ from time import sleep
 from typing import Tuple
 
 from defabipedia import Chain
+from karpatkit.constants import Address
 from karpatkit.explorer import ChainExplorer
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import Address
 from defyes.prices import Chainlink, CoinGecko, _1inch
 
 # Taken from token_mappings although all of them have the same value

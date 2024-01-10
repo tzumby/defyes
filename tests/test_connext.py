@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 from defabipedia import Chain
+from defabipedia.tokens import GnosisTokenAddr
 from karpatkit.node import get_node
 
 from defyes import Connext
-from defyes.constants import GnosisTokenAddr
 
 WALLET_969 = "0x10e4597ff93cbee194f4879f8f1d54a370db6969"
 WALLET_e6f = "0x458cd345b4c05e8df39d0a07220feb4ec19f5e6f"

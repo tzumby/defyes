@@ -2,10 +2,11 @@ from decimal import Decimal
 from typing import Union
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
+from karpatkit.constants import Address
 from karpatkit.node import get_node
 from web3 import Web3
 
-from defyes.constants import Address, ETHTokenAddr
 from defyes.functions import get_contract, to_token_amount
 
 STETH_ABI = '[{"constant":true,"inputs":[{"name":"_account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
@@ -40,17 +41,17 @@ def underlying(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    steth_contract = get_contract(ETHTokenAddr.stETH, Chain.ETHEREUM, abi=STETH_ABI, block=block, web3=web3)
+    steth_contract = get_contract(EthereumTokenAddr.stETH, Chain.ETHEREUM, abi=STETH_ABI, block=block, web3=web3)
     steth_balance = steth_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
-    wsteth_contract = get_contract(ETHTokenAddr.wstETH, Chain.ETHEREUM, abi=WSTETH_ABI, block=block, web3=web3)
+    wsteth_contract = get_contract(EthereumTokenAddr.wstETH, Chain.ETHEREUM, abi=WSTETH_ABI, block=block, web3=web3)
     wsteth_balance = wsteth_contract.functions.balanceOf(wallet).call(block_identifier=block)
     stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10**18)
 
     steth_equivalent = steth_balance + wsteth_balance * stEthPerToken
-    steth_equivalent = to_token_amount(ETHTokenAddr.stETH, steth_equivalent, Chain.ETHEREUM, web3, decimals)
+    steth_equivalent = to_token_amount(EthereumTokenAddr.stETH, steth_equivalent, Chain.ETHEREUM, web3, decimals)
 
-    token = ETHTokenAddr.stETH if steth else Address.ZERO
+    token = EthereumTokenAddr.stETH if steth else Address.ZERO
 
     return [[token, steth_equivalent]]
 
@@ -77,10 +78,10 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool = Fals
     if web3 is None:
         web3 = get_node(Chain.ETHEREUM)
 
-    wsteth_contract = get_contract(ETHTokenAddr.wstETH, Chain.ETHEREUM, block=block, web3=web3)
+    wsteth_contract = get_contract(EthereumTokenAddr.wstETH, Chain.ETHEREUM, block=block, web3=web3)
     stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10**18)
 
     steth_equivalent = amount * stEthPerToken
-    token = ETHTokenAddr.stETH if steth else Address.ZERO
+    token = EthereumTokenAddr.stETH if steth else Address.ZERO
 
     return [token, steth_equivalent]

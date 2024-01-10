@@ -2,10 +2,10 @@ from decimal import Decimal
 
 import pytest
 from defabipedia import Chain
+from defabipedia.tokens import GnosisTokenAddr
 from karpatkit.node import get_node
 
 from defyes import Azuro
-from defyes.constants import GnosisTokenAddr
 
 WALLET_N1 = "0x458cD345B4C05e8DF39d0A07220feb4Ec19F5e6f"
 NFT_ID = 1099511627781

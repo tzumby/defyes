@@ -3,12 +3,12 @@ from decimal import Decimal
 from typing import List, Union
 
 from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
 from karpatkit.cache import const_call
 from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
-from defyes.constants import ETHTokenAddr
 from defyes.functions import get_contract, last_block, to_token_amount
 
 logger = logging.getLogger(__name__)
@@ -117,7 +117,7 @@ def get_all_rewards(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    stkaave_contract = get_contract(ETHTokenAddr.STKAAVE, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+    stkaave_contract = get_contract(EthereumTokenAddr.STKAAVE, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
 
     reward_token = const_call(stkaave_contract.functions.REWARD_TOKEN())
 
