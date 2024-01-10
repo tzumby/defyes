@@ -69,17 +69,12 @@ Example usage:
 
 ### Cache config
 
-By default the cache is stored in a non persistent directory `/tmp/defyes/`.
-To change the directory use the environment variable `DEFI_PROTO_CACHE_DIR=/path/to/dir`.
+By default the cache is stored in a non persistent directory `/tmp/kkit/`.
+To change the directory use the environment variable `KKIT_CACHE_DIR=/path/to/dir`.
 
-To disable the cache define the `DEFI_PROTO_CACHE_DISABLE` environment variable.
+To disable the cache define the `KKIT_CACHE_DISABLE` environment variable.
 
-To wipe the cache use the env var `DEFI_PROTO_CACHE_CLEAR` or call `defyes.cache.clear()`.
-  
-
-
-  
-
+To wipe the cache use the env var `KKIT_CACHE_CLEAR` or call `karpatkit.cache.clear()`.
 
 
 ## Running the test
