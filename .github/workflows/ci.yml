@@ -125,20 +125,22 @@ jobs:
           NODE_POLYGON: ${{ secrets.NODE_POLYGON }}
           NODE_OPTIMISM: ${{ secrets.NODE_OPTIMISM }}
           NODE_ARBITRUM: ${{ secrets.NODE_ARBITRUM }}
+          NODE_AVALANCHE: ${{ secrets.NODE_AVALANCHE }}
           APIKEYS_ETHERSCAN: ${{ secrets.APIKEYS_ETHERSCAN }}
           APIKEYS_POLSCAN: ${{ secrets.APIKEYS_POLSCAN }}
           APIKEYS_GNOSISSCAN: ${{ secrets.APIKEYS_GNOSISSCAN }}
           APIKEYS_OPTIMISM: ${{ secrets.APIKEYS_OPTIMISM }}
           APIKEYS_ARBITRUM: ${{ secrets.APIKEYS_ARBITRUM }}
+          APIKEYS_METISEXPLORER: ${{ secrets.APIKEYS_METISEXPLORER }}
+          APIKEYS_BASESCAN: ${{ secrets.APIKEYS_BASESCAN }}
+          APIKEYS_SNOWTRACE: ${{ secrets.APIKEYS_SNOWTRACE }}
         run: |
           sh ci_secrets_helper.sh
           cat /tmp/tmp_config.json
-          echo "Removing defi_protocols and future_defyes directory to ensure testing the installed version."
-          rm -rf defi_protocols future_defyes
           PYTHONPATH=${PYTHONPATH}:. CONFIG_PATH=/tmp/tmp_config.json pytest -vs --debug-defiproto
 
       - name: Archive cache
         uses: actions/upload-artifact@v3
         with:
           name: cache-db
-          path: /tmp/defyes/cache.db
+          path: /tmp/kkit/cache.db
