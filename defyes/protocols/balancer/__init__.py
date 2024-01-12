@@ -2,15 +2,17 @@ from contextlib import suppress
 from decimal import Decimal
 from functools import cached_property
 
+from defabipedia import Chain
+from defabipedia.tokens import EthereumTokenAddr
+from karpatkit.constants import Address
+from karpatkit.explorer import ChainExplorer
+from karpatkit.helpers import suppress_error_codes
+from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
-from defyes.constants import Address, Chain, ETHTokenAddr
-from defyes.explorer import ChainExplorer
 from defyes.functions import ensure_a_block_number, get_decimals, get_logs_web3, to_token_amount
-from defyes.helpers import suppress_error_codes
 from defyes.lazytime import Duration, Time
-from defyes.node import get_node
 from defyes.prices.prices import get_price
 from defyes.types import Addr, Token, TokenAmount
 
@@ -324,17 +326,22 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
         (
             16981440,
             [
-                ETHTokenAddr.BAL,
-                ETHTokenAddr.BB_A_USD_OLD,
-                ETHTokenAddr.BB_A_USD,
-                ETHTokenAddr.BB_A_USD_V3,
-                ETHTokenAddr.USDC,
+                EthereumTokenAddr.BAL,
+                EthereumTokenAddr.BB_A_USD_OLD,
+                EthereumTokenAddr.BB_A_USD,
+                EthereumTokenAddr.BB_A_USD_V3,
+                EthereumTokenAddr.USDC,
             ],
         ),
-        (14623899, [ETHTokenAddr.BAL, ETHTokenAddr.BB_A_USD_OLD, ETHTokenAddr.BB_A_USD]),
+        (14623899, [EthereumTokenAddr.BAL, EthereumTokenAddr.BB_A_USD_OLD, EthereumTokenAddr.BB_A_USD]),
     ]
 
-    rewards = {ETHTokenAddr.BAL: 0, ETHTokenAddr.BB_A_USD_OLD: 0, ETHTokenAddr.BB_A_USD: 0, ETHTokenAddr.BB_A_USD_V3: 0}
+    rewards = {
+        EthereumTokenAddr.BAL: 0,
+        EthereumTokenAddr.BB_A_USD_OLD: 0,
+        EthereumTokenAddr.BB_A_USD: 0,
+        EthereumTokenAddr.BB_A_USD_V3: 0,
+    }
     block_id = ensure_a_block_number(block, blockchain)
 
     if block_id >= ADDRS[-1][0]:
@@ -347,16 +354,16 @@ def get_vebal_rewards(wallet: str, blockchain: str, block: str | int, decimals: 
 
                 balances = VebalFeeDistributor(blockchain, block_id, addr).claim_tokens(wallet, reward_list)
                 for reward_token, balance in zip(reward_tokens, balances):
-                    balance = balance / Decimal(10**18) if decimals else Decimal(balance)
+                    balance = to_token_amount(reward_token, balance, blockchain, get_node(blockchain), decimals)
                     rewards[reward_token] = rewards.get(reward_token, 0) + balance
 
     return rewards
 
 
-def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, decimals: bool = True) -> None:
+def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, decimals: bool = True) -> dict:
     block_id = ensure_a_block_number(block, blockchain)
-    lp = LiquidityPool(blockchain, block_id, lp_address)
-    pool_tokens = Vault(blockchain, block_id).get_pool_data(lp.poolid)
+    lp = LiquidityPool(blockchain, block, lp_address)
+    pool_tokens = Vault(blockchain, block).get_pool_data(lp.poolid)
     balances = {}
     for n, (addr, balance) in enumerate(pool_tokens):
         if n == lp.bpt_index:
@@ -375,9 +382,9 @@ def unwrap(blockchain: str, lp_address: str, amount: Decimal, block: int | str, 
     return balances
 
 
-def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: bool = True) -> None:
+def pool_balances(blockchain: str, lp_address: str, block: int | str, decimals: bool = True) -> dict:
     block_id = ensure_a_block_number(block, blockchain)
-    lp = LiquidityPool(blockchain, block_id, lp_address)
+    lp = LiquidityPool(blockchain, block, lp_address)
     lp_amount = lp.supply / Decimal(10**lp.decimals if decimals else 1)
     return unwrap(blockchain, lp_address, lp_amount, block_id, decimals)
 
@@ -390,7 +397,7 @@ def get_protocol_data_for(
     reward: bool = False,
     decimals: bool = True,
     aura_staked: Decimal = None,
-) -> None:
+) -> dict:
     wallet = Addr(Web3.to_checksum_address(wallet))
     block_id = ensure_a_block_number(block, blockchain)
     ret = {
@@ -522,6 +529,7 @@ def get_swap_fees_apr(
     chain_explorer = ChainExplorer(blockchain)
     block_start = chain_explorer.block_from_time(Time(chain_explorer.time_from_block(block_id)) - Duration.days(days))
 
+    node = get_node(blockchain)
     node = get_node(blockchain, block_id)
     vault_address = Vault(blockchain, block_id).address
     lp = LiquidityPool(blockchain, block_id, lptoken_address)
