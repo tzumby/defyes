@@ -2,6 +2,9 @@
   "gauge": {
     "const_call": [
         "decimals"
+    ],
+    "always_include": [
+        "claimable_tokens"
     ]
   },
   "gauge_factory": {
@@ -32,5 +35,8 @@
     ]
   },
   "vebal_fee_distributor": {
+    "always_include": [
+        "claim_tokens"
+    ]
   }
 }

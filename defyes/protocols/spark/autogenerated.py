@@ -37,54 +37,6 @@ class PoolAddressesProvider:
         node = get_node(blockchain)
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "pool_addresses_provider.json"))
 
-    def acl_admin_updated(self, old_address: str, new_address: str):
-        return self.contract.functions.ACLAdminUpdated(old_address, new_address).call(block_identifier=self.block)
-
-    def acl_manager_updated(self, old_address: str, new_address: str):
-        return self.contract.functions.ACLManagerUpdated(old_address, new_address).call(block_identifier=self.block)
-
-    def address_set(self, id: bytes, old_address: str, new_address: str):
-        return self.contract.functions.AddressSet(id, old_address, new_address).call(block_identifier=self.block)
-
-    def address_set_as_proxy(
-        self, id: bytes, proxy_address: str, old_implementation_address: str, new_implementation_address: str
-    ):
-        return self.contract.functions.AddressSetAsProxy(
-            id, proxy_address, old_implementation_address, new_implementation_address
-        ).call(block_identifier=self.block)
-
-    def market_id_set(self, old_market_id: str, new_market_id: str):
-        return self.contract.functions.MarketIdSet(old_market_id, new_market_id).call(block_identifier=self.block)
-
-    def ownership_transferred(self, previous_owner: str, new_owner: str):
-        return self.contract.functions.OwnershipTransferred(previous_owner, new_owner).call(block_identifier=self.block)
-
-    def pool_configurator_updated(self, old_address: str, new_address: str):
-        return self.contract.functions.PoolConfiguratorUpdated(old_address, new_address).call(
-            block_identifier=self.block
-        )
-
-    def pool_data_provider_updated(self, old_address: str, new_address: str):
-        return self.contract.functions.PoolDataProviderUpdated(old_address, new_address).call(
-            block_identifier=self.block
-        )
-
-    def pool_updated(self, old_address: str, new_address: str):
-        return self.contract.functions.PoolUpdated(old_address, new_address).call(block_identifier=self.block)
-
-    def price_oracle_sentinel_updated(self, old_address: str, new_address: str):
-        return self.contract.functions.PriceOracleSentinelUpdated(old_address, new_address).call(
-            block_identifier=self.block
-        )
-
-    def price_oracle_updated(self, old_address: str, new_address: str):
-        return self.contract.functions.PriceOracleUpdated(old_address, new_address).call(block_identifier=self.block)
-
-    def proxy_created(self, id: bytes, proxy_address: str, implementation_address: str):
-        return self.contract.functions.ProxyCreated(id, proxy_address, implementation_address).call(
-            block_identifier=self.block
-        )
-
     @property
     def get_acl_admin(self) -> str:
         return self.contract.functions.getACLAdmin().call(block_identifier=self.block)
@@ -123,49 +75,6 @@ class PoolAddressesProvider:
     @property
     def owner(self) -> str:
         return self.contract.functions.owner().call(block_identifier=self.block)
-
-    @property
-    def renounce_ownership(self):
-        return self.contract.functions.renounceOwnership().call(block_identifier=self.block)
-
-    def set_acl_admin(self, new_acl_admin: str):
-        return self.contract.functions.setACLAdmin(new_acl_admin).call(block_identifier=self.block)
-
-    def set_acl_manager(self, new_acl_manager: str):
-        return self.contract.functions.setACLManager(new_acl_manager).call(block_identifier=self.block)
-
-    def set_address(self, id: bytes, new_address: str):
-        return self.contract.functions.setAddress(id, new_address).call(block_identifier=self.block)
-
-    def set_address_as_proxy(self, id: bytes, new_implementation_address: str):
-        return self.contract.functions.setAddressAsProxy(id, new_implementation_address).call(
-            block_identifier=self.block
-        )
-
-    def set_market_id(self, new_market_id: str):
-        return self.contract.functions.setMarketId(new_market_id).call(block_identifier=self.block)
-
-    def set_pool_configurator_impl(self, new_pool_configurator_impl: str):
-        return self.contract.functions.setPoolConfiguratorImpl(new_pool_configurator_impl).call(
-            block_identifier=self.block
-        )
-
-    def set_pool_data_provider(self, new_data_provider: str):
-        return self.contract.functions.setPoolDataProvider(new_data_provider).call(block_identifier=self.block)
-
-    def set_pool_impl(self, new_pool_impl: str):
-        return self.contract.functions.setPoolImpl(new_pool_impl).call(block_identifier=self.block)
-
-    def set_price_oracle(self, new_price_oracle: str):
-        return self.contract.functions.setPriceOracle(new_price_oracle).call(block_identifier=self.block)
-
-    def set_price_oracle_sentinel(self, new_price_oracle_sentinel: str):
-        return self.contract.functions.setPriceOracleSentinel(new_price_oracle_sentinel).call(
-            block_identifier=self.block
-        )
-
-    def transfer_ownership(self, new_owner: str):
-        return self.contract.functions.transferOwnership(new_owner).call(block_identifier=self.block)
 
 
 class LendingPool:
@@ -216,51 +125,6 @@ class LendingPool:
     def pool_revision(self) -> int:
         return self.contract.functions.POOL_REVISION().call(block_identifier=self.block)
 
-    def back_unbacked(self, asset: str, amount: int, fee: int):
-        return self.contract.functions.backUnbacked(asset, amount, fee).call(block_identifier=self.block)
-
-    def borrow(self, asset: str, amount: int, interest_rate_mode: int, referral_code: int, on_behalf_of: str):
-        return self.contract.functions.borrow(asset, amount, interest_rate_mode, referral_code, on_behalf_of).call(
-            block_identifier=self.block
-        )
-
-    def configure_e_mode_category(self, id: int, category: tuple):
-        return self.contract.functions.configureEModeCategory(id, category).call(block_identifier=self.block)
-
-    def deposit(self, asset: str, amount: int, on_behalf_of: str, referral_code: int):
-        return self.contract.functions.deposit(asset, amount, on_behalf_of, referral_code).call(
-            block_identifier=self.block
-        )
-
-    def drop_reserve(self, asset: str):
-        return self.contract.functions.dropReserve(asset).call(block_identifier=self.block)
-
-    def finalize_transfer(
-        self, asset: str, from_: str, to: str, amount: int, balance_from_before: int, balance_to_before: int
-    ):
-        return self.contract.functions.finalizeTransfer(
-            asset, from_, to, amount, balance_from_before, balance_to_before
-        ).call(block_identifier=self.block)
-
-    def flash_loan(
-        self,
-        receiver_address: str,
-        assets: list[str],
-        amounts: list[int],
-        interest_rate_modes: list[int],
-        on_behalf_of: str,
-        params: bytes,
-        referral_code: int,
-    ):
-        return self.contract.functions.flashLoan(
-            receiver_address, assets, amounts, interest_rate_modes, on_behalf_of, params, referral_code
-        ).call(block_identifier=self.block)
-
-    def flash_loan_simple(self, receiver_address: str, asset: str, amount: int, params: bytes, referral_code: int):
-        return self.contract.functions.flashLoanSimple(receiver_address, asset, amount, params, referral_code).call(
-            block_identifier=self.block
-        )
-
     def get_configuration(self, asset: str) -> tuple:
         return self.contract.functions.getConfiguration(asset).call(block_identifier=self.block)
 
@@ -296,120 +160,6 @@ class LendingPool:
     def get_user_e_mode(self, user: str) -> int:
         return self.contract.functions.getUserEMode(user).call(block_identifier=self.block)
 
-    def init_reserve(
-        self,
-        asset: str,
-        sp_token_address: str,
-        stable_debt_address: str,
-        variable_debt_address: str,
-        interest_rate_strategy_address: str,
-    ):
-        return self.contract.functions.initReserve(
-            asset, sp_token_address, stable_debt_address, variable_debt_address, interest_rate_strategy_address
-        ).call(block_identifier=self.block)
-
-    def initialize(self, provider: str):
-        return self.contract.functions.initialize(provider).call(block_identifier=self.block)
-
-    def liquidation_call(
-        self, collateral_asset: str, debt_asset: str, user: str, debt_to_cover: int, receive_sp_token: bool
-    ):
-        return self.contract.functions.liquidationCall(
-            collateral_asset, debt_asset, user, debt_to_cover, receive_sp_token
-        ).call(block_identifier=self.block)
-
-    def mint_to_treasury(self, assets: list[str]):
-        return self.contract.functions.mintToTreasury(assets).call(block_identifier=self.block)
-
-    def mint_unbacked(self, asset: str, amount: int, on_behalf_of: str, referral_code: int):
-        return self.contract.functions.mintUnbacked(asset, amount, on_behalf_of, referral_code).call(
-            block_identifier=self.block
-        )
-
-    def rebalance_stable_borrow_rate(self, asset: str, user: str):
-        return self.contract.functions.rebalanceStableBorrowRate(asset, user).call(block_identifier=self.block)
-
-    def repay(self, asset: str, amount: int, interest_rate_mode: int, on_behalf_of: str) -> int:
-        return self.contract.functions.repay(asset, amount, interest_rate_mode, on_behalf_of).call(
-            block_identifier=self.block
-        )
-
-    def repay_with_sp_tokens(self, asset: str, amount: int, interest_rate_mode: int) -> int:
-        return self.contract.functions.repayWithSpTokens(asset, amount, interest_rate_mode).call(
-            block_identifier=self.block
-        )
-
-    def repay_with_permit(
-        self,
-        asset: str,
-        amount: int,
-        interest_rate_mode: int,
-        on_behalf_of: str,
-        deadline: int,
-        permit_v: int,
-        permit_r: bytes,
-        permit_s: bytes,
-    ) -> int:
-        return self.contract.functions.repayWithPermit(
-            asset, amount, interest_rate_mode, on_behalf_of, deadline, permit_v, permit_r, permit_s
-        ).call(block_identifier=self.block)
-
-    def rescue_tokens(self, token: str, to: str, amount: int):
-        return self.contract.functions.rescueTokens(token, to, amount).call(block_identifier=self.block)
-
-    def reset_isolation_mode_total_debt(self, asset: str):
-        return self.contract.functions.resetIsolationModeTotalDebt(asset).call(block_identifier=self.block)
-
-    def set_configuration(self, asset: str, configuration: tuple):
-        return self.contract.functions.setConfiguration(asset, configuration).call(block_identifier=self.block)
-
-    def set_reserve_interest_rate_strategy_address(self, asset: str, rate_strategy_address: str):
-        return self.contract.functions.setReserveInterestRateStrategyAddress(asset, rate_strategy_address).call(
-            block_identifier=self.block
-        )
-
-    def set_user_e_mode(self, category_id: int):
-        return self.contract.functions.setUserEMode(category_id).call(block_identifier=self.block)
-
-    def set_user_use_reserve_as_collateral(self, asset: str, use_as_collateral: bool):
-        return self.contract.functions.setUserUseReserveAsCollateral(asset, use_as_collateral).call(
-            block_identifier=self.block
-        )
-
-    def supply(self, asset: str, amount: int, on_behalf_of: str, referral_code: int):
-        return self.contract.functions.supply(asset, amount, on_behalf_of, referral_code).call(
-            block_identifier=self.block
-        )
-
-    def supply_with_permit(
-        self,
-        asset: str,
-        amount: int,
-        on_behalf_of: str,
-        referral_code: int,
-        deadline: int,
-        permit_v: int,
-        permit_r: bytes,
-        permit_s: bytes,
-    ):
-        return self.contract.functions.supplyWithPermit(
-            asset, amount, on_behalf_of, referral_code, deadline, permit_v, permit_r, permit_s
-        ).call(block_identifier=self.block)
-
-    def swap_borrow_rate_mode(self, asset: str, interest_rate_mode: int):
-        return self.contract.functions.swapBorrowRateMode(asset, interest_rate_mode).call(block_identifier=self.block)
-
-    def update_bridge_protocol_fee(self, protocol_fee: int):
-        return self.contract.functions.updateBridgeProtocolFee(protocol_fee).call(block_identifier=self.block)
-
-    def update_flashloan_premiums(self, flash_loan_premium_total: int, flash_loan_premium_to_protocol: int):
-        return self.contract.functions.updateFlashloanPremiums(
-            flash_loan_premium_total, flash_loan_premium_to_protocol
-        ).call(block_identifier=self.block)
-
-    def withdraw(self, asset: str, amount: int, to: str) -> int:
-        return self.contract.functions.withdraw(asset, amount, to).call(block_identifier=self.block)
-
 
 class PriceOracle:
     default_addresses: dict[str, str]
@@ -430,17 +180,6 @@ class PriceOracle:
                 ) from e
         node = get_node(blockchain)
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "price_oracle.json"))
-
-    def asset_source_updated(self, asset: str, source: str):
-        return self.contract.functions.AssetSourceUpdated(asset, source).call(block_identifier=self.block)
-
-    def base_currency_set(self, base_currency: str, base_currency_unit: int):
-        return self.contract.functions.BaseCurrencySet(base_currency, base_currency_unit).call(
-            block_identifier=self.block
-        )
-
-    def fallback_oracle_updated(self, fallback_oracle: str):
-        return self.contract.functions.FallbackOracleUpdated(fallback_oracle).call(block_identifier=self.block)
 
     @property
     def addresses_provider(self) -> str:
@@ -466,12 +205,6 @@ class PriceOracle:
 
     def get_source_of_asset(self, asset: str) -> str:
         return self.contract.functions.getSourceOfAsset(asset).call(block_identifier=self.block)
-
-    def set_asset_sources(self, assets: list[str], sources: list[str]):
-        return self.contract.functions.setAssetSources(assets, sources).call(block_identifier=self.block)
-
-    def set_fallback_oracle(self, fallback_oracle: str):
-        return self.contract.functions.setFallbackOracle(fallback_oracle).call(block_identifier=self.block)
 
 
 class ProtocolDataProvider:

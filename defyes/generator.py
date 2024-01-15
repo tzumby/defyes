@@ -59,7 +59,7 @@ def args_name_gen(used_names: set, start: int = 0):
         used_names_.add(name)
 
 
-def generate_methods_from_abi(abi_path, const_call_methods=[]):
+def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_methods=[]):
     TYPE_CONVERSION = {
         "uint8": "int",
         "uint64": "int",
@@ -68,6 +68,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
         "uint256": "int",
         "int256": "int",
         "uint128": "int",
+        "uint208": "int",
         "uint40": "int",
         "uint64[]": "list[int]",
         "uint256[]": "list[int]",
@@ -85,18 +86,18 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
 
     methods = []
     for item in abi_list:
-        if item["type"] in ["constructor", "receive"]:
+        if item["type"] in ["constructor", "receive", "error", "event"]:
             continue
         try:
             method_name = item["name"]
         except KeyError as e:
-            from IPython import embed
-
-            embed()
             raise KeyError(f"{e!r} for {item}") from e
 
         method_name_snake = camel_to_snake(method_name)
-        method_str = ""
+        if method_name_snake not in always_include_methods:
+            item_state = item.get("stateMutability", "")
+            if item_state == "nonpayable":
+                continue
 
         awesome_names = args_name_gen(used_names=set(arg.get("name", "") for arg in item["inputs"]))
         args = []
@@ -109,6 +110,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[]):
             args.append(f"{arg_name}: {arg_type}")
             args_names.append(arg_name)
 
+        method_str = ""
         if args:
             args_str = ", " + ", ".join(args)
             args_names = ", ".join(args_names)
@@ -199,10 +201,10 @@ class %(name)s:
 """
 
 
-def generate_contract_class(class_name, abi_path, const_call_methods=[]):
+def generate_contract_class(class_name, abi_path, const_call_methods=[], always_include_methods=[]):
     abi_filename = abi_path.name
     result = contract_class_template % dict(name=class_name, abi=abi_filename)
-    result += generate_methods_from_abi(abi_path, const_call_methods)
+    result += generate_methods_from_abi(abi_path, const_call_methods, always_include_methods)
     return result
 
 
@@ -232,9 +234,10 @@ def generate_classes():
             class_name = snake_to_camel(abi_name)
             classes_name.append(class_name)
             const_call_methods = config.get("const_call", [])
+            always_include_methods = config.get("always_include", [])
             if const_call_methods:
                 is_const_call_used = True
-            content += generate_contract_class(class_name, abi_path, const_call_methods)
+            content += generate_contract_class(class_name, abi_path, const_call_methods, always_include_methods)
 
         if not content:
             continue

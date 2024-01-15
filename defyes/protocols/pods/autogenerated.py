@@ -60,9 +60,6 @@ class BaseVault:
     def allowance(self, owner: str, spender: str) -> int:
         return self.contract.functions.allowance(owner, spender).call(block_identifier=self.block)
 
-    def approve(self, spender: str, amount: int) -> bool:
-        return self.contract.functions.approve(spender, amount).call(block_identifier=self.block)
-
     @property
     def asset(self) -> str:
         return self.contract.functions.asset().call(block_identifier=self.block)
@@ -99,9 +96,6 @@ class BaseVault:
     def decimals(self) -> int:
         return const_call(self.contract.functions.decimals())
 
-    def decrease_allowance(self, spender: str, subtracted_value: int) -> bool:
-        return self.contract.functions.decreaseAllowance(spender, subtracted_value).call(block_identifier=self.block)
-
     @property
     def deposit_queue_size(self) -> int:
         return self.contract.functions.depositQueueSize().call(block_identifier=self.block)
@@ -112,9 +106,6 @@ class BaseVault:
 
     def idle_assets_of(self, owner: str) -> int:
         return self.contract.functions.idleAssetsOf(owner).call(block_identifier=self.block)
-
-    def increase_allowance(self, spender: str, added_value: int) -> bool:
-        return self.contract.functions.increaseAllowance(spender, added_value).call(block_identifier=self.block)
 
     @property
     def investor(self) -> str:
@@ -153,11 +144,6 @@ class BaseVault:
 
     def nonces(self, owner: str) -> int:
         return self.contract.functions.nonces(owner).call(block_identifier=self.block)
-
-    def permit(self, owner: str, spender: str, value: int, deadline: int, v: int, r: bytes, s: bytes):
-        return self.contract.functions.permit(owner, spender, value, deadline, v, r, s).call(
-            block_identifier=self.block
-        )
 
     def preview_deposit(self, assets: int) -> int:
         return self.contract.functions.previewDeposit(assets).call(block_identifier=self.block)
@@ -206,9 +192,3 @@ class BaseVault:
     @property
     def total_supply(self) -> int:
         return self.contract.functions.totalSupply().call(block_identifier=self.block)
-
-    def transfer(self, to: str, amount: int) -> bool:
-        return self.contract.functions.transfer(to, amount).call(block_identifier=self.block)
-
-    def transfer_from(self, from_: str, to: str, amount: int) -> bool:
-        return self.contract.functions.transferFrom(from_, to, amount).call(block_identifier=self.block)
