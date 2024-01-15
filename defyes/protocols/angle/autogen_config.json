@@ -17,5 +17,12 @@
       "collateral",
       "oracle"
     ]
+  },
+  "steur": {
+    "const_call": [
+      "asset",
+      "decimals",
+      "symbol"
+    ]
   }
 }
