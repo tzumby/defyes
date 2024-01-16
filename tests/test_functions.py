@@ -42,7 +42,7 @@ def test_get_symbol():
     symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.GNOSIS, block=17380523)
     assert symbol == "GNOSIS"
 
-    symbol = get_symbol("0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359", Chain.ETHEREUM)
+    symbol = get_symbol("0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359", "ethereum")
     assert symbol == "DAI"
 
 
