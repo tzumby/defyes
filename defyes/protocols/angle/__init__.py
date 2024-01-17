@@ -137,7 +137,7 @@ class Steur(Steur):
         Chain.GNOSIS: "0x004626A008B1aCdC4c74ab51644093b155e59A23",
     }
 
-    def unwrap_agEUR(self, amount: int, decimals=True) -> Decimal:
+    def unwrap(self, amount: int, decimals=True) -> Decimal:
         steur = self.convert_to_assets(amount)
         return Decimal(steur) / Decimal(10**self.decimals if decimals else 1)
 
