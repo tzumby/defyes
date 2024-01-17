@@ -3,16 +3,18 @@ from decimal import Decimal
 import pytest
 from defabipedia import Chain
 
-from defyes import Angle
+from defyes import angle
+from defyes.types import Token, TokenAmount
 
 agEUR = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
 WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
+agEUR_gnosis = Token.get_instance("0x4b1E2c2762667331Bc91648052F646d1b0d35984", Chain.GNOSIS)
 
 
 def test_angle_treasury():
     block = 17451062
 
-    t = Angle.Treasury(Chain.ETHEREUM, block)
+    t = angle.Treasury(Chain.ETHEREUM, block)
     assert t.stablecoin == agEUR
     assert [
         "0x241D7598BD1eb819c0E9dEd456AcB24acA623679",
@@ -31,10 +33,21 @@ def test_angle_treasury():
     ] == t.get_all_vault_managers_addrs()
 
 
+def test_angle_steur():
+    block = 31990022
+
+    stEUR_amount = int(100000000000)
+    agEUR_amount = TokenAmount(angle.Steur(Chain.GNOSIS, block).unwrap(stEUR_amount), agEUR_gnosis)
+    assert agEUR_amount.as_dict() == {
+        "balance": Decimal("100988668305.0000000000000000"),
+        "address": "0x4b1E2c2762667331Bc91648052F646d1b0d35984",
+    }
+
+
 @pytest.mark.parametrize("decimals", [True, False])
 def test_protocol_data(decimals):
     block = 17451062
-    underlying = Angle.get_protocol_data(Chain.ETHEREUM, WALLET, block, decimals=decimals)
+    underlying = angle.get_protocol_data(Chain.ETHEREUM, WALLET, block, decimals=decimals)
     assert {
         "block_id": 17451062,
         "wallet": WALLET,
