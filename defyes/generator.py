@@ -65,6 +65,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_me
         "uint64": "int",
         "uint16": "int",
         "uint32": "int",
+        "uint96": "int",
         "uint256": "int",
         "int256": "int",
         "uint128": "int",
@@ -77,6 +78,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_me
         "address[]": "list[str]",
         "string": "str",
         "bytes32": "bytes",
+        "bytes32[]": "list[bytes]",
         "bytes4": "bytes",
         "tuple[]": "list[tuple]",
     }
@@ -84,6 +86,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_me
     with open(abi_path) as f:
         abi_list = json.load(f)
 
+    all_method_names = []
     methods = []
     for item in abi_list:
         if item["type"] in ["constructor", "receive", "error", "event"]:
@@ -98,6 +101,16 @@ def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_me
             item_state = item.get("stateMutability", "")
             if item_state == "nonpayable":
                 continue
+        if method_name_snake == "class":
+            continue
+        if method_name_snake == "list":
+            method_name_snake = "_list"
+
+        n = 1
+        while method_name_snake in all_method_names:
+            method_name_snake = method_name_snake + f"_{n}"
+            n += 1
+        all_method_names.append(method_name_snake)
 
         awesome_names = args_name_gen(used_names=set(arg.get("name", "") for arg in item["inputs"]))
         args = []
