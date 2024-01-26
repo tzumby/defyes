@@ -10,6 +10,9 @@
   "mcd_spot": {
   },
   "pot": {
+    "always_include": [
+      "drip"
+    ]
   },
   "dsr_manager": {
   }

@@ -324,6 +324,10 @@ class Pot:
         return self.contract.functions.chi().call(block_identifier=self.block)
 
     @property
+    def drip(self) -> int:
+        return self.contract.functions.drip().call(block_identifier=self.block)
+
+    @property
     def dsr(self) -> int:
         return self.contract.functions.dsr().call(block_identifier=self.block)
 

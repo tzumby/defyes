@@ -1,6 +1,5 @@
 import logging
-
-# import time
+import time
 from decimal import Decimal
 from typing import Union
 
@@ -59,14 +58,13 @@ class Pot(Pot):
         Chain.ETHEREUM: "0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7",
     }
 
-
-#    @property
-#    def chi(self):
-#        if time.time() > self.rho:
-#            chi = self.drip()
-#        else:
-#            chi = self.chi()
-#        return chi
+    @property
+    def chi(self):
+        if time.time() > self.rho:
+            chi = self.drip
+        else:
+            chi = self.chi
+        return chi
 
 
 class DsrManager(DsrManager):
