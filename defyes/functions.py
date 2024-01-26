@@ -31,7 +31,7 @@ def tz_aware(dt):
 
 
 def to_token_amount(
-    token_address: str, amount: int | Decimal, blockchain: str, web3: Web3, decimals: bool = True
+    token_address: str, amount: int | Decimal, blockchain: str, web3: Web3 = None, decimals: bool = True
 ) -> Decimal:
     # This function provides support for correctly rounded decimal floating point arithmetic.
     decimals = get_decimals(token_address, blockchain=blockchain, web3=web3) if decimals else 0

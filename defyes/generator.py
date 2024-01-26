@@ -67,6 +67,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_me
         "uint32": "int",
         "uint96": "int",
         "uint256": "int",
+        "int104": "int",
         "int256": "int",
         "uint128": "int",
         "uint208": "int",
@@ -89,7 +90,7 @@ def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_me
     all_method_names = []
     methods = []
     for item in abi_list:
-        if item["type"] in ["constructor", "receive", "error", "event"]:
+        if item["type"] in ["constructor", "receive", "error", "event", "fallback"]:
             continue
         try:
             method_name = item["name"]

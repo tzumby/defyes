@@ -1,0 +1,13 @@
+{
+  "comet": {
+    "const_call": [
+      "baseToken",
+      "decimals"
+    ]
+  },
+  "comet_rewards": {
+    "always_include": [
+        "get_reward_owed"
+    ]
+  }
+}
