@@ -1,4 +1,5 @@
 import logging
+from contextlib import suppress
 from decimal import Decimal
 from typing import Union
 
@@ -7,9 +8,10 @@ from defabipedia.tokens import EthereumTokenAddr, GnosisTokenAddr
 from karpatkit.cache import const_call
 from karpatkit.constants import Address
 from karpatkit.explorer import ChainExplorer
+from karpatkit.helpers import suppress_error_codes
 from karpatkit.node import get_node
 from web3 import Web3
-from web3.exceptions import ContractLogicError
+from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import balance_of, get_contract, get_decimals, get_logs_web3, to_token_amount
 from defyes.lazytime import Duration, Time
@@ -322,10 +324,9 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-    try:
+    lptoken_data["minter"] = None
+    with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
         lptoken_data["minter"] = const_call(lptoken_data["contract"].functions.minter())
-    except:
-        lptoken_data["minter"] = None
 
     lptoken_data["decimals"] = const_call(lptoken_data["contract"].functions.decimals())
     lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
@@ -609,10 +610,9 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-    try:
+    minter = None
+    with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
         minter = const_call(lptoken_contract.functions.minter())
-    except:
-        minter = None
 
     if minter is None:
         minter = get_pool_address(web3, lptoken_address, block, blockchain)
@@ -752,7 +752,7 @@ def get_base_apr(
         growth_prev = ((xcp_profit_prev / 2) + (xcp_profit_a_prev / 2) + Decimal(1**18)) / 2
         rate = ((growth - growth_prev) / growth_prev) / 2
         return rate
-    except:
+    except (ContractLogicError, BadFunctionCallOutput):
         virt_price = lp_contract.functions.get_virtual_price().call(block_identifier=block_end)
         virt_price_prev = lp_contract.functions.get_virtual_price().call(block_identifier=block_start)
         rate = (virt_price - virt_price_prev) / Decimal(virt_price_prev)
@@ -781,7 +781,7 @@ def swap_fees_v2(
             tvl_token = to_token_amount(address_token, balance_token, blockchain, web3, decimals=True)
             tvl_token *= Decimal(get_price(address_token, block_end, blockchain)[0])
             balance.append(tvl_token)
-        except:
+        except (ContractLogicError, BadFunctionCallOutput):
             break
     fees = rate * sum(balance)
     return fees
