@@ -218,8 +218,8 @@ class Comet:
 
     def user_basic(self, arg0: str) -> tuple[int, int, int, int, int]:
         """
-        Output: principal, baseTrackingIndex, baseTrackingAccrued,
-            assetsIn, _reserved
+        Output: principal, baseTrackingIndex, baseTrackingAccrued, assetsIn,
+        _reserved
         """
         return self.contract.functions.userBasic(arg0).call(block_identifier=self.block)
 

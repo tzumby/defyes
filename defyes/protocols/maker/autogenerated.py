@@ -325,6 +325,9 @@ class Pot:
 
     @property
     def drip(self) -> int:
+        """
+        Output: tmp
+        """
         return self.contract.functions.drip().call(block_identifier=self.block)
 
     @property

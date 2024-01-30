@@ -435,7 +435,23 @@ def get_block_intervals(blockchain, block_start, block_end, block_interval):
     return list(zip(n_blocks[:-1], n_blocks[1:]))
 
 
-# get_logs_web3
+def prepare_log_params(address, topics, tx_hash, block_hash, block_start, block_end):
+    params = {}
+    if address:
+        params["address"] = Web3.to_checksum_address(address)
+    if topics:
+        params["topics"] = topics
+    if tx_hash:
+        params["transactionHash"] = tx_hash
+    elif block_hash:
+        params["blockHash"] = block_hash
+    elif block_start:
+        params["fromBlock"] = block_start
+        if block_end != "latest":
+            params["toBlock"] = block_end
+    return params
+
+
 def get_logs_web3(
     blockchain: str,
     tx_hash: str = None,
@@ -450,20 +466,7 @@ def get_logs_web3(
     if web3 is None:
         web3 = get_node(blockchain)
     try:
-        params = {}
-        if address is not None:
-            address = Web3.to_checksum_address(address)
-            params.update({"address": address})
-        if topics is not None:
-            params.update({"topics": topics})
-        if tx_hash is not None:
-            params.update({"transactionHash": tx_hash})
-        elif block_hash is not None:
-            params.update({"blockHash": block_hash})
-        elif block_start is not None:
-            params.update({"fromBlock": block_start})
-            if block_end != "latest":
-                params.update({"toBlock": block_end})
+        params = prepare_log_params(address, topics, tx_hash, block_hash, block_start, block_end)
         logs = web3.eth.get_logs(params)
         if not isinstance(block_end, str):
             for n in range(len(logs)):

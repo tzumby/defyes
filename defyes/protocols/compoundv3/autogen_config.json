@@ -7,7 +7,7 @@
   },
   "comet_rewards": {
     "always_include": [
-        "get_reward_owed"
+        "getRewardOwed"
     ]
   }
 }
