@@ -56,9 +56,7 @@ extend-exclude = [
     '.git',
     '__pycache__',
 ]
-extend-ignore = ['E203', 'E266', 'E501', 'W605', 'W503',
-  'C901' # Re-enable C901 after fixing.
-]
+extend-ignore = ['E203', 'E266', 'E501', 'W605', 'W503']
 max-line-length = 120
 max-complexity = 18
 # Specify the list of error codes you wish Flake8 to report.
