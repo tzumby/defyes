@@ -137,83 +137,52 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
     return gauge_address
 
 
-def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=True):
-    # FIXME: this should be splitted into 2 functions for version and for contract
-    # FIXME: nested try/except abuse
+def working_version_request(gauge_contract):
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.version())
+        if gauge_contract.w3._network_name != Chain.ETHEREUM:
+            return "ChildGauge"
+        return "LiquidityGaugeV5"
 
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
+        const_call(gauge_contract.functions.crv_token())
+        return "LiquidityGaugeV3"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
+        return "RewardsOnlyGauge"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.minter())
+        const_call(gauge_contract.functions.decimals())
+        const_call(gauge_contract.functions.claimable_reward(Address.ZERO))
+        return "LiquidityGaugeReward"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.minter())
+        const_call(gauge_contract.functions.decimals())
+        const_call(gauge_contract.functions.decimals())
+        return "LiquidityGaugeV2"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.minter())
+        return "LiquidityGauge"
+
+    return "LiquidityGaugeV4"
+
+
+def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=True):
     if web3 is None:
         web3 = get_node(blockchain)
 
     # The ABI used to get the Gauge Contract is a general ABI for all types. This is because some gauges do not have
     # their ABIs available in the explorers
     gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
-
-    try:
-        const_call(gauge_contract.functions.version())
-
-        if blockchain != Chain.ETHEREUM:
-            if only_version:
-                return "ChildGauge"
-            else:
-                return ["ChildGauge", gauge_contract]
-
-        if only_version:
-            return "LiquidityGaugeV5"
-        else:
-            return ["LiquidityGaugeV5", gauge_contract]
-    except ContractLogicError:
-        pass
-
-    try:
-        const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
-
-        try:
-            const_call(gauge_contract.functions.crv_token())
-
-            if only_version:
-                return "LiquidityGaugeV3"
-            else:
-                return ["LiquidityGaugeV3", gauge_contract]
-
-        except ContractLogicError:
-            if only_version:
-                return "RewardsOnlyGauge"
-            else:
-                return ["RewardsOnlyGauge", gauge_contract]
-
-    except ContractLogicError:
-        pass
-
-    try:
-        const_call(gauge_contract.functions.minter())
-
-        try:
-            const_call(gauge_contract.functions.decimals())
-
-            if only_version:
-                return "LiquidityGaugeV2"
-            else:
-                return ["LiquidityGaugeV2", gauge_contract]
-
-        except ContractLogicError:
-            try:
-                const_call(gauge_contract.functions.claimable_reward(Address.ZERO))
-                if only_version:
-                    return "LiquidityGaugeReward"
-                else:
-                    return ["LiquidityGaugeReward", gauge_contract]
-
-            except ContractLogicError:
-                if only_version:
-                    return "LiquidityGauge"
-                else:
-                    return ["LiquidityGauge", gauge_contract]
-
-    except ContractLogicError:
-        if only_version:
-            return "LiquidityGaugeV4"
-        else:
-            return ["LiquidityGaugeV4", gauge_contract]
+    version = working_version_request(gauge_contract)
+    if only_version:
+        return version
+    return [version, gauge_contract]
 
 
 def get_pool_address(web3, lptoken_address, block, blockchain):
