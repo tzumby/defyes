@@ -37,9 +37,15 @@ class Comet(Comet):
         return collaterals
 
     def borrowed(self, wallet: str) -> TokenAmount:
-        balance = self.borrow_balance_of(wallet) / Decimal(10**10)
+        balance = self.borrow_balance_of(wallet)
         token = Token.get_instance(self.base_token, self.blockchain, self.block)
         return TokenAmount.from_teu(balance, token)
+
+    def aprs(self, wallet: str) -> dict:
+        seconds_per_year = 60 * 60 * 24 * 365
+        borrow_apr = self.get_borrow_rate(self.get_utilization) / (10**18) * seconds_per_year * 100
+        supply_apr = self.get_supply_rate(self.get_utilization) / (10**18) * seconds_per_year * 100
+        return {"borrow_apr": borrow_apr, "supply_apr": supply_apr}
 
 
 def get_protocol_data(blockchain: str, wallet: str, block: int | str = "latest", decimals: bool = True) -> dict:
@@ -68,6 +74,7 @@ def get_protocol_data(blockchain: str, wallet: str, block: int | str = "latest",
             }
 
         if comet_rewards[1] > 0:
+            positions[comet_address] = positions.get(comet_address, {})
             positions[comet_address]["unclaimed_rewards"] = [
                 {
                     "address": comet_rewards[0],
@@ -77,11 +84,13 @@ def get_protocol_data(blockchain: str, wallet: str, block: int | str = "latest",
 
         collaterals = comet.collaterals(wallet)
         if collaterals:
-            positions[comet_address]["collaterals"] = [c.as_dict(not decimals) for c in collaterals]
+            positions[comet_address] = positions.get(comet_address, {})
+            positions[comet_address]["collaterals"] = [c.as_dict(decimals) for c in collaterals]
 
         borrowed = comet.borrowed(wallet)
         if borrowed.amount:
-            positions[comet_address]["borrowred"] = borrowed.as_dict(not decimals)
+            positions[comet_address] = positions.get(comet_address, {})
+            positions[comet_address]["borrowred"] = borrowed.as_dict(decimals)
 
     return {
         "protocol": "Compoundv3",
