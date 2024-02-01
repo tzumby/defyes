@@ -5,7 +5,6 @@ repo_dir := $(shell git rev-parse --show-toplevel)
 docker_base_run := docker run --rm -i \
   -v $(PWD):/repo \
   -v $(PWD)/.tmp:/tmp \
-  -v /home/fito/laburo/karpatkey/src/karpatkit/src/karpatkit:/usr/local/lib/python3.10/site-packages/karpatkit -v /home/fito/laburo/karpatkey/src/karpatkit/src/defabipedia:/usr/local/lib/python3.10/site-packages/defabipedia \
   -e HOME=/repo/.home \
   -e KKIT_CACHE_ENABLE=$(KKIT_CACHE_ENABLE) \
   -e KKIT_CACHE_CLEAR=$(KKIT_CACHE_CLEAR) \
