@@ -1,4 +1,5 @@
 import logging
+from contextlib import suppress
 from decimal import Decimal
 from typing import Union
 
@@ -7,9 +8,10 @@ from defabipedia.tokens import EthereumTokenAddr, GnosisTokenAddr
 from karpatkit.cache import const_call
 from karpatkit.constants import Address
 from karpatkit.explorer import ChainExplorer
+from karpatkit.helpers import suppress_error_codes
 from karpatkit.node import get_node
 from web3 import Web3
-from web3.exceptions import ContractLogicError
+from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import balance_of, get_contract, get_decimals, get_logs_web3, to_token_amount
 from defyes.lazytime import Duration, Time
@@ -135,83 +137,52 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
     return gauge_address
 
 
-def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=True):
-    # FIXME: this should be splitted into 2 functions for version and for contract
-    # FIXME: nested try/except abuse
+def working_version_request(gauge_contract):
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.version())
+        if gauge_contract.w3._network_name != Chain.ETHEREUM:
+            return "ChildGauge"
+        return "LiquidityGaugeV5"
 
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
+        const_call(gauge_contract.functions.crv_token())
+        return "LiquidityGaugeV3"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
+        return "RewardsOnlyGauge"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.minter())
+        const_call(gauge_contract.functions.decimals())
+        const_call(gauge_contract.functions.claimable_reward(Address.ZERO))
+        return "LiquidityGaugeReward"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.minter())
+        const_call(gauge_contract.functions.decimals())
+        const_call(gauge_contract.functions.decimals())
+        return "LiquidityGaugeV2"
+
+    with suppress(ContractLogicError):
+        const_call(gauge_contract.functions.minter())
+        return "LiquidityGauge"
+
+    return "LiquidityGaugeV4"
+
+
+def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=True):
     if web3 is None:
         web3 = get_node(blockchain)
 
     # The ABI used to get the Gauge Contract is a general ABI for all types. This is because some gauges do not have
     # their ABIs available in the explorers
     gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
-
-    try:
-        const_call(gauge_contract.functions.version())
-
-        if blockchain != Chain.ETHEREUM:
-            if only_version:
-                return "ChildGauge"
-            else:
-                return ["ChildGauge", gauge_contract]
-
-        if only_version:
-            return "LiquidityGaugeV5"
-        else:
-            return ["LiquidityGaugeV5", gauge_contract]
-    except ContractLogicError:
-        pass
-
-    try:
-        const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
-
-        try:
-            const_call(gauge_contract.functions.crv_token())
-
-            if only_version:
-                return "LiquidityGaugeV3"
-            else:
-                return ["LiquidityGaugeV3", gauge_contract]
-
-        except ContractLogicError:
-            if only_version:
-                return "RewardsOnlyGauge"
-            else:
-                return ["RewardsOnlyGauge", gauge_contract]
-
-    except ContractLogicError:
-        pass
-
-    try:
-        const_call(gauge_contract.functions.minter())
-
-        try:
-            const_call(gauge_contract.functions.decimals())
-
-            if only_version:
-                return "LiquidityGaugeV2"
-            else:
-                return ["LiquidityGaugeV2", gauge_contract]
-
-        except ContractLogicError:
-            try:
-                const_call(gauge_contract.functions.claimable_reward(Address.ZERO))
-                if only_version:
-                    return "LiquidityGaugeReward"
-                else:
-                    return ["LiquidityGaugeReward", gauge_contract]
-
-            except ContractLogicError:
-                if only_version:
-                    return "LiquidityGauge"
-                else:
-                    return ["LiquidityGauge", gauge_contract]
-
-    except ContractLogicError:
-        if only_version:
-            return "LiquidityGaugeV4"
-        else:
-            return ["LiquidityGaugeV4", gauge_contract]
+    version = working_version_request(gauge_contract)
+    if only_version:
+        return version
+    return [version, gauge_contract]
 
 
 def get_pool_address(web3, lptoken_address, block, blockchain):
@@ -322,10 +293,9 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-    try:
+    lptoken_data["minter"] = None
+    with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
         lptoken_data["minter"] = const_call(lptoken_data["contract"].functions.minter())
-    except:
-        lptoken_data["minter"] = None
 
     lptoken_data["decimals"] = const_call(lptoken_data["contract"].functions.decimals())
     lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
@@ -609,10 +579,9 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
 
     lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
 
-    try:
+    minter = None
+    with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
         minter = const_call(lptoken_contract.functions.minter())
-    except:
-        minter = None
 
     if minter is None:
         minter = get_pool_address(web3, lptoken_address, block, blockchain)
@@ -752,7 +721,7 @@ def get_base_apr(
         growth_prev = ((xcp_profit_prev / 2) + (xcp_profit_a_prev / 2) + Decimal(1**18)) / 2
         rate = ((growth - growth_prev) / growth_prev) / 2
         return rate
-    except:
+    except (ContractLogicError, BadFunctionCallOutput):
         virt_price = lp_contract.functions.get_virtual_price().call(block_identifier=block_end)
         virt_price_prev = lp_contract.functions.get_virtual_price().call(block_identifier=block_start)
         rate = (virt_price - virt_price_prev) / Decimal(virt_price_prev)
@@ -781,7 +750,7 @@ def swap_fees_v2(
             tvl_token = to_token_amount(address_token, balance_token, blockchain, web3, decimals=True)
             tvl_token *= Decimal(get_price(address_token, block_end, blockchain)[0])
             balance.append(tvl_token)
-        except:
+        except (ContractLogicError, BadFunctionCallOutput):
             break
     fees = rate * sum(balance)
     return fees

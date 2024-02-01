@@ -59,13 +59,85 @@ def args_name_gen(used_names: set, start: int = 0):
         used_names_.add(name)
 
 
+def filter_abi_items(abi_list, always_include_methods):
+    for item in abi_list:
+        inputs = item.get("inputs", None)
+        method_name = item.get("name", None)
+        if item["type"] in ["constructor", "receive", "error", "event"]:
+            continue
+
+        if (
+            inputs is not None
+            and method_name is not None
+            and (method_name in always_include_methods or item.get("stateMutability") != "nonpayable")
+            and method_name != "class"
+        ):
+            yield item
+
+
+def process_method_name(method_name, method_names):
+    method_name_snake = camel_to_snake(method_name)
+    if method_name_snake == "list":
+        method_name_snake = "_list"
+
+    n = 1
+    while method_name_snake in method_names:
+        method_name_snake = f"{method_name_snake}_{n}"
+        n += 1
+
+    return method_name_snake
+
+
+def process_arguments(inputs, type_conversion):
+    args = []
+    args_names = []
+    awesome_names = args_name_gen(used_names=set(arg.get("name", "") for arg in inputs))
+    for arg, auto_name in zip(inputs, awesome_names):
+        arg_name = camel_to_snake(arg.get("name") or auto_name)
+        if keyword.iskeyword(arg_name):
+            arg_name += "_"
+        arg_type = type_conversion.get(arg["type"], arg["type"])
+        args.append(f"{arg_name}: {arg_type}")
+        args_names.append(arg_name)
+    return args, args_names
+
+
+def process_return_types(outputs, type_conversion):
+    if not outputs:
+        return "", ""
+    return_types = [type_conversion.get(output["type"], output["type"]) for output in outputs]
+    return_names = [output.get("name", "") for output in outputs]
+    return_str = f" -> {return_types[0]}" if len(return_types) == 1 else f' -> tuple[{", ".join(return_types)}]'
+    return_docstring = (
+        "\n            ".join(textwrap.wrap(f'Output: {", ".join(return_names)}')) if return_names[0] != "" else ""
+    )
+    return return_str, return_docstring
+
+
+def construct_method_string(
+    original_method_name, method_name, args, args_names, return_str, return_docstring, is_const_call
+):
+    args_str = ", " + ", ".join(args) if args else ""
+    args_names = ", ".join(args_names) if args_names else ""
+    method_str = "    @property\n" if not args else ""
+    method_str += f"    def {method_name}(self{args_str}){return_str}:\n"
+    method_str += f'        """\n            {return_docstring}\n        """\n' if return_docstring else ""
+    if is_const_call:
+        method_str += f"        return const_call(self.contract.functions.{original_method_name}({args_names}))\n"
+    else:
+        method_str += f"        return self.contract.functions.{original_method_name}({args_names}).call(block_identifier=self.block)\n"
+    return method_str
+
+
 def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_methods=[]):
     TYPE_CONVERSION = {
         "uint8": "int",
         "uint64": "int",
         "uint16": "int",
         "uint32": "int",
+        "uint96": "int",
         "uint256": "int",
+        "int104": "int",
         "int256": "int",
         "uint128": "int",
         "uint208": "int",
@@ -77,80 +149,30 @@ def generate_methods_from_abi(abi_path, const_call_methods=[], always_include_me
         "address[]": "list[str]",
         "string": "str",
         "bytes32": "bytes",
+        "bytes32[]": "list[bytes]",
         "bytes4": "bytes",
         "tuple[]": "list[tuple]",
     }
-
     with open(abi_path) as f:
         abi_list = json.load(f)
 
     methods = []
-    for item in abi_list:
-        if item["type"] in ["constructor", "receive", "error", "event"]:
-            continue
-        try:
-            method_name = item["name"]
-        except KeyError as e:
-            raise KeyError(f"{e!r} for {item}") from e
+    method_names = []
 
-        method_name_snake = camel_to_snake(method_name)
-        if method_name_snake not in always_include_methods:
-            item_state = item.get("stateMutability", "")
-            if item_state == "nonpayable":
-                continue
-
-        awesome_names = args_name_gen(used_names=set(arg.get("name", "") for arg in item["inputs"]))
-        args = []
-        args_names = []
-        for arg, auto_name in zip(item["inputs"], awesome_names):
-            arg_name = camel_to_snake(arg.get("name") or auto_name)
-            if keyword.iskeyword(arg_name):
-                arg_name += "_"
-            arg_type = TYPE_CONVERSION.get(arg["type"], arg["type"])
-            args.append(f"{arg_name}: {arg_type}")
-            args_names.append(arg_name)
-
-        method_str = ""
-        if args:
-            args_str = ", " + ", ".join(args)
-            args_names = ", ".join(args_names)
-        else:
-            method_str += "    @property\n"
-            args_str = ""
-            args_names = ""
-
-        return_str = ""
-        return_docstring = ""
-        outputs = item.get("outputs", [])
-        if outputs:
-            return_types = []
-            return_names = []
-            for output in outputs:
-                output_type = output.get("type", "")
-                output_name = output.get("name", "")
-                try:
-                    return_type = TYPE_CONVERSION[output_type]
-                except KeyError:
-                    return_type = output_type
-                return_types.append(return_type)
-                return_names.append(output_name)
-
-            if len(return_types) == 1:
-                return_str = f" -> {return_types[0]}"
-            else:
-                return_str = f' -> tuple[{", ".join(return_types)}]'
-                return_docstring = f'        Output: {", ".join(return_names)}\n'
-                lines = textwrap.wrap(return_docstring)
-                return_docstring = "\n            ".join(lines)
-
-        if method_name in const_call_methods:
-            ret = f"        return const_call(self.contract.functions.{method_name}({args_names}))\n"
-        else:
-            ret = f"        return self.contract.functions.{method_name}({args_names}).call(block_identifier=self.block)\n"
-        method_str += f"    def {method_name_snake}(self{args_str}){return_str}:\n"
-        method_str += f'        """\n{return_docstring}\n        """\n' if return_docstring else ""
-        method_str += ret
-
+    for item in filter_abi_items(abi_list, always_include_methods):
+        method_name_snake = process_method_name(item["name"], method_names)
+        method_names.append(method_name_snake)
+        args, args_names = process_arguments(item["inputs"], TYPE_CONVERSION)
+        return_str, return_docstring = process_return_types(item.get("outputs", []), TYPE_CONVERSION)
+        method_str = construct_method_string(
+            item["name"],
+            method_name_snake,
+            args,
+            args_names,
+            return_str,
+            return_docstring,
+            item["name"] in const_call_methods,
+        )
         methods.append(method_str)
 
     return "\n".join(methods)

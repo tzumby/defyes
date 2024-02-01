@@ -7,6 +7,7 @@ from karpatkit.cache import const_call
 from karpatkit.node import get_node
 from tqdm import tqdm
 from web3 import Web3
+from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import get_contract, get_decimals, get_logs_web3
 
@@ -74,9 +75,9 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
                                 block=block,
                             )
                         )
-                    except:
+                    except (ContractLogicError, BadFunctionCallOutput):
                         pass
-            except:
+            except KeyError:
                 pass
         else:
             campaign_counter = 0
@@ -178,7 +179,7 @@ def get_all_rewards(
 
                 try:
                     rewards[reward_tokens[i]] += reward_token_amount
-                except:
+                except KeyError:
                     rewards[reward_tokens[i]] = reward_token_amount
 
         for key in rewards.keys():
@@ -226,7 +227,7 @@ def underlying(
     for i in range(len(lptoken_data["reserves"])):
         try:
             getattr(lptoken_data["contract"].functions, "token" + str(i))
-        except:
+        except AttributeError:
             continue
 
         token_address = lptoken_data["token" + str(i)]
@@ -277,7 +278,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
     for i in range(len(reserves)):
         try:
             func = getattr(lptoken_contract.functions, "token" + str(i))
-        except:
+        except AttributeError:
             continue
 
         token_address = const_call(func())
@@ -337,7 +338,7 @@ def update_db(output_file=DB_FILE, block="latest"):
     try:
         with open(DB_FILE, "r") as db_file:
             db_data = json.load(db_file)
-    except:
+    except FileNotFoundError:
         db_data = {Chain.ETHEREUM: {}, Chain.GNOSIS: {}}
 
     blockchain = ""
@@ -357,7 +358,7 @@ def update_db(output_file=DB_FILE, block="latest"):
 
             try:
                 db_data[blockchain][stakable_token]
-            except:
+            except KeyError:
                 db_data[blockchain][stakable_token] = []
 
             db_data[blockchain][stakable_token].append(Web3.to_checksum_address(distribution_address))

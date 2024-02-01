@@ -36,7 +36,7 @@
   },
   "vebal_fee_distributor": {
     "always_include": [
-        "claim_tokens"
+        "claimTokens"
     ]
   }
 }

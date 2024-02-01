@@ -83,9 +83,15 @@ class BaseVault:
         return self.contract.functions.controller().call(block_identifier=self.block)
 
     def convert_to_assets(self, shares: int) -> int:
+        """
+        Output: assets
+        """
         return self.contract.functions.convertToAssets(shares).call(block_identifier=self.block)
 
     def convert_to_shares(self, assets: int) -> int:
+        """
+        Output: shares
+        """
         return self.contract.functions.convertToShares(assets).call(block_identifier=self.block)
 
     @property

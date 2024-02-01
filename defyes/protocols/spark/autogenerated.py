@@ -149,8 +149,8 @@ class LendingPool:
 
     def get_user_account_data(self, user: str) -> tuple[int, int, int, int, int, int]:
         """
-        Output: totalCollateralBase, totalDebtBase,
-            availableBorrowsBase, currentLiquidationThreshold, ltv, healthFactor
+        Output: totalCollateralBase, totalDebtBase, availableBorrowsBase,
+        currentLiquidationThreshold, ltv, healthFactor
         """
         return self.contract.functions.getUserAccountData(user).call(block_identifier=self.block)
 
@@ -253,12 +253,18 @@ class ProtocolDataProvider:
         return self.contract.functions.getFlashLoanEnabled(asset).call(block_identifier=self.block)
 
     def get_interest_rate_strategy_address(self, asset: str) -> str:
+        """
+        Output: irStrategyAddress
+        """
         return self.contract.functions.getInterestRateStrategyAddress(asset).call(block_identifier=self.block)
 
     def get_liquidation_protocol_fee(self, asset: str) -> int:
         return self.contract.functions.getLiquidationProtocolFee(asset).call(block_identifier=self.block)
 
     def get_paused(self, asset: str) -> bool:
+        """
+        Output: isPaused
+        """
         return self.contract.functions.getPaused(asset).call(block_identifier=self.block)
 
     def get_reserve_caps(self, asset: str) -> tuple[int, int]:
@@ -272,17 +278,17 @@ class ProtocolDataProvider:
     ) -> tuple[int, int, int, int, int, bool, bool, bool, bool, bool]:
         """
         Output: decimals, ltv, liquidationThreshold, liquidationBonus,
-            reserveFactor, usageAsCollateralEnabled, borrowingEnabled,
-            stableBorrowRateEnabled, isActive, isFrozen
+        reserveFactor, usageAsCollateralEnabled, borrowingEnabled,
+        stableBorrowRateEnabled, isActive, isFrozen
         """
         return self.contract.functions.getReserveConfigurationData(asset).call(block_identifier=self.block)
 
     def get_reserve_data(self, asset: str) -> tuple[int, int, int, int, int, int, int, int, int, int, int, int]:
         """
         Output: unbacked, accruedToTreasuryScaled, totalAToken,
-            totalStableDebt, totalVariableDebt, liquidityRate, variableBorrowRate,
-            stableBorrowRate, averageStableBorrowRate, liquidityIndex,
-            variableBorrowIndex, lastUpdateTimestamp
+        totalStableDebt, totalVariableDebt, liquidityRate, variableBorrowRate,
+        stableBorrowRate, averageStableBorrowRate, liquidityIndex,
+        variableBorrowIndex, lastUpdateTimestamp
         """
         return self.contract.functions.getReserveData(asset).call(block_identifier=self.block)
 
@@ -292,7 +298,7 @@ class ProtocolDataProvider:
     def get_reserve_tokens_addresses(self, asset: str) -> tuple[str, str, str]:
         """
         Output: aTokenAddress, stableDebtTokenAddress,
-            variableDebtTokenAddress
+        variableDebtTokenAddress
         """
         return self.contract.functions.getReserveTokensAddresses(asset).call(block_identifier=self.block)
 
@@ -307,9 +313,8 @@ class ProtocolDataProvider:
 
     def get_user_reserve_data(self, asset: str, user: str) -> tuple[int, int, int, int, int, int, int, int, bool]:
         """
-        Output: currentATokenBalance, currentStableDebt,
-            currentVariableDebt, principalStableDebt, scaledVariableDebt,
-            stableBorrowRate, liquidityRate, stableRateLastUpdated,
-            usageAsCollateralEnabled
+        Output: currentATokenBalance, currentStableDebt, currentVariableDebt,
+        principalStableDebt, scaledVariableDebt, stableBorrowRate,
+        liquidityRate, stableRateLastUpdated, usageAsCollateralEnabled
         """
         return self.contract.functions.getUserReserveData(asset, user).call(block_identifier=self.block)

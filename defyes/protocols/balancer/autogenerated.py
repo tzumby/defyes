@@ -377,6 +377,9 @@ class Vault:
     def batch_swap(
         self, kind: int, swaps: list[tuple], assets: list[str], funds: tuple, limits: list[int], deadline: int
     ) -> list[int]:
+        """
+        Output: assetDeltas
+        """
         return self.contract.functions.batchSwap(kind, swaps, assets, funds, limits, deadline).call(
             block_identifier=self.block
         )
@@ -393,6 +396,9 @@ class Vault:
         return self.contract.functions.getDomainSeparator().call(block_identifier=self.block)
 
     def get_internal_balance(self, user: str, tokens: list[str]) -> list[int]:
+        """
+        Output: balances
+        """
         return self.contract.functions.getInternalBalance(user, tokens).call(block_identifier=self.block)
 
     def get_next_nonce(self, user: str) -> int:
@@ -406,9 +412,6 @@ class Vault:
         return self.contract.functions.getPausedState().call(block_identifier=self.block)
 
     def get_pool(self, pool_id: bytes) -> tuple[str, int]:
-        """
-        Output: ,
-        """
         return self.contract.functions.getPool(pool_id).call(block_identifier=self.block)
 
     def get_pool_token_info(self, pool_id: bytes, token: str) -> tuple[int, int, int, str]:
@@ -437,6 +440,9 @@ class Vault:
         return self.contract.functions.manageUserBalance(ops).call(block_identifier=self.block)
 
     def swap(self, single_swap: tuple, funds: tuple, limit: int, deadline: int) -> int:
+        """
+        Output: amountCalculated
+        """
         return self.contract.functions.swap(single_swap, funds, limit, deadline).call(block_identifier=self.block)
 
 

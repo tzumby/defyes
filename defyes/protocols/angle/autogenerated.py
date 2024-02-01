@@ -43,6 +43,9 @@ class Oracle:
 
     @property
     def read(self) -> int:
+        """
+        Output: quoteAmount
+        """
         return self.contract.functions.read().call(block_identifier=self.block)
 
 
@@ -183,9 +186,15 @@ class Steur:
         return self.contract.functions.computeUpdatedAssets(_total_assets, exp).call(block_identifier=self.block)
 
     def convert_to_assets(self, shares: int) -> int:
+        """
+        Output: assets
+        """
         return self.contract.functions.convertToAssets(shares).call(block_identifier=self.block)
 
     def convert_to_shares(self, assets: int) -> int:
+        """
+        Output: shares
+        """
         return self.contract.functions.convertToShares(assets).call(block_identifier=self.block)
 
     @property
@@ -194,6 +203,9 @@ class Steur:
 
     @property
     def estimated_apr(self) -> int:
+        """
+        Output: apr
+        """
         return self.contract.functions.estimatedAPR().call(block_identifier=self.block)
 
     def is_governor(self, admin: str) -> bool:

@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from contextlib import suppress
 from decimal import Decimal
 from pathlib import Path
 from typing import Union
@@ -9,9 +10,10 @@ from defabipedia import Chain
 from karpatkit.cache import const_call
 from karpatkit.constants import Address
 from karpatkit.explorer import ChainExplorer
+from karpatkit.helpers import suppress_error_codes
 from karpatkit.node import get_node
 from web3 import Web3
-from web3.exceptions import ABIFunctionNotFound
+from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import get_contract, get_decimals, get_logs_web3, last_block, to_token_amount
 from defyes.lazytime import Duration, Time
@@ -124,7 +126,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
 
                 return result
 
-            except:
+            except (ContractLogicError, BadFunctionCallOutput, KeyError):
                 try:
                     result["chef_contract"] = get_chef_contract(web3, block, blockchain, v1=True)
                     result["pool_info"] = {
@@ -139,7 +141,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
 
                     return result
 
-                except:
+                except (ContractLogicError, BadFunctionCallOutput, KeyError):
                     return None
 
         else:
@@ -157,7 +159,7 @@ def get_pool_info(web3, lptoken_address, block, blockchain, use_db=True):
 
                 return result
 
-            except:
+            except (ContractLogicError, BadFunctionCallOutput, KeyError):
                 return None
 
     else:
@@ -684,16 +686,15 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block="latest")
             block_identifier=block
         )[0][0]
 
-        try:
+        reward_data["rewardPerSecond"] = Decimal(0)
+        with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
             reward_data["rewardPerSecond"] = rewarder_contract.functions.rewardPerSecond().call(
                 block_identifier=block
             ) * (rewarder_alloc_point / Decimal(rewarder_total_alloc_point))
-        except:
-            reward_data["rewardPerSecond"] = Decimal(0)
 
         result.append(reward_data)
 
-    except:
+    except (ContractLogicError, BadFunctionCallOutput):
         pass
 
     return result
@@ -787,7 +788,7 @@ def update_db():
         with open(str(Path(os.path.abspath(__file__)).resolve().parents[0]) + "/db/SushiSwap_db.json", "r") as db_file:
             # Reading from json file
             db_data = json.load(db_file)
-    except:
+    except FileNotFoundError:
         db_data = {
             Chain.ETHEREUM: {"poolsv2": {}, "poolsv1": {}},
             Chain.POLYGON: {"pools": {}},

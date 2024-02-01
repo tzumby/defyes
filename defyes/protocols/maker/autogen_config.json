@@ -1,0 +1,19 @@
+{
+  "proxy_registry": {
+  },
+  "cdp_manager": {
+  },
+  "ilk_registry": {
+  },
+  "vat": {
+  },
+  "mcd_spot": {
+  },
+  "pot": {
+    "always_include": [
+      "drip"
+    ]
+  },
+  "dsr_manager": {
+  }
+}
