@@ -50,6 +50,9 @@ ABI_REGISTRY_CRYPTO_V2_POOLS = '[{"stateMutability":"view","type":"function","na
 # Registry for Crypto Factory Pools ABI - get_gauge, pool_list, pool_count
 ABI_REGISTRY_CRYPTO_FACTORY_POOLS = '[{"stateMutability":"view","type":"function","name":"get_gauge","inputs":[{"name":"_pool","type":"address"}],"outputs":[{"name":"","type":"address"}],"gas":3089}, {"stateMutability":"view","type":"function","name":"pool_list","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}],"gas":3573}, {"stateMutability":"view","type":"function","name":"pool_count","inputs":[],"outputs":[{"name":"","type":"uint256"}],"gas":3558}]'
 
+# Registry for Crypto Factory V2 Pools ABI - get_gauge, pool_list, pool_count
+ABI_REGISTRY_CRYPTO_FACTORY_V2_POOLS = '[{"stateMutability":"view","type":"function","name":"get_gauge","inputs":[{"name":"_pool","type":"address"}],"outputs":[{"name":"","type":"address"}]}, {"stateMutability":"view","type":"function","name":"pool_list","inputs":[{"name":"arg0","type":"uint256"}],"outputs":[{"name":"","type":"address"}]}, {"stateMutability":"view","type":"function","name":"pool_count","inputs":[],"outputs":[{"name":"","type":"uint256"}]}]'
+
 # LP Token ABI - decimals, totalSupply, minter, balanceOf
 ABI_LPTOKEN = '[{"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":""}],"name":"decimals","inputs":[],"gas":288}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":""}],"name":"totalSupply","inputs":[],"gas":2808}, {"type":"function","stateMutability":"view","outputs":[{"type":"address","name":""}],"name":"minter","inputs":[],"gas":2838}, {"type":"function","stateMutability":"view","outputs":[{"type":"uint256","name":""}],"name":"balanceOf","inputs":[{"type":"address","name":"arg0"}],"gas":2963}]'
 
@@ -91,6 +94,8 @@ def get_registry_contract(web3, id, block, blockchain):
         abi = ABI_REGISTRY_CRYPTO_V2_POOLS
     elif id == 6:
         abi = ABI_REGISTRY_CRYPTO_FACTORY_POOLS
+    elif id == 11:
+        abi = ABI_REGISTRY_CRYPTO_FACTORY_V2_POOLS
     else:
         abi = ABI_REGISTRY_REGULAR_POOLS
 
@@ -127,6 +132,13 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
         if registry_contract.address != Address.ZERO:
             gauge_address = const_call(registry_contract.functions.get_gauge(pool_address))
 
+    # 5: Try to retrieve the gauge address assuming the pool is a Crypto V2 Factory Pool
+    if gauge_address == Address.ZERO:
+        registry_contract = get_registry_contract(web3, 11, block, blockchain)
+
+        if registry_contract.address != Address.ZERO:
+            gauge_address = const_call(registry_contract.functions.get_gauge(pool_address))
+
     # Pools which don't have their gauge registered in none of the registries
     if gauge_address == Address.ZERO and blockchain != Chain.ETHEREUM:
         x_chain_factory_contract = get_contract(
@@ -139,10 +151,14 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
 
 def working_version_request(gauge_contract):
     with suppress(ContractLogicError):
-        const_call(gauge_contract.functions.version())
+        version = const_call(gauge_contract.functions.version())
         if gauge_contract.w3._network_name != Chain.ETHEREUM:
             return "ChildGauge"
-        return "LiquidityGaugeV5"
+        else:
+            if "v6" in version:
+                return "LiquidityGaugeV6"
+            elif "v5" in version:
+                return "LiquidityGaugeV5"
 
     with suppress(ContractLogicError):
         const_call(gauge_contract.functions.claimable_reward_write(Address.ZERO, Address.ZERO))
@@ -331,7 +347,7 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
     gauge_version = gauge_data[0]
     gauge_contract = gauge_data[1]
 
-    if gauge_version in ["LiquidityGaugeV5", "LiquidityGaugeV4", "LiquidityGaugeV2", "ChildGauge"]:
+    if gauge_version in ["LiquidityGaugeV6", "LiquidityGaugeV5", "LiquidityGaugeV4", "LiquidityGaugeV2", "ChildGauge"]:
         i = 0
         while True:
             token_address = const_call(gauge_contract.functions.reward_tokens(i))
@@ -773,16 +789,3 @@ def get_swap_fees_APR(
         return apy
     else:
         return apr
-
-    # blockchain = Chain.ETHEREUM
-
-
-# lptoken = '0xd51a44d3fae010294c616388b506acda1bfaae46'
-# blockstart = date_to_block('2023-03-02 00:00:00',blockchain)
-# blockend = date_to_block('2023-02-20 19:24:00',blockchain)
-
-# feess = swap_fees_v2(lptoken,blockchain,blockstart)
-# print(feess)
-
-# feesss = get_swap_fees_APR(lptoken,blockchain,blockstart)
-# print(feesss)
