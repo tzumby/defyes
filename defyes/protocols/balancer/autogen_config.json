@@ -1,42 +1,42 @@
 {
   "gauge": {
     "const_call": [
-        "decimals"
+      "decimals"
     ],
     "always_include": [
-        "claimable_tokens"
+      "claimable_tokens"
     ]
   },
   "gauge_factory": {
     "const_call": [
-        "getPoolGauge"
+      "getPoolGauge"
     ]
   },
-  "gauge_reward_helper": {
-  },
+  "gauge_reward_helper": {},
   "liquidity_pool": {
     "const_call": [
-        "decimals",
-        "getPoolId",
-        "POOL_ID",
-        "getBptIndex"
+      "decimals",
+      "getPoolId",
+      "POOL_ID",
+      "getBptIndex"
     ]
   },
   "pool_token": {
     "const_call": [
-        "decimals"
+      "decimals"
     ]
   },
-  "vault": {
-  },
+  "vault": {},
   "vebal": {
     "const_call": [
-        "token"
+      "token"
     ]
   },
   "vebal_fee_distributor": {
     "always_include": [
-        "claimTokens"
+      "claimTokens"
     ]
-  }
+  },
+  "abpt": {},
+  "bpool": {}
 }
