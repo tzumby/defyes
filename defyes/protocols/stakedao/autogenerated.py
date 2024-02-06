@@ -37,6 +37,10 @@ class Sdtoken:
         self.contract = node.eth.contract(address=self.address, abi=load_abi(__file__, "sdtoken.json"))
 
     @property
+    def minter(self) -> str:
+        return self.contract.functions.minter().call(block_identifier=self.block)
+
+    @property
     def dao(self) -> str:
         return self.contract.functions.DAO().call(block_identifier=self.block)
 

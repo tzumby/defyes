@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from defabipedia import Chain
 from web3 import Web3
+from web3.exceptions import ContractLogicError
 
 from defyes.functions import ensure_a_block_number
 from defyes.types import Addr, Token, TokenAmount
@@ -68,7 +69,7 @@ def get_protocol_data_for(
     if isinstance(lptoken_address, str):
         lptoken_address = [lptoken_address]
     if lptoken_address is None:
-        lptoken_address = TOKEN_ADDRS
+        lptoken_address = TOKEN_ADDRS[blockchain]
 
     for lptoken_addr in lptoken_address:
         position = {}
@@ -77,7 +78,11 @@ def get_protocol_data_for(
             raise ValueError(f"Wrong sdtoken provided ({lptoken_addr}) for {blockchain}")
 
         sd_token = Sdtoken(blockchain, block_id, lptoken_addr)
-        operator = Operator(blockchain, block_id, sd_token.operator)
+        try:
+            operator_addr = sd_token.operator
+        except ContractLogicError:
+            operator_addr = sd_token.minter
+        operator = Operator(blockchain, block_id, operator_addr)
         gauge = Gauge(blockchain, block_id, operator.gauge)
 
         sd_balance = gauge.balance_of(wallet)
@@ -89,7 +94,13 @@ def get_protocol_data_for(
                             "address": gauge.staking_token,
                             "balance": sd_balance / Decimal(10**gauge.decimal_staking_token if decimals else 1),
                         }
-                    ]
+                    ],
+                    "underlyings": [
+                        {
+                            "address": operator.token,
+                            "balance": sd_balance / Decimal(10**gauge.decimal_staking_token if decimals else 1),
+                        }
+                    ],
                 }
             }
         rewards = gauge.get_rewards(wallet)
@@ -97,5 +108,6 @@ def get_protocol_data_for(
             position["staked"] = position.get("staked", "")
             position["staked"]["unclaimed_rewards"] = [reward.as_dict(decimals) for reward in rewards]
 
-        ret["positions"][lptoken_addr] = position
-    return ret, gauge, operator
+        if position:
+            ret["positions"][lptoken_addr] = position
+    return ret
