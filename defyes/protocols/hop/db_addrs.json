@@ -1,4 +1,5 @@
 {
+  "version": "v0.0.190",
   "bonders": {
     "USDC": {
       "ethereum": {
