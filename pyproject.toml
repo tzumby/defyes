@@ -23,7 +23,7 @@ dependencies = [
     "diskcache>=5.4.0,<6.0",
     "eth_abi>=2.0.0",
     "pandas>=1.3.5",
-    "karpatkit @ git+https://github.com/karpatkey/karpatkit.git@b6bb06c6893b631cad1f5ee44933d11d35a33c76",
+    "karpatkit @ git+https://github.com/karpatkey/karpatkit.git@2ef56b80ee03e95135830b429a388981cb0157c0",
     "requests>=2.28.1",
     "tqdm>=4.64.1",
     "web3>=6.3,<7.0",
