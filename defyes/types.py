@@ -44,7 +44,7 @@ class Token(Addr):
 
     def __repr__(self):
         if simple_repr:
-                return self.symbol
+            return self.symbol
         return f"{self.__class__.__name__}({str(self)!r}, {self.chain!r}, symbol={self.symbol!r})"
 
     @cached_property

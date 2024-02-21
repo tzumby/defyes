@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from defabipedia import Chain
 from karpatkit.constants import Address
 from web3 import Web3
@@ -23,7 +21,7 @@ def get_protocol_data_for(
     wallet = Web3.to_checksum_address(wallet)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    data = {'holdings': [], 'underlyings': [], 'unclaimed_rewards': [], 'financial_metrics': {}}
+    data = {"holdings": [], "underlyings": [], "unclaimed_rewards": [], "financial_metrics": {}}
 
     dp = DepositPool(blockchain, block_id, lptoken_address)
     token = Token.get_instance(lptoken_address, blockchain, block_id)
