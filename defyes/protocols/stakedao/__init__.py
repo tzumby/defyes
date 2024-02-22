@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from defabipedia import Chain
 from web3 import Web3
 from web3.exceptions import ContractLogicError
@@ -50,64 +48,32 @@ class Gauge(Gauge):
 def get_protocol_data_for(
     blockchain: str,
     wallet: str,
-    lptoken_address: str | list = None,
+    lptoken_address: str,
     block: int | str = "latest",
     decimals: bool = True,
 ) -> dict:
     wallet = Addr(Web3.to_checksum_address(wallet))
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
     block_id = ensure_a_block_number(block, blockchain)
-    ret = {
-        "blockchain": blockchain,
-        "block_id": block_id,
-        "protocol": "Stake DAO",
-        "version": 0,
-        "wallet": wallet,
-        "positions": {},
-        "positions_key": "lptoken_address",
-    }
+    data = {"holdings": [], "underlyings": [], "unclaimed_rewards": [], "financial_metrics": {}}
 
-    if isinstance(lptoken_address, str):
-        lptoken_address = [lptoken_address]
-    if lptoken_address is None:
-        lptoken_address = TOKEN_ADDRS[blockchain]
+    if lptoken_address not in TOKEN_ADDRS[blockchain]:
+        raise ValueError(f"Wrong sdtoken provided ({lptoken_address}) for {blockchain}")
 
-    for lptoken_addr in lptoken_address:
-        position = {}
-        lptoken_addr = Addr(Web3.to_checksum_address(lptoken_addr))
-        if lptoken_addr not in TOKEN_ADDRS[blockchain]:
-            raise ValueError(f"Wrong sdtoken provided ({lptoken_addr}) for {blockchain}")
+    sd_token = Sdtoken(blockchain, block_id, lptoken_address)
+    try:
+        operator_addr = sd_token.operator
+    except ContractLogicError:
+        operator_addr = sd_token.minter
+    operator = Operator(blockchain, block_id, operator_addr)
+    gauge = Gauge(blockchain, block_id, operator.gauge)
 
-        sd_token = Sdtoken(blockchain, block_id, lptoken_addr)
-        try:
-            operator_addr = sd_token.operator
-        except ContractLogicError:
-            operator_addr = sd_token.minter
-        operator = Operator(blockchain, block_id, operator_addr)
-        gauge = Gauge(blockchain, block_id, operator.gauge)
+    sd_balance = gauge.balance_of(wallet)
+    if sd_balance:
+        htoken = Token.get_instance(gauge.staking_token, blockchain, block_id)
+        data["holdings"] = [TokenAmount.from_teu(sd_balance, htoken)]
+        utoken = Token.get_instance(operator.token, blockchain, block_id)
+        data["underlyings"] = [TokenAmount.from_teu(sd_balance, utoken)]
+    data["unclaimed_rewards"] = gauge.get_rewards(wallet)
 
-        sd_balance = gauge.balance_of(wallet)
-        if sd_balance:
-            position = {
-                "staked": {
-                    "holdings": [
-                        {
-                            "address": gauge.staking_token,
-                            "balance": sd_balance / Decimal(10**gauge.decimal_staking_token if decimals else 1),
-                        }
-                    ],
-                    "underlyings": [
-                        {
-                            "address": operator.token,
-                            "balance": sd_balance / Decimal(10**gauge.decimal_staking_token if decimals else 1),
-                        }
-                    ],
-                }
-            }
-        rewards = gauge.get_rewards(wallet)
-        if rewards:
-            position["staked"] = position.get("staked", "")
-            position["staked"]["unclaimed_rewards"] = [reward.as_dict(decimals) for reward in rewards]
-
-        if position:
-            ret["positions"][lptoken_addr] = position
-    return ret
+    return data
