@@ -175,8 +175,8 @@ def get_protocol_data_for(
             rate = ilk_data[1] / Decimal(10**27)
             balance = -1 * art * rate * Decimal(1 if decimals else 10**18)
 
-            token = Token.get_instance(gem, Chain.ETHEREUM)
-            token_dai = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM)
+            token = Token.get_instance(gem, Chain.ETHEREUM, block_id)
+            token_dai = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM, block_id)
             data["underlyings"] = [TokenAmount(ink, token), TokenAmount(balance, token_dai)]
             return data
         else:
@@ -185,7 +185,7 @@ def get_protocol_data_for(
     if lptoken_address == "na":
         iou = Iou(blockchain, block_id)
         balance = iou.balance_of(wallet)
-        token = Token.get_instance(EthereumTokenAddr.MKR, Chain.ETHEREUM)
+        token = Token.get_instance(EthereumTokenAddr.MKR, Chain.ETHEREUM, block_id)
         data["underlyings"] = [TokenAmount.from_teu(balance, token)]
         return data
 
@@ -195,9 +195,9 @@ def get_protocol_data_for(
         sdai_balance = sdai.balance_of(wallet)
         balance = int(sdai.convert_to_assets(sdai_balance))
         if blockchain == Chain.ETHEREUM:
-            token = Token.get_instance(EthereumTokenAddr.DAI, blockchain)
+            token = Token.get_instance(EthereumTokenAddr.DAI, blockchain, block_id)
         if blockchain == Chain.GNOSIS:
-            token = Token.get_instance(GnosisTokenAddr.DAI, blockchain)
+            token = Token.get_instance(GnosisTokenAddr.DAI, blockchain, block_id)
         data["underlyings"] = [TokenAmount.from_teu(balance, token)]
         return data
 
@@ -205,7 +205,7 @@ def get_protocol_data_for(
         dsr = DsrManager(blockchain, block_id)
         pot = Pot(blockchain, block_id)
         balance = Decimal(dsr.pie_of(wallet) * pot.chi) / Decimal(1e18) / Decimal(1e27)
-        token = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM)
+        token = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM, block_id)
         data["underlyings"] = [TokenAmount(balance, token)]
         return data
     return data

@@ -1,11 +1,15 @@
 import json
 import logging
-from decimal import Decimal
 from pathlib import Path
 
 import requests
-from karpatkit.constants import Address
+from defabipedia import Chain
+from defabipedia.tokens import ArbitrumTokenAddr, EthereumTokenAddr, GnosisTokenAddr, PolygonTokenAddr
+from karpatkit.constants import ABI_TOKEN_SIMPLIFIED, Address
+from karpatkit.explorer import ChainExplorer
+from karpatkit.node import get_node
 from web3 import Web3
+from web3.exceptions import ContractLogicError
 
 from defyes.functions import ensure_a_block_number
 from defyes.types import Addr, Token, TokenAmount
@@ -16,6 +20,15 @@ logger = logging.getLogger(__name__)
 
 DB_VERSION = "v0.0.190"
 DB_FILENAME = "db_addrs.json"
+
+
+BONDER_CHAINS = {
+    Chain.ETHEREUM: {"balance": 1500000, "token": EthereumTokenAddr.DAI},
+    Chain.GNOSIS: {"balance": 100000, "token": GnosisTokenAddr.DAI},
+    Chain.POLYGON: {"balance": 500000, "token": PolygonTokenAddr.DAI},
+    Chain.ARBITRUM: {"balance": 100000, "token": ArbitrumTokenAddr.DAI},
+    Chain.OPTIMISM: {"balance": 100000, "token": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"},
+}
 
 
 def update_db(filename=DB_FILENAME):
@@ -53,6 +66,13 @@ def get_lptokens_from_db(db_file=DB_FILENAME):
     return lp_tokens
 
 
+def get_lptoken_data_from_db(lptoken_address: str, blockchain: Chain):
+    possible_lp_tokens = get_lptokens_from_db()
+    for lptoken in possible_lp_tokens[blockchain]:
+        if lptoken["addr"] == lptoken_address:
+            return lptoken
+
+
 def get_rewards_contracts_from_db(db_file=DB_FILENAME):
     with open(Path(__file__).parent / db_file, "r") as infile:
         data = json.load(infile)["rewardsContracts"]
@@ -81,56 +101,81 @@ class Rewarder(Rewarder):
         return TokenAmount.from_teu(balance, t)
 
 
+class Bonder:
+    def __init__(self, blockchain: str, block: int) -> None:
+        self.block = block
+        self.blockchain = blockchain
+        self.address = "0x9298dfD8A0384da62643c2E98f437E820029E75E"
+        self.node = get_node(blockchain)
+
+    @property
+    def native_balance(self) -> int:
+        return self.node.eth.get_balance(self.address, self.block)
+
+    def balance_of(self, token_address: str) -> int:
+        balance = 0
+        token_address = Web3.to_checksum_address(token_address)
+        token_contract = self.node.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
+        try:
+            balance = token_contract.functions.balanceOf(self.address).call(block_identifier=self.block)
+        except ContractLogicError:
+            pass
+        return balance
+
+    @property
+    def decimals(self) -> int:
+        return 18
+
+
+def get_bonder_balances(block: int, blockchain: Chain) -> dict:
+    date = ChainExplorer(blockchain).time_from_block(block)
+
+    amounts = []
+    for chain, chain_data in BONDER_CHAINS.items():
+        chain_block = ChainExplorer(chain).block_from_time(date)
+        # STAKED DAI
+        balance = chain_data["balance"]
+        token = Token.get_instance(chain_data["token"], chain, chain_block)
+        amounts.append(TokenAmount(balance, token))
+
+        # NATIVE CURRENCY
+        bonder = Bonder(chain, chain_block)
+        token = Token.get_instance(Address.ZERO, chain, chain_block)
+        amounts.append(TokenAmount.from_teu(bonder.native_balance, token))
+
+    return amounts
+
+
 def get_protocol_data_for(
     blockchain: str,
     wallet: str,
-    lptoken_address: str | list,
+    lptoken_address: str,
     block: int | str = "latest",
     decimals: bool = True,
 ) -> dict:
     wallet = Addr(Web3.to_checksum_address(wallet))
+    lptoken_address = Web3.to_checksum_address(lptoken_address)
     block_id = ensure_a_block_number(block, blockchain)
-    ret = {
-        "blockchain": blockchain,
-        "block_id": block_id,
-        "protocol": "Hop AMM",
-        "version": 0,
-        "wallet": wallet,
-        "positions": {},
-        "positions_key": "lptoken_address",
-    }
+    data = {"holdings": [], "underlyings": [], "unclaimed_rewards": [], "financial_metrics": {}}
 
-    if isinstance(lptoken_address, str):
-        lptoken_address = [lptoken_address]
+    if lptoken_address == "0x9298dfD8A0384da62643c2E98f437E820029E75E":
+        data["underlyings"] = get_bonder_balances(block_id, blockchain)
+    else:
+        lptoken_data = get_lptoken_data_from_db(lptoken_address, blockchain)
+        if lptoken_data is None:
+            raise ValueError(f"Wrong lptoken provided ({lptoken_address}) for {blockchain}")
 
-    possible_lp_tokens = get_lptokens_from_db()
-    for lptoken_addr in lptoken_address:
-        lptoken_addr = Addr(Web3.to_checksum_address(lptoken_addr))
-        position = {}
-
-        token = None
-        for lptoken in possible_lp_tokens[blockchain]:
-            if lptoken["addr"] == lptoken_addr:
-                token = lptoken["token"]
-
-        if token is None:
-            raise ValueError(f"Wrong lptoken provided ({lptoken_addr}) for {blockchain}")
-
-        lpt = LiquidityPoolToken(blockchain, block_id, lptoken_addr)
+        lpt = LiquidityPoolToken(blockchain, block_id, lptoken_address)
         lp = LiquidityPool(blockchain, block_id, lpt.swap)
-        balance = lpt.balance_of(wallet)
-        if balance:
-            underlying_amounts = lp.get_underlyings(wallet, balance)
-            position = {
-                "liquidity": {
-                    "holdings": [
-                        {"address": lptoken_addr, "balance": balance / Decimal(10**lpt.decimals if decimals else 1)}
-                    ],
-                    "underlyings": [amount.as_dict(decimals) for amount in underlying_amounts],
-                }
-            }
 
-        reward_contracts = get_rewards_contracts_from_db()[blockchain][token]
+        # FIXME: review how to expose this information
+        # balance = lpt.balance_of(wallet)
+        # if balance:
+        #    token = Token.get_instance(lptoken_address, blockchain, block_id)
+        #    liquidity_holdings = [TokenAmount.from_teu(balance, token)]
+        #    liquidity_underlyings = [lp.get_underlyings(wallet, balance)]
+
+        reward_contracts = get_rewards_contracts_from_db()[blockchain][lptoken_data["token"]]
         staked_balance = 0
         reward_amounts = []
         for rewader in reward_contracts:
@@ -139,25 +184,11 @@ def get_protocol_data_for(
             unclaimed_reward = r.get_reward(wallet)
             if unclaimed_reward.amount > 0:
                 reward_amounts.append(r.get_reward(wallet))
+        data["unclaimed_rewards"] = reward_amounts
 
         if staked_balance > 0:
-            underlying_amounts = lp.get_underlyings(wallet, staked_balance)
-            position = {
-                "staked": {
-                    "holdings": [
-                        {
-                            "address": lptoken_addr,
-                            "balance": staked_balance / Decimal(10**lpt.decimals if decimals else 1),
-                        }
-                    ],
-                    "underlyings": [amount.as_dict(decimals) for amount in underlying_amounts],
-                }
-            }
+            token = Token.get_instance(lptoken_address, blockchain, block_id)
+            data["holdings"] = [TokenAmount.from_teu(staked_balance, token)]
+            data["underlyings"] = lp.get_underlyings(wallet, staked_balance)
 
-        if reward_amounts:
-            position["staked"] = position.get("staked", {})
-            position["staked"]["unclaimed_rewards"] = [amount.as_dict(decimals) for amount in reward_amounts]
-
-        if position:
-            ret["positions"][lptoken_addr] = position
-        return ret
+    return data
