@@ -38,13 +38,14 @@ class Token(Addr):
 
     @cached_property
     def symbol(self):
+        if self == Address.ZERO or self == Address.E:
+            return "ETH"
         return self.contract.symbol
 
     def __repr__(self):
         if simple_repr:
             return self.symbol
-        else:
-            return f"{self.__class__.__name__}({str(self)!r}, {self.chain!r}, symbol={self.symbol!r})"
+        return f"{self.__class__.__name__}({str(self)!r}, {self.chain!r}, symbol={self.symbol!r})"
 
     @cached_property
     def contract(self):

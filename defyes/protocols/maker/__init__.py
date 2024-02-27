@@ -153,6 +153,7 @@ def get_protocol_data_for(
     block_id = ensure_a_block_number(block, blockchain)
     wallet = Web3.to_checksum_address(wallet)
 
+    data = {"holdings": [], "underlyings": [], "rewards": [], "financial_metrics": {}}
     with suppress(ValueError):
         vault_id = int(lptoken_address)
         proxy = ProxyRegistry(blockchain, block_id)
@@ -174,37 +175,40 @@ def get_protocol_data_for(
             rate = ilk_data[1] / Decimal(10**27)
             balance = -1 * art * rate * Decimal(1 if decimals else 10**18)
 
-            token = Token.get_instance(gem, Chain.ETHEREUM)
-            token_dai = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM)
-            return [TokenAmount(ink, token), TokenAmount(balance, token_dai)]
+            token = Token.get_instance(gem, Chain.ETHEREUM, block_id)
+            token_dai = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM, block_id)
+            data["underlyings"] = [TokenAmount(ink, token), TokenAmount(balance, token_dai)]
+            return data
         else:
             raise ValueError(f"Wallet {wallet} does not have vault id: {vault_id}")
 
     if lptoken_address == "na":
         iou = Iou(blockchain, block_id)
         balance = iou.balance_of(wallet)
-        token = Token.get_instance(EthereumTokenAddr.MKR, Chain.ETHEREUM)
-        return [TokenAmount.from_teu(balance, token)]
+        token = Token.get_instance(EthereumTokenAddr.MKR, Chain.ETHEREUM, block_id)
+        data["underlyings"] = [TokenAmount.from_teu(balance, token)]
+        return data
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     if lptoken_address in ["0x83F20F44975D03b1b09e64809B757c47f942BEeA", "0xaf204776c7245bF4147c2612BF6e5972Ee483701"]:
         sdai = Sdai(blockchain, block_id)
         sdai_balance = sdai.balance_of(wallet)
-        print(f"acaaaaaaaac{sdai_balance}")
         balance = int(sdai.convert_to_assets(sdai_balance))
         if blockchain == Chain.ETHEREUM:
-            token = Token.get_instance(EthereumTokenAddr.DAI, blockchain)
+            token = Token.get_instance(EthereumTokenAddr.DAI, blockchain, block_id)
         if blockchain == Chain.GNOSIS:
-            token = Token.get_instance(GnosisTokenAddr.DAI, blockchain)
-        return [TokenAmount.from_teu(balance, token)]
+            token = Token.get_instance(GnosisTokenAddr.DAI, blockchain, block_id)
+        data["underlyings"] = [TokenAmount.from_teu(balance, token)]
+        return data
 
     if lptoken_address == "0x373238337Bfe1146fb49989fc222523f83081dDb":
         dsr = DsrManager(blockchain, block_id)
         pot = Pot(blockchain, block_id)
         balance = Decimal(dsr.pie_of(wallet) * pot.chi) / Decimal(1e18) / Decimal(1e27)
-        token = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM)
-        return [TokenAmount(balance, token)]
-    return []
+        token = Token.get_instance(EthereumTokenAddr.DAI, Chain.ETHEREUM, block_id)
+        data["underlyings"] = [TokenAmount(balance, token)]
+        return data
+    return data
 
 
 def get_protocol_data(blockchain: str, wallet: str, block: int | str = "latest", decimals: bool = True) -> dict:
