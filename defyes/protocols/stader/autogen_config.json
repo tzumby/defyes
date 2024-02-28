@@ -1,6 +1,8 @@
 {
   "deposit_pool": {
   },
-  "staking_pool_manager": {
+  "staking_pool_manager_ethx": {
+  },
+  "staking_pool_manager_maticx": {
   }
 }

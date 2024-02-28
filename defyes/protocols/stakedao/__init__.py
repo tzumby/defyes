@@ -72,8 +72,8 @@ def get_protocol_data_for(
     if sd_balance:
         htoken = Token.get_instance(gauge.staking_token, blockchain, block_id)
         data["holdings"] = [TokenAmount.from_teu(sd_balance, htoken)]
-        utoken = Token.get_instance(operator.token, blockchain, block_id)
-        data["underlyings"] = [TokenAmount.from_teu(sd_balance, utoken)]
+        # utoken = Token.get_instance(operator.token, blockchain, block_id)
+        data["underlyings"] = [TokenAmount.from_teu(sd_balance, htoken)]
     data["unclaimed_rewards"] = gauge.get_rewards(wallet)
 
     return data
