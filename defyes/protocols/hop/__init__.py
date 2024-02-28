@@ -187,7 +187,7 @@ def get_bonder_balances(block: int, blockchain: Chain) -> dict:
     for chain, chain_data in BONDER_CHAINS.items():
         chain_block = ChainExplorer(chain).block_from_time(date)
         # STAKED DAI
-        balance = chain_data["balance"]
+        balance = int(chain_data["balance"] * Decimal(10**18))
         token = Token.get_instance(chain_data["token"], chain, chain_block)
 
         # NATIVE CURRENCY
@@ -198,7 +198,7 @@ def get_bonder_balances(block: int, blockchain: Chain) -> dict:
             balance += native_balance
             amounts.append(TokenAmount.from_teu(balance, token))
         else:
-            amounts.append(TokenAmount(balance, token))
+            amounts.append(TokenAmount.from_teu(balance, token))
             token = Token.get_instance(Address.ZERO, chain, chain_block)
             amounts.append(TokenAmount.from_teu(native_balance, token))
 
