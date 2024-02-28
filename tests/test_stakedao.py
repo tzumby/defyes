@@ -19,7 +19,7 @@ def test_protocol_data_for():
     p = stakedao.get_protocol_data_for(Chain.ETHEREUM, WALLET, sdCRV, BLOCK)
     assert p == {
         "holdings": ["1_052_794.333008235689952123*sdCRV"],
-        "underlyings": ["1_052_794.333008235689952123*CRV"],
+        "underlyings": ["1_052_794.333008235689952123*sdCRV"],
         "unclaimed_rewards": [
             "2.133800353186004506*SDT",
             "2_017.825468905329065068*3Crv",
