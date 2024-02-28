@@ -5,7 +5,7 @@ from pathlib import Path
 
 import requests
 from defabipedia import Chain
-from defabipedia.tokens import ArbitrumTokenAddr, EthereumTokenAddr, GnosisTokenAddr, PolygonTokenAddr
+from defabipedia.tokens import ArbitrumTokenAddr, EthereumTokenAddr, PolygonTokenAddr
 from karpatkit.constants import ABI_TOKEN_SIMPLIFIED, Address
 from karpatkit.explorer import ChainExplorer
 from karpatkit.node import get_node
@@ -27,7 +27,7 @@ BONDER_CHAINS = {
     Chain.ETHEREUM: {"balance": 1500000, "token": EthereumTokenAddr.DAI, "hdai": None},
     Chain.GNOSIS: {
         "balance": 100000,
-        "token": GnosisTokenAddr.DAI,
+        "token": Address.ZERO,
         "hdai": "0xB1ea9FeD58a317F81eEEFC18715Dd323FDEf45c4",
     },
     Chain.POLYGON: {
@@ -123,7 +123,7 @@ class Bonder:
         self.block = block
         self.blockchain = blockchain
         self.address = "0x9298dfD8A0384da62643c2E98f437E820029E75E"
-        self.node = get_node(blockchain)
+        self.node = get_node(blockchain, block)
 
     @property
     def native_balance(self) -> int:
@@ -132,11 +132,14 @@ class Bonder:
     def balance_of(self, token_address: str) -> int:
         balance = 0
         token_address = Web3.to_checksum_address(token_address)
-        token_contract = self.node.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
-        try:
-            balance = token_contract.functions.balanceOf(self.address).call(block_identifier=self.block)
-        except ContractLogicError:
-            pass
+        if token_address == Address.ZERO:
+            balance = self.node.eth.get_balance(self.address, self.block)
+        else:
+            token_contract = self.node.eth.contract(address=token_address, abi=json.loads(ABI_TOKEN_SIMPLIFIED))
+            try:
+                balance = token_contract.functions.balanceOf(self.address).call(block_identifier=self.block)
+            except ContractLogicError:
+                pass
         return balance
 
     @property
@@ -151,7 +154,6 @@ def get_bonder_rewards(block: int, blockchain: Chain) -> dict:
     date = ChainExplorer(blockchain).time_from_block(block)
     amounts = []
     for chain, chain_data in BONDER_CHAINS.items():
-        print(chain)
         chain_block = ChainExplorer(chain).block_from_time(date)
         bonder = Bonder(chain, chain_block)
 
@@ -164,11 +166,9 @@ def get_bonder_rewards(block: int, blockchain: Chain) -> dict:
             token = Token.get_instance(OP_opt, chain, chain_block)
             amounts.append(TokenAmount.from_teu(op_balance, token))
         # CANONICAL CURRENCY
-        print(chain, amounts)
         canon_balance = bonder.balance_of(chain_data["token"])
         token = Token.get_instance(chain_data["token"], chain, chain_block)
         amounts.append(TokenAmount.from_teu(canon_balance, token))
-        print(chain, amounts)
 
         # hDAI
         if chain != Chain.ETHEREUM:
@@ -176,7 +176,6 @@ def get_bonder_rewards(block: int, blockchain: Chain) -> dict:
             if hdais_rewards is not None:
                 token = Token.get_instance(chain_data["hdai"], chain, chain_block)
                 amounts.append(TokenAmount.from_teu(hdais_rewards, token))
-            print(chain, amounts)
 
     return amounts
 
@@ -190,12 +189,18 @@ def get_bonder_balances(block: int, blockchain: Chain) -> dict:
         # STAKED DAI
         balance = chain_data["balance"]
         token = Token.get_instance(chain_data["token"], chain, chain_block)
-        amounts.append(TokenAmount(balance, token))
 
         # NATIVE CURRENCY
         bonder = Bonder(chain, chain_block)
-        token = Token.get_instance(Address.ZERO, chain, chain_block)
-        amounts.append(TokenAmount.from_teu(bonder.native_balance, token))
+        native_balance = bonder.native_balance
+
+        if token.contract.address == Address.ZERO:
+            balance += native_balance
+            amounts.append(TokenAmount.from_teu(balance, token))
+        else:
+            amounts.append(TokenAmount(balance, token))
+            token = Token.get_instance(Address.ZERO, chain, chain_block)
+            amounts.append(TokenAmount.from_teu(native_balance, token))
 
     return amounts
 
