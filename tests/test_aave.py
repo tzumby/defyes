@@ -81,6 +81,16 @@ def test_get_data():
     }
 
 
+def test_get_all_rewards_none():
+    data = Aave.get_all_rewards("0x6cf63938f2cd5dfebbde0010bb640ed7fa679123", block=16870553, blockchain=Chain.ETHEREUM)
+    assert data == [["0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9", Decimal(0)]]
+
+
 def test_get_all_rewards():
     data = Aave.get_all_rewards(TEST_ADDRESS, block=16870553, blockchain=Chain.ETHEREUM)
     assert data == [["0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9", Decimal("83.888023084390214623")]]
+
+
+def test_get_all_rewards_abpt():
+    data = Aave.get_all_rewards("0x6cf63938f2cd5dfebbde0010bb640ed7fa679693", block=19328476, blockchain=Chain.ETHEREUM)
+    assert data == [["0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9", Decimal("8.625794912538402899")]]

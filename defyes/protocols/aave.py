@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from decimal import Decimal
 from typing import List, Union
 
@@ -71,6 +72,11 @@ ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"c
 def get_stkaave_address(blockchain):
     if blockchain == Chain.ETHEREUM:
         return EthereumTokenAddr.STKAAVE
+
+
+def get_stkabpt_address(blockchain):
+    if blockchain == Chain.ETHEREUM:
+        return STAKED_ABPT_TOKEN
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -240,22 +246,22 @@ def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
     :param decimals:
     :return:
     """
-    all_rewards = []
+
+    rewards = defaultdict(list)
 
     if web3 is None:
         web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
 
-    stkaave_address = get_stkaave_address(blockchain)
-    if stkaave_address:
-        stkaave_contract = get_contract(stkaave_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+    for stk_address in [get_stkaave_address(blockchain), get_stkabpt_address(blockchain)]:
+        if stk_address:
+            contract = get_contract(stk_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+            reward_token = const_call(contract.functions.REWARD_TOKEN())
+            reward_balance = contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
+            rewards[reward_token].append(to_token_amount(reward_token, reward_balance, blockchain, web3, decimals))
 
-        reward_token = const_call(stkaave_contract.functions.REWARD_TOKEN())
-        reward_balance = stkaave_contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
-
-        all_rewards.append([reward_token, to_token_amount(reward_token, reward_balance, blockchain, web3, decimals)])
-
+    all_rewards = [[token, sum(amounts)] for token, amounts in rewards.items()]
     return all_rewards
 
 
