@@ -1,10 +1,10 @@
 from decimal import Decimal
 
+import pytest
 from defabipedia import Chain
 from defabipedia.tokens import EthereumTokenAddr
 
 from defyes import Idle
-import pytest
 
 TEST_WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 TEST_WALLET2 = "0x542256Ef33279C5545AA71f4b3B6298990f30Ffc"
