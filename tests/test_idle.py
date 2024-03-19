@@ -4,6 +4,7 @@ from defabipedia import Chain
 from defabipedia.tokens import EthereumTokenAddr
 
 from defyes import Idle
+import pytest
 
 TEST_WALLET = "0x849D52316331967b6fF1198e5E32A0eB168D039d"
 TEST_WALLET2 = "0x542256Ef33279C5545AA71f4b3B6298990f30Ffc"
@@ -102,6 +103,7 @@ def test_underlying():
 
 
 # FIXME: the next test is time dependent because of the subgraph, it should be rewritten with the use of some mock
+@pytest.mark.skip(reason="Test is currently time dependent. Should be rewritten with the use of some mock.")
 def test_get_addresses_subgraph():
     addresses = Idle.get_addresses_subgraph(TEST_BLOCK, Chain.ETHEREUM)
     assert addresses == {
