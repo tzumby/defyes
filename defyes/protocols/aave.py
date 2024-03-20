@@ -359,15 +359,3 @@ def get_staked(
         balances.append([EthereumTokenAddr.ABPT, stkabpt_balance])
 
     return balances
-
-
-if __name__ == "__main__":
-    print(get_all_rewards("0x0DA0C3e52C977Ed3cBc641fF02DD271c3ED55aFe", "latest", "ethereum"))
-    print(get_staked("0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c", "latest", "ethereum", True))
-    print(underlying_all("0x0DA0C3e52C977Ed3cBc641fF02DD271c3ED55aFe", "latest", "ethereum", reward=True))
-
-    # 0xd784927Ff2f95ba542BfC824c8a8a98F3495f6b5 contract to get the rewards
-
-    get_contract_proxy_abi(
-        "0xd784927Ff2f95ba542BfC824c8a8a98F3495f6b5", "0xD9ED413bCF58c266F95fE6BA63B13cf79299CE31", "ethereum"
-    )
