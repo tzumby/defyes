@@ -196,6 +196,9 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
 
 
 def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
+    """Function to get all the rewards of the user.
+    As this is an old version of aave (v2). The rewards are now retrevied from another contract. (for mainnet at least)
+    """
     rewards = defaultdict(list)
 
     if web3 is None:
@@ -213,6 +216,8 @@ def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
                 reward_balance = contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
 
             reward_token = const_call(contract.functions.REWARD_TOKEN())
+            # Just cast it to AAVE in case is stkAAVE
+            reward_token = EthereumTokenAddr.AAVE if reward_token == EthereumTokenAddr.stkAAVE else reward_token
             rewards[reward_token].append(to_token_amount(reward_token, reward_balance, blockchain, web3, decimals))
 
     all_rewards = [[token, sum(amounts)] for token, amounts in rewards.items()]
