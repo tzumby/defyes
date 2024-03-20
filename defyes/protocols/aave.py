@@ -10,7 +10,7 @@ from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
-from defyes.functions import balance_of, get_contract, to_token_amount, get_contract_proxy_abi
+from defyes.functions import balance_of, get_contract, get_contract_proxy_abi, to_token_amount
 
 logger = logging.getLogger(__name__)
 
