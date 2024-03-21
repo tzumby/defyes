@@ -1,9 +1,9 @@
 import json
 from decimal import Decimal
 from typing import Dict, List, Union
-from defabipedia import Chain
 
 import requests
+from defabipedia import Chain
 
 CHAINS_ID = {
     Chain.ETHEREUM: "1",
