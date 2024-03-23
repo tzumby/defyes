@@ -6,8 +6,11 @@ import requests
 from defabipedia import Chain
 
 CHAINS_ID = {
-    Chain.ETHEREUM: "1",
-    Chain.OPTIMISM: "10",
+    Chain.ETHEREUM: Chain.ETHEREUM.chain_id,
+    Chain.OPTIMISM: Chain.OPTIMISM.chain_id,
+    Chain.BINANCE: Chain.BINANCE.chain_id,
+    Chain.ARBITRUM: Chain.ARBITRUM.chain_id,
+    Chain.FANTOM: Chain.FANTOM.chain_id
 }
 
 
