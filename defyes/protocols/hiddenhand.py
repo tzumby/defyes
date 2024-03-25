@@ -10,7 +10,7 @@ CHAINS_ID = {
     Chain.OPTIMISM: Chain.OPTIMISM.chain_id,
     Chain.BINANCE: Chain.BINANCE.chain_id,
     Chain.ARBITRUM: Chain.ARBITRUM.chain_id,
-    Chain.FANTOM: Chain.FANTOM.chain_id
+    Chain.FANTOM: Chain.FANTOM.chain_id,
 }
 
 
