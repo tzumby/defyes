@@ -69,6 +69,8 @@ def get_incentives_controller_contract(blockchain):
     Apparently is the contract that is now used to get the rewards."""
     if blockchain == Chain.ETHEREUM:
         return INCETIVES_CONTROLLER, PROXY_INCENTIVES_CONTROLLER
+    else:
+        raise ValueError(f"Blockchain {blockchain} is not yet available.")
 
 
 def get_stkabpt_address(blockchain):
