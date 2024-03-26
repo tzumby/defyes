@@ -208,7 +208,11 @@ def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
 
     wallet = Web3.to_checksum_address(wallet)
 
-    for stk_address in [get_incentives_controller_contract(blockchain), get_stkabpt_address(blockchain)]:
+    for stk_address in [
+        get_incentives_controller_contract(blockchain),
+        get_stkabpt_address(blockchain),
+        get_stkaave_address(blockchain),
+    ]:
         if stk_address:
             if isinstance(stk_address, tuple):
                 contract = get_contract_proxy_abi(stk_address[0], stk_address[1], blockchain, web3=web3, block=block)
