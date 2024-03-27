@@ -35,6 +35,11 @@ DIAMOND_ADDRESSES = {
 # Connext Diamond ABI - getSwapLPToken, getSwapTokenIndex, getSwapToken, calculateRemoveSwapLiquidity
 ABI_CONNEXT_DIAMOND = '[{"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"}],"name":"getSwapLPToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"address","name":"tokenAddress","type":"address"}],"name":"getSwapTokenIndex","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getSwapToken","outputs":[{"internalType":"contractIERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"calculateRemoveSwapLiquidity","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
 
+DECIMAL_FIX_TOKENS = {
+    "0x55d398326f99059fF775485246999027B3197955": 18,
+    "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d": 18,
+}
+
 
 def query_assets(subgraph_api_endpoint: str) -> list:
     """Return a list of dict:assets with it's id, key, adoptedAsset and decimals
@@ -110,6 +115,15 @@ class Connext:
         )
         self.assets = query_assets(self.subgraph_api_endpoint)
 
+        for asset, decimal in DECIMAL_FIX_TOKENS.items():
+            self.update_decimals(asset, decimal)
+
+    def update_decimals(self, adopted_asset, new_decimal):
+        """Unfortunately some decimals retrieved from the graph are not correct, so we need to update them manually"""
+        for item in self.assets:
+            if item["adoptedAsset"] == adopted_asset:
+                item["decimal"] = (item["decimal"], new_decimal)
+
     def underlying(self, wallet: str, lptoken_address: str, decimals: bool = True) -> list:
         """Returns the underlying token balances for the given wallet, lp token address
 
@@ -131,7 +145,11 @@ class Connext:
                 if amounts:
                     amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
                     if decimals:
-                        amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
+                        if isinstance(asset["decimal"], tuple):
+                            amounts[0] = amounts[0] / Decimal(10 ** asset["decimal"][0])
+                            amounts[1] = amounts[1] / Decimal(10 ** asset["decimal"][1])
+                        else:
+                            amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
 
                     balances = [[asset["id"], amounts[0]], [asset["adoptedAsset"], amounts[1]]]
                 break
@@ -159,7 +177,11 @@ class Connext:
             else:
                 amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
                 if decimals:
-                    amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
+                    if isinstance(asset["decimal"], tuple):
+                        amounts[0] = amounts[0] / Decimal(10 ** asset["decimal"][0])
+                        amounts[1] = amounts[1] / Decimal(10 ** asset["decimal"][1])
+                    else:
+                        amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
 
                 balances.append([[asset["id"], amounts[0]], [asset["adoptedAsset"], amounts[1]]])
 
