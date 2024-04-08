@@ -1,10 +1,10 @@
 """
-Module to interact with Uniswap v3 positions and pools. 
+Module to interact with Uniswap v3 positions and pools.
 Most information were obtain through the Uniswap v3 whitepaper. https://uniswap.org/whitepaper-v3.pdf
 
 some of the variables have a slight change in the name to make it more readable.
 
-token0 
+token0
 token1
 fee
 Lower tick: lower_tick (il)
@@ -116,7 +116,7 @@ class Pool:
         self.token1 = self.pool_contract.functions.token1().call(block_identifier=self.block)
 
     def get_fee_growth_indexes(self, lower_tick: int, upper_tick: int) -> tuple:
-        """Function to get the fee growth indexes for a given tick range. lower_tick (lower tick) and upper_tick (upper tick)."""
+        """Function to get the fee growth indexes for a given tick range. lower_tick and upper_tick."""
         fee_growth_0 = self.pool_contract.functions.feeGrowthGlobal0X128().call(block_identifier=self.block)
         fee_growth_1 = self.pool_contract.functions.feeGrowthGlobal1X128().call(block_identifier=self.block)
         fee_growth_outside_0_low, fee_growth_outside_1_low = self.pool_contract.functions.ticks(lower_tick).call(
@@ -436,3 +436,7 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, decimal
     for nft in allnfts(wallet, block, blockchain):
         balances.append(underlying(wallet, nft, block, blockchain, decimals=decimals, fee=fee))
     return list(filter(None, balances))
+
+
+if __name__ == "__main__":
+    get_fee(692276, "latest", "ethereum")
