@@ -436,7 +436,3 @@ def underlying_all(wallet: str, block: Union[int, str], blockchain: str, decimal
     for nft in allnfts(wallet, block, blockchain):
         balances.append(underlying(wallet, nft, block, blockchain, decimals=decimals, fee=fee))
     return list(filter(None, balances))
-
-
-if __name__ == "__main__":
-    get_fee(692276, "latest", "ethereum")
