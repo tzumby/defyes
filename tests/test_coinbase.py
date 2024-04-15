@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from defyes import reduce_cbETH
+from defyes.protocols.coinbase import reduce_cbETH
 
 
 def test_reduce_cbETH():
