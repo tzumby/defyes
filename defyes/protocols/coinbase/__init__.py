@@ -10,7 +10,9 @@ from defyes.types import Token, TokenAmount
 StakedToken.default_addresses = {Chain.ETHEREUM: "0xBe9895146f7AF43049ca1c1AE358B0541Ea49704"}
 
 
-def reduce_cbETH(amount: Union[int | float], blockchain: Union[str | Chain], block: Union[int, str]) -> tuple[str, int]:
+def reduce_cbETH(
+    amount: Union[int | float], blockchain: Union[str | Chain], block: Union[int, str], decimals: bool = True
+) -> tuple[str, int]:
     """Reduce cbETH to ETH.
     Currently the only available blockchain is Ethereum.
     Get the exchange rate from the StakedToken contract (cbETH) and reduce the amount of cbETH to ETH.
@@ -29,6 +31,9 @@ def reduce_cbETH(amount: Union[int | float], blockchain: Union[str | Chain], blo
 
     amount_eth = amount * Decimal(unwrap_rate)
 
-    eth_reduced = TokenAmount.from_teu(amount_eth, token).balance(True)
+    eth_reduced = TokenAmount.from_teu(amount_eth, token).balance(decimals)
+
+    if not decimals:
+        int(eth_reduced)
 
     return Address.ZERO, eth_reduced
