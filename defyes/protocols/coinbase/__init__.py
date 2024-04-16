@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Union
 
 from karpatkit.constants import Address, Chain
