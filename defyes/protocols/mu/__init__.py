@@ -16,9 +16,10 @@ def get_protocol_data_for(
     wallet: str,
     lptoken_address: str,
     block: int | str = "latest",
+    decimals: bool = True,
 ) -> dict:
     """Get the data for a wallet for mu exchange. Currently there's just one vault that is supported.
-    msDAI vault is the only one."""
+    msDAI."""
     wallet = Addr(Web3.to_checksum_address(wallet))
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     block_id = ensure_a_block_number(block, blockchain)
@@ -28,11 +29,14 @@ def get_protocol_data_for(
 
     # Get the amount of the holdings we have
     holdings_amount = TokenAmount.from_teu(tv.balance_of(wallet), Token(lptoken_address, blockchain))
-    # Reduce sDAI to the elementary token DAI and
-    address, amount = reduce_sdai(tv.standard_token, int(holdings_amount.balance()), block_id, blockchain)
-    amount = TokenAmount.from_teu(amount, Token(address, blockchain)).balance(True)
 
-    position_data = [{"address": lptoken_address, "balance": holdings_amount.balance(True)}]
+    # Calculate amount of sDAI in the pool and reduce to the elementary token DAI
+    sdai_amount_in_pool = get_sdai_amount(int(holdings_amount.balance()), tv.total_supply, tv.current_balance)
+
+    address, amount = reduce_sdai(tv.standard_token, int(sdai_amount_in_pool), block_id, blockchain)
+    amount = TokenAmount.from_teu(amount, Token(address, blockchain)).balance(decimals)
+
+    position_data = [{"address": lptoken_address, "balance": holdings_amount.balance(decimals)}]
     underlying_data = [{"address": address, "balance": amount}]
 
     data = {
@@ -52,3 +56,13 @@ def get_protocol_data_for(
     }
 
     return data
+
+
+def get_sdai_amount(shares, total_supply, current_balance):
+    """Function to calculate the amount of sDAI in the pool.
+    This function is based on the function withdraw of the trading vault contract.
+    https://gnosisscan.io/address/0x0d80D7f7719407523A09ee2ef7eD573e0eA3487a#code#F12#L109
+    """
+    user_asset = (current_balance * shares) // total_supply
+
+    return user_asset
