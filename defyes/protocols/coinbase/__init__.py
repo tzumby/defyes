@@ -28,7 +28,7 @@ def reduce_cbETH(
 
     unwrap_rate = StakedToken(blockchain, block).exchange_rate
 
-    amount_eth = amount * unwrap_rate
+    amount_eth = Decimal(amount) * Decimal(unwrap_rate)
 
     eth_reduced = TokenAmount.from_teu(amount_eth, token).balance(decimals)
 
