@@ -3,13 +3,22 @@ from decimal import Decimal
 from typing import Dict, List, Union
 
 import requests
+from defabipedia import Chain
+
+CHAINS_ID = {
+    Chain.ETHEREUM: Chain.ETHEREUM.chain_id,
+    Chain.OPTIMISM: Chain.OPTIMISM.chain_id,
+    Chain.BINANCE: Chain.BINANCE.chain_id,
+    Chain.ARBITRUM: Chain.ARBITRUM.chain_id,
+    Chain.FANTOM: Chain.FANTOM.chain_id,
+}
 
 
 def get_api_results(wallet: str, blockchain: str) -> Union[List[dict], str]:
-    if blockchain == "ethereum":
-        chain_id = "1"
-    else:
-        print("blockchain not available")
+    try:
+        chain_id = CHAINS_ID[blockchain]
+    except KeyError:
+        raise ValueError(f"Blockchain {blockchain} not supported")
 
     response = requests.get(f"https://api.hiddenhand.finance/reward/{chain_id}/{wallet}")
     result = json.loads(response.text, parse_float=Decimal)

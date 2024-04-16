@@ -141,6 +141,7 @@ class TokenAmount:
         }
 
     def balance(self, not_in_teu: bool = False) -> int | Decimal:
+        """Return the balance multiplied by decimals(False) or as it is(True)."""
         return self.amount if not_in_teu else self.amount * self.teu
 
     def __str__(self):
