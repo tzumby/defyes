@@ -10,11 +10,9 @@ from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ContractLogicError
 
-from defyes.functions import balance_of, get_contract, to_token_amount
+from defyes.functions import balance_of, get_contract, get_contract_proxy_abi, to_token_amount
 
 logger = logging.getLogger(__name__)
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 PROTOCOL_DATA_PROVIDER = {
     Chain.ETHEREUM: "0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d",
@@ -34,17 +32,12 @@ CHAINLINK_NATIVE_USD = {
     Chain.AVALANCHE: "0x0A77230d17318075983913bC2145DB16C7366156",
 }
 
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# STAKED ABPT TOKEN
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#
 STAKED_ABPT_TOKEN = "0xa1116930326D21fB917d5A27F1E9943A9595fb47"
 
+# Contracts to get the unclaimed rewards of stkAAVE
+INCETIVES_CONTROLLER = "0xd784927Ff2f95ba542BfC824c8a8a98F3495f6b5"
+PROXY_INCENTIVES_CONTROLLER = "0xD9ED413bCF58c266F95fE6BA63B13cf79299CE31"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider ABI - getAllReservesTokens, getUserReserveData, getReserveConfigurationData, getReserveTokensAddresses
 ABI_PDP = '[{"inputs":[],"name":"getAllReservesTokens","outputs":[{"components":[{"internalType":"string","name":"symbol","type":"string"},{"internalType":"address","name":"tokenAddress","type":"address"}],"internalType":"struct AaveProtocolDataProvider.TokenData[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"},{"internalType":"address","name":"user","type":"address"}],"name":"getUserReserveData","outputs":[{"internalType":"uint256","name":"currentATokenBalance","type":"uint256"},{"internalType":"uint256","name":"currentStableDebt","type":"uint256"},{"internalType":"uint256","name":"currentVariableDebt","type":"uint256"},{"internalType":"uint256","name":"principalStableDebt","type":"uint256"},{"internalType":"uint256","name":"scaledVariableDebt","type":"uint256"},{"internalType":"uint256","name":"stableBorrowRate","type":"uint256"},{"internalType":"uint256","name":"liquidityRate","type":"uint256"},{"internalType":"uint40","name":"stableRateLastUpdated","type":"uint40"},{"internalType":"bool","name":"usageAsCollateralEnabled","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getReserveConfigurationData","outputs":[{"internalType":"uint256","name":"decimals","type":"uint256"},{"internalType":"uint256","name":"ltv","type":"uint256"},{"internalType":"uint256","name":"liquidationThreshold","type":"uint256"},{"internalType":"uint256","name":"liquidationBonus","type":"uint256"},{"internalType":"uint256","name":"reserveFactor","type":"uint256"},{"internalType":"bool","name":"usageAsCollateralEnabled","type":"bool"},{"internalType":"bool","name":"borrowingEnabled","type":"bool"},{"internalType":"bool","name":"stableBorrowRateEnabled","type":"bool"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"isFrozen","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getReserveTokensAddresses","outputs":[{"internalType":"address","name":"aTokenAddress","type":"address"},{"internalType":"address","name":"stableDebtTokenAddress","type":"address"},{"internalType":"address","name":"variableDebtTokenAddress","type":"address"}],"stateMutability":"view","type":"function"}]'
 
@@ -66,12 +59,18 @@ ABI_STKAAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"c
                 {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"}]'
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_stkaave_address
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_stkaave_address(blockchain):
     if blockchain == Chain.ETHEREUM:
         return EthereumTokenAddr.STKAAVE
+
+
+def get_incentives_controller_contract(blockchain):
+    """This contract has the same functions of the stAAVE one.
+    Apparently is the contract that is now used to get the rewards."""
+    if blockchain == Chain.ETHEREUM:
+        return INCETIVES_CONTROLLER, PROXY_INCENTIVES_CONTROLLER
+    else:
+        raise ValueError(f"Blockchain {blockchain} is not yet available.")
 
 
 def get_stkabpt_address(blockchain):
@@ -79,9 +78,6 @@ def get_stkabpt_address(blockchain):
         return STAKED_ABPT_TOKEN
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_reserves_tokens
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens(pdp_contract, block):
     reserves_tokens_addresses = []
 
@@ -93,21 +89,9 @@ def get_reserves_tokens(pdp_contract, block):
     return reserves_tokens_addresses
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_reserves_tokens_balances
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_reserves_tokens_balances(
     web3: Web3, wallet: str, block: int | str, blockchain: str, decimals: bool = True
 ) -> List:
-    """
-    :param web3:
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param decimals:
-    :return:
-    """
     balances = []
 
     pdp_address = PROTOCOL_DATA_PROVIDER[blockchain]
@@ -132,22 +116,7 @@ def get_reserves_tokens_balances(
     return balances
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_data
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_data(wallet, block, blockchain, web3=None, decimals=True):
-    """
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :return:
-    """
     aave_data = {}
     collaterals = []
     debts = []
@@ -228,25 +197,10 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     return aave_data
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_all_rewards
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
+    """Function to get all the rewards of the user.
+    As this is an old version of aave (v2). The rewards are now retrevied from another contract. (for mainnet at least)
     """
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :return:
-    """
-
     rewards = defaultdict(list)
 
     if web3 is None:
@@ -254,34 +208,37 @@ def get_all_rewards(wallet, block, blockchain, web3=None, decimals=True):
 
     wallet = Web3.to_checksum_address(wallet)
 
-    for stk_address in [get_stkaave_address(blockchain), get_stkabpt_address(blockchain)]:
+    for stk_address in [
+        get_incentives_controller_contract(blockchain),
+        get_stkabpt_address(blockchain),
+        get_stkaave_address(blockchain),
+    ]:
         if stk_address:
-            contract = get_contract(stk_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+            if isinstance(stk_address, tuple):
+                contract = get_contract_proxy_abi(stk_address[0], stk_address[1], blockchain, web3=web3, block=block)
+                reward_balance = contract.functions.getUserUnclaimedRewards(wallet).call(block_identifier=block)
+            else:
+                contract = get_contract(stk_address, blockchain, web3=web3, abi=ABI_STKAAVE, block=block)
+                reward_balance = contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
+
             reward_token = const_call(contract.functions.REWARD_TOKEN())
-            reward_balance = contract.functions.getTotalRewardsBalance(wallet).call(block_identifier=block)
+            # Just cast it to AAVE in case is stkAAVE
+            reward_token = EthereumTokenAddr.AAVE if reward_token == EthereumTokenAddr.stkAAVE else reward_token
             rewards[reward_token].append(to_token_amount(reward_token, reward_balance, blockchain, web3, decimals))
 
     all_rewards = [[token, sum(amounts)] for token, amounts in rewards.items()]
     return all_rewards
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# underlying_all
-# 'reward' = True -> retrieves the rewards / 'reward' = False or not passed onto the function -> no reward retrieval
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output: a list with 2 elements:
-# 1 - List of Tuples: [token_address, balance], where balance = currentATokenBalance - currentStableDebt - currentStableDebt
-# 2 - List of Tuples: [reward_token_address, balance]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=False):
-    """
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :param reward:
-    :return:
+    """Get all the underlying tokens of your position.
+
+    Args:
+        reward (bool, optional): True if you want to get also the reward. Defaults to False.
+
+    Returns:
+        List: [token_address, balance], where balance = currentATokenBalance - currentStableDebt - currentStableDebt
+              [reward_token_address, balance]
     """
     result = []
     if web3 is None:
@@ -302,23 +259,17 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     return result
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_apr
-# 'web3' = web3 (Node) -> Improves performance
-# 'apy' = True/False -> True = returns APY / False = returns APR
-# Output: Tuple:
-# 1 - Tuple: [{'metric': 'apr'/'apy', 'type': 'supply', 'value': supply_apr/supply_apy},
-#             {'metric': 'apr'/'apy', 'type': 'variable_borrow', 'value': borrow_apr/borrow_apy},
-#             {'metric': 'apr'/'apy', 'type': 'stable_borrow', 'value': borrow_apr/borrow_apy}]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_apr(token_address, block, blockchain, web3=None, apy=False):
-    """
-    :para token_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param apy:
-    :return:
+    """Get APR for a token
+
+    Args:
+        token_address (str):
+        apy (bool, optional): if True returns APY else APR. Defaults to False.
+
+    Returns:
+        Tuple: [{'metric': 'apr'/'apy', 'type': 'supply', 'value': supply_apr/supply_apy},
+             {'metric': 'apr'/'apy', 'type': 'variable_borrow', 'value': borrow_apr/borrow_apy},
+             {'metric': 'apr'/'apy', 'type': 'stable_borrow', 'value': borrow_apr/borrow_apy}]
     """
 
     if web3 is None:
@@ -361,19 +312,14 @@ def get_apr(token_address, block, blockchain, web3=None, apy=False):
         ]
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_staking_apr
-# 'web3' = web3 (Node) -> Improves performance
-# 'apy' = True/False -> True = returns APY / False = returns APR
-# Output: Tuple:
-# 1 - Tuple: [{'metric': 'apr'/'apy', 'type': 'staking', 'value': staking_apr/staking_apy}]
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_staking_apr(block, blockchain, web3=None, apy=False):
-    """
-    :param block:
-    :param blockchain:
-    :param web3:
-    :return:
+    """Get staking APR.
+
+    Args:
+        apy (bool, optional): if True returns APY else APR. Defaults to False.
+
+    Returns:
+        :  [{'metric': 'apr'/'apy', 'type': 'staking', 'value': staking_apr/staking_apy}]
     """
     if web3 is None:
         web3 = get_node(blockchain)
@@ -399,13 +345,6 @@ def get_staking_apr(block, blockchain, web3=None, apy=False):
 def get_staked(
     wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, decimals: bool = True
 ) -> list:
-    """
-    :param block:
-    :param blockchain:
-    :param web3:
-    :return:
-    """
-
     balances = []
 
     if web3 is None:

@@ -457,7 +457,7 @@ def underlying(
     else:
         lptoken_data["gauge"] = get_pool_gauge_address(web3, lptoken_data["minter"], lptoken_address, block, blockchain)
 
-    if lptoken_data["gauge"] is not None:
+    if lptoken_data["gauge"] is not None and lptoken_data["gauge"] != Address.ZERO:
         lptoken_data["staked"] = balance_of(wallet, lptoken_data["gauge"], block, blockchain, web3=web3, decimals=False)
     else:
         lptoken_data["staked"] = 0

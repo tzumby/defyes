@@ -11,30 +11,34 @@ from web3 import Web3
 
 from defyes.functions import balance_of, get_contract, get_decimals
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# SUBGRAPH API ENDPOINTS
-# https://docs.connext.network/developers/guides/xcall-status
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Mainnet - Subgraph API endpoint
-SUBGRAPH_API_ENDPOINT_ETH = "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet"
+# Subgraph API endpoints for Connext on different blockchains: https://docs.connext.network/resources/subgraphs
+# For more info on how to query the subgraph: https://docs.connext.network/developers/guides/xcall-status
+SUBGRAPH_ENDPOINTS = {
+    Chain.ETHEREUM: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet",
+    Chain.GNOSIS: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis",
+    Chain.OPTIMISM: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism",
+    Chain.ARBITRUM: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one",
+    Chain.BINANCE: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb",
+    Chain.POLYGON: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon",
+}
 
-# GC - Subgraph API endpoint
-SUBGRAPH_API_ENDPOINT_GC = "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
+# Connext Diamond Contract on different blockchains: https://docs.connext.network/resources/deployments
+DIAMOND_ADDRESSES = {
+    Chain.ETHEREUM: "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6",
+    Chain.GNOSIS: "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109",
+    Chain.OPTIMISM: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
+    Chain.ARBITRUM: "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
+    Chain.BINANCE: "0xCd401c10afa37d641d2F594852DA94C700e4F2CE",
+    Chain.POLYGON: "0x11984dc4465481512eb5b777E44061C158CF2259",
+}
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# CONNEXT DIAMOND ADDRESSES
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Mainnet - Connext Diamond Address
-CONNEXT_DIAMOND_ETH = "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
-
-# GC - Connext Diamond Address
-CONNEXT_DIAMOND_GC = "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109"
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Connext Diamond ABI - getSwapLPToken, getSwapTokenIndex, getSwapToken, calculateRemoveSwapLiquidity
 ABI_CONNEXT_DIAMOND = '[{"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"}],"name":"getSwapLPToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"address","name":"tokenAddress","type":"address"}],"name":"getSwapTokenIndex","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getSwapToken","outputs":[{"internalType":"contractIERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"bytes32","name":"key","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"calculateRemoveSwapLiquidity","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
+
+DECIMAL_FIX_TOKENS = {
+    "0x55d398326f99059fF775485246999027B3197955": 18,
+    "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d": 18,
+}
 
 
 def query_assets(subgraph_api_endpoint: str) -> list:
@@ -95,13 +99,10 @@ class Connext:
     assets: list = field(init=False)
 
     def __post_init__(self) -> None:
-        if self.blockchain == Chain.ETHEREUM:
-            self.diamond_adrr = CONNEXT_DIAMOND_ETH
-            self.subgraph_api_endpoint = SUBGRAPH_API_ENDPOINT_ETH
-        elif self.blockchain == Chain.GNOSIS:
-            self.diamond_adrr = CONNEXT_DIAMOND_GC
-            self.subgraph_api_endpoint = SUBGRAPH_API_ENDPOINT_GC
-        else:
+        try:
+            self.diamond_adrr = DIAMOND_ADDRESSES[self.blockchain]
+            self.subgraph_api_endpoint = SUBGRAPH_ENDPOINTS[self.blockchain]
+        except KeyError:
             raise ValueError(f"{self.blockchain} not supported yet")
 
         if self.web3 is None:
@@ -113,6 +114,15 @@ class Connext:
             self.diamond_adrr, self.blockchain, web3=self.web3, abi=ABI_CONNEXT_DIAMOND, block=self.block
         )
         self.assets = query_assets(self.subgraph_api_endpoint)
+
+        for asset, decimal in DECIMAL_FIX_TOKENS.items():
+            self.update_decimals(asset, decimal)
+
+    def update_decimals(self, adopted_asset, new_decimal):
+        """Unfortunately some decimals retrieved from the graph are not correct, so we need to update them manually"""
+        for item in self.assets:
+            if item["adoptedAsset"] == adopted_asset:
+                item["decimal"] = (item["decimal"], new_decimal)
 
     def underlying(self, wallet: str, lptoken_address: str, decimals: bool = True) -> list:
         """Returns the underlying token balances for the given wallet, lp token address
@@ -135,7 +145,11 @@ class Connext:
                 if amounts:
                     amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
                     if decimals:
-                        amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
+                        if isinstance(asset["decimal"], tuple):
+                            amounts[0] = amounts[0] / Decimal(10 ** asset["decimal"][0])
+                            amounts[1] = amounts[1] / Decimal(10 ** asset["decimal"][1])
+                        else:
+                            amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
 
                     balances = [[asset["id"], amounts[0]], [asset["adoptedAsset"], amounts[1]]]
                 break
@@ -163,7 +177,11 @@ class Connext:
             else:
                 amounts = [Decimal(amounts[0]), Decimal(amounts[1])]
                 if decimals:
-                    amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
+                    if isinstance(asset["decimal"], tuple):
+                        amounts[0] = amounts[0] / Decimal(10 ** asset["decimal"][0])
+                        amounts[1] = amounts[1] / Decimal(10 ** asset["decimal"][1])
+                    else:
+                        amounts = [amount / Decimal(10 ** asset["decimal"]) for amount in amounts]
 
                 balances.append([[asset["id"], amounts[0]], [asset["adoptedAsset"], amounts[1]]])
 
