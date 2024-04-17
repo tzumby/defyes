@@ -7,6 +7,7 @@ from karpatkit.node import get_node
 
 from defyes import Convex
 from defyes.functions import get_contract
+from defyes.protocols.convex import get_staked_cvx
 
 web3 = get_node(Chain.ETHEREUM)
 
@@ -122,3 +123,23 @@ def test_pool_balances():
 def test_update_db():
     data = Convex.update_db(save_to="/dev/null")
     assert data
+
+
+def test_get_staked_cvx_balance():
+    result = get_staked_cvx("0x205e795336610f5131be52f09218af19f0f3ec60", 19676136, Chain.ETHEREUM, reward=False)
+
+    expected_result = {"balances": {"0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434": Decimal("2105946483998423352150951")}}
+
+    assert result == expected_result
+
+
+def test_get_staked_cvx_reward():
+    result = get_staked_cvx("0x205e795336610f5131be52f09218af19f0f3ec60", 19676136, Chain.ETHEREUM, reward=True)
+
+    expected_result = {
+        "0xD533a949740bb3306d119CC777fa900bA034cd52": Decimal("4296.861415111208660227"),
+        "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B": Decimal("539.434991370424529278"),
+        "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490": Decimal("5163.86230295847308542"),
+    }
+
+    assert result == expected_result
