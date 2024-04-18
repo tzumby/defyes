@@ -126,7 +126,9 @@ def test_update_db():
 
 
 def test_get_staked_cvx_balance():
-    result = get_staked_cvx("0x205e795336610f5131be52f09218af19f0f3ec60", 19676136, Chain.ETHEREUM, reward=False)
+    result = get_staked_cvx(
+        "0x205e795336610f5131be52f09218af19f0f3ec60", 19676136, Chain.ETHEREUM, reward=False, decimals=False
+    )
 
     expected_result = {"balances": {"0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434": Decimal("2105946483998423352150951")}}
 
