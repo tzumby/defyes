@@ -8,7 +8,7 @@ from defyes.protocols import spark
 from defyes.types import Addr, Token, TokenAmount
 
 wallet = Addr(0x849D52316331967B6FF1198E5E32A0EB168D039D)
-block_id = 17_772_457
+block = 17_772_457
 
 DAI = Token.get_instance(0x6B175474E89094C44DA98B954EEDEAC495271D0F, Chain.ETHEREUM)
 GNO = Token.get_instance(0x6810E776880C02933D47DB1B9FC05908E5386B96, Chain.ETHEREUM)
@@ -54,7 +54,7 @@ expected_position_retro_decimal = {
 
 def expected_protocol_data(expected_position):
     return {
-        "block_id": block_id,
+        "block": block,
         "blockchain": "ethereum",
         "positions": {"single_position": expected_position},
         "positions_key": None,
@@ -112,7 +112,7 @@ expected_financial_metrics_teu = {
 
 @pytest.fixture
 def pdp():
-    return spark.ProtocolDataProvider(Chain.ETHEREUM, block_id)
+    return spark.ProtocolDataProvider(Chain.ETHEREUM, block)
 
 
 decimal = pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal"])
@@ -120,7 +120,7 @@ decimal = pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal
 
 @decimal
 def test_get_protocol_data(decimal):
-    ret = spark.get_protocol_data(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+    ret = spark.get_protocol_data(wallet, block, Chain.ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
@@ -145,7 +145,7 @@ def test_holdings(pdp):
 
 @decimal
 def test_get_full_financial_metrics(decimal):
-    ret = spark.get_full_financial_metrics(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+    ret = spark.get_full_financial_metrics(wallet, block, Chain.ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
