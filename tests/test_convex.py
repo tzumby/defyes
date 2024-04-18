@@ -17,7 +17,7 @@ steCRV = "0x06325440D014e39736583c165C2963BA99fAf14E"
 
 
 def test_get_pool_rewarder():
-    rewarders = Convex.get_pool_rewarders(EthereumTokenAddr.x3CRV, 16993460)
+    rewarders = Convex.get_pool_rewarders(EthereumTokenAddr.X3CRV, 16993460)
     assert rewarders == ["0x689440f2Ff927E1f24c72F1087E1FAF471eCe1c8"]
 
 
@@ -51,7 +51,7 @@ def test_get_cvx_mint_amount():
 
 def test_get_all_rewards():
     all_rewards = Convex.get_all_rewards(
-        "0x704617048F435cB679252E24148638211fb4457D", EthereumTokenAddr.x3CRV, 17499865, Chain.ETHEREUM, web3
+        "0x704617048F435cB679252E24148638211fb4457D", EthereumTokenAddr.X3CRV, 17499865, Chain.ETHEREUM, web3
     )
     assert all_rewards[EthereumTokenAddr.CRV] == Decimal("6649.47123882958317496")
     assert all_rewards[EthereumTokenAddr.CVX] == Decimal("106.9162438469377937584223851")
@@ -94,7 +94,7 @@ def test_get_staked():
 def test_underlying():
     underlying = Convex.underlying(
         "0x704617048F435cB679252E24148638211fb4457D",
-        EthereumTokenAddr.x3CRV,
+        EthereumTokenAddr.X3CRV,
         17499865,
         Chain.ETHEREUM,
         web3,
@@ -111,7 +111,7 @@ def test_underlying():
 
 
 def test_pool_balances():
-    balances = Convex.pool_balances(EthereumTokenAddr.x3CRV, 16993460, Chain.ETHEREUM, web3, decimals=False)
+    balances = Convex.pool_balances(EthereumTokenAddr.X3CRV, 16993460, Chain.ETHEREUM, web3, decimals=False)
     assert balances == [
         [EthereumTokenAddr.DAI, Decimal("165857824629254122209119338")],
         [EthereumTokenAddr.USDC, Decimal("175604425510732")],
