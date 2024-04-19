@@ -27,6 +27,22 @@ class Addr(str):
 
 
 class Token(Addr):
+    """
+    Class representing the token.
+    Initializes the object with the provided address, blockchain chain, block number.
+
+    Parameters:
+        addr (int | str): The address to be initialized with.
+        chain (Blockchain): The blockchain chain to be used (default is Chain.ETHEREUM).
+        block (int | str): The block number to be used (default is "latest").
+        **kwargs: Additional keyword arguments.
+
+    Cached Properties:
+        symbol: Returns the symbol of the token.
+        contract: Returns the ERC20 contract of the token.
+        decimals: Returns the decimals of the token.
+    """
+
     _cache = {}
 
     def __init__(self, addr: int | str, chain: Blockchain = Chain.ETHEREUM, block: int | str = "latest", **kwargs):
@@ -49,10 +65,12 @@ class Token(Addr):
 
     @cached_property
     def contract(self):
+        """Get the token ERC20 contract."""
         return Erc20(self.chain, self.block, self)
 
     @cached_property
     def decimals(self):
+        """Get the token decimals."""
         if self == Address.ZERO or self == Address.E:
             return 18
         else:
@@ -70,6 +88,7 @@ class Token(Addr):
             return token
 
     def __rmul__(self, left_value):
+        """Allowing the multiplication of a token by a value."""
         if isinstance(left_value, str):
             value = Decimal(left_value).scaleb(self.decimals)
             if int(value) != value:
@@ -87,7 +106,7 @@ class Token(Addr):
         elif isinstance(left_value, float):
             raise ValueError("Preventing potential float precision loss. Use str, Decimal or int instead.")
         else:
-            raise ValueError(f"{type(left_value)} not sopported in convetion to a TokenAmount value.")
+            raise ValueError(f"{type(left_value)} not supported in convention to a TokenAmount value.")
         return TokenAmount.from_teu(value, self)
 
 
