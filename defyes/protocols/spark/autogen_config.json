@@ -6,5 +6,12 @@
   },
   "lending_pool": {},
   "price_oracle": {},
-  "protocol_data_provider": {}
+  "protocol_data_provider": {},
+  "variable_debt_token": {
+    "const_call": [
+      "getIncentivesController",
+      "UNDERLYING_ASSET_ADDRESS"
+    ]
+  },
+  "incentives_controller": {}
 }

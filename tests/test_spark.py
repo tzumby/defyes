@@ -8,7 +8,7 @@ from defyes.protocols import spark
 from defyes.types import Addr, Token, TokenAmount
 
 wallet = Addr(0x849D52316331967B6FF1198E5E32A0EB168D039D)
-block_id = 17_772_457
+block = 17_772_457
 
 DAI = Token.get_instance(0x6B175474E89094C44DA98B954EEDEAC495271D0F, Chain.ETHEREUM)
 GNO = Token.get_instance(0x6810E776880C02933D47DB1B9FC05908E5386B96, Chain.ETHEREUM)
@@ -24,6 +24,7 @@ expected_position = {
         TokenAmount.from_teu(-1_000_035_715961244421526907, DAI),
         TokenAmount.from_teu(88_000_000000000000000000, GNO),
     ],
+    "rewards": [],
 }
 
 expected_position_retro = {
@@ -35,6 +36,7 @@ expected_position_retro = {
         {"address": "0x6B175474E89094C44Da98b954EedeAC495271d0F", "balance": -1_000_035_715961244421526907},
         {"address": "0x6810e776880C02933D47DB1b9fc05908e5386b96", "balance": 88_000_000000000000000000},
     ],
+    "rewards": [],
 }
 
 expected_position_retro_decimal = {
@@ -49,12 +51,13 @@ expected_position_retro_decimal = {
         {"address": "0x6B175474E89094C44Da98b954EedeAC495271d0F", "balance": Decimal("-1_000_035.715961244421526907")},
         {"address": "0x6810e776880C02933D47DB1b9fc05908e5386b96", "balance": Decimal("88_000.0")},
     ],
+    "rewards": [],
 }
 
 
 def expected_protocol_data(expected_position):
     return {
-        "block_id": block_id,
+        "block": block,
         "blockchain": "ethereum",
         "positions": {"single_position": expected_position},
         "positions_key": None,
@@ -112,7 +115,7 @@ expected_financial_metrics_teu = {
 
 @pytest.fixture
 def pdp():
-    return spark.ProtocolDataProvider(Chain.ETHEREUM, block_id)
+    return spark.ProtocolDataProvider(Chain.ETHEREUM, block)
 
 
 decimal = pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal"])
@@ -120,7 +123,7 @@ decimal = pytest.mark.parametrize("decimal", [False, True], ids=["int", "decimal
 
 @decimal
 def test_get_protocol_data(decimal):
-    ret = spark.get_protocol_data(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+    ret = spark.get_protocol_data(wallet, block, Chain.ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
@@ -145,8 +148,18 @@ def test_holdings(pdp):
 
 @decimal
 def test_get_full_financial_metrics(decimal):
-    ret = spark.get_full_financial_metrics(wallet, block_id, Chain.ETHEREUM, decimals=decimal)
+    ret = spark.get_full_financial_metrics(wallet, block, Chain.ETHEREUM, decimals=decimal)
     print()
     pretty.print(ret)
     pretty.jprint(ret)
     assert ret == expected_financial_metrics if decimal else expected_financial_metrics_teu
+
+
+def test_get_rewards():
+    result = spark.get_rewards("0x4F2083f5fBede34C2714aFfb3105539775f7FE64", 19685985, Chain.ETHEREUM)
+
+    expected_result = [
+        {"balance": Decimal("0.121897498127091334"), "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0"}
+    ]
+
+    assert result == expected_result
