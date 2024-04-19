@@ -29,7 +29,7 @@ def test_get_protocol_data_for():
                 ],
                 "underlyings": [
                     {
-                        "address": "0x0000000000000000000000000000000000000000",
+                        "address": "0xaf204776c7245bF4147c2612BF6e5972Ee483701",
                         "balance": Decimal("268178.964115319996226166"),
                     }
                 ],
