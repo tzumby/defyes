@@ -157,6 +157,7 @@ def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimal
             "single_position": {
                 "underlyings": as_dict_list(pdp.underlyings(wallet)),
                 "holdings": as_dict_list(pdp.holdings(wallet)),
+                "rewards": get_rewards(wallet, block, blockchain, decimals),
             }
         },
         "positions_key": None,
@@ -164,7 +165,6 @@ def get_protocol_data(wallet: Addr, block: int | str, blockchain: Chain, decimal
             "collateral_ratio": user_account_data.collateral_ratio,
             "liquidation_ratio": user_account_data.liquidation_ratio,
         },
-        "rewards": get_rewards(wallet, block, blockchain, decimals),
     }
 
 
@@ -215,8 +215,3 @@ def get_rewards(wallet: Addr, block: int | str, blockchain: Chain, decimals: boo
         rewards.append({"balance": amount, "address": reward})
 
     return rewards
-
-
-wallet = "0x849D52316331967B6FF1198E5E32A0EB168D039D"
-blockchain = Chain.ETHEREUM
-block = 17_772_457
