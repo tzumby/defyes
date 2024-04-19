@@ -13,7 +13,7 @@ def test_get_protocol_data_for():
 
     expected_result = {
         "blockchain": "gnosis",
-        "block_id": 33472627,
+        "block": 33472627,
         "protocol": "Mu Exchange",
         "positions_key": "holding_token_address",
         "version": 0,
@@ -30,7 +30,7 @@ def test_get_protocol_data_for():
                 "underlyings": [
                     {
                         "address": "0xaf204776c7245bF4147c2612BF6e5972Ee483701",
-                        "balance": Decimal("268178.964115319996226166"),
+                        "balance": Decimal("251810.435178150229551322"),
                     }
                 ],
             }
