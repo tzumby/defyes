@@ -115,7 +115,7 @@ class ProtocolDataProvider(ProtocolDataProvider):
         return self.web3.eth.block_number
 
     @property
-    def block(self):
+    def get_block(self):
         return self.block if isinstance(self.block, int) else self.last_block
 
     def all_user_reserve_data(self, wallet: Addr) -> Iterator[tuple[Token, UserReserveData]]:
