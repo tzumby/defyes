@@ -263,7 +263,7 @@ def get_pool_data(web3, minter, block, blockchain):
             continue
 
         # IMPORTANT: AD-HOC FIX UNTIL WE FIND A WAY TO SOLVE HOW META POOLS WORK FOR DIFFERENT POOL TYPES AND SIDE-CHAINS
-        # if token_address == EthereumTokenAddr.X3CRV or token_address == X3CRV_POL or token_address == GnosisTokenAddr.X3CRV:
+        # if token_address == EthereumTokenAddr.X3CRV or token_address == X3CRV_POL or token_address == GnosisTokenAddr.x3CRV:
         if token_address == EthereumTokenAddr.X3CRV:
             pool_data["is_metapool"] = True
 
@@ -623,7 +623,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
 
         balance = pool_contract.functions.balances(i).call(block_identifier=block)
         # Fetches the 3CR underlying balances in the 3pool
-        if token_address != EthereumTokenAddr.X3CRV and token_address != GnosisTokenAddr.X3CRV:
+        if token_address != EthereumTokenAddr.X3CRV and token_address != GnosisTokenAddr.x3CRV:
             balances.append([token_address, to_token_amount(token_address, balance, blockchain, web3, decimals)])
         else:
             if meta is False:
