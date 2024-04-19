@@ -22,7 +22,7 @@ classifiers = [
 dependencies = [
     "diskcache>=5.4.0,<6.0",
     "eth_abi>=2.0.0",
-    "karpatkit @ git+https://github.com/karpatkey/karpatkit.git@b1f2c3bf2a0ab5d17115aa3e8b7a7275b2a95751",
+    "karpatkit @ git+https://github.com/karpatkey/karpatkit.git@5df69ad70cb9b4cf8bb742e8611693eaf264e3c0",
     "requests>=2.28.1",
     "tqdm>=4.64.1",
     "web3>=6.3,<7.0",
