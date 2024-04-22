@@ -393,7 +393,8 @@ def get_staked_cvx(
         return balances
 
     else:
-        balances[STAKED_CVX] = to_token_amount(STAKED_CVX, stk_cvx.balance_of(wallet), blockchain, web3, decimals)
+        cvx_crv_address = stk_cvx.cvx_crv
+        balances[cvx_crv_address] = to_token_amount(STAKED_CVX, stk_cvx.balance_of(wallet), blockchain, web3, decimals)
         result["balances"] = balances
 
     return result
