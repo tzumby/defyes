@@ -299,7 +299,7 @@ def get_protocol_data(blockchain: str, wallet: str, block: int | str = "latest",
 
 
 def reduce_sdai(
-    underlying_token_address: str, balance: int | float | TokenAmount, block: int, blockchain: Chain
+    underlying_token_address: str, balance: int | float | TokenAmount, block: int, blockchain: Chain, teu: bool = False
 ) -> Tuple[str, Decimal]:
     """Reduce sDAI to the elementary asset DAI in ethereum and gnosis
     Returns:
@@ -312,7 +312,18 @@ def reduce_sdai(
         raise ValueError(f"Token address {underlying_token_address} is not a valid sDAI address.")
 
     sdai_contract = Sdai(blockchain, block)
-    underlying_balance = sdai_contract.convert_to_assets(balance)
+    sdai_token = Token(sdai_contract.address, blockchain, block)
+
+    # In case the amount is in teu just convert it to ETH else convert it to teu and then to ETH
+    if teu:
+        dai_balance = sdai_contract.convert_to_assets(int(balance))
+        dai_balance = TokenAmount.from_teu(dai_balance, sdai_token).balance(True)
+
+    else:
+        dai_balance = TokenAmount(balance, sdai_token).balance()
+        dai_balance = sdai_contract.convert_to_assets(int(dai_balance))
+        dai_balance = TokenAmount.from_teu(dai_balance, sdai_contract).balance(True)
+
     unwrapped_token_address = sdai_contract.dai
 
-    return unwrapped_token_address, underlying_balance
+    return unwrapped_token_address, dai_balance
