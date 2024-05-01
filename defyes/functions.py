@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import requests
 from defabipedia import Blockchain, Chain
+from hexbytes import HexBytes
 from karpatkit.api_services import APIKey
 from karpatkit.cache import cache_call, const_call
 from karpatkit.constants import ABI_TOKEN_SIMPLIFIED, Address
@@ -17,7 +18,6 @@ from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
 from web3.types import LogReceipt
-from hexbytes import HexBytes
 
 from defyes.lazytime import Time
 
@@ -475,12 +475,12 @@ def get_logs_web3(
         tx_receipt = web3.eth.get_transaction_receipt(tx_hash)
         if tx_receipt is None:
             return []
-        tx_logs = tx_receipt['logs']
+        tx_logs = tx_receipt["logs"]
         logs = []
         for log in tx_logs:
-            if address is not None and log['address'] != address:
+            if address is not None and log["address"] != address:
                 continue
-            if topics is not None and not all(HexBytes(topic) in log['topics'] for topic in topics):
+            if topics is not None and not all(HexBytes(topic) in log["topics"] for topic in topics):
                 continue
             logs.append(log)
     else:
