@@ -455,6 +455,18 @@ def prepare_log_params(address, topics, tx_hash, block_hash, block_start, block_
     return params
 
 
+def get_logs_from_transaction(tx_receipt: dict, address: str = None, topics: list[str] = None) -> list[LogReceipt]:
+    tx_logs = tx_receipt.get("logs", [])
+    logs = []
+    for log in tx_logs:
+        if address is not None and log.get("address") != address:
+            continue
+        if topics is not None and not all(HexBytes(topic) in log.get("topics", []) for topic in topics):
+            continue
+        logs.append(log)
+    return logs
+
+
 def get_logs_web3(
     blockchain: str,
     tx_hash: str = None,
@@ -475,14 +487,7 @@ def get_logs_web3(
         tx_receipt = web3.eth.get_transaction_receipt(tx_hash)
         if tx_receipt is None:
             return []
-        tx_logs = tx_receipt["logs"]
-        logs = []
-        for log in tx_logs:
-            if address is not None and log["address"] != address:
-                continue
-            if topics is not None and not all(HexBytes(topic) in log["topics"] for topic in topics):
-                continue
-            logs.append(log)
+        logs = get_logs_from_transaction(tx_receipt, address, topics)
     else:
         try:
             params = prepare_log_params(address, topics, tx_hash, block_hash, block_start, block_end)

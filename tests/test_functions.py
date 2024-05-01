@@ -146,8 +146,6 @@ def test_get_abi_function_signatures():
 
 
 def test_get_logs_web3():
-    from defyes.functions import get_logs_web3
-
     logs = get_logs_web3(
         blockchain=Chain.ETHEREUM,
         topics=["0xe2403640ba68fed3a2f88b7557551d1993f84b99bb10ff833f0cf8db0c5e0486"],
