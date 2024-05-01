@@ -16,6 +16,8 @@ from karpatkit.helpers import suppress_error_codes
 from karpatkit.node import get_node
 from web3 import Web3
 from web3.exceptions import ABIFunctionNotFound, BadFunctionCallOutput, ContractLogicError
+from web3.types import LogReceipt
+from hexbytes import HexBytes
 
 from defyes.lazytime import Time
 
@@ -462,41 +464,57 @@ def get_logs_web3(
     topics: list = None,
     block_hash: str = None,
     web3: Web3 = None,
-) -> list:
+) -> list[LogReceipt]:
     # FIXME: Add documentation
+    if tx_hash and (block_start or block_end != "latest" or block_hash):
+        raise ValueError("tx_hash cannot be used with block_start, block_end or block_hash")
     if web3 is None:
         web3 = get_node(blockchain)
-    try:
-        params = prepare_log_params(address, topics, tx_hash, block_hash, block_start, block_end)
-        logs = web3.eth.get_logs(params)
-        if not isinstance(block_end, str):
-            for n in range(len(logs)):
-                if logs[n]["blockNumber"] > block_end:
-                    logs = logs[:n]
-                    break
-    except ValueError as error:
-        error_info = error.args[0]
-        if error_info["code"] == -32005:  # error code in infura
-            block_interval = int(error_info["data"]["to"], 16) - int(error_info["data"]["from"], 16)
-        elif "max_block_range" in error_info:  # error code in Quicknode, see ProviderManager class
-            block_interval = error_info["max_block_range"]
-        elif error_info["code"] == -32602:  # error code in alchemy
-            blocks = [int(block, 16) for block in re.findall(r"0x[0-9a-fA-F]+", error_info["message"])]
-            block_interval = blocks[1] - blocks[0]
-        elif error_info["code"] == -32600:  # error code in anker: "block range is too wide"
-            block_interval = 3000
-        else:
-            raise ValueError(error_info)
-        logger.debug(
-            f"Web3.eth.get_logs: query returned more than 10000 results. Trying with a {block_interval} block range."
-        )
+    if tx_hash:
+        # Get transaction receipt
+        tx_receipt = web3.eth.get_transaction_receipt(tx_hash)
+        if tx_receipt is None:
+            return []
+        tx_logs = tx_receipt['logs']
         logs = []
-        params = {"address": address, "topics": topics}
-        if block_hash is not None:
-            params.update({"blockHash": block_hash})
-        for from_block, to_block in get_block_intervals(blockchain, block_start, block_end, block_interval):
-            params.update({"fromBlock": from_block, "toBlock": to_block})
-            logs += web3.eth.get_logs(params)
+        for log in tx_logs:
+            if address is not None and log['address'] != address:
+                continue
+            if topics is not None and not all(HexBytes(topic) in log['topics'] for topic in topics):
+                continue
+            logs.append(log)
+    else:
+        try:
+            params = prepare_log_params(address, topics, tx_hash, block_hash, block_start, block_end)
+            logs = web3.eth.get_logs(params)
+            if not isinstance(block_end, str):
+                for n in range(len(logs)):
+                    if logs[n]["blockNumber"] > block_end:
+                        logs = logs[:n]
+                        break
+        except ValueError as error:
+            error_info = error.args[0]
+            if error_info["code"] == -32005:  # error code in infura
+                block_interval = int(error_info["data"]["to"], 16) - int(error_info["data"]["from"], 16)
+            elif "max_block_range" in error_info:  # error code in Quicknode, see ProviderManager class
+                block_interval = error_info["max_block_range"]
+            elif error_info["code"] == -32602:  # error code in alchemy
+                blocks = [int(block, 16) for block in re.findall(r"0x[0-9a-fA-F]+", error_info["message"])]
+                block_interval = blocks[1] - blocks[0]
+            elif error_info["code"] == -32600:  # error code in anker: "block range is too wide"
+                block_interval = 3000
+            else:
+                raise ValueError(error_info)
+            logger.debug(
+                f"Web3.eth.get_logs: query returned more than 10000 results. Trying with a {block_interval} block range."
+            )
+            logs = []
+            params = {"address": address, "topics": topics}
+            if block_hash is not None:
+                params.update({"blockHash": block_hash})
+            for from_block, to_block in get_block_intervals(blockchain, block_start, block_end, block_interval):
+                params.update({"fromBlock": from_block, "toBlock": to_block})
+                logs += web3.eth.get_logs(params)
     return logs
 
 
