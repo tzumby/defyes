@@ -34,8 +34,7 @@ def get_balances(wallet, lptoken_address, block, blockchain, decimals=True):
     For each reserve, it tries to get the corresponding token.
 
     Returns:
-        list: A list of dictionaries. Each dictionary contains the address, balance, and staked balance of a token in the
-              wallet.
+        list: A list of dictionaries. Each dictionary contains the address and balance.
 
     Raises:
         AttributeError: If a token does not have a corresponding attribute in the LP token contract.
@@ -57,7 +56,6 @@ def get_balances(wallet, lptoken_address, block, blockchain, decimals=True):
     pool_balance_fraction = lptoken_data["balanceOf"] / lptoken_data["total_supply"]
 
     for i in range(len(lptoken_data["reserves"])):
-
         token_address = lptoken_data.get("token" + str(i))
         if token_address is None:
             continue
