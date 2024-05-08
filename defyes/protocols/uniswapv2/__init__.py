@@ -29,9 +29,9 @@ def get_balances(wallet, lptoken_address, block, blockchain, decimals=True):
     """
     Retrieves the balance information for a given wallet and liquidity pool token (LP token).
 
-    It then retrieves the LP token data. The function calculates the fraction of the total pool balance and
-    staked balance that belongs to the wallet. It then iterates over each reserve in the LP token data. For each reserve,
-    it tries to get the corresponding token.
+    It then retrieves the LP token data. The function calculates the fraction of the total pool balance.
+    It then iterates over each reserve in the LP token data.
+    For each reserve, it tries to get the corresponding token.
 
     Returns:
         list: A list of dictionaries. Each dictionary contains the address, balance, and staked balance of a token in the
@@ -48,34 +48,32 @@ def get_balances(wallet, lptoken_address, block, blockchain, decimals=True):
     pool = Pool(blockchain, block, lptoken_address)
     lptoken_data = pool.get_lp_token_data()
 
-    lptoken_data["staked"] = 0
     lptoken_data["balanceOf"] = pool.balance_of(wallet)
-    holding_balance = {"address": lptoken_address, "balance": lptoken_data["balanceOf"]}
+    holding_balance = {
+        "address": lptoken_address,
+        "balance": lptoken_data["balanceOf"] / 10**18 if decimals else lptoken_data["balanceOf"],
+    }
 
     pool_balance_fraction = lptoken_data["balanceOf"] / lptoken_data["total_supply"]
-    pool_staked_fraction = lptoken_data["staked"] / lptoken_data["total_supply"]
 
     for i in range(len(lptoken_data["reserves"])):
-        try:
-            getattr(lptoken_data["contract"].functions, "token" + str(i))
-        except AttributeError:
+
+        token_address = lptoken_data.get("token" + str(i))
+        if token_address is None:
             continue
 
-        token_address = lptoken_data["token" + str(i)]
-
-        token_decimals = Decimal(get_decimals(token_address, blockchain) if decimals else 0) ** 10
+        token_decimals = Decimal(10 ** get_decimals(token_address, blockchain) if decimals else 0)
 
         token_balance = Decimal(lptoken_data["reserves"][i]) / token_decimals * Decimal(pool_balance_fraction)
-        token_staked = Decimal(lptoken_data["reserves"][i]) / token_decimals * Decimal(pool_staked_fraction)
 
-        underlying_balances.append({"address": token_address, "balance": token_balance, "staked_balance": token_staked})
+        underlying_balances.append({"address": token_address, "balance": token_balance})
 
     return underlying_balances, holding_balance
 
 
-def get_data_protocol_for(wallet, lptoken_address, block, blockchain, web3=None, decimals=True):
+def get_data_protocol_for(wallet, lptoken_address, block, blockchain, decimals=True):
     """Retrieves and formats balance information for a given wallet and liquidity pool token (LP token)."""
-    balances, holding = get_balances(wallet, lptoken_address, block, blockchain, web3=web3, decimals=decimals)
+    balances, holding = get_balances(wallet, lptoken_address, block, blockchain, decimals=decimals)
 
     data = {
         "blockchain": blockchain,
