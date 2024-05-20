@@ -477,27 +477,55 @@ def get_logs_web3(
     block_hash: str = None,
     web3: Web3 = None,
 ) -> list[LogReceipt]:
-    # FIXME: Add documentation
+    """
+    Fetches logs from a specified blockchain using the Web3 library.
+    You can fetch logs from a specific transaction, contract address, block range, or block hash.
+    Some arguments are optional, but one of `tx_hash`, `address`, `block_start`, or `block_hash` must be provided.
+    If `tx_hash` is provided, the function fetches the logs from the transaction receipt.
+    If `address` is provided, the function fetches the logs from the specified contract.
+    If `block_start` and `block_end` are provided, the function fetches logs from the specified block range.
+
+    Args:
+        blockchain (str): The name of the blockchain from which to fetch logs.
+        tx_hash (str, optional): The transaction hash. Fetches the receipt of this transaction and extracts its logs.
+        address (str, optional): The address of the contract for which to fetch logs.
+        block_start (int | str, optional): The start block number or block hash.
+        block_end (int | str, optional): The end block number. If not provided, fetches logs until the latest block.
+        topics (list, optional): The topics of the logs to fetch. If not provided, fetches all logs.
+        block_hash (str, optional): The hash of a specific block from which to fetch logs.
+        web3 (Web3, optional): An instance of the Web3 class.
+
+    Returns:
+        list[LogReceipt]: The fetched logs.
+    """
+    # Check if tx_hash is used with block_start, block_end or block_hash
     if tx_hash and (block_start or block_end != "latest" or block_hash):
         raise ValueError("tx_hash cannot be used with block_start, block_end or block_hash")
+
     if web3 is None:
         web3 = get_node(blockchain)
+
     if tx_hash:
         # Get transaction receipt
         tx_receipt = web3.eth.get_transaction_receipt(tx_hash)
         if tx_receipt is None:
             return []
+        # Get logs from the transaction receipt
         logs = get_logs_from_transaction(tx_receipt, address, topics)
     else:
         try:
+            # Prepare the parameters for fetching logs
             params = prepare_log_params(address, topics, tx_hash, block_hash, block_start, block_end)
+            # Fetch the logs
             logs = web3.eth.get_logs(params)
+            # If block_end is not a string, trim the logs to the block range
             if not isinstance(block_end, str):
                 for n in range(len(logs)):
                     if logs[n]["blockNumber"] > block_end:
                         logs = logs[:n]
                         break
         except ValueError as error:
+            # Handle ValueError by adjusting the block range and retrying
             error_info = error.args[0]
             if error_info["code"] == -32005:  # error code in infura
                 block_interval = int(error_info["data"]["to"], 16) - int(error_info["data"]["from"], 16)
@@ -510,9 +538,11 @@ def get_logs_web3(
                 block_interval = 3000
             else:
                 raise ValueError(error_info)
+            # Log the error and the new block range
             logger.debug(
                 f"Web3.eth.get_logs: query returned more than 10000 results. Trying with a {block_interval} block range."
             )
+            # Retry fetching the logs with the new block range
             logs = []
             params = {"address": address, "topics": topics}
             if block_hash is not None:
