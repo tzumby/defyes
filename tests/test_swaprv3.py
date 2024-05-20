@@ -28,6 +28,16 @@ def test_get_protocol_data_for():
                     },
                 ],
                 "holdings": {"address": "0x91fD594c46D8B01E62dBDeBed2401dde01817834", "balance": 1},
+                "rewards": [
+                    {
+                        "address": "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
+                        "balance": Decimal("1.494714104077160171135150133"),
+                    },
+                    {
+                        "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+                        "balance": Decimal("4646.554299626385230113753693"),
+                    },
+                ],
             }
         },
     }

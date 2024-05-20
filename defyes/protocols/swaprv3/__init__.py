@@ -28,14 +28,14 @@ class Pool(AlgebraPool):
 
     def __init__(self, blockchain: str, block: int, address: str | None = None) -> None:
         super().__init__(blockchain, block, address)
-        sqrt_price_x96, self.current_tick = self.global_state[0:2]
+        sqrt_price_x96, self.current_tick, self.fee = self.global_state[0:3]
         self.sqrt_price = Decimal(sqrt_price_x96) / Decimal(2**96)
         self.price = self.sqrt_price**2
 
     def get_fee_growth_indexes(self, lower_tick: int, upper_tick: int) -> tuple:
         """Gets the fee growth indexes for a given tick range."""
-        fee_growth_0 = self.totalFeeGrowth0Token()
-        fee_growth_1 = self.totalFeeGrowth1Token()
+        fee_growth_0 = self.total_fee_growth0_token
+        fee_growth_1 = self.total_fee_growth1_token
         fee_growth_outside_0_low, fee_growth_outside_1_low = self.ticks(lower_tick)[2:4]
         fee_growth_outside_0_up, fee_growth_outside_1_up = self.ticks(upper_tick)[2:4]
 
@@ -133,6 +133,62 @@ class NFTPosition(AlgebraPositionNft):
                 balances.append([self.token1, amount1])
         return balances
 
+    def get_fees(
+        self,
+        current_tick: int,
+        fee_growth_0: int,
+        fee_growth_1: int,
+        fee_growth_outside_0_low: int,
+        fee_growth_outside_1_low: int,
+        fee_growth_outside_0_up: int,
+        fee_growth_outside_1_up: int,
+    ) -> list:
+        # Calculate the fees per unit of liquidity for each token function. Just used inside here
+        def calculate_fees_per_unit(fee_growth, fee_lower_token, fee_upper_token, fee_growth_inside):
+            return Decimal(
+                (fee_growth - fee_lower_token - fee_upper_token - fee_growth_inside) * self.liquidity
+            ) / Decimal(2**128)
+
+        if current_tick >= self.lower_tick:
+            fee_lower_token0 = fee_growth_outside_0_low
+            fee_lower_token1 = fee_growth_outside_1_low
+        else:
+            fee_lower_token0 = fee_growth_0 - fee_growth_outside_0_low
+            fee_lower_token1 = fee_growth_1 - fee_growth_outside_1_low
+        if current_tick >= self.upper_tick:
+            fee_upper_token0 = fee_growth_0 - fee_growth_outside_0_up
+            fee_upper_token1 = fee_growth_1 - fee_growth_outside_1_up
+        else:
+            fee_upper_token0 = fee_growth_outside_0_up
+            fee_upper_token1 = fee_growth_outside_1_up
+
+        fees_per_unit_0 = calculate_fees_per_unit(
+            fee_growth_0, fee_lower_token0, fee_upper_token0, self.fee_growth_inside_0
+        )
+        fees_per_unit_1 = calculate_fees_per_unit(
+            fee_growth_1, fee_lower_token1, fee_upper_token1, self.fee_growth_inside_1
+        )
+
+        return [fees_per_unit_0, fees_per_unit_1]
+
+
+def get_fees(pool: Pool, nft_position: NFTPosition, decimals: bool = True) -> list:
+    """Returns the unclaimed fees corresponding to a nft id.
+    Given a pool and a nft position, it calculates the fees per unit of liquidity for each token.
+    """
+    unclaimed_fees = []
+
+    growth_indexes = pool.get_fee_growth_indexes(nft_position.lower_tick, nft_position.upper_tick)
+    fees_per_unit_0, fees_per_unit_1 = nft_position.get_fees(pool.current_tick, *growth_indexes)
+    if decimals:
+        fees_per_unit_0 = fees_per_unit_0 / Decimal(10**nft_position.decimals0)
+        fees_per_unit_1 = fees_per_unit_1 / Decimal(10**nft_position.decimals1)
+
+    unclaimed_fees.append({"address": nft_position.token0, "balance": fees_per_unit_0})
+    unclaimed_fees.append({"address": nft_position.token1, "balance": fees_per_unit_1})
+
+    return unclaimed_fees
+
 
 def get_id_nfts(wallet: str, nft_contract: NFTPosition) -> list:
     """Get all the NFT ids for a given wallet."""
@@ -197,13 +253,19 @@ def get_protocol_data_for(
 
         balances = nft_position_contract.get_balance(pool.current_tick, pool.sqrt_price, decimals=decimals)
 
+        unclaimed_fees = get_fees(pool, nft_position_contract, decimals=decimals)
+
         underlying = []
 
         # Add the data to the positions dictionary only if there are balances associated with the nft id
         if balances:
             for token in balances:
                 underlying.append({"address": token[0], "balance": token[1]})
-            positions[id] = {"underlyings": underlying, "holdings": {"address": position_identifier, "balance": 1}}
+            positions[id] = {
+                "underlyings": underlying,
+                "holdings": {"address": position_identifier, "balance": 1},
+                "rewards": unclaimed_fees,
+            }
 
     data["positions"] = positions
 
