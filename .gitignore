@@ -12,3 +12,5 @@ config.json
 .home/
 .vscode/
 .venv
+
+docs/build/
