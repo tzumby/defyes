@@ -19,19 +19,10 @@ from defyes.prices.prices import get_price
 
 logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# PROVIDER ADDRESS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 PROVIDER_ADDRESS = "0x0000000022D53366457F9d5E68Ec105046FC4383"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# X-CHAIN GAUGE FACTORY ADDRESS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 X_CHAIN_GAUGE_FACTORY_ADDRESS = "0xabC000d88f23Bb45525E447528DBF656A9D55bf5"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Provider ABI - get_address
 ABI_PROVIDER = '[{"name":"get_address","outputs":[{"type":"address","name":""}],"inputs":[{"type":"uint256","name":"_id"}],"stateMutability":"view","type":"function","gas":1308}]'
 
@@ -65,9 +56,6 @@ ABI_POOL_ALTERNATIVE = '[{"name":"coins","outputs":[{"type":"address","name":""}
 # Gauge ABI - crv_token, claimable_tokens, rewarded_token, claimable_reward, claimed_rewards_for, reward_tokens, claimable_reward, claimable_reward_write, decimals, version, minter
 ABI_GAUGE = '[{"name":"crv_token","outputs":[{"type":"address","name":""}],"inputs":[],"stateMutability":"view","type":"function","gas":1451}, {"name":"claimable_tokens","outputs":[{"type":"uint256","name":""}],"inputs":[{"type":"address","name":"addr"}],"stateMutability":"nonpayable","type":"function","gas":1989612}, {"name":"rewarded_token","outputs":[{"type":"address","name":""}],"inputs":[],"stateMutability":"view","type":"function","gas":2201}, {"name":"claimable_reward","outputs":[{"type":"uint256","name":""}],"inputs":[{"type":"address","name":"addr"}],"stateMutability":"view","type":"function","gas":7300}, {"name":"claimed_rewards_for","outputs":[{"type":"uint256","name":""}],"inputs":[{"type":"address","name":"arg0"}],"stateMutability":"view","type":"function","gas":2475}, {"name":"reward_tokens","outputs":[{"type":"address","name":""}],"inputs":[{"type":"uint256","name":"arg0"}],"stateMutability":"view","type":"function","gas":2550}, {"name":"claimable_reward","outputs":[{"type":"uint256","name":""}],"inputs":[{"type":"address","name":"_addr"},{"type":"address","name":"_token"}],"stateMutability":"nonpayable","type":"function","gas":1017930}, {"stateMutability":"nonpayable","type":"function","name":"claimable_reward_write","inputs":[{"name":"_addr","type":"address"},{"name":"_token","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"gas":1211002}, {"stateMutability":"view","type":"function","name":"decimals","inputs":[],"outputs":[{"name":"","type":"uint256"}],"gas":288}, {"stateMutability":"view","type":"function","name":"version","inputs":[],"outputs":[{"name":"","type":"string"}]}, {"name":"minter","outputs":[{"type":"address","name":""}],"inputs":[],"stateMutability":"view","type":"function","gas":1421}]'
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# EVENT SIGNATURES
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # TokenExchange Event Signatures
 TOKEN_EXCHANGE_EVENT_SIGNATURES = [
     "TokenExchange(address,int128,uint256,int128,uint256)",

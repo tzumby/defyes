@@ -254,29 +254,18 @@ def underlying(
     fee: bool = False,
 ) -> list:
     """Returns the balances of the underlying assets corresponding to a position held by a wallet.
-    Parameters
-    ----------
-    wallet : str
-        address of the wallet holding the position
-    nftid : int
-        address of the token identifying the position in the protocol
-    block : int or 'latest'
-        block number at which the data is queried
-    blockchain : str
-        blockchain in which the position is held
-    web3: obj
-        optional, already instantiated web3 object
-    decimals: bool
-        specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set
-        to True
-    fee: bool
-        ¿f set to True, the balances of the unclaimed fees corresponding to the position are appended to the returned
-        list
 
-    Returns
-    ----------
-    list
-        a list where each element is a list with two elements, the underlying token address and its corresponding amount
+    Args:
+        wallet (str): Address of the wallet holding the position.
+        nftid (int): Address of the token identifying the position in the protocol.
+        block (int or 'latest'): Block number at which the data is queried.
+        blockchain (str): Blockchain in which the position is held.
+        web3 (obj, optional): Already instantiated web3 object.
+        decimals (bool, optional): Specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True.
+        fee (bool, optional): If set to True, the balances of the unclaimed fees corresponding to the position are appended to the returned list.
+
+    Returns:
+        list: A list where each element is a list with two elements, the underlying token address and its corresponding amount.
     """
     balances = []
     if web3 is None:
@@ -298,22 +287,16 @@ def underlying(
 
 def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True) -> list:
     """Returns the unclaimed fees corresponding to a nft id.
-    Parameters
-    ----------
-    nftid : int
-        number corresponding to a nftid
-    block : int or 'latest'
-        block number at which the data is queried
-    blockchain : str
-        blockchain in which the position is held
-    web3: obj
-        optional, already instantiated web3 object
-    decimals: bool
-        specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True
-    Returns
-    ----------
-    list
-        a list where each element is a list with two elements, the underlying token address and its corresponding unclaimed fee
+
+    Args:
+        nftid (int): Number corresponding to a nftid.
+        block (int or 'latest'): Block number at which the data is queried.
+        blockchain (str): Blockchain in which the position is held.
+        web3 (obj, optional): Already instantiated web3 object.
+        decimals (bool, optional): Specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True.
+
+    Returns:
+        list: A list where each element is a list with two elements, the underlying token address and its corresponding unclaimed fee.
     """
     if web3 is None:
         web3 = get_node(blockchain)
@@ -332,26 +315,18 @@ def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, deci
 def get_rate_uniswap_v3(
     token_src: str, token_dst: str, block: Union[int, str], blockchain: str, web3=None, fee: int = FeeAmount.LOWEST
 ) -> Decimal:
-    """Returns the price of a token .
-    Parameters
-    ----------
-    token_src : str
-        address of the source token of the pool
-    token_dst : str
-        address of the destination token of the pool
-    block : int or 'latest'
-        block number at which the data is queried
-    blockchain : str
-        blockchain in which the position is held
-    web3: obj
-        optional, already instantiated web3 object
-    fee: int
-        fee which is set for this pool
+    """Returns the price of a token.
 
-    Returns
-    ----------
-    float
-        the token price of the source token (token_src) quoted in destination token
+    Args:
+        token_src (str): Address of the source token of the pool.
+        token_dst (str): Address of the destination token of the pool.
+        block (int or 'latest'): Block number at which the data is queried.
+        blockchain (str): Blockchain in which the position is held.
+        web3 (obj, optional): Already instantiated web3 object.
+        fee (int, optional): Fee which is set for this pool.
+
+    Returns:
+        Decimal: The token price of the source token (token_src) quoted in destination token.
     """
     if web3 is None:
         web3 = get_node(blockchain)
@@ -373,21 +348,15 @@ def get_rate_uniswap_v3(
 
 def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None) -> list:
     """Returns all nft ids owned by a wallet.
-    Parameters
-    ----------
-    wallet : str
-        address of the wallet holding the position
-    block : int or 'latest'
-        block number at which the data is queried
-    blockchain : str
-        blockchain in which the position is held
-    web3: obj
-        optional, already instantiated web3 object
 
-    Returns
-    ----------
-    list
-        a list where each element is the nft id that is owned by the wallet (open and closed nfts)
+    Args:
+        wallet (str): Address of the wallet holding the position.
+        block (int or 'latest'): Block number at which the data is queried.
+        blockchain (str): Blockchain in which the position is held.
+        web3 (obj, optional): Already instantiated web3 object.
+
+    Returns:
+        list: A list where each element is the nft id that is owned by the wallet (open and closed nfts).
     """
     nftids = []
 
@@ -404,24 +373,16 @@ def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None) -> 
 
 def underlying_all(wallet: str, block: Union[int, str], blockchain: str, decimals: bool = True, fee: bool = False):
     """Returns the balances of the underlying assets corresponding to all positions held by a wallet.
-    Parameters
-    ----------
-    wallet : str
-        address of the wallet holding the position
-    block : int or 'latest'
-        block number at which the data is queried
-    blockchain : str
-        blockchain in which the position is held
-    decimals: bool
-        specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set
-        to True
-    fee: bool
 
-    Returns
-    ----------
-    list
-        a list where each element is a list with two elements, the underlying token address and its corresponding amount
-        (with optional unclaimed fee)
+    Args:
+        wallet (str): Address of the wallet holding the position.
+        block (int or 'latest'): Block number at which the data is queried.
+        blockchain (str): Blockchain in which the position is held.
+        decimals (bool, optional): Specifies whether balances are returned as int if set to False, or float with the appropriate decimals if set to True. Defaults to True.
+        fee (bool, optional): Specifies whether to include unclaimed fee. Defaults to False.
+
+    Returns:
+        list: A list where each element is a list with two elements, the underlying token address and its corresponding amount (with optional unclaimed fee).
     """
 
     balances = []

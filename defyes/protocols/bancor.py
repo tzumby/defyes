@@ -4,9 +4,6 @@ from web3 import Web3
 
 from defyes.functions import get_contract, to_token_amount
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# LITERALS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Contracts for calling liquidity pools and underlying tokens
 BANCOR_NETWORK_ADDRESS = "0xeEF417e1D5CC832e619ae18D2F140De2999dD4fB"
 
@@ -14,9 +11,6 @@ BANCOR_NETWORK_INFO_ADDRESS = "0x8E303D296851B320e6a697bAcB979d13c9D6E760"
 
 BNT_TOKEN = "0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Network ABI - liquidityPools
 ABI_NETWORK = '[{"inputs":[],"name":"liquidityPools","outputs":[{"internalType":"contract Token[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"}]'
 
@@ -55,15 +49,6 @@ def underlying(
 
 
 def underlying_all(wallet: str, block: int, blockchain: str, web3=None, decimals=True, reward=True) -> list:
-    """
-    :param wallet:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :param reward:
-    :return:
-    """
     balances = []
 
     if web3 is None:

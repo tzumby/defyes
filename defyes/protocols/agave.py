@@ -22,38 +22,22 @@ from defyes.functions import balance_of, get_contract, to_token_amount
 
 logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# PROTOCOL DATA PROVIDER
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider - GNOSIS
 # PDP_GNOSIS = '0x75e5cF901f3A576F72AB6bCbcf7d81F1619C6a12'
 PDP_GNOSIS = "0x24dCbd376Db23e4771375092344f5CbEA3541FC0"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# LENDING POOL ADDRESSES PROVIDER REGISTRY
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Lending Pool Addresses Provider Registry - GNOSIS
 LPAPR_GNOSIS = "0x3673C22153E363B1da69732c4E0aA71872Bbb87F"
 # 0x5E15d5E33d318dCEd84Bfe3F4EACe07909bE6d9c
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# EXTRA REWARDER CONTRACT
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Rewarder contract - GNOSIS
 REWARDER_ADDRESS = "0xfa255f5104f129B78f477e9a6D050a02f31A5D86"
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# CHAINLINK PRICE FEEDS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# GNOSIS
-# XDAI/USD Price Feed
+# GNOSIS XDAI/USD Price Feed
 CHAINLINK_XDAI_USD = "0x678df3415fc31947dA4324eC63212874be5a82f8"
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider ABI - getAllReservesTokens, getUserReserveData, getReserveConfigurationData, getReserveTokensAddresses
 ABI_PDP = '[{"inputs":[],"name":"getAllReservesTokens","outputs":[{"components":[{"internalType":"string","name":"symbol","type":"string"},{"internalType":"address","name":"tokenAddress","type":"address"}],"internalType":"struct AaveProtocolDataProvider.TokenData[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"},{"internalType":"address","name":"user","type":"address"}],"name":"getUserReserveData","outputs":[{"internalType":"uint256","name":"currentATokenBalance","type":"uint256"},{"internalType":"uint256","name":"currentStableDebt","type":"uint256"},{"internalType":"uint256","name":"currentVariableDebt","type":"uint256"},{"internalType":"uint256","name":"principalStableDebt","type":"uint256"},{"internalType":"uint256","name":"scaledVariableDebt","type":"uint256"},{"internalType":"uint256","name":"stableBorrowRate","type":"uint256"},{"internalType":"uint256","name":"liquidityRate","type":"uint256"},{"internalType":"uint40","name":"stableRateLastUpdated","type":"uint40"},{"internalType":"bool","name":"usageAsCollateralEnabled","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getReserveConfigurationData","outputs":[{"internalType":"uint256","name":"decimals","type":"uint256"},{"internalType":"uint256","name":"ltv","type":"uint256"},{"internalType":"uint256","name":"liquidationThreshold","type":"uint256"},{"internalType":"uint256","name":"liquidationBonus","type":"uint256"},{"internalType":"uint256","name":"reserveFactor","type":"uint256"},{"internalType":"bool","name":"usageAsCollateralEnabled","type":"bool"},{"internalType":"bool","name":"borrowingEnabled","type":"bool"},{"internalType":"bool","name":"stableBorrowRateEnabled","type":"bool"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"isFrozen","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getReserveTokensAddresses","outputs":[{"internalType":"address","name":"aTokenAddress","type":"address"},{"internalType":"address","name":"stableDebtTokenAddress","type":"address"},{"internalType":"address","name":"variableDebtTokenAddress","type":"address"}],"stateMutability":"view","type":"function"}]'
 

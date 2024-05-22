@@ -12,10 +12,6 @@ from defyes.functions import get_contract, last_block, to_token_amount
 
 logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# PROTOCOL DATA PROVIDER
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Protocol Data Provider - Ethereum
 PROTOCOL_DATA_PROVIDER = {
     Chain.ETHEREUM: "0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3",
     Chain.OPTIMISM: "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
@@ -65,16 +61,9 @@ REWARDS_CONTROLLER = {
     Chain.METIS: "0x30C1b8F0490fa0908863d6Cbd2E36400b4310A6B",
 }
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# CHAINLINK PRICE FEEDS
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ETHEREUM
 # ETH/USD Price Feed
 CHAINLINK_ETH_USD = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Protocol Data Provider ABI - getAllReservesTokens, getUserReserveData, getReserveConfigurationData, getReserveTokensAddresses
 ABI_PDP = '[{"inputs":[],"name":"getAllReservesTokens","outputs":[{"components":[{"internalType":"string","name":"symbol","type":"string"},{"internalType":"address","name":"tokenAddress","type":"address"}],"internalType":"struct AaveProtocolDataProvider.TokenData[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"},{"internalType":"address","name":"user","type":"address"}],"name":"getUserReserveData","outputs":[{"internalType":"uint256","name":"currentATokenBalance","type":"uint256"},{"internalType":"uint256","name":"currentStableDebt","type":"uint256"},{"internalType":"uint256","name":"currentVariableDebt","type":"uint256"},{"internalType":"uint256","name":"principalStableDebt","type":"uint256"},{"internalType":"uint256","name":"scaledVariableDebt","type":"uint256"},{"internalType":"uint256","name":"stableBorrowRate","type":"uint256"},{"internalType":"uint256","name":"liquidityRate","type":"uint256"},{"internalType":"uint40","name":"stableRateLastUpdated","type":"uint40"},{"internalType":"bool","name":"usageAsCollateralEnabled","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getReserveConfigurationData","outputs":[{"internalType":"uint256","name":"decimals","type":"uint256"},{"internalType":"uint256","name":"ltv","type":"uint256"},{"internalType":"uint256","name":"liquidationThreshold","type":"uint256"},{"internalType":"uint256","name":"liquidationBonus","type":"uint256"},{"internalType":"uint256","name":"reserveFactor","type":"uint256"},{"internalType":"bool","name":"usageAsCollateralEnabled","type":"bool"},{"internalType":"bool","name":"borrowingEnabled","type":"bool"},{"internalType":"bool","name":"stableBorrowRateEnabled","type":"bool"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"isFrozen","type":"bool"}],"stateMutability":"view","type":"function"}, {"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getReserveTokensAddresses","outputs":[{"internalType":"address","name":"aTokenAddress","type":"address"},{"internalType":"address","name":"stableDebtTokenAddress","type":"address"},{"internalType":"address","name":"variableDebtTokenAddress","type":"address"}],"stateMutability":"view","type":"function"}]'
 
@@ -113,7 +102,7 @@ def get_aave_v3_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> 
     return aave_tokens
 
 
-# This function deals with staking AAVE and ABPT, which is included in Aave v2, remove it?
+# TODO This function deals with staking AAVE and ABPT, which is included in Aave v2, remove it?
 def get_all_rewards(
     wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True
 ) -> List[List]:

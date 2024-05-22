@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import List, Tuple
 
 from defabipedia import Chain
 from defabipedia.tokens import GnosisTokenAddr, PolygonTokenAddr
@@ -9,9 +10,6 @@ from web3 import Web3
 
 from defyes.functions import get_contract, get_decimals, to_token_amount
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# QIDAO_VAULTS
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # QiDao Vaults List
 QIDAO_VAULTS = {
     GnosisTokenAddr.GNO: {
@@ -31,9 +29,6 @@ ORACLE_1INCH_POLYGON = "0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9"
 # POLYGON - MATIC/USD Pair - Chainlink Price Feed
 CHAINLINK_MATIC_USD = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Vault ABI - _minimumCollateralPercentage, checkCollateralPercentage, exists, getDebtCeiling, getEthPriceSource, getTokenPriceSource, mai, priceSourceDecimals, vaultCollateral, vaultDebt
 ABI_VAULT = '[{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"_minimumCollateralPercentage","inputs":[],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"checkCollateralPercentage","inputs":[{"type":"uint256","name":"vaultID","internalType":"uint256"}],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"exists","inputs":[{"type":"uint256","name":"vaultID","internalType":"uint256"}],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"getDebtCeiling","inputs":[],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"getEthPriceSource","inputs":[],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"getTokenPriceSource","inputs":[],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"address","name":"","internalType":"contract ERC20Detailed"}],"name":"mai","inputs":[],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"priceSourceDecimals","inputs":[],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"vaultCollateral","inputs":[{"type":"uint256","name":"","internalType":"uint256"}],"constant":true}, {"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"vaultDebt","inputs":[{"type":"uint256","name":"","internalType":"uint256"}],"constant":true}]'
 
@@ -44,15 +39,7 @@ ABI_ORACLE = '[{"inputs":[],"name":"connectors","outputs":[{"internalType":"cont
 ABI_CHAINLINK_PRICE_FEED = '[{"inputs":[],"name":"latestAnswer","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"}, {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}]'
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_vault_address
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vault_address(collateral_address, blockchain):
-    """
-    :param collateral_address:
-    :param blockchain:
-    :return:
-    """
     vault_address = None
     try:
         if QIDAO_VAULTS[collateral_address]["blockchain"] == blockchain:
@@ -63,23 +50,7 @@ def get_vault_address(collateral_address, blockchain):
     return vault_address
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# get_vault_data
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, decimals=True):
-    """
-    :param vault_id:
-    :param collateral_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :return:
-    """
     vault_data = {}
 
     if web3 is None:
@@ -187,24 +158,10 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
     return vault_data
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# underlying
-# 'execution' = the current iteration, as the function goes through the different Full/Archival nodes of the blockchain attempting a successfull execution
-# 'index' = specifies the index of the Archival or Full Node that will be retrieved by the getNode() function
-# 'web3' = web3 (Node) -> Improves performance
-# 'decimals' = True -> retrieves the results considering the decimals / 'decimals' = False or not passed onto the function -> decimals are not considered
-# Output:
-# 1 - Tuple: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def underlying(vault_id, collateral_address, block, blockchain, web3=None, decimals=True):
+def underlying(vault_id, collateral_address, block, blockchain, web3=None, decimals=True) -> List[Tuple]:
     """
-    :param vault_id:
-    :param collateral_address:
-    :param block:
-    :param blockchain:
-    :param web3:
-    :param decimals:
-    :return:
+    Returns:
+        List[Tuple]: [[collateral_address, collateral_amount], [debt_address, -debt_amount]]
     """
     result = []
 

@@ -38,19 +38,15 @@ def underlying(
 def unwrap(amount: int | float | Decimal, block: int | str, blockchain: str, web3: object = None) -> list:
     """
     Returns the balance of the underlying ETH corresponding to the inputted amount of ankrETH.
-    Parameters
-    ----------
-    amount : int or float or Decimal
-        amount of ankrETH;
-    block : int or 'latest'
-        block number at which the data is queried
-    web3: obj
-        optional, already instantiated web3 object
 
-    Returns
-    ----------
-    list
-        a list where the first element is the underlying token address and the second one is the balance
+    Args:
+        amount (int or float or Decimal): Amount of ankrETH.
+        block (int or str): Block number at which the data is queried.
+        blockchain (str): The blockchain on which the data is queried.
+        web3 (object, optional): Already instantiated web3 object.
+
+    Returns:
+        list: A list where the first element is the underlying token address and the second one is the balance.
     """
     # The blockchain argument is not used but it could be in the future if Rocket Pool deploys on other ETHEREUM
     if web3 is None:

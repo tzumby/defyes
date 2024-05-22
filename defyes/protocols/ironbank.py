@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import List, Tuple
 
 from defabipedia import Chain
 from karpatkit.cache import const_call
@@ -9,21 +10,12 @@ from web3.exceptions import BadFunctionCallOutput, ContractLogicError
 
 from defyes.functions import get_contract, get_decimals, last_block, to_token_amount
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# UNITROLLER
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Optimism - Unitroller Address
 UNITROLLER_OPTIMISM = "0xE0B57FEEd45e7D908f2d0DaCd26F113Cf26715BF"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# STAKING REWARDS FACTORY
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Optimism - Staking Rewards Factory Address
 STAKING_REWARDS_FACTORY_OPTIMISM = "0x35F70CE60f049A8c21721C53a1dFCcB5bF4a1Ea8"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# veIB
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Optimism - veIB Address
 VEIB_OPTIMISM = "0x707648dfbF9dF6b0898F78EdF191B85e327e0e05"
 
@@ -33,9 +25,6 @@ FEE_DIST_OPTIMISM = "0xFdE79c1e8510eE19360B71f2561766Cf2C757Fc7"
 # Optimism - ve Dist - To retrieve the claimable IB for locking IB
 VE_DIST_OPTIMISM = "0x5402508a800dB6B72792b80623193E38839a9e24"
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# ABIs
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # iToken ABI - decimals, balanceOf, totalSupply, exchangeRateStored, underlying, borrowBalanceStored
 ABI_ITOKEN = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"exchangeRateStored","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"underlying","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"borrowBalanceStored","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
@@ -266,9 +255,11 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
     return result
 
 
-# 1 - List of Tuples: [liquidity_token_address, balance, staked_balance]
-# 2 - List of Tuples: [reward_token_address, balance]
-def underlying(wallet, token_address, block, blockchain, web3=None, decimals=True, reward=False):
+def underlying(wallet, token_address, block, blockchain, web3=None, decimals=True, reward=False) -> List[List[Tuple]]:
+    """
+    Returns:
+        List[List[Tuple]]: List of ( List of (liquidity_token_address, balance, staked_balance) and reward_token_address, balance)
+    """
     if not web3:
         web3 = get_node(blockchain)
 
@@ -434,8 +425,12 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     return result
 
 
-# 1 - List of Tuples: [liquidity_token_address, balance]
-def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals=True):
+def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals=True) -> List[Tuple]:
+    """
+    Returns:
+        List[Tuple]: liquidity_token_address, balance
+    """
+
     if not web3:
         web3 = get_node(blockchain)
 
@@ -451,36 +446,3 @@ def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals
     )
 
     return [underlying_token, underlying_token_balance]
-
-
-# print(underlying_all('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', Chain.OPTIMISM, reward=True))
-# print(underlying_all('0x1a4c5e704b65b3406e5432ea2a1136461a60b174', 'latest', Chain.OPTIMISM, reward=True))
-# print(underlying('0x1a4c5e704b65b3406e5432ea2a1136461a60b174', '0x4200000000000000000000000000000000000042', 'latest', Chain.OPTIMISM, reward=True))
-
-# print(underlying('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 'latest', Chain.OPTIMISM, reward=True))
-# 0xE173cC94d4755b72eB9196Cf50DbcD2Cba54e348
-
-# print(unwrap(198489.26169641, '0x1d073cf59Ae0C169cbc58B6fdD518822ae89173a', 'latest', Chain.OPTIMISM))
-# 0x49F4D0222C880D4780b636662F5F18f572f2f88a
-
-# print(underlying('0x49F4D0222C880D4780b636662F5F18f572f2f88a', '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', 'latest', Chain.OPTIMISM))
-
-# comptroller_contract = get_contract(get_comptoller_address(Chain.OPTIMISM), Chain.OPTIMISM, abi=ABI_UNITROLLER)
-
-# all_rewards('0x49F4D0222C880D4780b636662F5F18f572f2f88a', 'latest', Chain.OPTIMISM)
-
-# print(underlying_all('0x49F4D0222C880D4780b636662F5F18f572f2f88a', 'latest', Chain.OPTIMISM, reward=True))
-
-# block = date_to_block('2022-02-10 15:00:00', 'optimism')
-# print(get_locked('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', Chain.OPTIMISM))
-# print(get_locked('0x5eD64f02588C8B75582f2f8eFd7A5521e3F897CC', 'latest', Chain.OPTIMISM, reward=True))
-
-# block = date_to_block('2023-02-10 15:00:00', 'optimism')
-# x = underlying(
-#     wallet='0x5ed64f02588c8b75582f2f8efd7a5521e3f897cc',
-#     token_address='0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-#     block=block,
-#     blockchain=Chain.OPTIMISM,
-#     reward=True
-# )
-# print(x)
