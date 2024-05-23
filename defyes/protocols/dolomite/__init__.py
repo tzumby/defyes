@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from defabipedia import Chain
+from defabipedia.dolomite import ArbitrumContractSpecs
 from web3 import Web3
 
 from defyes.functions import ensure_a_block_number, get_logs_web3
@@ -11,8 +12,8 @@ from defyes.types import Token, TokenAmount
 
 DB_FILE = Path(__file__).parent / "db.json"
 
-BORROW_PROXYV2_ADDRESS = "0x38E49A617305101216eC6306e3a18065D14Bf3a7"
-DOLOMITE_MARGIN_ADDRESS = "0x6Bd780E7fDf01D77e4d475c821f1e7AE05409072"
+BORROW_PROXYV2_ADDRESS = ArbitrumContractSpecs.BorrowProxyV2.address
+DOLOMITE_MARGIN_ADDRESS = ArbitrumContractSpecs.DolomiteMargin.address
 
 DolomiteMargin.default_addresses = {Chain.ARBITRUM: DOLOMITE_MARGIN_ADDRESS}
 
