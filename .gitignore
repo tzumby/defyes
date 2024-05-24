@@ -13,4 +13,9 @@ config.json
 .vscode/
 .venv
 
+# Ignore the build directory from sphinx
 docs/build/
+
+# Ignore mac files 
+**/.DS_Store
+
