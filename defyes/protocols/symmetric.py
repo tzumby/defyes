@@ -237,7 +237,7 @@ def underlying(
     wallet = Web3.to_checksum_address(wallet)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    factory_contract = get_contract(SYMFACTORY_GNOSIS, blockchain)
+    factory_contract = get_contract(SYMFACTORY_GNOSIS, blockchain, web3=web3, abi=ABI_BPOOL)
 
     result = {
         "protocol": "Symmetric",
@@ -248,7 +248,7 @@ def underlying(
     }
 
     if factory_contract.functions.isBPool(lptoken_address).call(block_identifier=block):
-        lptoken_contract = get_contract(lptoken_address, blockchain)
+        lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
         balance = lptoken_contract.functions.balanceOf(wallet).call(block_identifier=block)
         totalsupply = lptoken_contract.functions.totalSupply().call(block_identifier=block)
         current_tokens = const_call(lptoken_contract.functions.getCurrentTokens())
@@ -356,7 +356,7 @@ def pool_balances(
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    factory_contract = get_contract(SYMFACTORY_GNOSIS, blockchain)
+    factory_contract = get_contract(SYMFACTORY_GNOSIS, blockchain, web3=web3, abi=ABI_BPOOL)
 
     result = {
         "protocol": "Symmetric",

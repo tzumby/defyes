@@ -150,7 +150,7 @@
 > Description: function returns decimals for given token address
 
 
-### 14: get_symbol(token_address, blockchain, web3=None, block='latest') -> str
+### 14: get_symbol(token_address, blockchain, web3=None) -> str
 
 > Description: function returns symbol for given toke contract address
 

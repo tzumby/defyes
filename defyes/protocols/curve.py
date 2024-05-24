@@ -217,7 +217,7 @@ def get_pool_address(web3, lptoken_address, block, blockchain):
 
 def get_pool_data(web3, minter, block, blockchain):
     pool_data = {
-        "contract": get_contract(minter, blockchain, web3=web3),
+        "contract": get_contract(minter, blockchain, web3=web3, abi=ABI_POOL),
         "is_metapool": False,
         "coins": {},
     }
@@ -254,7 +254,7 @@ def get_pool_data(web3, minter, block, blockchain):
             pool_data["is_metapool"] = True
 
             x3crv_minter = get_pool_address(web3, token_address, block, blockchain)
-            x3crv_pool_contract = get_contract(x3crv_minter, blockchain, web3=web3)
+            x3crv_pool_contract = get_contract(x3crv_minter, blockchain, web3=web3, abi=ABI_POOL)
 
             x3crv_next_token = True
             while x3crv_next_token:
@@ -448,7 +448,7 @@ def underlying(
     else:
         lptoken_data["staked"] = 0
 
-    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3)
+    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3, abi=ABI_POOL)
 
     pool_balance_fraction = lptoken_data["balanceOf"] / lptoken_data["totalSupply"]
     pool_staked_fraction = lptoken_data["staked"] / lptoken_data["totalSupply"]
@@ -584,7 +584,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
     if minter is None:
         minter = get_pool_address(web3, lptoken_address, block, blockchain)
 
-    pool_contract = get_contract(minter, blockchain, web3=web3)
+    pool_contract = get_contract(minter, blockchain, web3=web3, abi=ABI_POOL)
 
     next_token = True
     i = 0
@@ -594,7 +594,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
         except ContractLogicError:
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALTERNATIVE
             if i == 0:
-                pool_contract = get_contract(minter, blockchain, web3=web3)
+                pool_contract = get_contract(minter, blockchain, web3=web3, abi=ABI_POOL_ALTERNATIVE)
             else:
                 next_token = False
             continue
