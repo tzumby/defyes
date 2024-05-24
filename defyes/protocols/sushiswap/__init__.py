@@ -609,10 +609,10 @@ def get_swap_fees_APR(
     pool_contract = get_contract(lptoken_address, blockchain, web3, ABI_LPTOKEN, block_end)
     token0_address = const_call(pool_contract.functions.token0())
     token0_price = get_price(token0_address, block_end, blockchain, web3)[0]
-    token0_decimals = get_decimals(token0_address, blockchain, web3=web3, block=block_end)
+    token0_decimals = get_decimals(token0_address, blockchain, web3=web3)
     token1_address = const_call(pool_contract.functions.token1())
     token1_price = get_price(token1_address, block_end, blockchain, web3)[0]
-    token1_decimals = get_decimals(token1_address, blockchain, web3=web3, block=block_end)
+    token1_decimals = get_decimals(token1_address, blockchain, web3=web3)
     reserves = const_call(pool_contract.functions.getReserves())
     tvl = (reserves[0] / 10**token0_decimals) * token0_price + (reserves[1] / 10**token1_decimals) * token1_price
     apr = token_fees_usd / tvl * (365 / days) * 100

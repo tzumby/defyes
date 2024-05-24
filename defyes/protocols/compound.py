@@ -92,7 +92,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
 
 
 def _get_token_balance(ctoken_data, token_address, block, blockchain, web3, decimals):
-    underlying_token_decimals = get_decimals(token_address, block=block, blockchain=blockchain, web3=web3)
+    underlying_token_decimals = get_decimals(token_address, blockchain=blockchain, web3=web3)
 
     mantissa = 18 - ctoken_data["decimals"] + underlying_token_decimals
     exchange_rate = ctoken_data["exchangeRateStored"] / Decimal(10**mantissa)

@@ -101,12 +101,12 @@ class Pool:
 
     def __post_init__(self) -> None:
         # From the factory address we get the pool address
-        factory_address = get_contract(FACTORY, self.blockchain, self.web3, ABI_FACTORY, self.block)
+        factory_address = get_contract(FACTORY, self.blockchain, self.web3, ABI_FACTORY)
         self.addr = factory_address.functions.getPool(self.tokenA, self.tokenB, self.fee).call(
             block_identifier=self.block
         )
         # We then initialize the pool contract to get the info about the tick, price and tokens.
-        self.pool_contract = get_contract(self.addr, self.blockchain, self.web3, ABI_POOL, self.block)
+        self.pool_contract = get_contract(self.addr, self.blockchain, self.web3, ABI_POOL)
         self.sqrt_price_x96, self.current_tick = self.pool_contract.functions.slot0().call(block_identifier=self.block)[
             0:2
         ]
