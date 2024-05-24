@@ -160,9 +160,7 @@ def get_amount(
     )
 
     pool_token_vault_address = const_call(pool_token_contract.functions.getVault())
-    pool_token_vault = get_contract(
-        pool_token_vault_address, blockchain, web3=web3, abi=BALANCER_VAULT_ABI, block=block
-    )
+    pool_token_vault = get_contract(pool_token_vault_address, blockchain, web3=web3, abi=BALANCER_VAULT_ABI)
     pool_totals = pool_token_vault.functions.getPoolTokens(pool_id).call(block_identifier=block)
 
     amount = pt_token_balanceOf + pool_totals[1][0] * pool_share_wallet + pool_totals[1][1] * pool_share_wallet

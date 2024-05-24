@@ -63,7 +63,6 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
                                 blockchain,
                                 web3=web3,
                                 abi=ABI_DISTRIBUTION,
-                                block=block,
                             )
                         )
                     except (ContractLogicError, BadFunctionCallOutput):
@@ -82,9 +81,7 @@ def get_distribution_contracts(web3, lptoken_address, staking_rewards_contract, 
                 distribution_address = staking_rewards_contract.functions.distributions(
                     distributions_amount - (i + 1)
                 ).call(block_identifier=block)
-                distribution_contract = get_contract(
-                    distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION, block=block
-                )
+                distribution_contract = get_contract(distribution_address, blockchain, web3=web3, abi=ABI_DISTRIBUTION)
                 stakable_token = distribution_contract.functions.stakableToken().call(block_identifier=block)
 
                 if stakable_token.lower() == lptoken_address.lower():

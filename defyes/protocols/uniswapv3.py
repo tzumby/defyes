@@ -157,9 +157,7 @@ class NFTPosition:
     decimals1: int = field(init=False)
 
     def __post_init__(self) -> None:
-        self._nft_contract = get_contract(
-            POSITIONS_NFT, self.blockchain, web3=self.web3, abi=ABI_POSITIONS_NFT, block=self.block
-        )
+        self._nft_contract = get_contract(POSITIONS_NFT, self.blockchain, web3=self.web3, abi=ABI_POSITIONS_NFT)
         (
             self.token0,
             self.token1,

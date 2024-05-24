@@ -130,7 +130,7 @@ def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchai
     # Pools which don't have their gauge registered in none of the registries
     if gauge_address == Address.ZERO and blockchain != Chain.ETHEREUM:
         x_chain_factory_contract = get_contract(
-            X_CHAIN_GAUGE_FACTORY_ADDRESS, blockchain, web3=web3, abi=ABI_X_CHAIN_GAUGE_FACTORY_ADDRESS, block=block
+            X_CHAIN_GAUGE_FACTORY_ADDRESS, blockchain, web3=web3, abi=ABI_X_CHAIN_GAUGE_FACTORY_ADDRESS
         )
         gauge_address = const_call(x_chain_factory_contract.functions.get_gauge_from_lp_token(lptoken_address))
 
@@ -238,9 +238,7 @@ def get_pool_data(web3, minter, block, blockchain):
         except ContractLogicError:
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALETRNATIVE
             if i == 0:
-                pool_data["contract"] = get_contract(
-                    minter, blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
-                )
+                pool_data["contract"] = get_contract(minter, blockchain, web3=web3, abi=ABI_POOL_ALTERNATIVE)
             else:
                 next_token = False
 
@@ -267,7 +265,7 @@ def get_pool_data(web3, minter, block, blockchain):
                     # If the query fails when j == 0 -> the pool contract must be retrieved with the ABI_POOL_ALETRNATIVE
                     if i == 0:
                         x3crv_pool_contract = get_contract(
-                            x3crv_minter, blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
+                            x3crv_minter, blockchain, web3=web3, abi=ABI_POOL_ALTERNATIVE
                         )
                     else:
                         x3crv_next_token = False
@@ -463,9 +461,7 @@ def underlying(
         except ContractLogicError:
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALETRNATIVE
             if i == 0:
-                pool_contract = get_contract(
-                    lptoken_data["minter"], blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
-                )
+                pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3, abi=ABI_POOL_ALTERNATIVE)
             else:
                 next_token = False
             continue
@@ -536,9 +532,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
         except ContractLogicError:
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALTERNATIVE
             if i == 0:
-                pool_contract = get_contract(
-                    lptoken_data["minter"], blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE
-                )
+                pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3, abi=ABI_POOL_ALTERNATIVE)
             else:
                 next_token = False
             continue

@@ -150,9 +150,7 @@ def get_all_rewards(
 
     rewarder_contract_address = const_call(chef_contract.functions.rewarder(pool_id_farming))
     if rewarder_contract_address != Address.ZERO:
-        rewarder_contract = get_contract(
-            rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block
-        )
+        rewarder_contract = get_contract(rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER)
 
         pending_tokens_info = rewarder_contract.functions.pendingTokens(pool_id_farming, wallet, 1).call(
             block_identifier=block
@@ -484,9 +482,7 @@ def get_rewards_per_second(
     rewarder_contract_address = chef_contract.functions.rewarder(pool_id_farming).call(block_identifier=block)
 
     if rewarder_contract_address != Address.ZERO:
-        rewarder_contract = get_contract(
-            rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block
-        )
+        rewarder_contract = get_contract(rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER)
 
         rewarder_pool_info = rewarder_contract.functions.poolInfo(pool_id_farming).call(block_identifier=block)
         rewarder_alloc_point = rewarder_pool_info[2]

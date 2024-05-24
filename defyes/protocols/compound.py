@@ -206,9 +206,7 @@ def all_comp_rewards(wallet, block, blockchain, web3=None, decimals=True) -> Lis
     comp_token_address = get_compound_token_address(blockchain)
     comptroller_address = get_comptoller_address(blockchain)
     if compound_lens_address and comp_token_address and comptroller_address:
-        compound_lens_contract = get_contract(
-            compound_lens_address, blockchain, web3=web3, abi=ABI_COMPOUND_LENS, block=block
-        )
+        compound_lens_contract = get_contract(compound_lens_address, blockchain, web3=web3, abi=ABI_COMPOUND_LENS)
         meta_data = compound_lens_contract.functions.getCompBalanceMetadataExt(
             comp_token_address, comptroller_address, wallet
         ).call(block_identifier=block)

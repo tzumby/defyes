@@ -145,14 +145,12 @@ def get_extra_rewards(web3, rewarder_contract, wallet, block, blockchain, decima
     extra_rewards_length = rewarder_contract.functions.extraRewardsLength().call(block_identifier=block)
     for n in range(extra_rewards_length):
         extra_reward_contract_address = rewarder_contract.functions.extraRewards(n).call(block_identifier=block)
-        extra_reward_contract = get_contract(
-            extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block
-        )
+        extra_reward_contract = get_contract(extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDER)
 
         extra_reward_token_address = const_call(extra_reward_contract.functions.rewardToken())
 
         extra_reward_token_contract = get_contract(
-            extra_reward_token_address, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_TOKEN, block=block
+            extra_reward_token_address, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_TOKEN
         )
 
         base_token = call_contract_method(extra_reward_token_contract.functions.baseToken(), block)
@@ -180,7 +178,7 @@ def get_extra_rewards_airdrop(wallet, block, blockchain, web3=None, decimals=Tru
     wallet = Web3.to_checksum_address(wallet)
 
     extra_rewards_distributor = get_contract(
-        EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_DISTRIBUTOR, block=block
+        EXTRA_REWARDS_DISTRIBUTOR, blockchain, web3=web3, abi=ABI_EXTRA_REWARDS_DISTRIBUTOR
     )
 
     extra_reward = extra_rewards_distributor.functions.claimableRewards(wallet, EthereumTokenAddr.AURA).call(

@@ -259,7 +259,6 @@ def get_contract(contract_address, blockchain, web3=None, abi=None):
         web3 (Web3, optional): An instance of the Web3 class. If not provided, a default instance will be used.
         abi (list, optional): The ABI (Application Binary Interface) of the contract.
             If not provided, it will be fetched from the blockchain explorer.
-        block (str, optional): The block number or block tag to use for contract retrieval. Defaults to "latest".
 
     Returns:
         Contract: An instance of the contract.

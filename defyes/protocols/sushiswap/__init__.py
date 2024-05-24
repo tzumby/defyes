@@ -240,9 +240,7 @@ def get_rewarder_contract(web3, block, blockchain, chef_contract, pool_id):
     # TODO: determine if const_call can be used
     rewarder_contract_address = chef_contract.functions.rewarder(pool_id).call(block_identifier=block)
     if rewarder_contract_address != Address.ZERO:
-        rewarder_contract = get_contract(
-            rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER, block=block
-        )
+        rewarder_contract = get_contract(rewarder_contract_address, blockchain, web3=web3, abi=ABI_REWARDER)
     else:
         rewarder_contract = None
 

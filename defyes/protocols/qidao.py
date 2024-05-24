@@ -140,9 +140,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
                 ChainExplorer(blockchain).time_from_block(block)
             )
 
-            price_feed_contract = get_contract(
-                CHAINLINK_MATIC_USD, Chain.POLYGON, abi=ABI_CHAINLINK_PRICE_FEED, block=block_polygon
-            )
+            price_feed_contract = get_contract(CHAINLINK_MATIC_USD, Chain.POLYGON, abi=ABI_CHAINLINK_PRICE_FEED)
             price_feed_decimals = const_call(price_feed_contract.functions.decimals())
             matic_usd_price = Decimal(price_feed_contract.functions.latestAnswer().call(block_identifier=block_polygon))
             matic_usd_price /= Decimal(10**price_feed_decimals)

@@ -104,9 +104,7 @@ def get_extra_rewards(web3, crv_rewards_contract, wallet, block, blockchain, dec
 
     for i in range(extra_rewards_length):
         extra_reward_contract_address = crv_rewards_contract.functions.extraRewards(i).call(block_identifier=block)
-        extra_reward_contract = get_contract(
-            extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDS, block=block
-        )
+        extra_reward_contract = get_contract(extra_reward_contract_address, blockchain, web3=web3, abi=ABI_REWARDS)
 
         extra_reward_token_address = const_call(extra_reward_contract.functions.rewardToken())
         extra_reward = extra_reward_contract.functions.earned(wallet).call(block_identifier=block)

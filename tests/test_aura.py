@@ -66,9 +66,7 @@ def test_get_pool_rewarder():
 def test_get_rewards():
     block = 17020318
     node = get_node(Chain.ETHEREUM)
-    rewarder_contract = get_contract(
-        aura_OHMwstETHvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block
-    )
+    rewarder_contract = get_contract(aura_OHMwstETHvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER)
 
     rewards = Aura.get_rewards(node, rewarder_contract, WALLET_N1, block, Chain.ETHEREUM)
     assert rewards == [EthereumTokenAddr.BAL, Decimal("1.871667357372893151")]
@@ -77,9 +75,7 @@ def test_get_rewards():
 def test_get_extra_rewards():
     block = 17020318
     node = get_node(Chain.ETHEREUM)
-    rewarder_contract = get_contract(
-        aura_auraBALSTABLEvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block
-    )
+    rewarder_contract = get_contract(aura_auraBALSTABLEvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER)
 
     rewards = Aura.get_extra_rewards(node, rewarder_contract, WALLET_N2, block, Chain.ETHEREUM)
     assert rewards[0] == [EthereumTokenAddr.AURA, Decimal("0.198621417050926001")]
@@ -96,9 +92,7 @@ def test_get_extra_rewards_airdrop():
 def test_get_aura_mint_amount():
     block = 17020318
     node = get_node(Chain.ETHEREUM)
-    rewarder_contract = get_contract(
-        aura_OHMwstETHvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER, block=block
-    )
+    rewarder_contract = get_contract(aura_OHMwstETHvault_ADDR, Chain.ETHEREUM, web3=node, abi=Aura.ABI_REWARDER)
 
     bal_token, bal_earned = Aura.get_rewards(node, rewarder_contract, WALLET_N1, block, Chain.ETHEREUM)
 
