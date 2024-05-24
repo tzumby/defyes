@@ -248,7 +248,7 @@ def underlying(
     }
 
     if factory_contract.functions.isBPool(lptoken_address).call(block_identifier=block):
-        lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
+        lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKENV1)
         balance = lptoken_contract.functions.balanceOf(wallet).call(block_identifier=block)
         totalsupply = lptoken_contract.functions.totalSupply().call(block_identifier=block)
         current_tokens = const_call(lptoken_contract.functions.getCurrentTokens())
