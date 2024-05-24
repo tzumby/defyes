@@ -34,10 +34,10 @@ def underlying(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    steth_contract = get_contract(EthereumTokenAddr.stETH, Chain.ETHEREUM, abi=STETH_ABI, block=block, web3=web3)
+    steth_contract = get_contract(EthereumTokenAddr.stETH, Chain.ETHEREUM, abi=STETH_ABI)
     steth_balance = steth_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
-    wsteth_contract = get_contract(EthereumTokenAddr.wstETH, Chain.ETHEREUM, abi=WSTETH_ABI, block=block, web3=web3)
+    wsteth_contract = get_contract(EthereumTokenAddr.wstETH, Chain.ETHEREUM, abi=WSTETH_ABI)
     wsteth_balance = wsteth_contract.functions.balanceOf(wallet).call(block_identifier=block)
     stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10**18)
 
@@ -65,7 +65,7 @@ def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool = Fals
     if web3 is None:
         web3 = get_node(Chain.ETHEREUM)
 
-    wsteth_contract = get_contract(EthereumTokenAddr.wstETH, Chain.ETHEREUM, block=block, web3=web3)
+    wsteth_contract = get_contract(EthereumTokenAddr.wstETH, Chain.ETHEREUM)
     stEthPerToken = wsteth_contract.functions.stEthPerToken().call(block_identifier=block) / Decimal(10**18)
 
     steth_equivalent = amount * stEthPerToken

@@ -61,7 +61,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
     vault_address = get_vault_address(collateral_address, blockchain)
 
     if vault_address is not None:
-        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block="latest")
+        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT)
 
         if vault_contract.functions.exists(vault_id).call(block_identifier=block):
             debt_address = const_call(vault_contract.functions.mai())
@@ -147,7 +147,7 @@ def get_vault_data(vault_id, collateral_address, block, blockchain, web3=None, d
             matic_usd_price = Decimal(price_feed_contract.functions.latestAnswer().call(block_identifier=block_polygon))
             matic_usd_price /= Decimal(10**price_feed_decimals)
 
-            oracle_contract = get_contract(ORACLE_1INCH_POLYGON, Chain.POLYGON, abi=ABI_ORACLE, block=block_polygon)
+            oracle_contract = get_contract(ORACLE_1INCH_POLYGON, Chain.POLYGON, abi=ABI_ORACLE)
             rate = Decimal(
                 oracle_contract.functions.getRateToEth(PolygonTokenAddr.MAI, False).call(block_identifier=block_polygon)
             )
@@ -172,7 +172,7 @@ def underlying(vault_id, collateral_address, block, blockchain, web3=None, decim
     vault_address = get_vault_address(collateral_address, blockchain)
 
     if vault_address is not None:
-        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
+        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT)
 
         if vault_contract.functions.exists(vault_id).call(block_identifier=block):
             collateral_decimals = get_decimals(collateral_address, blockchain, web3=web3) if decimals else 0

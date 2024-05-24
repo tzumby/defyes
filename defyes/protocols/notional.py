@@ -40,7 +40,7 @@ def get_markets_data(block, blockchain, web3=None, decimals=True, nproxy_contrac
 
     if nproxy_contract is None:
         nproxy_address = get_nproxy_address(blockchain)
-        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY)
 
     for i in range(nproxy_contract.functions.getMaxCurrencyId().call(block_identifier=block)):
         market_data = {}
@@ -66,7 +66,7 @@ def get_markets_data(block, blockchain, web3=None, decimals=True, nproxy_contrac
 
         # TODO: check if const_call can be used
         ntoken_address = nproxy_contract.functions.nTokenAddress(i + 1).call(block_identifier=block)
-        ntoken_contract = get_contract(ntoken_address, blockchain, web3=web3, abi=ABI_NTOKEN, block=block)
+        ntoken_contract = get_contract(ntoken_address, blockchain, web3=web3, abi=ABI_NTOKEN)
         market_data["nToken"] = {
             "address": ntoken_address,
             # in 10^decimals format
@@ -97,7 +97,7 @@ def all_note_rewards(wallet, block, blockchain, web3=None, decimals=True, nproxy
 
     if nproxy_contract is None:
         nproxy_address = get_nproxy_address(blockchain)
-        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+        nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY)
 
     note_token_address = const_call(nproxy_contract.functions.getNoteToken())
     note_rewards = nproxy_contract.functions.nTokenGetClaimableIncentives(
@@ -128,10 +128,10 @@ def get_staked(wallet, block, blockchain, web3=None, decimals=True, reward=False
     wallet = Web3.to_checksum_address(wallet)
 
     nproxy_address = get_nproxy_address(blockchain)
-    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY)
 
     snote_token_address = get_snote_address(blockchain)
-    snote_contract = get_contract(snote_token_address, blockchain, web3=web3, abi=ABI_SNOTE, block=block)
+    snote_contract = get_contract(snote_token_address, blockchain, web3=web3, abi=ABI_SNOTE)
 
     weth_balance, note_balance = snote_contract.functions.tokenClaimOf(wallet).call(block_identifier=block)
 
@@ -202,7 +202,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
     wallet = Web3.to_checksum_address(wallet)
 
     nproxy_address = get_nproxy_address(blockchain)
-    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY)
 
     markets_data = get_markets_data(block, blockchain, web3=web3, nproxy_contract=nproxy_contract)
     account_data = nproxy_contract.functions.getAccount(wallet).call(block_identifier=block)
@@ -232,7 +232,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
     token_address = Web3.to_checksum_address(token_address)
 
     nproxy_address = get_nproxy_address(blockchain)
-    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY, block=block)
+    nproxy_contract = get_contract(nproxy_address, blockchain, web3=web3, abi=ABI_NPROXY)
 
     markets_data = get_markets_data(
         block, blockchain, web3=web3, nproxy_contract=nproxy_contract, token_address=token_address

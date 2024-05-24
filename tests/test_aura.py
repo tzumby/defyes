@@ -57,7 +57,7 @@ def test_db_uptodate():
 def test_get_pool_rewarder():
     block = 17012817
     node = get_node(Chain.ETHEREUM)
-    booster_contract = get_contract(Aura.BOOSTER, Chain.ETHEREUM, web3=node, abi=Aura.ABI_BOOSTER, block=block)
+    booster_contract = get_contract(Aura.BOOSTER, Chain.ETHEREUM, web3=node, abi=Aura.ABI_BOOSTER)
     rewarders = Aura.get_pool_rewarders(booster_contract, balancer_50OHM50wstETH_ADDR, Chain.ETHEREUM, block)
 
     assert rewarders == [aura_OHMwstETHvault_ADDR]

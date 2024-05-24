@@ -433,7 +433,7 @@ def get_abi_function_signatures(
     if abi_address == Address.ZERO:
         contract = get_contract(contract_address, blockchain, web3=web3)
     else:
-        contract = get_contract_proxy_abi(contract_address, abi_address, blockchain, web3=web3, block=block)
+        contract = get_contract_proxy_abi(contract_address, abi_address, blockchain, web3=web3)
 
     if contract is not None:
         abi = contract.abi

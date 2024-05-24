@@ -66,15 +66,15 @@ def get_chef_contract(web3, block, blockchain, v1=False):
     """
     if blockchain == Chain.ETHEREUM:
         if v1 is False:
-            chef_contract = get_contract(MASTERCHEF_V2, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
+            chef_contract = get_contract(MASTERCHEF_V2, blockchain, web3=web3, abi=ABI_CHEF_V2)
         else:
-            chef_contract = get_contract(MASTERCHEF_V1, blockchain, web3=web3, abi=ABI_CHEF_V1, block=block)
+            chef_contract = get_contract(MASTERCHEF_V1, blockchain, web3=web3, abi=ABI_CHEF_V1)
 
     elif blockchain == Chain.POLYGON:
-        chef_contract = get_contract(MINICHEF_POLYGON, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
+        chef_contract = get_contract(MINICHEF_POLYGON, blockchain, web3=web3, abi=ABI_CHEF_V2)
 
     elif blockchain == Chain.GNOSIS:
-        chef_contract = get_contract(MINICHEF_GNOSIS, blockchain, web3=web3, abi=ABI_CHEF_V2, block=block)
+        chef_contract = get_contract(MINICHEF_GNOSIS, blockchain, web3=web3, abi=ABI_CHEF_V2)
 
     return chef_contract
 
@@ -198,7 +198,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
         web3 = get_node(blockchain)
 
     lptoken_data = {}
-    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     lptoken_data["decimals"] = const_call(lptoken_data["contract"].functions.decimals())
     lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
@@ -224,7 +224,7 @@ def get_virtual_total_supply(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data = {}
 
-    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
     lptoken_data["reserves"] = lptoken_data["contract"].functions.getReserves().call(block_identifier=block)
@@ -401,7 +401,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True) 
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
     reserves = lptoken_contract.functions.getReserves().call(block_identifier=block)
 
     for n, reserve in enumerate(reserves):
@@ -422,7 +422,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     token0 = const_call(lptoken_contract.functions.token0())
     token1 = const_call(lptoken_contract.functions.token1())

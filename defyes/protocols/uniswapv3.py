@@ -371,7 +371,7 @@ def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None) -> 
     if web3 is None:
         web3 = get_node(blockchain)
 
-    nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT, block=block)
+    nft_contract = get_contract(POSITIONS_NFT, blockchain, web3=web3, abi=ABI_POSITIONS_NFT)
     nfts = nft_contract.functions.balanceOf(wallet).call(block_identifier=block)
     for nft_index in range(nfts):
         nft_id = nft_contract.functions.tokenOfOwnerByIndex(wallet, nft_index).call(block_identifier=block)

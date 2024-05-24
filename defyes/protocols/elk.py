@@ -32,7 +32,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data = {}
 
-    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     lptoken_data["decimals"] = const_call(lptoken_data["contract"].functions.decimals())
     lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
@@ -52,7 +52,7 @@ def get_pool_address(web3, token0, token1, block, blockchain):
     pools = requests.get(API_ELK_POOLS).json()
     symbols = []
     for token in [token0, token1]:
-        token_contract = get_contract(token, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED, block=block)
+        token_contract = get_contract(token, blockchain, web3=web3, abi=ABI_TOKEN_SIMPLIFIED)
         symbol = const_call(token_contract.functions.symbol())
 
         if "wrapped" in const_call(token_contract.functions.name()).lower():
@@ -122,7 +122,7 @@ def get_all_rewards(
     if pool_contract is None:
         lptoken_data = get_lptoken_data(lptoken_address, block, blockchain, web3=web3)
         pool_address = get_pool_address(web3, lptoken_data["token0"], lptoken_data["token1"], block, blockchain)
-        pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
+        pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL)
 
     elk_rewards = get_elk_rewards(web3, pool_contract, wallet, block, blockchain, decimals=decimals)
     all_rewards.append(elk_rewards)
@@ -154,7 +154,7 @@ def underlying(wallet, lptoken_address, block, blockchain, web3=None, decimals=T
         logging.warning(f"Cannot find Elk Pool Address for LPToken Address: {lptoken_address}")
         return None
 
-    pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
+    pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL)
 
     # WARNING: Fees are deactivated in Elk
     pool_balance_fraction = (
@@ -190,7 +190,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True):
         web3 = get_node(blockchain)
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     reserves = lptoken_contract.functions.getReserves().call(block_identifier=block)[:2]
     for token, reserve in zip(["token0", "token1"], reserves):
@@ -209,7 +209,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     token0 = const_call(lptoken_contract.functions.token0())
     token1 = const_call(lptoken_contract.functions.token1())
@@ -256,7 +256,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 #         print('Error: Cannot find Elk Pool Address for LPToken Address: ', lptoken_address)
 #         return None
 
-#     pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL, block=block)
+#     pool_contract = get_contract(pool_address, blockchain, web3=web3, abi=ABI_POOL)
 
 #     booster_token = pool_contract.functions.boosterToken().call()
 #     if booster_token is not None and booster_token != Address.ZERO:

@@ -71,7 +71,7 @@ def get_reserves_tokens_balances(
 ) -> List[List]:
     balances = []
 
-    pdp_contract = get_contract(PDP_GNOSIS, blockchain, web3=web3, abi=ABI_PDP, block=block)
+    pdp_contract = get_contract(PDP_GNOSIS, blockchain, web3=web3, abi=ABI_PDP)
     reserves_tokens = get_reserves_tokens(pdp_contract, block)
     cs_wallet = Web3.to_checksum_address(wallet)
 
@@ -96,14 +96,12 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str, web3=None, de
 
     wallet = Web3.to_checksum_address(wallet)
 
-    lpapr_contract = get_contract(LPAPR_GNOSIS, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+    lpapr_contract = get_contract(LPAPR_GNOSIS, blockchain, web3=web3, abi=ABI_LPAPR)
 
     lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
-    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
+    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL)
 
-    chainlink_eth_usd_contract = get_contract(
-        CHAINLINK_XDAI_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_XDAI_USD, block=block
-    )
+    chainlink_eth_usd_contract = get_contract(CHAINLINK_XDAI_USD, blockchain, web3=web3, abi=ABI_CHAINLINK_XDAI_USD)
     chainlink_eth_usd_decimals = const_call(chainlink_eth_usd_contract.functions.decimals())
     xdai_usd_price = chainlink_eth_usd_contract.functions.latestAnswer().call(block_identifier=block)
     xdai_usd_price = Decimal(xdai_usd_price) / Decimal(10**chainlink_eth_usd_decimals)
@@ -112,9 +110,7 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str, web3=None, de
 
     if balances:
         price_oracle_address = lpapr_contract.functions.getPriceOracle().call(block_identifier=block)
-        price_oracle_contract = get_contract(
-            price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block
-        )
+        price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE)
 
         for balance in balances:
             asset = {"token_address": balance[0], "token_amount": abs(balance[1])}
@@ -179,7 +175,7 @@ def get_all_rewards(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE)
 
     reward_token = const_call(stkagave_contract.functions.REWARD_TOKEN())
 
@@ -223,10 +219,10 @@ def get_apr(token_address: str, block: Union[int, str], blockchain: str, web3=No
     if web3 is None:
         web3 = get_node(blockchain)
 
-    lpapr_contract = get_contract(LPAPR_GNOSIS, blockchain, web3=web3, abi=ABI_LPAPR, block=block)
+    lpapr_contract = get_contract(LPAPR_GNOSIS, blockchain, web3=web3, abi=ABI_LPAPR)
 
     lending_pool_address = const_call(lpapr_contract.functions.getLendingPool())
-    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
+    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL)
 
     reserve_data = lending_pool_contract.functions.getReserveData(token_address).call(block_identifier=block)
 
@@ -265,7 +261,7 @@ def get_staking_apr(block: Union[int, str], blockchain: str, web3=None, apy: boo
 
     seconds_per_year = 365 * 24 * 60 * 60
 
-    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE)
     emission_per_second = stkagave_contract.functions.assets(GnosisTokenAddr.STKAGAVE).call(block_identifier=block)[0]
     agave_token_address = const_call(stkagave_contract.functions.REWARD_TOKEN())
     current_stakes = balance_of(
@@ -288,7 +284,7 @@ def get_staked(
 
     agave_wallet = Web3.to_checksum_address(wallet)
 
-    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE, block=block)
+    stkagave_contract = get_contract(GnosisTokenAddr.STKAGAVE, blockchain, web3=web3, abi=ABI_STKAGAVE)
     stkagave_balance = stkagave_contract.functions.balanceOf(agave_wallet).call(block_identifier=block)
 
     stkagave_balance = to_token_amount(GnosisTokenAddr.STKAGAVE, stkagave_balance, blockchain, web3, decimals)
@@ -305,7 +301,7 @@ def get_agave_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> di
     if web3 is None:
         web3 = get_node(blockchain)
 
-    pdp_contract = get_contract(PDP_GNOSIS, blockchain, web3=web3, abi=ABI_PDP, block=block)
+    pdp_contract = get_contract(PDP_GNOSIS, blockchain, web3=web3, abi=ABI_PDP)
     reserve_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
     agave_tokens = []
     for token in reserve_tokens:

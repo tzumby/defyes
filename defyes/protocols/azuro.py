@@ -111,8 +111,8 @@ def underlying(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
-    pool_v2_contract = get_contract(POOL_ADDR_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
+    pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI)
+    pool_v2_contract = get_contract(POOL_ADDR_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI)
 
     balance = 0
     reward = 0
@@ -150,10 +150,10 @@ def underlying_all(
         web3 = get_node(blockchain)
 
     wallet = Web3.to_checksum_address(wallet)
-    pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
+    pool_v1_contract = get_contract(POOL_ADDR_V1, blockchain, web3=web3, abi=AZURO_POOL_ABI)
     assets_pool1 = pool_v1_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
-    pool_v2_contract = get_contract(POOL_ADDR_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI, block=block)
+    pool_v2_contract = get_contract(POOL_ADDR_V2, blockchain, web3=web3, abi=AZURO_POOL_ABI)
     assets_pool2 = pool_v2_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
     results = []

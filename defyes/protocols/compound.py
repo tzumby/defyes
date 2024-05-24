@@ -48,14 +48,14 @@ def get_compound_token_address(blockchain):
 
 def get_ctokens_contract_list(blockchain, web3, block):
     comptroller_address = get_comptoller_address(blockchain)
-    comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER, block=block)
+    comptroller_contract = get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER)
 
     return comptroller_contract.functions.getAllMarkets().call(block_identifier=block)
 
 
 def get_comptroller_contract(blockchain, web3, block):
     comptroller_address = get_comptoller_address(blockchain)
-    return get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER, block=block)
+    return get_contract(comptroller_address, blockchain, web3=web3, abi=ABI_COMPTROLLER)
 
 
 def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken_contract=None, underlying_token=None):
@@ -68,7 +68,7 @@ def get_ctoken_data(ctoken_address, wallet, block, blockchain, web3=None, ctoken
     if ctoken_contract:
         ctoken_data["contract"] = ctoken_contract
     else:
-        ctoken_data["contract"] = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
+        ctoken_data["contract"] = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN)
 
     if underlying_token:
         ctoken_data["underlying"] = underlying_token
@@ -120,7 +120,7 @@ def underlying(wallet, token_address, block, blockchain, web3=None, decimals=Tru
 
     ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
     for ctoken_address in ctoken_list:
-        ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
+        ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN)
 
         symbol = const_call(ctoken_contract.functions.symbol())
         if symbol == "cETH":
@@ -162,7 +162,7 @@ def underlying_all(wallet, block, blockchain, web3=None, decimals=True, reward=F
 
     for ctoken_address in ctoken_list:
         if balance_of(wallet, ctoken_address, block, blockchain, web3=web3) > 0:
-            ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
+            ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN)
 
             symbol = const_call(ctoken_contract.functions.symbol())
             if symbol == "cETH":
@@ -229,7 +229,7 @@ def unwrap(ctoken_amount: float | Decimal, ctoken_address, block, blockchain, we
     if web3 is None:
         web3 = get_node(blockchain)
 
-    ctoken_contract = get_contract(ctoken_address, blockchain, abi=ABI_CTOKEN, web3=web3, block=block)
+    ctoken_contract = get_contract(ctoken_address, blockchain, abi=ABI_CTOKEN, web3=web3)
     ctoken_decimals = const_call(ctoken_contract.functions.decimals())
     exchange_rate = ctoken_contract.functions.exchangeRateStored().call(block_identifier=block)
 
@@ -267,7 +267,7 @@ def get_apr(token_address, block, blockchain, web3=None, ctoken_address=None, ap
         ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
 
     for ctoken_address in ctoken_list:
-        ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
+        ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN)
 
         symbol = const_call(ctoken_contract.functions.symbol())
         if symbol == "cETH":
@@ -324,7 +324,7 @@ def get_comp_apr(token_address, block, blockchain, web3=None, ctoken_address=Non
         ctoken_list = get_ctokens_contract_list(blockchain, web3, block)
 
     for ctoken_address in ctoken_list:
-        ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN, block=block)
+        ctoken_contract = get_contract(ctoken_address, blockchain, web3=web3, abi=ABI_CTOKEN)
 
         symbol = const_call(ctoken_contract.functions.symbol())
         if symbol == "cETH":

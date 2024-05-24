@@ -158,7 +158,7 @@
 
 > fucntion returns abi for given contract address
 
-### 16: get_contract(contract_address, blockchain, web3=None, abi=None, block='latest')
+### 16: get_contract(contract_address, blockchain, web3=None, abi=None)
 
 > Description: function returns web3 contract object for given contract object
 
@@ -175,7 +175,7 @@
   ```
   </details>
 
-### 16: get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, web3=None, block='latest', index=0)
+### 16: get_contract_proxy_abi(contract_address, abi_contract_address, blockchain, web3=None)
 
 > Description: function returns abi for given contract with the help of proxy conract
 

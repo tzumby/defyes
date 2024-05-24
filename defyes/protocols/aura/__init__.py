@@ -203,7 +203,7 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, rewarder, decimals
     if blockchain == Chain.ETHEREUM:
         aura_address = EthereumTokenAddr.AURA
 
-        booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+        booster_contract = get_contract(BOOSTER, blockchain, web3=web3, abi=ABI_BOOSTER)
         reward_multiplier = booster_contract.functions.getRewardMultipliers(rewarder).call(block_identifier=block)
         REWARD_MULTIPLIER_DENOMINATOR = booster_contract.functions.REWARD_MULTIPLIER_DENOMINATOR().call(
             block_identifier=block
@@ -211,7 +211,7 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, rewarder, decimals
 
         bal_earned = bal_earned * reward_multiplier / REWARD_MULTIPLIER_DENOMINATOR
 
-        aura_contract = get_contract(aura_address, blockchain, web3=web3, abi=ABI_AURA, block=block)
+        aura_contract = get_contract(aura_address, blockchain, web3=web3, abi=ABI_AURA)
 
         aura_total_supply = aura_contract.functions.totalSupply().call(block_identifier=block)
         init_mint_amount = aura_contract.functions.INIT_MINT_AMOUNT().call(block_identifier=block)
@@ -235,9 +235,9 @@ def get_aura_mint_amount(web3, bal_earned, block, blockchain, rewarder, decimals
                 aura_amount = amount_till_max
 
     else:
-        booster_contract = get_contract(BOOSTER_LITE, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+        booster_contract = get_contract(BOOSTER_LITE, blockchain, web3=web3, abi=ABI_BOOSTER)
         minter_address = const_call(booster_contract.functions.minter())
-        minter_contract = get_contract(minter_address, blockchain, web3=web3, abi=ABI_L2COORDINATOR, block=block)
+        minter_contract = get_contract(minter_address, blockchain, web3=web3, abi=ABI_L2COORDINATOR)
         aura_address = const_call(minter_contract.functions.auraOFT())
         aura_amount = bal_earned * (minter_contract.functions.mintRate().call(block_identifier=block) / Decimal(10**18))
 
@@ -264,11 +264,11 @@ def get_all_rewards(wallet, lptoken_address, block, blockchain, web3=None, decim
         else:
             booster_address = BOOSTER_LITE
 
-        booster_contract = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+        booster_contract = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER)
         rewarders = get_pool_rewarders(booster_contract, lptoken_address, blockchain, block)
 
     for rewarder in rewarders:
-        rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
+        rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER)
 
         bal_rewards = get_rewards(web3, rewarder_contract, wallet, block, blockchain, decimals=decimals)
         if bal_rewards[0] in all_rewards.keys():
@@ -306,7 +306,7 @@ def get_locked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 
     wallet = Web3.to_checksum_address(wallet)
 
-    aura_locker_contract = get_contract(AURA_LOCKER, blockchain, web3=web3, abi=ABI_AURA_LOCKER, block=block)
+    aura_locker_contract = get_contract(AURA_LOCKER, blockchain, web3=web3, abi=ABI_AURA_LOCKER)
 
     aura_locker = aura_locker_contract.functions.balances(wallet).call(block_identifier=block)[0]
 
@@ -332,7 +332,7 @@ def get_staked(wallet, block, blockchain, web3=None, reward=False, decimals=True
 
     wallet = Web3.to_checksum_address(wallet)
 
-    aurabal_rewarder_contract = get_contract(AURABAL_REWARDER, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
+    aurabal_rewarder_contract = get_contract(AURABAL_REWARDER, blockchain, web3=web3, abi=ABI_REWARDER)
     aurabal_address = const_call(aurabal_rewarder_contract.functions.stakingToken())
     aurabal_staked = aurabal_rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block)
 
@@ -363,7 +363,7 @@ def get_compounded(wallet, block, blockchain, web3=None, reward=False, decimals=
 
     wallet = Web3.to_checksum_address(wallet)
 
-    stk_aurabal_contract = get_contract(stkauraBAL, blockchain, web3=web3, abi=ABI_STKAURABAL, block=block)
+    stk_aurabal_contract = get_contract(stkauraBAL, blockchain, web3=web3, abi=ABI_STKAURABAL)
     aurabal_address = const_call(stk_aurabal_contract.functions.underlying())
     aurabal_staked = stk_aurabal_contract.functions.balanceOfUnderlying(wallet).call(block_identifier=block)
 
@@ -399,12 +399,12 @@ def underlying(
     else:
         booster_address = BOOSTER_LITE
 
-    booster_contract = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+    booster_contract = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER)
 
     rewarders = get_pool_rewarders(booster_contract, lptoken_address, blockchain, block)
 
     for rewarder in rewarders:
-        rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER, block=block)
+        rewarder_contract = get_contract(rewarder, blockchain, web3=web3, abi=ABI_REWARDER)
         lptoken_staked = Decimal(rewarder_contract.functions.balanceOf(wallet).call(block_identifier=block))
         lptoken_decimals = get_decimals(lptoken_address, blockchain, web3=web3)
         amount = lptoken_staked / Decimal(10**lptoken_decimals if decimals else 1)
@@ -447,7 +447,7 @@ def update_db(output_file=DB_FILE, block="latest"):
         else:
             booster_address = BOOSTER_LITE
 
-        booster = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER, block=block)
+        booster = get_contract(booster_address, blockchain, web3=web3, abi=ABI_BOOSTER)
         pools_length = booster.functions.poolLength().call(block_identifier=block)
         rewarder_pool_created_event = web3.keccak(text=REWARD_POOL_CREATED_EVENT_SIGNATURE).hex()
 

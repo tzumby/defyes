@@ -88,7 +88,7 @@ def get_itoken_data(itoken_address, wallet, block, blockchain, web3=None, underl
 
     itoken_data = {}
 
-    itoken_data["contract"] = get_contract(itoken_address, blockchain, web3=web3, abi=ABI_ITOKEN, block=block)
+    itoken_data["contract"] = get_contract(itoken_address, blockchain, web3=web3, abi=ABI_ITOKEN)
 
     if underlying_token:
         itoken_data["underlying"] = underlying_token
@@ -209,7 +209,7 @@ def get_locked(wallet, block, blockchain, nft_id=302, web3=None, reward=False, d
     wallet = Web3.to_checksum_address(wallet)
 
     veib_address = get_veib_address(blockchain)
-    veib_contract = get_contract(veib_address, blockchain, web3=web3, abi=ABI_VEIB, block=block)
+    veib_contract = get_contract(veib_address, blockchain, web3=web3, abi=ABI_VEIB)
     ib_token = const_call(veib_contract.functions.token())
 
     if block == "latest":
@@ -434,7 +434,7 @@ def unwrap(itoken_amount, itoken_address, block, blockchain, web3=None, decimals
     if not web3:
         web3 = get_node(blockchain)
 
-    itoken_contract = get_contract(itoken_address, blockchain, abi=ABI_ITOKEN, web3=web3, block=block)
+    itoken_contract = get_contract(itoken_address, blockchain, abi=ABI_ITOKEN, web3=web3)
     itoken_decimals = const_call(itoken_contract.functions.decimals())
     exchange_rate = itoken_contract.functions.exchangeRateStored().call(block_identifier=block)
 

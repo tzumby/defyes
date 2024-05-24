@@ -55,9 +55,7 @@ def get_native_token_price(web3, block, blockchain, decimals=False):
     elif blockchain == Chain.GNOSIS:
         price_feed_address = CHAINLINK_XDAI_USD
 
-    price_feed_contract = get_contract(
-        price_feed_address, blockchain, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block
-    )
+    price_feed_contract = get_contract(price_feed_address, blockchain, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED)
     price_feed_decimals = const_call(price_feed_contract.functions.decimals())
     if decimals:
         price_feed_decimals = Decimal(price_feed_decimals)
@@ -88,7 +86,7 @@ def get_mainnet_price(token_address, block, web3=None, index=0):
     token_address = Web3.to_checksum_address(token_address)
 
     feed_registry_contract = get_contract(
-        CHAINLINK_FEED_REGISTRY, Chain.ETHEREUM, web3=web3, abi=ABI_CHAINLINK_FEED_REGISTRY, block=block
+        CHAINLINK_FEED_REGISTRY, Chain.ETHEREUM, web3=web3, abi=ABI_CHAINLINK_FEED_REGISTRY
     )
 
     for quote in CHAINLINK_ETH_QUOTES:
@@ -97,7 +95,7 @@ def get_mainnet_price(token_address, block, web3=None, index=0):
                 block_identifier=block
             )
             price_feed_contract = get_contract(
-                price_feed_address, Chain.ETHEREUM, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED, block=block
+                price_feed_address, Chain.ETHEREUM, web3=web3, abi=ABI_CHAINLINK_PRICE_FEED
             )
             price_feed_decimals = const_call(price_feed_contract.functions.decimals())
 

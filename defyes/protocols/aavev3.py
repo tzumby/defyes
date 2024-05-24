@@ -91,7 +91,7 @@ def get_aave_v3_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> 
     if web3 is None:
         web3 = get_node(blockchain)
 
-    pdp_contract = get_contract(PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP, block=block)
+    pdp_contract = get_contract(PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP)
     reserve_tokens = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
     aave_tokens = []
     for token in reserve_tokens:
@@ -121,9 +121,7 @@ def get_all_rewards(
 
     wallet = Web3.to_checksum_address(wallet)
 
-    rewards_controller_contract = get_contract(
-        rewards_address, blockchain, web3=web3, abi=ABI_REWARDS_CONTROLLER, block=block
-    )
+    rewards_controller_contract = get_contract(rewards_address, blockchain, web3=web3, abi=ABI_REWARDS_CONTROLLER)
 
     reward_tokens = const_call(rewards_controller_contract.functions.getRewardsList())
 
@@ -142,7 +140,7 @@ def underlying_all(wallet: str, block: int | str, blockchain: str, web3: Web3 = 
         web3 = get_node(blockchain)
 
     protocol_data_provider_contract = get_contract(
-        PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP, block=block
+        PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP
     )
 
     aave_v3_tokens = get_aave_v3_tokens(blockchain, block, web3=web3)
@@ -218,7 +216,7 @@ def get_reserves_tokens_balances(
 ) -> List:
     balances = []
 
-    pdp_contract = get_contract(PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP, block=block)
+    pdp_contract = get_contract(PROTOCOL_DATA_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_PDP)
 
     aave_v3_tokens = get_aave_v3_tokens(blockchain, block, web3=web3)
 
@@ -253,14 +251,14 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     wallet = Web3.to_checksum_address(wallet)
 
     pool_addresses_provider_contract = get_contract(
-        POOL_ADDRESSES_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_LPAPR, block=block
+        POOL_ADDRESSES_PROVIDER[blockchain], blockchain, web3=web3, abi=ABI_LPAPR
     )
 
     lending_pool_address = const_call(pool_addresses_provider_contract.functions.getPool())
-    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL, block=block)
+    lending_pool_contract = get_contract(lending_pool_address, blockchain, web3=web3, abi=ABI_LENDING_POOL)
 
     chainlink_native_usd_contract = get_contract(
-        CHAINLINK_NATIVE_USD[blockchain], blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD, block=block
+        CHAINLINK_NATIVE_USD[blockchain], blockchain, web3=web3, abi=ABI_CHAINLINK_ETH_USD
     )
     chainlink_native_usd_decimals = const_call(chainlink_native_usd_contract.functions.decimals())
     eth_usd_price = chainlink_native_usd_contract.functions.latestAnswer().call(block_identifier=block) / Decimal(
@@ -271,7 +269,7 @@ def get_data(wallet, block, blockchain, web3=None, decimals=True):
     underlying_tokens = list(data.keys())
 
     price_oracle_address = pool_addresses_provider_contract.functions.getPriceOracle().call(block_identifier=block)
-    price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE, block=block)
+    price_oracle_contract = get_contract(price_oracle_address, blockchain, web3=web3, abi=ABI_PRICE_ORACLE)
 
     for element in underlying_tokens:
         asset = {"token_address": element, "token_amount": abs(data[element]["underlying"][0]["balance"])}

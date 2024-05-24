@@ -70,7 +70,7 @@ TOKEN_EXCHANGE_UNDERLYING_EVENT_SIGNATURES = [
 
 
 def get_registry_contract(web3, id, block, blockchain):
-    provider_contract = get_contract(PROVIDER_ADDRESS, blockchain, web3=web3, abi=ABI_PROVIDER, block=block)
+    provider_contract = get_contract(PROVIDER_ADDRESS, blockchain, web3=web3, abi=ABI_PROVIDER)
 
     registry_address = const_call(provider_contract.functions.get_address(id))
 
@@ -87,7 +87,7 @@ def get_registry_contract(web3, id, block, blockchain):
     else:
         abi = ABI_REGISTRY_REGULAR_POOLS
 
-    return get_contract(registry_address, blockchain, web3=web3, abi=abi, block=block)
+    return get_contract(registry_address, blockchain, web3=web3, abi=abi)
 
 
 def get_pool_gauge_address(web3, pool_address, lptoken_address, block, blockchain):
@@ -182,7 +182,7 @@ def get_gauge_version(gauge_address, block, blockchain, web3=None, only_version=
 
     # The ABI used to get the Gauge Contract is a general ABI for all types. This is because some gauges do not have
     # their ABIs available in the explorers
-    gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE, block=block)
+    gauge_contract = get_contract(gauge_address, blockchain, web3=web3, abi=ABI_GAUGE)
     version = working_version_request(gauge_contract)
     if only_version:
         return version
@@ -217,7 +217,7 @@ def get_pool_address(web3, lptoken_address, block, blockchain):
 
 def get_pool_data(web3, minter, block, blockchain):
     pool_data = {
-        "contract": get_contract(minter, blockchain, web3=web3, block=block, abi=ABI_POOL),
+        "contract": get_contract(minter, blockchain, web3=web3),
         "is_metapool": False,
         "coins": {},
     }
@@ -256,7 +256,7 @@ def get_pool_data(web3, minter, block, blockchain):
             pool_data["is_metapool"] = True
 
             x3crv_minter = get_pool_address(web3, token_address, block, blockchain)
-            x3crv_pool_contract = get_contract(x3crv_minter, blockchain, web3=web3, block=block, abi=ABI_POOL)
+            x3crv_pool_contract = get_contract(x3crv_minter, blockchain, web3=web3)
 
             x3crv_next_token = True
             while x3crv_next_token:
@@ -295,7 +295,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data = {}
 
-    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     lptoken_data["minter"] = None
     with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
@@ -450,7 +450,7 @@ def underlying(
     else:
         lptoken_data["staked"] = 0
 
-    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3, block=block, abi=ABI_POOL)
+    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3)
 
     pool_balance_fraction = lptoken_data["balanceOf"] / lptoken_data["totalSupply"]
     pool_staked_fraction = lptoken_data["staked"] / lptoken_data["totalSupply"]
@@ -523,7 +523,7 @@ def unwrap(lptoken_amount, lptoken_address, block, blockchain, web3=None, decima
     if lptoken_data["minter"] is None:
         lptoken_data["minter"] = get_pool_address(web3, lptoken_address, block, blockchain)
 
-    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3, block=block)
+    pool_contract = get_contract(lptoken_data["minter"], blockchain, web3=web3)
     pool_fraction = (
         Decimal(lptoken_amount) / Decimal(lptoken_data["totalSupply"]) * Decimal(10 ** lptoken_data["decimals"])
     )
@@ -581,7 +581,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     minter = None
     with suppress(ContractLogicError, BadFunctionCallOutput), suppress_error_codes():
@@ -590,7 +590,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
     if minter is None:
         minter = get_pool_address(web3, lptoken_address, block, blockchain)
 
-    pool_contract = get_contract(minter, blockchain, web3=web3, block=block, abi=ABI_POOL)
+    pool_contract = get_contract(minter, blockchain, web3=web3)
 
     next_token = True
     i = 0
@@ -600,7 +600,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True, 
         except ContractLogicError:
             # If the query fails when i == 0 -> the pool contract must be retrieved with the ABI_POOL_ALTERNATIVE
             if i == 0:
-                pool_contract = get_contract(minter, blockchain, web3=web3, block=block, abi=ABI_POOL_ALTERNATIVE)
+                pool_contract = get_contract(minter, blockchain, web3=web3)
             else:
                 next_token = False
             continue
@@ -647,7 +647,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     try:
         minter = const_call(lptoken_contract.functions.minter())
@@ -714,7 +714,7 @@ def get_base_apr(
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     address_abi = chain_explorer.abi_from_address(lptoken_address)
 
-    lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
+    lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi)
 
     try:
         xcp_profit = lp_contract.functions.xcp_profit().call(block_identifier=block_end)
@@ -745,7 +745,7 @@ def swap_fees_v2(
     rate = get_base_apr(lptoken_address, blockchain, block_end, web3, days, apy)
     lptoken_address = Web3.to_checksum_address(lptoken_address)
     address_abi = ChainExplorer(blockchain).abi_from_address(lptoken_address)
-    lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi, block=block_end)
+    lp_contract = get_contract(lptoken_address, blockchain, web3, abi=address_abi)
     balance = []
     for i in range(0, 5):
         try:

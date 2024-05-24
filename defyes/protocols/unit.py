@@ -119,14 +119,14 @@ def get_cdp_viewer_data(wallet, collateral_address, block, blockchain, web3=None
     collateral_address = Web3.to_checksum_address(collateral_address)
 
     cdp_registry_address = get_cdp_registry_address(blockchain)
-    cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY, block=block)
+    cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY)
 
     if cdp_registry_contract.functions.isAlive(collateral_address, wallet).call(block_identifier=block):
         # vault_address = getVaultAddress(blockchain)
         # vault_contract = getContract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
 
         cpd_viewer_address = get_cdp_viewer_address(blockchain)
-        cdp_viewer_contract = get_contract(cpd_viewer_address, blockchain, web3=web3, abi=ABI_CDP_VIEWER, block=block)
+        cdp_viewer_contract = get_contract(cpd_viewer_address, blockchain, web3=web3, abi=ABI_CDP_VIEWER)
         cdp_viewer_data = cdp_viewer_contract.functions.getCollateralParameters(collateral_address, wallet).call(
             block_identifier=block
         )
@@ -229,11 +229,11 @@ def get_cdp_data(wallet, collateral_address, block, blockchain, web3=None, decim
     collateral_address = Web3.to_checksum_address(collateral_address)
 
     cdp_registry_address = get_cdp_registry_address(blockchain)
-    cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY, block=block)
+    cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY)
 
     if cdp_registry_contract.functions.isAlive(collateral_address, wallet).call(block_identifier=block):
         vault_address = get_vault_address(blockchain)
-        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
+        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT)
 
         vault_parameters_address = vault_contract.functions.vaultParameters().call(block_identifier=block)
         vault_parameters_contract = get_contract(
@@ -385,7 +385,7 @@ def underlying(wallet, block, blockchain, web3=None, decimals=True):
     wallet = Web3.to_checksum_address(wallet)
 
     cdp_registry_address = get_cdp_registry_address(blockchain)
-    cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY, block=block)
+    cdp_registry_contract = get_contract(cdp_registry_address, blockchain, web3=web3, abi=ABI_CDP_REGISTRY)
 
     cdps = cdp_registry_contract.functions.getCdpsByOwner(wallet).call(block_identifier=block)
 
@@ -393,7 +393,7 @@ def underlying(wallet, block, blockchain, web3=None, decimals=True):
         return result
     else:
         vault_address = get_vault_address(blockchain)
-        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT, block=block)
+        vault_contract = get_contract(vault_address, blockchain, web3=web3, abi=ABI_VAULT)
 
         usdp_address = const_call(vault_contract.functions.usdp())
 

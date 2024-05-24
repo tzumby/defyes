@@ -36,10 +36,10 @@ DB_FILE = Path(__file__).parent / "db.json"
 
 def get_staking_rewards_contract(web3, block, blockchain):
     if blockchain == Chain.ETHEREUM:
-        staking_rewards_contract = get_contract(SRC_ETHEREUM, blockchain, web3=web3, abi=ABI_SRC, block=block)
+        staking_rewards_contract = get_contract(SRC_ETHEREUM, blockchain, web3=web3, abi=ABI_SRC)
 
     elif blockchain == Chain.GNOSIS:
-        staking_rewards_contract = get_contract(SRC_GNOSIS, blockchain, web3=web3, abi=ABI_SRC, block=block)
+        staking_rewards_contract = get_contract(SRC_GNOSIS, blockchain, web3=web3, abi=ABI_SRC)
 
     return staking_rewards_contract
 
@@ -106,7 +106,7 @@ def get_lptoken_data(lptoken_address, block, blockchain, web3=None):
 
     lptoken_data = {}
 
-    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_data["contract"] = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     lptoken_data["decimals"] = const_call(lptoken_data["contract"].functions.decimals())
     lptoken_data["totalSupply"] = lptoken_data["contract"].functions.totalSupply().call(block_identifier=block)
@@ -270,7 +270,7 @@ def pool_balances(lptoken_address, block, blockchain, web3=None, decimals=True) 
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     reserves = lptoken_contract.functions.getReserves().call(block_identifier=block)
 
@@ -299,7 +299,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 
     lptoken_address = Web3.to_checksum_address(lptoken_address)
 
-    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN, block=block_start)
+    lptoken_contract = get_contract(lptoken_address, blockchain, web3=web3, abi=ABI_LPTOKEN)
 
     token0 = const_call(lptoken_contract.functions.token0())
     token1 = const_call(lptoken_contract.functions.token1())
