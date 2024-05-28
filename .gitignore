@@ -19,3 +19,6 @@ docs/build/
 # Ignore mac files 
 **/.DS_Store
 
+# Ignore the local file
+local.py
+

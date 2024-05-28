@@ -2,8 +2,6 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-import os
-import sys
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -15,7 +13,6 @@ author = "Karpatkey"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-sys.path.append(os.path.abspath("./_ext"))
 
 extensions = [
     "sphinx.ext.napoleon",
@@ -36,7 +33,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "alabaster"
 html_static_path = ["_static"]
 html_theme_options = {
-    "description": "Execute transactions using Zodiac Roles Modifier contracts.",
+    "description": "Defyes is a Python library for retrieving data from DeFi protocols.",
     "page_width": "1200px",
     "extra_nav_links": {
         "Source code": "https://github.com/KarpatkeyDAO/defyes/",
