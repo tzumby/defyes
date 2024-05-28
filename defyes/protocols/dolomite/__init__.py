@@ -98,7 +98,20 @@ def get_protocol_data_for(
     block: int | str = "latest",
     decimals: bool = True,
 ) -> dict:
-    """you'd get the wallet, from the wallet you'd get the vault address"""
+    """Get Dolomite protocol data for a specific blockchain, wallet, and block.
+
+    Args:
+        blockchain (str): The blockchain to interact with.
+        wallet (str): The address of the wallet to get the data for.
+        block (int | str, optional): The block number or "latest". Defaults to "latest".
+        decimals (bool, optional): Whether to show balances with decimals. Defaults to True.
+
+    Raises:
+        ValueError: If the specified blockchain is not supported. Or If no positions are found for the wallet.
+
+    Returns:
+        dict: A dictionary containing the protocol data.
+    """
     if blockchain != Chain.ARBITRUM:
         raise ValueError("Only Arbitrum is supported for now.")
 
