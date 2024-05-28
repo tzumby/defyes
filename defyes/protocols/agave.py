@@ -11,7 +11,7 @@ Agave is a fork of Aave, built by the
 
 import logging
 from decimal import Decimal
-from typing import Dict, List, Union
+from typing import Dict, List
 
 from defabipedia.tokens import GnosisTokenAddr
 from karpatkit.cache import const_call
@@ -61,13 +61,13 @@ ABI_STKAGAVE = '[{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"
 REWARDER_ABI = '[{"inputs":[{"internalType":"contract IERC20","name":"rewardToken","type":"address"},{"internalType":"address","name":"emissionManager","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"asset","type":"address"},{"indexed":false,"internalType":"uint8","name":"decimals","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"emission","type":"uint256"}],"name":"AssetConfigUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"asset","type":"address"},{"indexed":false,"internalType":"uint256","name":"index","type":"uint256"}],"name":"AssetIndexUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"newBulkClaimer","type":"address"}],"name":"BulkClaimerUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"claimer","type":"address"}],"name":"ClaimerSet","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"newDistributionEnd","type":"uint256"}],"name":"DistributionEndUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"token","type":"address"}],"name":"RewardTokenUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RewardsAccrued","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"address","name":"claimer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RewardsClaimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"vault","type":"address"}],"name":"RewardsVaultUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"asset","type":"address"},{"indexed":false,"internalType":"uint256","name":"index","type":"uint256"}],"name":"UserIndexUpdated","type":"event"},{"inputs":[],"name":"BULK_CLAIMER","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"DISTRIBUTION_END","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"EMISSION_MANAGER","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRECISION","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PROXY_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REVISION","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"assets","outputs":[{"internalType":"uint104","name":"emissionPerSecond","type":"uint104"},{"internalType":"uint104","name":"index","type":"uint104"},{"internalType":"uint40","name":"lastUpdateTimestamp","type":"uint40"},{"internalType":"uint8","name":"decimals","type":"uint8"},{"internalType":"bool","name":"disabled","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"to","type":"address"}],"name":"bulkClaimRewardsOnBehalf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"to","type":"address"}],"name":"claimRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"to","type":"address"}],"name":"claimRewardsOnBehalf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"uint256[]","name":"emissionsPerSecond","type":"uint256[]"},{"internalType":"uint256[]","name":"assetDecimals","type":"uint256[]"}],"name":"configureAssets","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"}],"name":"disableAssets","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"asset","type":"address"}],"name":"getAssetData","outputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint8","name":"","type":"uint8"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getClaimer","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getDistributionEnd","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"assets","type":"address[]"},{"internalType":"address","name":"user","type":"address"}],"name":"getRewardsBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getRewardsVault","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"asset","type":"address"}],"name":"getUserAssetData","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserUnclaimedRewards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"totalSupply","type":"uint256"},{"internalType":"uint256","name":"userBalance","type":"uint256"}],"name":"handleAction","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"rewardsVault","type":"address"}],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"newRewardTokenAdjustmentAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"newRewardTokenAdjustmentMultiplier","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"bulkClaimer","type":"address"}],"name":"setBulkClaimer","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"address","name":"caller","type":"address"}],"name":"setClaimer","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"distributionEnd","type":"uint256"}],"name":"setDistributionEnd","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"rewardToken","type":"address"}],"name":"setRewardToken","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"RewardTokenAdjustmentMultiplier","type":"bool"},{"internalType":"uint256","name":"RewardTokenAdjustmentAmount","type":"uint256"}],"name":"setRewardTokenAdjustment","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"rewardsVault","type":"address"}],"name":"setRewardsVault","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
 
-def get_reserves_tokens(pdp_contract, block: Union[int, str]) -> List[str]:
+def get_reserves_tokens(pdp_contract, block: int | str) -> List[str]:
     rt = pdp_contract.functions.getAllReservesTokens().call(block_identifier=block)
     return [e[1] for e in rt]
 
 
 def get_reserves_tokens_balances(
-    web3, wallet: str, block: Union[int, str], blockchain: str, decimals: bool = True
+    web3, wallet: str, block: int | str, blockchain: str, decimals: bool = True
 ) -> List[List]:
     balances = []
 
@@ -86,7 +86,7 @@ def get_reserves_tokens_balances(
     return balances
 
 
-def get_data(wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True) -> Dict:
+def get_data(wallet: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> Dict:
     agave_data = {}
     collaterals = []
     debts = []
@@ -161,9 +161,7 @@ def get_data(wallet: str, block: Union[int, str], blockchain: str, web3=None, de
     return agave_data
 
 
-def get_all_rewards(
-    wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True
-) -> List[List]:
+def get_all_rewards(wallet: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> List[List]:
     """
     Output: List of 2-element lists: [[reward_token_1_address, balance_1], [t2, b2], ... ]
     """
@@ -187,7 +185,7 @@ def get_all_rewards(
 
 
 def underlying_all(
-    wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True, reward: bool = False
+    wallet: str, block: int | str, blockchain: str, web3=None, decimals: bool = True, reward: bool = False
 ) -> List[List]:
     """
     Output: a list of 2-element lists: [[token_1_address, balance_1], [t2, b2], ... ].
@@ -208,7 +206,7 @@ def underlying_all(
     return result
 
 
-def get_apr(token_address: str, block: Union[int, str], blockchain: str, web3=None, apy: bool = False) -> List[Dict]:
+def get_apr(token_address: str, block: int | str, blockchain: str, web3=None, apy: bool = False) -> List[Dict]:
     """
     Output:
         [{'metric': 'apr'/'apy', 'type': 'supply', 'value': supply_apr/supply_apy},
@@ -255,7 +253,7 @@ def get_apr(token_address: str, block: Union[int, str], blockchain: str, web3=No
         ]
 
 
-def get_staking_apr(block: Union[int, str], blockchain: str, web3=None, apy: bool = False) -> List[Dict]:
+def get_staking_apr(block: int | str, blockchain: str, web3=None, apy: bool = False) -> List[Dict]:
     if web3 is None:
         web3 = get_node(blockchain)
 
@@ -275,7 +273,7 @@ def get_staking_apr(block: Union[int, str], blockchain: str, web3=None, apy: boo
 
 
 def get_staked(
-    wallet: str, block: Union[int, str], blockchain: str, stkagve: bool = False, web3=None, decimals: bool = True
+    wallet: str, block: int | str, blockchain: str, stkagve: bool = False, web3=None, decimals: bool = True
 ) -> List[List]:
     balances = []
 

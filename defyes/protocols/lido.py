@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import Union
 
 from defabipedia import Chain
 from defabipedia.tokens import EthereumTokenAddr
@@ -13,9 +12,7 @@ STETH_ABI = '[{"constant":true,"inputs":[{"name":"_account","type":"address"}],"
 WSTETH_ABI = '[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"stEthPerToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]'
 
 
-def underlying(
-    wallet: str, block: Union[int, str], steth: bool = False, decimals: bool = True, web3: object = None
-) -> list:
+def underlying(wallet: str, block: int | str, steth: bool = False, decimals: bool = True, web3: object = None) -> list:
     """
     Returns the balance of underlying ETH (or stETH if steth=True) corresponding to the stETH and wstETH held by a wallet.
 
@@ -49,7 +46,7 @@ def underlying(
     return [[token, steth_equivalent]]
 
 
-def unwrap(amount: Union[int, float], block: Union[int, str], steth: bool = False, web3: object = None) -> list:
+def unwrap(amount: int | float, block: int | str, steth: bool = False, web3: object = None) -> list:
     """
     Returns the balance of the underlying ETH (or stETH if steth=True) corresponding to the inputted amount of wstETH.
 

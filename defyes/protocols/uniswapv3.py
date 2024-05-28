@@ -28,7 +28,7 @@ import logging
 from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import IntEnum
-from typing import ClassVar, Union
+from typing import ClassVar
 
 from karpatkit.node import get_node
 from web3 import Web3
@@ -85,7 +85,7 @@ ABI_QUOTER_V3: str = (
 @dataclass
 class Pool:
     blockchain: str
-    block: Union[int | str]
+    block: int | str
     web3: object
     tokenA: str
     tokenB: str
@@ -142,7 +142,7 @@ class NFTPosition:
 
     nftid: int
     blockchain: str
-    block: Union[int | str]
+    block: int | str
     web3: object
     decimals: bool
     token0: str = field(init=False)
@@ -253,7 +253,7 @@ class NFTPosition:
 def underlying(
     wallet: str,
     nftid: int,
-    block: Union[int, str],
+    block: int | str,
     blockchain: str,
     web3=None,
     decimals: bool = True,
@@ -291,7 +291,7 @@ def underlying(
     return balances
 
 
-def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True) -> list:
+def get_fee(nftid: int, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> list:
     """Returns the unclaimed fees corresponding to a nft id.
 
     Args:
@@ -319,7 +319,7 @@ def get_fee(nftid: int, block: Union[int, str], blockchain: str, web3=None, deci
 
 
 def get_rate_uniswap_v3(
-    token_src: str, token_dst: str, block: Union[int, str], blockchain: str, web3=None, fee: int = FeeAmount.LOWEST
+    token_src: str, token_dst: str, block: int | str, blockchain: str, web3=None, fee: int = FeeAmount.LOWEST
 ) -> Decimal:
     """Returns the price of a token.
 
@@ -352,7 +352,7 @@ def get_rate_uniswap_v3(
     return factor / Decimal(10 ** (token_dst_decimals - token_src_decimals))
 
 
-def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None) -> list:
+def allnfts(wallet: str, block: int | str, blockchain: str, web3=None) -> list:
     """Returns all nft ids owned by a wallet.
 
     Args:
@@ -377,7 +377,7 @@ def allnfts(wallet: str, block: Union[int, str], blockchain: str, web3=None) -> 
     return nftids
 
 
-def underlying_all(wallet: str, block: Union[int, str], blockchain: str, decimals: bool = True, fee: bool = False):
+def underlying_all(wallet: str, block: int | str, blockchain: str, decimals: bool = True, fee: bool = False):
     """Returns the balances of the underlying assets corresponding to all positions held by a wallet.
 
     Args:

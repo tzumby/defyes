@@ -1,7 +1,6 @@
 import logging
 from contextlib import suppress
 from decimal import Decimal
-from typing import Union
 
 from defabipedia import Chain
 from defabipedia.tokens import EthereumTokenAddr, GnosisTokenAddr
@@ -695,7 +694,7 @@ def swap_fees(lptoken_address, block_start, block_end, blockchain, web3=None, de
 def get_base_apr(
     lptoken_address: str,
     blockchain: str,
-    block_end: Union[int, str] = "latest",
+    block_end: int | str = "latest",
     web3=None,
     days: int = 1,
     apy: bool = False,
@@ -729,7 +728,7 @@ def get_base_apr(
 def swap_fees_v2(
     lptoken_address: str,
     blockchain: str,
-    block_end: Union[int, str] = "latest",
+    block_end: int | str = "latest",
     web3=None,
     days: int = 1,
     apy: bool = False,
@@ -758,7 +757,7 @@ def swap_fees_v2(
 def get_swap_fees_APR(
     lptoken_address: str,
     blockchain: str,
-    block_end: Union[int, str] = "latest",
+    block_end: int | str = "latest",
     web3=None,
     days: int = 1,
     apy: bool = False,

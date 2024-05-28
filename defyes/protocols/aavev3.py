@@ -1,6 +1,6 @@
 import logging
 from decimal import Decimal
-from typing import List, Union
+from typing import List
 
 from defabipedia import Chain
 from karpatkit.cache import const_call
@@ -103,9 +103,7 @@ def get_aave_v3_tokens(blockchain: str, block: int | str, web3: Web3 = None) -> 
 
 
 # TODO This function deals with staking AAVE and ABPT, which is included in Aave v2, remove it?
-def get_all_rewards(
-    wallet: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True
-) -> List[List]:
+def get_all_rewards(wallet: str, block: int | str, blockchain: str, web3=None, decimals: bool = True) -> List[List]:
     """
     Output: List of 2-element lists: [[reward_token_1_address, balance_1], [t2, b2], ... ]
     """

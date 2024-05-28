@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from karpatkit.node import get_node
 from web3 import Web3
@@ -58,7 +57,7 @@ AZURO_POOL_ABI: str = (
 
 
 def get_deposit(
-    wallet: str, nftid: int, contract_address: str, block: Union[int, str], blockchain: str, web3: Web3 = None
+    wallet: str, nftid: int, contract_address: str, block: int | str, blockchain: str, web3: Web3 = None
 ) -> list:
     if web3 is None:
         web3 = get_node(blockchain)
@@ -100,7 +99,7 @@ def get_deposit(
 def underlying(
     wallet: str,
     nftid: int,
-    block: Union[int, str],
+    block: int | str,
     blockchain: str,
     web3: Web3 = None,
     decimals: bool = True,
@@ -140,7 +139,7 @@ def underlying(
 
 def underlying_all(
     wallet: str,
-    block: Union[int, str],
+    block: int | str,
     blockchain: str,
     web3: Web3 = None,
     decimals: bool = True,

@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from decimal import Decimal
-from typing import List, Union
+from typing import List
 
 from defabipedia import Chain
 from defabipedia.tokens import EthereumTokenAddr
@@ -341,7 +341,7 @@ def get_staking_apr(block, blockchain, web3=None, apy=False):
 
 
 def get_staked(
-    wallet: str, block: Union[int, str], blockchain: str, stkaave: bool = False, web3=None, decimals: bool = True
+    wallet: str, block: int | str, blockchain: str, stkaave: bool = False, web3=None, decimals: bool = True
 ) -> list:
     balances = []
 

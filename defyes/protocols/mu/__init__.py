@@ -64,7 +64,8 @@ def get_protocol_data_for(
 def get_sdai_amount(shares, total_supply, current_balance):
     """Function to calculate the amount of sDAI in the pool.
     This function is based on the function withdraw of the trading vault contract.
-    https://gnosisscan.io/address/0x0d80D7f7719407523A09ee2ef7eD573e0eA3487a#code#F12#L109
+
+    `Contract Example <https://gnosisscan.io/address/0x0d80D7f7719407523A09ee2ef7eD573e0eA3487a#code#F12#L109>`_
     """
     user_asset = (current_balance * shares) // total_supply
 

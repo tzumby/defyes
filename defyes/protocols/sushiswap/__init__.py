@@ -4,7 +4,7 @@ import os
 from contextlib import suppress
 from decimal import Decimal
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from defabipedia import Chain
 from karpatkit.cache import const_call
@@ -585,7 +585,7 @@ def get_rewards_per_unit(lptoken_address, blockchain, web3=None, block="latest")
 def get_swap_fees_APR(
     lptoken_address: str,
     blockchain: str,
-    block_end: Union[int, str] = "latest",
+    block_end: int | str = "latest",
     web3=None,
     days: int = 1,
     apy: bool = False,

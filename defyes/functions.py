@@ -5,7 +5,7 @@ import re
 from contextlib import suppress
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import requests
 from defabipedia import Blockchain, Chain
@@ -140,7 +140,7 @@ def token_info(token_address, blockchain):
 
 
 def balance_of(
-    address: str, contract_address: str, block: Union[int, str], blockchain: str, web3=None, decimals: bool = True
+    address: str, contract_address: str, block: int | str, blockchain: str, web3=None, decimals: bool = True
 ) -> Decimal:
     """
     Get the balance of an address for a given contract on a specific block in a blockchain.
@@ -148,7 +148,7 @@ def balance_of(
     Args:
         address (str): The address (wallet) for which to retrieve the balance.
         contract_address (str): The address of the contract (Token or ERC20) for which to retrieve the balance.
-        block (Union[int, str]): The block number or block identifier.
+        block (int | str): The block number or block identifier.
         blockchain (str): The name of the blockchain.
         web3 (Web3, optional): The Web3 instance to use. If not provided, a default instance will be used.
         decimals (bool, optional): Whether to convert the balance to token decimals. Defaults to True.
@@ -297,7 +297,7 @@ def get_contract_proxy_abi(contract_address: str, abi_contract_address: str, blo
     return web3.eth.contract(address=address, abi=abi)
 
 
-def format_address(address: Union[str, bytes]) -> str:
+def format_address(address: str | bytes) -> str:
     """
     Formats the given Ethereum address. It converts the address to a checksum address.
 
