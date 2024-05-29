@@ -33,16 +33,16 @@ def test_block_to_date():
 
 
 def test_get_symbol():
-    symbol = get_symbol(EthereumTokenAddr.DAI, blockchain=Chain.ETHEREUM, block=17380523)
+    symbol = get_symbol(EthereumTokenAddr.DAI, blockchain=Chain.ETHEREUM)
     assert symbol == "DAI"
 
-    symbol = get_symbol("0x0000000000000000000000000000000000000000", blockchain=Chain.ETHEREUM, block=17380523)
+    symbol = get_symbol("0x0000000000000000000000000000000000000000", blockchain=Chain.ETHEREUM)
     assert symbol == "ETH"
 
-    symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.ETHEREUM, block=17380523)
+    symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.ETHEREUM)
     assert symbol == "ETH"
 
-    symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.GNOSIS, block=17380523)
+    symbol = get_symbol("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", blockchain=Chain.GNOSIS)
     assert symbol == "GNOSIS"
 
     symbol = get_symbol("0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359", "ethereum")

@@ -1,5 +1,3 @@
-from typing import Union
-
 from defabipedia import Chain
 from karpatkit.constants import Address
 from web3 import Web3
@@ -55,9 +53,7 @@ def get_protocol_data_for(
     return data
 
 
-def unwrap(
-    amount: Union[int, float], block: Union[int, str], teu: bool = False, blockchain: str = Chain.ETHEREUM
-) -> list:
+def unwrap(amount: int | float, block: int | str, teu: bool = False, blockchain: str = Chain.ETHEREUM) -> list:
     """Function to unwrap ETHx/MaticX to ETH/Matic
     If the blockchain is Ethereum, the function will unwrap ETHx to ETH.
     If the blockchain is Polygon, the function will unwrap MaticX to Matic.
