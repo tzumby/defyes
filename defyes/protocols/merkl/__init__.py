@@ -99,7 +99,7 @@ def get_protocol_data_for(
         "blockchain": blockchain,
         "block": block,
         "protocol": "Merkl",
-        "positions_key": "address",
+        "positions_key": None,
         "version": 0,
         "wallet": wallet,
         "decimals": "",
