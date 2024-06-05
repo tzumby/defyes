@@ -58,7 +58,7 @@ def get_rewards_from_api(wallet: str, blockchain: str) -> List[dict] | str:
     if len(rewards_data) > 0:
         for rew in rewards_data:
             claimable_reward = data[str(chain_id)]["transactionData"][rew]["claim"]
-            rewards.append({"address": rew, "claimable_reward": Decimal(claimable_reward)})
+            rewards.append({"address": rew, "balance": Decimal(claimable_reward)})
         return rewards
     else:
         raise ValueError("Data retrieved is None")
@@ -103,7 +103,7 @@ def get_protocol_data_for(
         "version": 0,
         "wallet": wallet,
         "decimals": "",
-        "positions": {"single_position": rewards_data},
+        "positions": {"rewards": rewards_data},
     }
 
     return data

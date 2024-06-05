@@ -28,10 +28,10 @@ def test_get_protocol_data_for(mock_get):
         "wallet": "0x849D52316331967b6fF1198e5E32A0eB168D039d",
         "decimals": "",
         "positions": {
-            "single_position": [
+            "rewards": [
                 {
                     "address": "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
-                    "claimable_reward": Decimal("23554.5029148603443011"),
+                    "balance": Decimal("23554.5029148603443011"),
                 }
             ]
         },
