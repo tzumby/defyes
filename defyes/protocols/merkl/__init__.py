@@ -93,7 +93,7 @@ def get_protocol_data_for(
     if decimals:
         for rew in rewards_data:
             d = get_decimals(rew["address"], blockchain)
-            rew["claimable_reward"] = rew["claimable_reward"] / 10**d
+            rew["balance"] = rew["balance"] / 10**d
 
     data = {
         "blockchain": blockchain,
