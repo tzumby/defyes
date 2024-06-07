@@ -50,6 +50,12 @@ def unwrap(amount: int | float | Decimal, block: int | str, blockchain: str, web
     """
     # The blockchain argument is not used but it could be in the future if Rocket Pool deploys on other ETHEREUM
     if web3 is None:
-        web3 = get_node(blockchain)
+        web3 = get_node(Chain.ETHEREUM)
     value = RocketPool.unwrap(amount=amount, block=block, web3=web3)
-    return [[RocketPool.underlying_token, value]]
+
+    if blockchain == "ethereum":
+        underlying_token = RocketPool.underlying_token
+    elif blockchain == "gnosis":
+        underlying_token = "0xc791240D1F2dEf5938E2031364Ff4ed887133C3d"
+
+    return [[underlying_token, value]]
