@@ -11,7 +11,8 @@
         "arbiscan": "",
         "zapper": "",
         "metisexplorer": "",
-        "basescan": ""
+        "basescan": "",
+        "coingecko": ""
     },
     "nodes": {
         "ethereum": [],
