@@ -30,7 +30,7 @@ dependencies = [
 ]
 [project.optional-dependencies]
 all = [ # Put here all dependencies with a strict version.
-    "karpatkit @ git+https://github.com/karpatkey/karpatkit.git@cc752fb1c52811432c1c36384b29b83e07bd64a0",
+    { git: "https://github.com/tzumby/karpatkit.git", branch: "coingecko_api_key"}
 ]
 
 [project.urls]
