@@ -5,11 +5,11 @@ from defabipedia import Chain
 from karpatkit.constants import Address
 from karpatkit.api_services import APIKey
 
-URL_COINID_PRICE_RANGE = "https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=usd&from=%d&to=%d&x_cg_demo_api_key=%s"
+URL_COINID_PRICE_RANGE = "https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=usd&from=%d&to=%d&x-cg-pro-api-key=%s"
 URL_BLOCKCHAINID_TOKENADDRESS_PRICE_RANGE = (
-    "https://api.coingecko.com/api/v3/coins/%s/contract/%s/market_chart/range?vs_currency=usd&from=%d&to=%d&x_cg_demo_api_key=%s"
+    "https://api.coingecko.com/api/v3/coins/%s/contract/%s/market_chart/range?vs_currency=usd&from=%d&to=%d&x_cg_pro_api_key=%s"
 )
-URL_BLOCKCHAINID_TOKENADDRESS_PRICE = "https://api.coingecko.com/api/v3/coins/%s/contract/%s?x_cg_demo_api_key=%s"
+URL_BLOCKCHAINID_TOKENADDRESS_PRICE = "https://api.coingecko.com/api/v3/coins/%s/contract/%s?x_cg_pro_api_key=%s"
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
